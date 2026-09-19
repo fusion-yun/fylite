@@ -28,7 +28,14 @@ REPRO_REL, REPRO_ABS = 1e-6, 1e-9
 #: ★B-14's measured band — the worst over the three magnetics-only slices (t4041 / t4944 / t5976 `_mag`), three
 #: significant figures rounded up (register rule, 2026-09-14).  The POINT-profile slice is a finding, not in the band.
 B14_MAG = ("t4041_mag", "t4944_mag", "t5976_mag")
-B14_BAND = {"axis_mm": 4.87, "span_abs": 0.00264, "psin_rms": 0.00737, "psin_max": 0.0181, "boundary_median_mm": 3.43, "boundary_max_mm": 15.5, "xpoint_mm": 6.51}
+#: ★★2026-09-19 re-measured, and WIDER, with the reason here (FR-EQ-001, user ruling: the edge rule is `code/forward`'s
+#: default).  The old band (psi_N 0.00737, axis 4.87 mm …) was measured on the NODE rule, which never converged on these
+#: slices (`settled` at 1.3e-3–3.7e-3) and held the plasma with 10.5–14.2 kA of fictitious vertical current — that
+#: current is what kept it near KEFIT.  The edge rule converges (1e-9, the pair at ~20 A) and lands where an independent
+#: code lands: FreeGSNKE on the same currents and profiles is 0.0156 in psi_N from KEFIT at 4.041 s, fylite's edge answer
+#: 0.0041 from FreeGSNKE (`eq-forward-boundary-rule-vs-kefit`).  KEFIT's map is not the forward solution of its own
+#: inputs, so this band is an anti-regression band on KEFIT, not an accuracy claim; the accuracy claim is FreeGSNKE's.
+B14_BAND = {"axis_mm": 12.6, "span_abs": 0.0054, "psin_rms": 0.0238, "psin_max": 0.0468, "boundary_median_mm": 5.65, "boundary_max_mm": 68.8, "xpoint_mm": 4.84}
 
 
 def _tool():
@@ -83,7 +90,8 @@ def test_b14_the_forward_solve_stays_in_the_band_on_kefits_magnetics_answers(cas
 
 def test_b14_the_point_profile_slice_is_recorded_outside_the_band(case):
     """★A finding held as one: KEFIT's POINT-constrained profile at 5.976 s is not reproduced to the magnetics band,
-    and fylite's forward solve does not settle on it in 600 iterations.  If this starts passing the band, the record's
+    and fylite's forward solve does not converge on it (edge rule, 3000 iterations; no rule does — the vertical pair
+    would need 80-240 kA).  If this starts passing the band, the record's
     finding is stale — say so rather than let it drift."""
     c = json.loads((case / READINGS).read_text(encoding="utf-8"))["cases"]["t5976_primary"]
     assert c["compare"]["psin_rms_inside"] > B14_BAND["psin_rms"]
@@ -388,3 +396,58 @@ def test_b12_the_raw_tree_readings_are_the_registered_ones(case):
         assert s["fylite_M"]["converged"] is True, key
         assert (s["kefit"]["mag"] or {}).get("problems") == [], key
     assert all(block["fylite:variants"]["all_probes"]["slices"][k]["fylite_M"]["chi2"] > 1000 for k in ("4.041", "4.944", "5.976"))
+
+
+# ════════════════════════════════════════════════════════════ FR-EQ-001 · the free-boundary forward solve
+
+def _fwd_conv():
+    spec = importlib.util.spec_from_file_location("benchmark_forward_convergence", ROOT / "tools" / "benchmark-forward-convergence.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+@pytest.fixture(scope="module")
+def fwd_conv(case):
+    import os
+    if not os.environ.get("FYLITE_DEVICE_DIR"):
+        pytest.skip("no EAST deck ($FYLITE_DEVICE_DIR)")
+    got = _fwd_conv().reading()
+    want = json.loads((ROOT / "docs/benchmark/readings/forward_convergence_east137985.json").read_text(encoding="utf-8"))
+    return got, want
+
+
+def test_fr_eq_001_the_default_forward_solve_converges_on_ip_and_echoes_its_setting(fwd_conv):
+    """★★FR-EQ-001's criterion as transcribed —「自由边界 Ip 约束收敛 rel 1e-6；收敛参数显式回显」— on the DEFAULT path
+    (the edge rule since 2026-09-19), on KEFIT's three magnetics-only slices.  Reproduced from the public entry."""
+    got, want = fwd_conv
+    for name in B14_MAG:
+        g, w = got["slices"][name]["default"], want["slices"][name]["default"]
+        for k in ("converged", "iterations", "residual", "ip_rel"):
+            assert _close(g[k], w[k]), (name, k, g[k], w[k])
+        assert g["converged"] == 1.0 and g["residual"] <= g["echo"]["tol"], g
+        assert abs(g["ip_rel"]) <= 1e-6, g
+        #: the whole setting comes back with the answer, the rule included
+        assert set(g["echo"]) == {"tol", "max_iter", "edge_fraction", "relax", "fb_gain", "ip_target"}, g["echo"]
+        assert g["echo"]["edge_fraction"] == 1.0 and g["rule_note"].startswith("boundary rule: edge"), g
+        assert _close(g["echo"]["ip_target"], got["slices"][name]["ip_target_A"])
+    #: the POINT-constrained slice converges under NO rule (the pair would need 80-240 kA): recorded, not hidden
+    p = got["slices"]["t5976_primary"]
+    assert p["default"]["converged"] == 0.0 and p["node"]["converged"] == 0.0
+
+
+def test_fr_eq_001_the_edge_rule_is_the_independent_code_s_answer(fwd_conv):
+    """★★The question `eq-forward-boundary-rule-vs-kefit` could not answer against KEFIT alone — KEFIT's map is 0.0156 in
+    psi_N from FreeGSNKE's forward solve of KEFIT's OWN currents and profiles, so it is not that problem's solution.
+    Against FreeGSNKE the edge rule lands inside FreeGSNKE's own forward/inverse spread (0.0087); the node rule, which
+    never converges and holds 10.5 kA of fictitious vertical current, does not."""
+    got, want = fwd_conv
+    g = got["slices"]["t4041_mag"]["psin_rms_vs_freegsnke"]
+    w = want["slices"]["t4041_mag"]["psin_rms_vs_freegsnke"]
+    for k in g:
+        assert _close(g[k], w[k]), (k, g[k], w[k])
+    fgs_spread = g["freegsnke_inverse"]      #: FreeGSNKE forward vs its own inverse on the same slice
+    assert g["default"] < fgs_spread < g["node"], g
+    node = got["slices"]["t4041_mag"]["node"]
+    assert node["converged"] == 0.0 and abs(node["fb_amp"]) > 5e3, node
+    assert abs(got["slices"]["t4041_mag"]["default"]["fb_amp"]) < 1e-3 * got["slices"]["t4041_mag"]["ip_target_A"]

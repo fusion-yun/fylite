@@ -2,7 +2,7 @@
 title: "eq-inverse-freegsnke-east137985"
 ---
 
-# 静态逆解对 FreeGSNKE：电流差了 70 倍，平衡却在毫米之内——逆问题的零空间
+# 静态逆解对 FreeGSNKE：电流差 41 kA·t，三组电流正解出的分离面却都在目标 4–6 mm 内——逆问题的零空间
 
 <!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/eq-inverse-freegsnke-east137985.jsonld`，本页只是它的可读面。 -->
 
@@ -11,11 +11,11 @@ title: "eq-inverse-freegsnke-east137985"
 ## 摘要
 
 - **类**：对拍　**判决**：**成立**
-- **量的是**：静态逆解对 FreeGSNKE：电流差了 70 倍，平衡却在毫米之内——逆问题的零空间
+- **量的是**：静态逆解对 FreeGSNKE：电流差 41 kA·t，三组电流正解出的分离面却都在目标 4–6 mm 内——逆问题的零空间
 - **参考**：FreeGSNKE
 - **验的需求**：`FR-EQ-005`
-- **跑在内核**：`fylite_kernel@0f7e5af3b3cf`（新鲜度 **current**）
-- **记录版本**：1.22　**评审**：草稿　**日期**：2026-09-16
+- **跑在内核**：`fylite_kernel@915ed1249591`（新鲜度 **current**）
+- **记录版本**：1.23　**评审**：草稿　**日期**：2026-09-19
 
 ## 问的是什么
 
@@ -40,31 +40,34 @@ title: "eq-inverse-freegsnke-east137985"
 
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
-| 设计边界对目标（KEFIT 边界）的逐点距离 | 1.22 | measured_band | fylite 中位 1.211 mm（p95 3.873 · max 9.422，2025/2172 点）；FreeGSNKE 中位 5.002 mm（p95 27.38 · max 52.89，2074/2460 点） | **成立** |
-| ★三组电流各自正解后，平衡之间的散布 | 0.005 | measured_band | 电流 RMS 之差：fylite↔KEFIT 25.56 kA·t · FreeGSNKE↔KEFIT 0.369 kA·t · fylite↔FreeGSNKE 25.56 kA·t（逐路最大 61.62）；而三组电流**各自正解**后对 KEFIT 的图：psi_N RMS 0.007364 / 0.00953 / 0.004619，散布仅 0.00491 | **成立** |
-| 设计的收敛状态 | — | — | converged = 0 · settled = 1 · 残差 0.00167 · 62 次迭代 / 8 轮 · 触限路数 0 | **未判（读数）** |
-| 两码电流之差必须**显著大于**噪声 | 5 | measured_band | ★**本条没有对应的量** | — |
+| 设计边界对目标（KEFIT 边界）的逐点距离 | 3.07 | measured_band | fylite 中位 3.063 mm（p95 6.472 · max 13.25，2037/2172 点）；FreeGSNKE 中位 5.002 mm（p95 27.38 · max 52.89，2074/2460 点） | **成立** |
+| ★三组电流各自正解后，平衡之间的散布 | 0.0105 | measured_band | 电流 RMS 之差：fylite↔KEFIT 40.54 kA·t · FreeGSNKE↔KEFIT 0.369 · fylite↔FreeGSNKE 40.57（逐路最大 67.8）；三组各自正解（边规则，均收敛，虚拟对 -50 / -38 / 64 A）：分离面到目标中位 4.02 / 5.24 / 6.08 mm，对 KEFIT 图 psi_N RMS 0.0185 / 0.0237 / 0.0289；磁轴离 KEFIT 9.3 / 12.7 / 18.3 mm | **成立** |
+| 两码电流之差必须**显著大于**噪声 | 5 | measured_band | fylite↔FreeGSNKE RMS 40.57 kA·t > 5 | **成立** |
+| ★释放：设计的电流撤去锚点后自己立得住（收敛、虚拟对 < 1e-3 Ip），分离面对目标的 RMS 距离 | 13.9 | measured_band | 释放解 converged 1 · 残差 9.9e-10 · 虚拟对 58.7 A（Ip 的 1e-04）· 分离面 RMS 13.8 mm、max 46.4 mm · 磁轴 (1.896, -19.2 mm) · kappa 1.558 · delta_lower 0.542 · delta_upper 0.363；锚着的设计 converged 1、残差 1.0e-09、253 次 / 8 轮、触限 0 路 | **成立** |
 
-**`设计边界对目标（KEFIT 边界）的逐点距离`** — 单位 mm；中位
+**`设计边界对目标（KEFIT 边界）的逐点距离`** — 单位 mm；中位。★2026-09-19 在边规则（缺省）上重量：设计把柱子锚在上一次解的位置、在线圈自己的场上读残差（线圈接过虚拟对的活），旧带 1.22 mm 是节点规则靠 10 kA 虚构电流贴出来的。
 
-**`★三组电流各自正解后，平衡之间的散布`** — ★★**本条记录存在的理由就是这一条判据。** 形状只把线圈电流约束到设计的零空间为止；要判「两个码是否一致」，不能看电流，要看**电流产生的平衡**。
+**`★三组电流各自正解后，平衡之间的散布`** — ★★**本条记录存在的理由就是这一条判据。** 形状只把线圈电流约束到设计的零空间为止；要判「两个码是否一致」，不能看电流，要看**电流产生的平衡**。★2026-09-19：三组都在边规则上收敛（虚拟对几十安培）；另判分离面到目标的中位距离三者之差 ≤ 2.06 mm。
 
 **`两码电流之差必须**显著大于**噪声`** — ★这是一条**下限**判据：差一旦塌成噪声，说明零空间这件事没被演示出来，本条读数即失效。
 
-**边界对目标：fylite 比 FreeGSNKE 近约 4.1 倍**
+**`★释放：设计的电流撤去锚点后自己立得住（收敛、虚拟对 < 1e-3 Ip），分离面对目标的 RMS 距离`** — 单位 mm。★★FR-EQ-001：没有位置控制器的设计靠锚点立柱子，锚点本身是虚构外力；释放解判的是线圈接过了它——在总场上读残差的旧设计，虚拟对要 165 kA。
 
-- ★★**「更近」不等于「更对」。** 逆问题是病态的：贴目标贴得更紧，也可能只是正则化更弱。要判对错，看下一条（零空间）。
+**边界对目标：fylite 中位 3.06 mm、FreeGSNKE 5.00**
 
-**★★零空间：电流差得远，平衡对得上**
+- ★★「更近」不等于「更对」。逆问题是病态的：贴目标贴得更紧，也可能只是正则化更弱。要判对错，看零空间一格。
+- ★这是**锚着**的设计分离面；撤锚之后自己立住的那个见第四格。
 
-- ★★**这是本条最要紧的一行。** FreeGSNKE 基本复现了 KEFIT 的电流（0.369 kA·t），fylite 找到的是**另一组**（离 KEFIT 25.6 kA·t，约 69 倍远）——然而三组电流正解出来的平衡彼此在毫米量级内。**差落在零空间里，不是谁算错了。**
-- ★**由此可知：拿电流逐路比对来判两个逆解码是否一致，是错的判法。** 这一域的比较必须落在电流**产生的平衡**上。
-- ★fylite 那一组正解后离 KEFIT 的图最近（0.004619），但**这里 fylite 的前向解在回路里**——用自己的前向解评自己的逆解，这一档有偏，不能当作独立证据。
+**★★零空间：电流差得远，分离面对得上**
 
-**设计的收敛状态**
+- ★★差落在零空间里，不是谁算错了：三组电流彼此差几十 kA·t，正解出来的分离面在目标 4–6 mm 内、彼此差 2 mm。
+- ★★但**磁轴不一致**：fylite 那组的柱子比另两组低约 19 mm。形状定住的是边界，不是竖直不稳定的柱子在边界里停在哪——这一点只记读数，不画带。
+- ★三组的正解都用 fylite 的前向解：这一档评的是「同一个正解器下，三组电流的平衡」，不是 FreeGSNKE 自己的平衡。
 
-- ★与 ITER 那条（`eq-inverse-iter-reference-separatrix`）同样是 settled 而非 converged——**这是本域一个跨算例的共性，不是单个算例的偶然**。
-- ★但与 ITER 那条不同：**本条的退火是按供电额定逐路设限跑的**（触限 0 路），所以「买不起」那个问题在这里不存在。EAST 牌有额定，ITER 牌没有。
+**★释放：线圈自己立住，虚拟对 59 A；分离面 RMS 13.8 mm**
+
+- ★锚着与释放之差（3 mm 中位对 14 mm RMS）就是锚点替线圈做的那部分：竖直位置。EAST 这一片本身竖直不稳定，没有位置控制器的静态设计只能交出一组「放开后柱子会落在哪」的电流，而它落在目标附近、自己立得住。
+- ★设计的收敛状态随之从 settled（节点规则，残差 1.67e-3）变为 converged——上一版记的「跨算例的共性」是节点规则的，不是逆解的。
 
 ## 不可比的部分
 
@@ -73,10 +76,11 @@ title: "eq-inverse-freegsnke-east137985"
 - ★★**本条的结论不是「fylite 比 FreeGSNKE 好」**，是「形状定不住电流」。任何把这条记录读成排名的用法都是误读。
 - ★**正则化没有对齐**：两个码各有各的正则项与自由度处理，而正则项一变，「答案」就成了「这个码在这个正则下的答案」。两侧的设置记在各自的归档里。
 - ★**目标边界本身来自 KEFIT**，所以 KEFIT 在这道题上天然占先（它是出题人）。
+- ★★2026-09-19 在边规则（缺省，用户裁定）上重量；无位置控制器的设计锚在上一次解、在线圈自己的场上读残差、末尾释放（用户裁定「做正经的修」）。
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.22　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.23　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -104,17 +108,18 @@ title: "eq-inverse-freegsnke-east137985"
 | 1.20 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
 | 1.21 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 ★本条的判据与数值**未改口径**。 |
 | 1.22 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`0f7e5af3b3cf`：1.5-D 各通道耦合整体求解成为缺省——`FR-TR-006`，用户裁定「决定要整体求解」；Te/Ti 块系统、交换隐式，遍数迭代到收敛，α · 辐射 · 欧姆在步内重算）。内核侧 **cargo test 822 过、0 失败、35 忽略**。★`code/evolve` 的缺省数值随之动（ITER 15 MA 上 P_α +1.6 %）；其余入口逐位不变，旧路径以 `sequential` 留作对照。 ★本条的判据与数值**未改口径**。 |
+| 1.23 | 2026-09-19 | Claude Opus 5 | B-21 在边规则上重量：设计锚在上一次解、残差读线圈自己的场，分离面对目标中位 1.21 → 3.06 mm（带 3.07）；新增第四格「释放」——撤锚后收敛、虚拟对 59 A、gap RMS 13.8 mm（带 13.9）。零空间结论照旧（电流差 40.6 kA·t，三组正解均收敛、分离面中位 4.0 / 5.2 / 6.1 mm）；★磁轴不一致（fylite 那组低约 19 mm）照记不画带。设计由 settled 变 converged。 内核换代（`915ed1249591`：自由边界缺省换成边规则——`FR-EQ-001`，用户裁定「边规则为缺省」；无位置控制器的设计锚在上一次解、残差读线圈自己的场、末尾撤锚——用户裁定「做正经的修」；逆解线性核的合成场回收锚——`FR-EQ-005`）。内核侧 **cargo test 823 过、0 失败、35 忽略**。★`code/forward` 与无位置控制器的 `code/discharge` 缺省数值随之动；ITER 的 c4 路径与其余入口逐位不变，节点规则以 `edge_fraction = 0` 留作对照。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `fylite_kernel@0f7e5af3b3cf`（库 `sha256:ac8204aa49349cc0ac53b3b5f9d7b91630ce4d69380fc7aa37034c89ce54dfe8`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
+- 内核 `fylite_kernel@915ed1249591`（库 `sha256:02975458f9f5425ca8c01674bb6070f754ac752edce0e143aec07fccee0ee7c2`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
-- `docs/benchmark/readings/inverse_shape_freegsnke_metrics.json`    `sha256:8ae78e46d230b38047f5d89b6ab38ea85bffc6e49c100eaa4ff62a59ed225fed`
-- `FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/inverse_shape_east137985.json`    `sha256:81dacc7ebe0d070a2881816fbec6ea9b8a066c1e240d13b5c8484b18c70c2333`    ★实验类原始读数，指针 + sha256
+- `docs/benchmark/readings/inverse_shape_freegsnke_metrics.json`    `sha256:6cae832ac240193a4f53aa3f5c2287576464937439489d43c77f6f0f71fff9bd`
+- `FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/inverse_shape_east137985.json`    `sha256:d448aa6bd8ad2b46e8443f869aa9dcf1d3ca0647f3be8fcb0b6d88708859faa5`    ★实验类原始读数，指针 + sha256
 
 **守它的门**：
 
@@ -122,6 +127,7 @@ title: "eq-inverse-freegsnke-east137985"
 - `python/tests/test_benchmark_inverse_shape.py::test_b21_the_currents_differ_far_more_than_the_equilibria`
 - `python/tests/test_benchmark_inverse_shape.py::test_b21_the_design_reproduces_its_recorded_readings`
 - `python/tests/test_benchmark_inverse_shape.py::test_b21_the_target_curve_limits_are_recorded`
+- `python/tests/test_benchmark_inverse_shape.py::test_b21_the_released_design_holds_itself` —— ★第四格
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

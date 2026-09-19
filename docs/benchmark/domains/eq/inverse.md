@@ -19,8 +19,20 @@ title: "静态逆解：形状到线圈电流"
 写清双方的正则设置与自由度数——不写，那个比较就不可复算，也就不该收。
 
 ★2026-09-19 ITER 那条有了线圈额定：DINA-IMAS（ITER Organization 的场景码）的每匝上限乘本卡片匝数——
-同一套线圈，匝数逐一相同。无界设计要 PF1 的 1.14 倍、PF6 的 1.28 倍额定，**这台机器给不出**；
-在额定内重解，分离面反而更贴（11.8 对 15.4 mm）、形状差不多，但迭代不再停下（残差 0.072）。
+同一套线圈，匝数逐一相同。无界设计要 PF1 的 1.22 倍、PF6 的 1.27 倍额定，**这台机器给不出**；
+在额定内重解守住额定，边规则下 628 次**收敛**（节点规则下它不收敛，那是节点规则的抖动）。
+
+★★**主判据本身（合成场回收）2026-09-19 才有记录**：
+[`eq-inverse-core-field-recovery`](../../reports/eq-inverse-core-field-recovery.md)。
+ITER 型 11 路线圈、已知电流合成的边界通量与 X 点场，经逆解的线性核（响应行 + 最小二乘，不加正则）回收：
+约束行上 $6\times10^{-14}$、十六个没参与拟合的点上 $1.5\times10^{-13}$。★判的是**场**，不是电流——
+只给形状时电流本就定不住（零空间）。
+★★ITER 参考分离面那条同日由「判不了」转判成立，靠的是一个**正对照**：拿额定内的一组已知电流正解出一条
+机器做得到的分离面，让设计去复原它——kappa、delta_lower 回到 0.3 % 内，而参考分离面上差 3 % 与 10 %。
+差是**目标的**（这条 METIS 曲线要的形状，本剖面族配这组额定给不出），不是设计的。
+★delta_upper 在正对照上**没回来**（−16 %），记为局限。
+★EAST 那条（对 FreeGSNKE）在边规则上重量：没有位置控制器时，设计把柱子锚在上一次解的位置、在线圈自己的场上
+读残差，末尾撤锚——撤锚后线圈自己立得住（虚拟对 59 A），零空间的结论照旧成立。
 
 上一册的 `V-22`（ITER 参考分离面上的静态逆解）与 `B-21`（对 FreeGSNKE 的逆解）在这一域。已退役。
 
@@ -42,8 +54,9 @@ title: "静态逆解：形状到线圈电流"
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-inverse-freegsnke-east137985`](../../reports/eq-inverse-freegsnke-east137985.md) | 对拍 | 成立 | FreeGSNKE | 1.22 | 草稿 | [jsonld](../../records/eq-inverse-freegsnke-east137985.jsonld) |
-| [`eq-inverse-iter-reference-separatrix`](../../reports/eq-inverse-iter-reference-separatrix.md) | 验证 | 未判（读数） | ITER 参考分离面（装置牌上的数字化曲线） | 1.24 | 草稿 | [jsonld](../../records/eq-inverse-iter-reference-separatrix.jsonld) |
+| [`eq-inverse-core-field-recovery`](../../reports/eq-inverse-core-field-recovery.md) | 验证 | 成立 | 已知电流（孪生真值） | 1.0 | 草稿 | [jsonld](../../records/eq-inverse-core-field-recovery.jsonld) |
+| [`eq-inverse-freegsnke-east137985`](../../reports/eq-inverse-freegsnke-east137985.md) | 对拍 | 成立 | FreeGSNKE | 1.23 | 草稿 | [jsonld](../../records/eq-inverse-freegsnke-east137985.jsonld) |
+| [`eq-inverse-iter-reference-separatrix`](../../reports/eq-inverse-iter-reference-separatrix.md) | 验证 | 成立 | ITER 参考分离面（装置牌上的数字化曲线） | 1.25 | 草稿 | [jsonld](../../records/eq-inverse-iter-reference-separatrix.jsonld) |
 
 ### 缺口
 

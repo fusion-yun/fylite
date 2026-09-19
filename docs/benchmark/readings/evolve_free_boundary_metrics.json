@@ -3,23 +3,23 @@
  "source": {
   "case": "FYDOC-CASE-23-east-137985-efit-east",
   "path": "corpus/benchmark/evolve_free_boundary_east137985.json",
-  "checksum": "sha256:3ed068ab61d9d59ec67ad727513015301f471fa440e8be9656d5584e4d44fe1a"
+  "checksum": "sha256:8ab089535de5048b3982aceadccbabef22760178c712c4588587bcf919893785"
  },
  "wall_decay": {
   "max_rel_deviation": 8.43769498715119e-15
  },
  "flux_freezing": {
-  "drift_over_moved": 2.165501128903153e-13,
-  "max_circuit_residual": 2.1931746488790954e-13,
+  "drift_over_moved": 6.073723895961273e-13,
+  "max_circuit_residual": 5.37184286514712e-13,
   "gs_state_after_start": [
    2.0
   ],
   "fb_held": 0.0
  },
  "drive_reproduction": {
-  "shell_rel_max": 4.500136212297364e-09,
-  "voltage_max_circuit_residual": 1.7803993659146989e-13,
-  "current_max_circuit_residual": 5.933887356856199e-16,
+  "shell_rel_max": 5.699813629628662e-09,
+  "voltage_max_circuit_residual": 1.7373523659381566e-13,
+  "current_max_circuit_residual": 5.936777574949867e-16,
   "gs_state_voltage": [
    2.0
   ],

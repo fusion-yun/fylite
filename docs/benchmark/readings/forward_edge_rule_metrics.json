@@ -3,7 +3,7 @@
  "source": {
   "case": "FYDOC-CASE-23-east-137985-efit-east",
   "path": "corpus/benchmark/evolve_free_boundary_east137985.json",
-  "checksum": "sha256:3ed068ab61d9d59ec67ad727513015301f471fa440e8be9656d5584e4d44fe1a"
+  "checksum": "sha256:8ab089535de5048b3982aceadccbabef22760178c712c4588587bcf919893785"
  },
  "slices": {
   "t4041_mag": {
@@ -23,15 +23,15 @@
    "edge": {
     "converged": 1.0,
     "settled": 0.0,
-    "residual": 9.768521516886235e-10,
-    "iterations": 5664.0,
-    "seconds": 14.1,
-    "fb_amp_A": 34.081329504766394,
-    "psin_rms_inside": 0.01834408759424767,
-    "psin_max_inside": 0.037872633953446755,
-    "axis_mm": 9.240230085185752,
-    "boundary_median_mm": 3.971714886584283,
-    "xpoint_dist_mm": 3.021994666634032
+    "residual": 9.867643673960179e-10,
+    "iterations": 753.0,
+    "seconds": 1.9,
+    "fb_amp_A": -50.46261589592492,
+    "psin_rms_inside": 0.01848768039843738,
+    "psin_max_inside": 0.03814631924040701,
+    "axis_mm": 9.335466192081356,
+    "boundary_median_mm": 4.021415960457628,
+    "xpoint_dist_mm": 3.059897778055269
    }
   },
   "t4944_mag": {
@@ -40,7 +40,7 @@
     "settled": 1.0,
     "residual": 0.003689177287190086,
     "iterations": 63.0,
-    "seconds": 0.2,
+    "seconds": 0.3,
     "fb_amp_A": 13663.55463328469,
     "psin_rms_inside": 0.006544916797449717,
     "psin_max_inside": 0.015700131707233056,
@@ -51,15 +51,15 @@
    "edge": {
     "converged": 1.0,
     "settled": 0.0,
-    "residual": 9.60255597741674e-10,
-    "iterations": 5876.0,
-    "seconds": 14.7,
-    "fb_amp_A": 32.98438882062144,
-    "psin_rms_inside": 0.022654687599942092,
-    "psin_max_inside": 0.046164766768530874,
-    "axis_mm": 11.52599160577879,
-    "boundary_median_mm": 5.136336560386355,
-    "xpoint_dist_mm": 3.24127847526172
+    "residual": 9.919102864019722e-10,
+    "iterations": 785.0,
+    "seconds": 2.1,
+    "fb_amp_A": -44.12495616248512,
+    "psin_rms_inside": 0.022783511885127616,
+    "psin_max_inside": 0.04641072131756996,
+    "axis_mm": 11.610405396276615,
+    "boundary_median_mm": 5.1796597425627136,
+    "xpoint_dist_mm": 3.2769425112168977
    }
   },
   "t5976_mag": {
@@ -79,15 +79,15 @@
    "edge": {
     "converged": 1.0,
     "settled": 0.0,
-    "residual": 9.616183936783658e-10,
-    "iterations": 5378.0,
-    "seconds": 13.4,
-    "fb_amp_A": 35.942866237510145,
-    "psin_rms_inside": 0.02362623525222856,
-    "psin_max_inside": 0.04655387155113544,
-    "axis_mm": 12.466079955059001,
-    "boundary_median_mm": 5.61517497429111,
-    "xpoint_dist_mm": 4.799868044647791
+    "residual": 9.537296200646877e-10,
+    "iterations": 764.0,
+    "seconds": 2.0,
+    "fb_amp_A": -32.91645674562401,
+    "psin_rms_inside": 0.02374176595721996,
+    "psin_max_inside": 0.046786378407112306,
+    "axis_mm": 12.54280625491944,
+    "boundary_median_mm": 5.646979468064995,
+    "xpoint_dist_mm": 4.835015550776061
    }
   },
   "t5976_primary": {
@@ -109,7 +109,7 @@
     "settled": 0.0,
     "residual": 0.14771907086363728,
     "iterations": 12000.0,
-    "seconds": 29.9,
+    "seconds": 30.8,
     "fb_amp_A": 80306.31221769472,
     "psin_rms_inside": 0.028612216824504225,
     "psin_max_inside": 0.051798464791531496,

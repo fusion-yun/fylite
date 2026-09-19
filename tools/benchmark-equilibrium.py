@@ -69,7 +69,10 @@ BITFC = [50.0 * n for n in (140, 140, 140, 244, 64, 32)] * 2
 ZC_SCAN = [round(-0.030 + 0.004 * k, 3) for k in range(16)]
 RECON = {"npp": 1, "nff": 1, "relax": 0.3, "max_iter": 4000, "tol": 1e-8, "fb_gain": 8.0, "warmup": 40,
          "n_profile": 201, "n_q": 20, "n_theta": 121, "x_lo": 0.06, "x_hi": 0.995}
-TRUTH = {"beta0": 0.4, "emp": 1.0, "enp": 1.0}
+#: ★FR-EQ-001 (2026-09-19): `code/forward` defaults to the EDGE rule now; the twin's truth keeps the NODE rule
+#: explicitly (`edge_fraction = 0`) because the reconstruction it is a twin FOR (`code/reconstruct`) solves on the
+#: node mask — a twin tests reconstruction error only when truth and reconstruction share one discretisation
+TRUTH = {"beta0": 0.4, "emp": 1.0, "enp": 1.0, "edge_fraction": 0.0}
 
 
 def sha(b: bytes) -> str:
@@ -240,7 +243,7 @@ def forward_kefit(case: Path, out: Path) -> dict:
     tmp.mkdir(parents=True, exist_ok=True)
     dev = east_card()
     result = {"reference": "KEFIT raw-tree runs (CASE-23 kefit_raw_east137985.tar.gz, variant rejected)",
-              "archive_sha256": idx["fylite:sha256"], "door_settings": "code/forward defaults (relax 0.3, max_iter 600, tol 1e-9, fb_gain 8)",
+              "archive_sha256": idx["fylite:sha256"], "door_settings": "code/forward defaults (edge rule since 2026-09-19; relax 0.3, max_iter 3000, tol 1e-9, fb_gain 8)",
               "cases": {}}
     for name in FORWARD_CASES:
         itime = name[1:5]
@@ -323,7 +326,11 @@ def iter_card_and_target(repo: Path) -> tuple[dict, np.ndarray, tuple[float, flo
     tz = np.asarray(rb["z"], float)
     ok = np.isfinite(tr) & np.isfinite(tz)
     target = np.c_[tr[ok], tz[ok]]
-    wall_doc = json.loads((repo.parent / "fydoc" / ITER_WALL).read_text(encoding="utf-8"))
+    #: fydoc from $FYDOC_ORACLE (its cases/ tree) when set, else beside the checkout — a worktree's
+    #: parent is not the workspace, so the sibling guess alone missed it
+    oracle = os.environ.get("FYDOC_ORACLE")
+    fydoc = Path(oracle).parent if oracle else repo.parent / "fydoc"
+    wall_doc = json.loads((fydoc / ITER_WALL).read_text(encoding="utf-8"))
     outlines: list[dict] = []
 
     def walk(o):
@@ -450,6 +457,70 @@ def iter_shape(out: Path, settings: dict | None = None, *, dina_limits: bool = F
     return result
 
 
+def iter_control(out: Path) -> dict:
+    """V-22 positive control (FR-EQ-005, 2026-09-19): a separatrix the ITER coils CAN make within the DINA ratings, and
+    whether the design recovers it.
+
+    Step A forward-solves a KNOWN in-rating current set — the DINA-bounded design's currents pulled 3 % toward zero —
+    through the design's own door (`passes = 0`, edge rule, converged).  Step B designs to A's separatrix and X point
+    from the default start, ratings held; step C forward-solves B's currents to convergence.  What the design misses
+    on a target that is reachable by construction is the method's own floor; what it misses on the reference
+    separatrix beyond that belongs to the target.
+    """
+    dev, target, xpt = iter_card_and_target(ROOT)
+    ka = dina_iter_limits(Path(os.environ.get("FYLITE_THIRD_PARTY", ROOT.parent / "third_party")))
+    names = [c["name"] for c in dev["pf_active"]["coil"]]
+    for coil in dev["pf_active"]["coil"]:
+        turns = sum(abs(float(e.get("turns_with_sign", 1.0))) for e in coil["element"])
+        coil["fylite:i_max_aturn"] = ka[coil["name"]] * 1e3 * turns
+    lim = np.array([c["fylite:i_max_aturn"] for c in dev["pf_active"]["coil"]])
+    bounded = json.loads((ROOT / "docs/benchmark/readings/inverse_shape_iter_dina_limits.json").read_text(encoding="utf-8"))
+    at_a = 0.97 * np.asarray(bounded["currents"]["aturns"], float)
+    st = {**ITER_SETTINGS, **ITER_TEXTS}
+    tgt = np.r_[target, np.array([xpt])]
+
+    def fwd(at):
+        f, fl, _ = door("code/discharge", {**st, "passes": 0.0}, {"device": dev, "discharge": {
+            "fylite:target_r": tgt[:, 0], "fylite:target_z": tgt[:, 1], "fylite:null_r": np.array([xpt[0]]),
+            "fylite:null_z": np.array([xpt[1]]), "fylite:channel_aturns": at}})
+        return f, fl
+
+    keys = ("converged", "residual", "iterations", "shape_kappa", "shape_delta_lower", "shape_delta_upper",
+            "shape_r0", "shape_a", "xpt_r", "xpt_z", "ip")
+    f_a, fl_a = fwd(at_a)
+    sep_a = np.asarray(fl_a["boundary"], float).reshape(-1, 2)
+    t0 = time.time()
+    f_d, fl_d, _ = door("code/discharge", st, {"device": dev, "discharge": {
+        "fylite:target_r": sep_a[:, 0], "fylite:target_z": sep_a[:, 1],
+        "fylite:null_r": np.array([f_a["xpt_r"]]), "fylite:null_z": np.array([f_a["xpt_z"]])}})
+    design_s = round(time.time() - t0, 1)
+    at_d = np.asarray(fl_d["aturns"], float)
+    f_c, fl_c = fwd(at_d)
+    sep_c = np.asarray(fl_c["boundary"], float).reshape(-1, 2)
+    closed_a = np.r_[sep_a, sep_a[:1]]
+    d = np.array([seg_dist(p, closed_a) for p in sep_c])
+    pn = lambda f, fl: (np.asarray(fl["psi"], float) - f["psi_axis"]) / (f["psi_bnd"] - f["psi_axis"])  # noqa: E731
+    pa, pc = pn(f_a, fl_a), pn(f_c, fl_c)
+    ins = pa < 1.0
+    rel = lambda k: float(f_c[k]) / float(f_a[k]) - 1.0  # noqa: E731
+    result = {"what": "V-22 正对照：机器在 DINA 额定内做得到的分离面，设计能否复原它（A 已知电流正解 → B 对 A 设计 → C 正解 B 的电流）",
+              "known_currents": {"aturns": at_a.tolist(), "use_fraction_max": float(np.max(np.abs(at_a) / lim)),
+                                 "rule": "0.97 x inverse_shape_iter_dina_limits.json currents"},
+              "A_target": {k: float(f_a[k]) for k in keys},
+              "B_design": {"seconds": design_s, **{k: float(f_d[k]) for k in keys if k in f_d},
+                           "use_fraction_max": float(np.max(np.abs(at_d) / lim))},
+              "C_designed_equilibrium": {k: float(f_c[k]) for k in keys},
+              "separatrix_C_vs_A_mm": {"median": 1e3 * float(np.median(d)), "p95": 1e3 * float(np.percentile(d, 95)),
+                                       "max": 1e3 * float(d.max())},
+              "shape_rel": {k: rel(k) for k in ("shape_kappa", "shape_delta_lower", "shape_delta_upper")},
+              "psin_rms_inside_A": float(np.sqrt(np.mean((pc - pa)[ins] ** 2))),
+              "currents_rms_rel": float(np.sqrt(np.mean((at_d - at_a) ** 2)) / np.sqrt(np.mean(at_a ** 2)))}
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "inverse_shape_iter_control.json").write_text(json.dumps(result, indent=1, default=float) + "\n", encoding="utf-8")
+    print("V-22 control:", json.dumps({k: result[k] for k in ("separatrix_C_vs_A_mm", "shape_rel", "psin_rms_inside_A")}))
+    return result
+
+
 # ------------------------------------------------------------------------------------------------ B-21
 
 FGS_ARCHIVE = "corpus/freegsnke/freegsnke_vstab_east137985.tar.gz"
@@ -457,6 +528,8 @@ FGS_EQ = "freegsnke_vstab_east137985/fgs_equilibrium.npz"
 #: the anneal's passes for the record (2.0 s); 16 passes move the currents 11 kA.t closer to KEFIT's and the
 #: boundary 0.01 mm — the shape objective is flat in the direction the currents differ (see the record)
 INV_PASSES = 8.0
+#: extra design settings (a probe hook; empty = the door's defaults)
+INV_EXTRA: dict = {}
 #: exclude the X-point corners (the target curve has a vertex AT the lower X-point, the designs round it) and the
 #: band the target curve does not cover (KEFIT's outline stops at Z = +0.658, its upper X-point is at +0.767)
 INV_X_EXCLUSION_M = 0.10
@@ -526,7 +599,7 @@ def inverse_shape(case: Path, out: Path) -> dict:
         fgs_at = np.asarray(z["inv__aturns"], float)
         fgs_b = np.c_[np.asarray(z["inv__rbbbs"], float), np.asarray(z["inv__zbbbs"], float)]
 
-    settings = {"ip": ip, "n_points": 24.0, "x_weight": 1.0, "passes": INV_PASSES, "nu": 3.0}
+    settings = {"ip": ip, "n_points": 24.0, "x_weight": 1.0, "passes": INV_PASSES, "nu": 3.0, **INV_EXTRA}
     design_in = {"device": dev, "equilibrium": profiles,
                  "discharge": {"fylite:target_r": target[:, 0], "fylite:target_z": target[:, 1],
                                "fylite:null_r": np.array([p[0] for p in xpoints]),
@@ -550,7 +623,9 @@ def inverse_shape(case: Path, out: Path) -> dict:
                                    ("shape_error", "boundary_gap_rms", "boundary_gap_max", "boundary_gap_rms_norm",
                                     "converged", "settled", "residual", "iterations", "n_passes", "n_at_coil_limit",
                                     "axis_r", "axis_z", "xpt_r", "xpt_z", "ip",
-                                    "shape_r0", "shape_a", "shape_kappa", "shape_delta_upper", "shape_delta_lower", "shape_z0")}},
+                                    "shape_r0", "shape_a", "shape_kappa", "shape_delta_upper", "shape_delta_lower", "shape_z0")},
+                         #: FR-EQ-001: the design released from its anchor — what its currents hold by themselves
+                         "release": {k: float(facts[k]) for k in facts if k.startswith("release_")}},
               "boundary_vs_target": {"fylite": _curve_stats(fy_b, target, xpoints, window),
                                      "freegsnke": _curve_stats(fgs_b, target, xpoints, window)},
               "boundary_vs_target_all_points": {"fylite": _curve_stats(fy_b, target, xpoints),
@@ -767,6 +842,8 @@ def main() -> int:
     a5 = sub.add_parser("inverse-shape-iter")
     a5.add_argument("--out", required=True, type=Path)
     a5.add_argument("--dina-limits", action="store_true", help="bound the coils by DINA-IMAS's ITER ratings")
+    a6 = sub.add_parser("inverse-shape-iter-control")
+    a6.add_argument("--out", required=True, type=Path)
     a4 = sub.add_parser("inverse-shape")
     a4.add_argument("--case")
     a4.add_argument("--out", required=True, type=Path)
@@ -783,6 +860,8 @@ def main() -> int:
         twin(case_dir(a.case), a.out, a.kefit_exe, a.kefit_bundle)
     elif a.cmd == "inverse-shape-iter":
         iter_shape(a.out, dina_limits=a.dina_limits)
+    elif a.cmd == "inverse-shape-iter-control":
+        iter_control(a.out)
     elif a.cmd == "inverse-shape":
         a.out.mkdir(parents=True, exist_ok=True)
         inverse_shape(case_dir(a.case), a.out)

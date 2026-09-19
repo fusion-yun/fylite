@@ -30,7 +30,9 @@ UNHELD = ("notes", "seconds", "unbounded_because")
 #: ★bands measured on this card (2026-09-15, three significant figures rounded up).  They are the design's own
 #: closure, not an agreement with a second code: the target is the card's digitised reference separatrix, closed
 #: through its X-point corner (it is open there by 322 mm), and the METIS wall is injected as the limiter.
-V22_BAND = {"median_mm": 15.5, "p95_mm": 69.9, "max_mm": 124.0, "shape_error": 0.0308, "max_abs_MAt": 30.7}
+#: ★2026-09-19 `shape_error` 0.0308 → 0.0310: re-measured on the edge rule (FR-EQ-001's default); the separatrix
+#: distances fell inside the old band (median 15.2 · p95 64.4 · max 107.4 mm) and are kept as they were
+V22_BAND = {"median_mm": 15.5, "p95_mm": 69.9, "max_mm": 124.0, "shape_error": 0.0310, "max_abs_MAt": 30.7}
 #: ★`emp` = 2 is the last setting that still CONVERGES: emp 3 scores slightly better on shape_error (0.0269) but
 #: exhausts its 600-round budget at residual 0.019, and `enp` 0.5 reaches the best kappa of all by asking for
 #: 37.5 MA.t and never settling — at 2400 rounds (4x, 938 s) its residual RISES to 0.32, so the non-convergence is
@@ -137,22 +139,45 @@ def bounded(tmp_path_factory):
 
 def test_v22_the_unbounded_design_exceeds_the_dina_ratings_on_pf1_and_pf6(want):
     """★★2026-09-19：DINA-IMAS 的 ITER 每匝额定 × 本卡片的匝数（同一套线圈：匝数逐一相同、中心差 < 1 cm）。
-    无界设计要 PF1 13.57 MA·t（额定 11.93）、PF6 30.61 MA·t（额定 23.89）——这台机器给不出。"""
+    无界设计要 PF1 14.54 MA·t（额定 11.93）、PF6 30.44 MA·t（额定 23.89）——这台机器给不出。
+    ★2026-09-19 边规则为缺省之后重量（旧读数在节点规则上：PF1 1.14 倍、PF6 1.28 倍）；超的仍恰是这两件。"""
     rat = json.loads(DINA_READ.read_text(encoding="utf-8"))["currents"]["rating_aturns"]
     names = list(rat)
     over = {nm: abs(a) / rat[nm] for nm, a in zip(names, want["currents"]["aturns"]) if abs(a) > rat[nm]}
     assert set(over) == {"PF1", "PF6"}, over
-    assert 1.13 < over["PF1"] < 1.15 and 1.27 < over["PF6"] < 1.29
+    assert 1.20 < over["PF1"] < 1.23 and 1.26 < over["PF6"] < 1.29
 
 
-def test_v22_within_the_dina_ratings_the_design_holds_them_and_does_not_settle(bounded):
-    """★有界之后：每件都在额定内（PF6 顶格），分离面中位 11.8 mm（比无界还近），形状照旧差（kappa 1.793）——
-    但**不再收敛**：600 次迭代残差 0.072（无界时 settled，残差 9.7e-4）。买不起的那部分形状，在额定内也买不到。"""
+def test_v22_within_the_dina_ratings_the_design_holds_them_and_converges(bounded):
+    """★有界之后：每件都在额定内（PF6 顶格），且**收敛**（边规则，残差 < 1e-9）；形状照旧差（kappa 1.790）——
+    买不起的那部分形状，在额定内也买不到。★2026-09-19 前（节点规则）这一设计「不收敛」（600 次残差 0.072），
+    那是节点规则在 ITER 上的量化抖动，不是额定逼出来的：同一组电流边规则 628 次收敛。"""
     c = bounded["currents"]
     assert c["worst_use_fraction"] <= 1.0 + 1e-9, c["use_fraction"]
     assert c["n_at_coil_limit"] >= 1.0
     f = bounded["design"]["facts"]
-    assert f["settled"] == 0.0 and f["residual"] > 0.01
+    assert f["converged"] == 1.0 and f["residual"] <= 1e-9
     want = json.loads(DINA_READ.read_text(encoding="utf-8"))
     _walk(bounded["separatrix_vs_target"], want["separatrix_vs_target"], "separatrix_vs_target")
     _walk(bounded["design"]["facts"], want["design"]["facts"], "design/facts")
+
+
+def test_v22_the_design_recovers_a_separatrix_the_machine_can_make():
+    """★★FR-EQ-005 positive control (2026-09-19, `inverse_shape_iter_control.json`): a separatrix these coils make WITHIN
+    the DINA ratings (a known current set forward-solved, converged), designed to from the default start with the
+    ratings held, and the design's currents forward-solved again.  kappa and delta_lower — the two shape numbers the
+    reference record's criterion names — come back within 1 %; the reference separatrix misses them by 3 % and 10 %,
+    so that shortfall is the target's, not the design's.  ★delta_upper is NOT recovered on this control (the design
+    has one null, below): recorded, not banded."""
+    p = ROOT / "docs" / "benchmark" / "readings" / "inverse_shape_iter_control.json"
+    if not p.is_file():
+        pytest.skip("no control reading")
+    c = json.loads(p.read_text(encoding="utf-8"))
+    assert c["A_target"]["converged"] == 1.0 and c["C_designed_equilibrium"]["converged"] == 1.0, c
+    assert c["known_currents"]["use_fraction_max"] <= 1.0 and c["B_design"]["use_fraction_max"] <= 1.0 + 1e-9
+    assert abs(c["shape_rel"]["shape_kappa"]) < 0.01 and abs(c["shape_rel"]["shape_delta_lower"]) < 0.01, c["shape_rel"]
+    #: the reference target's shortfall is an order of magnitude larger than the control's
+    want = json.loads(DINA_READ.read_text(encoding="utf-8"))["design"]["facts"]
+    k_ref = abs(want["shape_kappa"] / V22_SHAPE_TARGET["kappa"] - 1.0)
+    d_ref = abs(want["shape_delta_lower"] / V22_SHAPE_TARGET["delta_lower"] - 1.0)
+    assert k_ref > 5 * abs(c["shape_rel"]["shape_kappa"]) and d_ref > 5 * abs(c["shape_rel"]["shape_delta_lower"])

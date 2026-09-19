@@ -1,0 +1,119 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/eq-inverse-core-field-recovery",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "静态逆解的线性核：已知电流合成的场精确回收——约束行上 6e-14、未参与拟合的点上 1e-13",
+  "en": "The static inverse's linear core: a field synthesised from known currents is recovered exactly — 6e-14 on the rows, 1e-13 at unseen points"
+ },
+ "domain": "eq-inverse",
+ "requirement": [
+  "FR-EQ-005"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · code/discharge 的线性核",
+  "comment": "`breakdown::channel_field`（响应行）+ `linalg::ridge_lstsq`（解），λ = 0"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "已知电流（孪生真值）",
+   "comment": "★抄录判据「已知电流合成场精确回收 rtol 1e-6」：参照是合成场用的那组电流本身。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/eq-inverse-core-field-recovery/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "约束行上回收的场对合成场",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-06
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★抄录原文 rtol 1e-6。"
+  },
+  {
+   "id": "benchmark/records/eq-inverse-core-field-recovery/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "十六个未参与拟合的点上回收的场",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-06
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★防假通过：只在拟合用的行上对上，可能只是把残差塞进了零空间；场在没见过的点上也对，才是场被回收了。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "约束行 5.7e-14",
+   "criterion": "benchmark/records/eq-inverse-core-field-recovery/criterion/1",
+   "measured_deviation": 5.7e-14,
+   "bound": "upper",
+   "verdict": "pass",
+   "deviation_literal": "24 个边界点的 ψ + X 点的 B_R · B_Z（乘 R₀ 成通量单位），11 路（12 件，CS1 上下两半同一路）：5.7e-14"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "未见点 1.5e-13；电流本身 3.2e-12",
+   "criterion": "benchmark/records/eq-inverse-core-field-recovery/criterion/2",
+   "measured_deviation": 1.5e-13,
+   "bound": "upper",
+   "verdict": "pass",
+   "deviation_literal": "D 形内外两圈共 16 点：1.5e-13；电流 3.2e-12（读数，不判）",
+   "caveat": [
+    "★判的是**场**不是电流：本组 24 点 + 1 零点超定 11 路，所以电流也回来了；只拿形状或磁测时它们不必回来（零空间，见 `eq-inverse-freegsnke-east137985`）。",
+    "★线圈是 DINA 的 ITER 那一套（位置、尺寸、匝数取自其 tokamak_config），嵌在测试里——本仓的装置卡不入版本库，内核测试不能依赖它。"
+   ]
+  }
+ ],
+ "validity_domain": "ITER 型 12 件 11 路线圈，ITER 型 D 形边界（R₀ 6.2、a 2、κ 1.8、δ 0.4）+ 下 X 点，已知电流为 ITER 量级两种符号。★判的是线性核（响应行 + 解），不是外层的退火设计策略——后者见 `eq-inverse-iter-reference-separatrix` 与 `eq-inverse-freegsnke-east137985`。",
+ "caveat": [
+  "★本条补的是 FR-EQ-005 抄录判据本身——此前册里的两条记录判的都是设计（退火、额定、目标形状），没有一条判「已知电流合成场的回收」。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-19",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/inverse_core_field_recovery.json",
+    "comment": "内核测试 --nocapture 报出的三个数",
+    "checksum": "sha256:1895604b6b541d7675c6e0529fac20e3fd169be6d65af60b9a621c81c076df4b"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/case.rs::static_inverse_core_tests::the_static_inverse_core_recovers_a_field_synthesised_from_known_currents",
+    "comment": "★两格：约束行与未见点都 < 1e-6"
+   }
+  ],
+  "kernel": {
+   "name": "fylite_kernel",
+   "commit": "915ed124959158cb04184d36308c25e939c6a982",
+   "library_sha256": "sha256:02975458f9f5425ca8c01674bb6070f754ac752edce0e143aec07fccee0ee7c2",
+   "comment": "与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-19",
+  "revised": "2026-09-19",
+  "review_status": "draft",
+  "open_defect": "2026-09-19 ★门在内核仓：本条唯一的门是 Rust 单测，本仓 CI 跑不到它（与 `tr-pedestal-sawtooth-kadomtsev` 同一处代价）。",
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5",
+    "summary": "新立（/goal「close FR-EQ-001/005」）：FR-EQ-005 抄录判据——已知电流合成场经静态逆解的线性核精确回收。"
+   }
+  ]
+ }
+}

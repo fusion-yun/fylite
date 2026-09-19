@@ -133,9 +133,9 @@ $\mathbf A$ 会读成「稳」。现在按 $k\ge k_{\rm ideal}=I_p^2\mathbf G^T\
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`mhd-vertical-coil-forces-analytic`](../../reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 成立 | 闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列） | 1.19 | 草稿 | [jsonld](../../records/mhd-vertical-coil-forces-analytic.jsonld) |
-| [`mhd-vertical-freegsnke-east137985`](../../reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 成立 | FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚） | 2.16 | 草稿 | [jsonld](../../records/mhd-vertical-freegsnke-east137985.jsonld) |
-| [`mhd-vertical-lti-export`](../../reports/mhd-vertical-lti-export.md) | 验证 | 成立 | 纯电路的解析本征值；单回路刚性色散根；FR-EQ-016 竖直稳定性门的 γ | 1.9 | 草稿 | [jsonld](../../records/mhd-vertical-lti-export.jsonld) |
+| [`mhd-vertical-coil-forces-analytic`](../../reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 成立 | 闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列） | 1.20 | 草稿 | [jsonld](../../records/mhd-vertical-coil-forces-analytic.jsonld) |
+| [`mhd-vertical-freegsnke-east137985`](../../reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 成立 | FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚） | 2.17 | 草稿 | [jsonld](../../records/mhd-vertical-freegsnke-east137985.jsonld) |
+| [`mhd-vertical-lti-export`](../../reports/mhd-vertical-lti-export.md) | 验证 | 成立 | 纯电路的解析本征值；单回路刚性色散根；FR-EQ-016 竖直稳定性门的 γ | 1.10 | 草稿 | [jsonld](../../records/mhd-vertical-lti-export.jsonld) |
 
 ### 缺口
 

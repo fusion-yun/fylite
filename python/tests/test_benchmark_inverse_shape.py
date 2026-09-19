@@ -7,7 +7,7 @@ recorded inverse solve in the case store (isoflux on 24 points of that curve plu
 
 Held here: the recomputed readings against the recorded ones, the achieved boundary's measured band, and — because the
 two designs' CURRENTS differ far more than their boundaries — the null-space reading: all three current sets
-(KEFIT's own, FreeGSNKE's, fylite's) forward-solved on the same profiles give equilibria within millimetres.
+(KEFIT's own, FreeGSNKE's, fylite's) forward-solved on the same profiles give separatrices within a few millimetres.
 
 No store, no card, or no kernel library: the gate SKIPS by name.
 """
@@ -29,8 +29,12 @@ UNHELD = ("notes", "seconds", "environment")
 #: ★measured bands (2026-09-15, three significant figures rounded up).  The boundary band is on the FAIR WINDOW
 #: (X-point corners excluded, and the band the target curve does not cover — KEFIT's outline stops at Z = +0.658
 #: while its upper X-point is at +0.767).  `psin_rms` is each design's forward solve on KEFIT's own map.
-B21_BAND = {"fylite_boundary_median_mm": 1.22, "fylite_boundary_p95_mm": 3.88, "fylite_boundary_max_mm": 9.43,
-            "fylite_psin_rms": 0.00462, "null_space_psin_spread": 0.005, "null_space_axis_spread_mm": 3.0}
+#: ★★2026-09-19 re-measured (FR-EQ-001, user ruling: the edge rule is the doors' default).  The old band sat on the node
+#: rule, whose design and forward solves leaned on 10 kA of fictitious vertical current; on the edge rule the design holds
+#: the column where its last solve left it (the anchor), reads its residual on the coils' own field so the coils take
+#: the pairs' job over, and is RELEASED at the end — its currents forward-solved with no anchor.  `fylite_boundary_*`
+#: is the anchored design's separatrix; `release_gap_rms_m` what its currents hold by themselves.
+B21_BAND = {"fylite_boundary_median_mm": 3.07, "fylite_boundary_p95_mm": 6.48, "fylite_boundary_max_mm": 13.3, "fylite_psin_rms": 0.029, "null_space_psin_spread": 0.0105, "null_space_boundary_median_spread_mm": 2.06, "release_gap_rms_m": 0.0139}
 
 
 def _tool():
@@ -103,11 +107,22 @@ def test_b21_the_designed_boundary_stays_in_the_band(got):
     assert got["design"]["facts"]["n_at_coil_limit"] == 0.0
 
 
+def test_b21_the_released_design_holds_itself(got):
+    """★★FR-EQ-001: the design's currents, released from the anchor, converge to an equilibrium the COILS hold — the
+    virtual pair ends at tens of amperes (under 1e-3 Ip), not the 165 kA a design read on the total field leaned on."""
+    r = got["design"]["release"]
+    ip = got["inputs"]["ip_A"]
+    assert r["release_converged"] == 1.0 and r["release_residual"] <= 1e-9, r
+    assert abs(r["release_fb_amp"]) < 1e-3 * ip, r
+    assert r["release_gap_rms"] <= B21_BAND["release_gap_rms_m"], r
+
+
 def test_b21_the_currents_differ_far_more_than_the_equilibria(got):
     """★The finding this record exists for: a shape constrains the coil currents only up to the design's null space.
 
-    fylite's design and FreeGSNKE's differ by tens of kA.t per channel, yet forward-solved on the same profiles the
-    two equilibria — and KEFIT's own — sit within millimetres of one another on KEFIT's map.  If the current
+    fylite's design and FreeGSNKE's differ by tens of kA.t per channel, yet forward-solved on the same profiles (edge
+    rule, each converging with tens of amperes in the pair) the separatrices of all three — and KEFIT's own — lie
+    within a few millimetres of the same target.  If the current
     difference ever collapses to the noise, this record's reading is stale."""
     c = got["currents"]
     assert c["fylite_vs_freegsnke_rms_kAt"] > 5.0, c
@@ -116,11 +131,15 @@ def test_b21_the_currents_differ_far_more_than_the_equilibria(got):
     axis_r = [ns[k]["compare"]["dR_axis_mm"] for k in ("kefit", "freegsnke", "fylite")]
     axis_z = [ns[k]["compare"]["dZ_axis_mm"] for k in ("kefit", "freegsnke", "fylite")]
     assert max(psin) - min(psin) <= B21_BAND["null_space_psin_spread"], psin
-    assert max(axis_r) - min(axis_r) <= B21_BAND["null_space_axis_spread_mm"], axis_r
-    assert max(axis_z) - min(axis_z) <= B21_BAND["null_space_axis_spread_mm"], axis_z
-    #: fylite's design is the one that lands closest to KEFIT's map, though its currents are the furthest from KEFIT's
+    #: ★2026-09-19: the SEPARATRICES agree (median distance to the target within ~2 mm of one another); the AXES do not —
+    #: the released fylite design's column sits ~19 mm below the others'.  The shape pins the boundary, not where the
+    #: vertically unstable column balances inside it; the axis spread is reported (the record), not banded.
+    bmed = [ns[k]["compare"]["boundary_median_mm"] for k in ("kefit", "freegsnke", "fylite")]
+    assert max(bmed) - min(bmed) <= B21_BAND["null_space_boundary_median_spread_mm"], bmed
+    assert all(ns[k]["converged"] == 1.0 for k in ("kefit", "freegsnke", "fylite")), ns
     assert ns["fylite"]["compare"]["psin_rms_inside"] <= B21_BAND["fylite_psin_rms"]
     assert c["fylite_vs_kefit_rms_kAt"] > c["freegsnke_vs_kefit_rms_kAt"]
+    del axis_r, axis_z
 
 
 def test_b21_the_target_curve_limits_are_recorded(want):

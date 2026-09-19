@@ -93,10 +93,10 @@ dt 上限仍在（撤掉后一个氩物种算例的边缘在遍间四态循环�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-paradigm-coupled-block-adr`](../../reports/tr-paradigm-coupled-block-adr.md) | 验证 | 成立 | 裁定：「决定要整体求解」（用户，2026-09-19） · 后向 Euler 的不动点：以解处的源再解一次隐式步，回到同一解 | 1.20 | 草稿 | [jsonld](../../records/tr-paradigm-coupled-block-adr.jsonld) |
-| [`tr-paradigm-flux-match-vs-pde`](../../reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 | fylite · `transport::solve_steady`（PDE，dt = inf） | 1.20 | 草稿 | [jsonld](../../records/tr-paradigm-flux-match-vs-pde.jsonld) |
-| [`tr-paradigm-momentum-channel`](../../reports/tr-paradigm-momentum-channel.md) | 验证 | 成立 | FYTOK-SRS-04 `FR-TR-008` 判据「动量通道设计成文」与 pinch 方程的闭式解 | 1.8 | 草稿 | [jsonld](../../records/tr-paradigm-momentum-channel.jsonld) |
-| [`tr-paradigm-pereverzev`](../../reports/tr-paradigm-pereverzev.md) | 验证 | 成立 | P-C 项在不动点上的恒等对消（解析不变性） | 1.25 | 草稿 | [jsonld](../../records/tr-paradigm-pereverzev.jsonld) |
+| [`tr-paradigm-coupled-block-adr`](../../reports/tr-paradigm-coupled-block-adr.md) | 验证 | 成立 | 裁定：「决定要整体求解」（用户，2026-09-19） · 后向 Euler 的不动点：以解处的源再解一次隐式步，回到同一解 | 1.21 | 草稿 | [jsonld](../../records/tr-paradigm-coupled-block-adr.jsonld) |
+| [`tr-paradigm-flux-match-vs-pde`](../../reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 | fylite · `transport::solve_steady`（PDE，dt = inf） | 1.21 | 草稿 | [jsonld](../../records/tr-paradigm-flux-match-vs-pde.jsonld) |
+| [`tr-paradigm-momentum-channel`](../../reports/tr-paradigm-momentum-channel.md) | 验证 | 成立 | FYTOK-SRS-04 `FR-TR-008` 判据「动量通道设计成文」与 pinch 方程的闭式解 | 1.9 | 草稿 | [jsonld](../../records/tr-paradigm-momentum-channel.jsonld) |
+| [`tr-paradigm-pereverzev`](../../reports/tr-paradigm-pereverzev.md) | 验证 | 成立 | P-C 项在不动点上的恒等对消（解析不变性） | 1.26 | 草稿 | [jsonld](../../records/tr-paradigm-pereverzev.jsonld) |
 
 ### 缺口
 

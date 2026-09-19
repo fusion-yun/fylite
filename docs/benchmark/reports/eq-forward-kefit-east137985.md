@@ -14,8 +14,8 @@ title: "eq-forward-kefit-east137985"
 - **量的是**：前向解对 KEFIT：EAST #137985 的三个纯磁测切片，外加一个落在带外的 POINT 剖面切片
 - **参考**：KEFIT
 - **验的需求**：`FR-EQ-001`
-- **跑在内核**：`fylite_kernel@0f7e5af3b3cf`（新鲜度 **current**）
-- **记录版本**：1.22　**评审**：草稿　**日期**：2026-09-16
+- **跑在内核**：`fylite_kernel@915ed1249591`（新鲜度 **current**）
+- **记录版本**：1.23　**评审**：草稿　**日期**：2026-09-19
 
 ## 问的是什么
 
@@ -40,14 +40,16 @@ title: "eq-forward-kefit-east137985"
 
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
-| psi_N 对 KEFIT 的偏差（轮廓内 RMS），三个纯磁测切片取最劣 | 0.00737 | measured_band | t4041_mag psi_N RMS 0.007364（max 0.01801） · t4944_mag psi_N RMS 0.006545（max 0.0157） · t5976_mag psi_N RMS 0.006637（max 0.01518）；最劣 0.007364，判据 0.00737 | **成立** |
-| 磁轴位置 | 4.87 | measured_band | t4041_mag 轴 4.11 mm、边界中位 3.42 mm、X 点 4.31 mm · t4944_mag 轴 4.02 mm、边界中位 2.67 mm、X 点 6.03 mm · t5976_mag 轴 4.87 mm、边界中位 2.74 mm、X 点 6.5 mm | **成立** |
-| POINT 剖面切片必须**记在带外** | 0.00737 | measured_band | psi_N RMS 0.02212（纯磁测带 0.00737 的 3.0 倍）· 轴 9.17 mm · 边界中位 5.48 mm · X 点 14.6 mm · **settled = 0** | **成立** |
-| 边界与 X 点位置 | 15.5 | measured_band | ★**本条没有对应的量** | — |
+| psi_N 对 KEFIT 的偏差（轮廓内 RMS），三个纯磁测切片取最劣 | 0.0238 | measured_band | 三个纯磁测切片（边规则，收敛）psi_N RMS：t4041_mag 0.0185 · t4944_mag 0.0228 · t5976_mag 0.0237（带 0.0238） | **成立** |
+| 磁轴位置 | 12.6 | measured_band | 磁轴 9.34 · 11.61 · 12.54 mm；边界中位 4.02 · 5.18 · 5.65 mm，最大 51.9 · 64.1 · 68.7 mm；X 点 3.1 · 3.3 · 4.8 mm | **成立** |
+| POINT 剖面切片必须**记在带外** | 0.0238 | measured_band | t5976_primary psi_N RMS 0.0256（> 带 0.0238）；边规则 3000 次不收敛（残差 6.2e-03）——两种规则都不收敛，见 `eq-forward-free-boundary-convergence` | **成立** |
+| 边界与 X 点位置 | 68.8 | measured_band | ★**本条没有对应的量** | — |
 
-**`磁轴位置`** — 单位 mm
+**`psi_N 对 KEFIT 的偏差（轮廓内 RMS），三个纯磁测切片取最劣`** — ★2026-09-19 在边规则（缺省）上重量：节点规则的旧带（psi_N 0.00737 · 轴 4.87 mm）是靠 10–14 kA 虚构竖直电流按在 KEFIT 位置上量出来的。KEFIT 不是它自己输入的正解（FreeGSNKE 离它 0.0156），所以这是对 KEFIT 的防劣化带，不是精度声明；精度声明见 `eq-forward-boundary-rule-vs-kefit`（对 FreeGSNKE 0.0041）。
 
-**`边界与 X 点位置`** — 单位 mm；中位与最大分开记
+**`磁轴位置`** — 单位 mm★2026-09-19 在边规则（缺省）上重量：节点规则的旧带（psi_N 0.00737 · 轴 4.87 mm）是靠 10–14 kA 虚构竖直电流按在 KEFIT 位置上量出来的。KEFIT 不是它自己输入的正解（FreeGSNKE 离它 0.0156），所以这是对 KEFIT 的防劣化带，不是精度声明；精度声明见 `eq-forward-boundary-rule-vs-kefit`（对 FreeGSNKE 0.0041）。
+
+**`边界与 X 点位置`** — 单位 mm；中位与最大分开记★2026-09-19 在边规则（缺省）上重量：节点规则的旧带（psi_N 0.00737 · 轴 4.87 mm）是靠 10–14 kA 虚构竖直电流按在 KEFIT 位置上量出来的。KEFIT 不是它自己输入的正解（FreeGSNKE 离它 0.0156），所以这是对 KEFIT 的防劣化带，不是精度声明；精度声明见 `eq-forward-boundary-rule-vs-kefit`（对 FreeGSNKE 0.0041）。
 
 **`POINT 剖面切片必须**记在带外**`** — ★★这一条是**反向判据**：它要求那个切片 psi_N 偏差**大于**纯磁测的带。把它塞进带里才是错——那等于假装约束条件不影响结果。
 
@@ -63,6 +65,7 @@ title: "eq-forward-kefit-east137985"
 
 ## 不可比的部分
 
+- ★★2026-09-19 带变宽，理由写在判据里：节点规则（旧缺省）在这几片上从不收敛、靠虚构竖直电流贴着 KEFIT；边规则（新缺省，用户裁定）收敛，落在独立代码 FreeGSNKE 落的地方。本条从此是「对 KEFIT 的防劣化」，精度由 FreeGSNKE 那条判。
 - ★★**对拍不是验证**：两套实现吻合不证明谁对——两个错误也能互相抵消。本条给出的是「有没有明显分歧」，不是「正确」。容差因此取**实测带**，不取机器精度。
 - ★**参考侧不在本处重跑**：它是 sha256 索引的归档记录。本处重算的只有 fylite 侧与比较本身，所以 fylite 前向解一变，这条记录会跟着动。
 - ★**哪些量是喂进去的**：线圈电流、Ip、磁测量，双方用的是同一批。算出来的是 psi 分布与由它导出的几何量。
@@ -70,7 +73,7 @@ title: "eq-forward-kefit-east137985"
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.22　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.23　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -98,17 +101,18 @@ title: "eq-forward-kefit-east137985"
 | 1.20 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
 | 1.21 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 ★本条的判据与数值**未改口径**。 |
 | 1.22 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`0f7e5af3b3cf`：1.5-D 各通道耦合整体求解成为缺省——`FR-TR-006`，用户裁定「决定要整体求解」；Te/Ti 块系统、交换隐式，遍数迭代到收敛，α · 辐射 · 欧姆在步内重算）。内核侧 **cargo test 822 过、0 失败、35 忽略**。★`code/evolve` 的缺省数值随之动（ITER 15 MA 上 P_α +1.6 %）；其余入口逐位不变，旧路径以 `sequential` 留作对照。 ★本条的判据与数值**未改口径**。 |
+| 1.23 | 2026-09-19 | Claude Opus 5 | ★B-14 带在边规则（缺省）上重量、变宽（psi_N 0.00737 → 0.0238 · 轴 4.87 → 12.6 mm · 边界最大 68.8 mm）：旧带是节点规则靠 10–14 kA 虚构竖直电流贴出来的。本条从精度声明降为对 KEFIT 的防劣化，精度由对 FreeGSNKE 那条判。派生指标由新工具 `tools/benchmark-equilibrium-metrics.py` 重生成（对旧原始读数逐位复现旧文件）。 内核换代（`915ed1249591`：自由边界缺省换成边规则——`FR-EQ-001`，用户裁定「边规则为缺省」；无位置控制器的设计锚在上一次解、残差读线圈自己的场、末尾撤锚——用户裁定「做正经的修」；逆解线性核的合成场回收锚——`FR-EQ-005`）。内核侧 **cargo test 823 过、0 失败、35 忽略**。★`code/forward` 与无位置控制器的 `code/discharge` 缺省数值随之动；ITER 的 c4 路径与其余入口逐位不变，节点规则以 `edge_fraction = 0` 留作对照。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `fylite_kernel@0f7e5af3b3cf`（库 `sha256:ac8204aa49349cc0ac53b3b5f9d7b91630ce4d69380fc7aa37034c89ce54dfe8`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
+- 内核 `fylite_kernel@915ed1249591`（库 `sha256:02975458f9f5425ca8c01674bb6070f754ac752edce0e143aec07fccee0ee7c2`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
-- `docs/benchmark/readings/forward_kefit_metrics.json`    `sha256:fc8187c587c2e219004ddc7446abd97a2e151b48c369e01b42b6ddee6f2f6957`    本条的派生指标
-- `FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/forward_kefit_east137985.json`    `sha256:a54852d884c396b77b050f387334a8bae29a942965b3d5750b32e2bb23e31f1c`    ★原始读数为实验类，留在 fydoc 算例库，公开册只记指针 + sha256
+- `docs/benchmark/readings/forward_kefit_metrics.json`    `sha256:f574c4cc2b409e2a5e635d7518ca8b2a7fcdcc7d08e9b18f75bc4c86a533d005`    本条的派生指标
+- `FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/forward_kefit_east137985.json`    `sha256:89ef8839992bdbfea09e13bfe0b6764ee9a5b065ccbb429e349e8b89ea070c07`    ★原始读数为实验类，留在 fydoc 算例库，公开册只记指针 + sha256
 
 **守它的门**：
 

@@ -14,7 +14,7 @@ unit tests only have a small analytic machine.
   Ip ramped 2 % over three 2 ms steps — the flux every conductor links, M I + psi_plasma, must not move.
 * drive reproduction: the same ramp with resistance and a voltage drive; a current-driven march handed that march's
   channel currents must give back its shell currents.
-* forward edge rule: `code/forward` on the B-14 slices with the node rule (default) and with `edge_fraction`, against
+* forward edge rule: `code/forward` on the B-14 slices with the node rule and with the edge rule (the default since 2026-09-19), against
   KEFIT's map — does the settled floor become a converged answer, and does the comparison move.
 
 Subcommand: ``readings --out DIR``.  Environment: ``$FYDOC_ORACLE``, ``$FYLITE_DEVICE_DIR``, a kernel with
@@ -156,7 +156,9 @@ def forward_edge(bme, dev, case: Path) -> dict:
             ip0, cc, eqp = kefit_inputs(bme, g, a)
             inputs = {"device": dev, "discharge": {"fylite:channel_aturns": cc, "fylite:ip": np.array([ip0])}, "equilibrium": eqp}
             out[name] = {}
-            for tag, st in (("node", {}), ("edge", {"edge_fraction": 1.0, "max_iter": 12000.0})):
+            #: ★2026-09-19 the door's default is the edge rule; both rules named explicitly so the reading does
+            #: not change meaning with the default
+            for tag, st in (("node", {"edge_fraction": 0.0}), ("edge", {"edge_fraction": 1.0, "max_iter": 12000.0})):
                 t0 = time.time()
                 facts, fields, _ = bme.door("code/forward", st, inputs)
                 out[name][tag] = {"seconds": round(time.time() - t0, 1),

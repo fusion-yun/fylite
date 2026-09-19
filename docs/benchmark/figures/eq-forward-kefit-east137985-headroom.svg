@@ -17,12 +17,12 @@
 <text x="572.0" y="34" font-size="11" fill="#8a8a8a" text-anchor="middle">judgement</text>
 <text x="370" y="72.0" font-size="12" fill="#9a9a9a" text-anchor="end">psi_N 对 KEFIT 的偏差（轮廓内 RMS），三个…</text>
 <rect x="572.0" y="61.0" width="2.0" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
-<text x="578.0" y="72.0" font-size="11" fill="#e0a030" text-anchor="start">1x</text>
+<text x="578.1" y="72.0" font-size="11" fill="#e0a030" text-anchor="start">1x</text>
 <text x="370" y="100.0" font-size="12" fill="#9a9a9a" text-anchor="end">磁轴位置</text>
 <rect x="572.0" y="89.0" width="2.0" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
-<text x="578.0" y="100.0" font-size="11" fill="#e0a030" text-anchor="start">1x</text>
+<text x="578.2" y="100.0" font-size="11" fill="#e0a030" text-anchor="start">1x</text>
 <text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">POINT 剖面切片必须**记在带外**</text>
-<rect x="572.0" y="117.0" width="45.8" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
-<text x="623.8" y="128.0" font-size="11" fill="#2e9e4f" text-anchor="start">3x</text>
+<rect x="572.0" y="117.0" width="3.1" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
+<text x="581.1" y="128.0" font-size="11" fill="#e0a030" text-anchor="start">1.08x</text>
 <text x="8" y="176" font-size="10.5" fill="#8a8a8a">★绿而窄（&lt; 2 倍）另着色：它与余量一千倍的判据在表上长得一样，在这里不一样。　生成：tools/benchmark-figures.py</text>
 </svg>

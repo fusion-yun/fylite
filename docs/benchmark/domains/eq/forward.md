@@ -54,6 +54,20 @@ GS 残差、`B-16` / `V-19` 定边界对 CHEASE 与 Solov'ev。★它们属于**
 退役（`docs/benchmark-legacy/`，移出版本控制、仅存盘查阅），在这里点名只为记住这一域
 被量过什么，不作为本册的记录。
 
+★★**2026-09-19 自由边界那一半补上了（`FR-EQ-001`）。** 抄录判据的后半句——「自由边界 Ip 约束收敛 rel 1e-6；
+收敛参数显式回显」——此前册里没有一条记录判它，记在
+[`eq-forward-free-boundary-convergence`](../../reports/eq-forward-free-boundary-convergence.md)：
+EAST #137985 三个纯磁测切片，缺省路径 750–790 次收敛到 $10^{-9}$，Ip 到 $10^{-15}$，八项设置逐项回显。
+★它能判，是因为**缺省的边界规则换了**（用户裁定）：旧的节点规则（边界格要么整格算、要么整格不算）在这几片上
+从不收敛，停在 $10^{-3}$，而且要 10–14 kA 的**虚构**竖直电流把柱子按住；边规则（边界格按分数算）收敛，
+虚拟对只剩几十安培。
+★★哪条规则对，此前判不了——唯一的参照 KEFIT 离节点规则更近。补的是一个**独立的第三个解**：
+FreeGSNKE 在同一组线圈电流与剖面上的正解，记在
+[`eq-forward-boundary-rule-vs-kefit`](../../reports/eq-forward-boundary-rule-vs-kefit.md)。
+边规则离它 0.0041（它自己的正、逆两解相差 0.0087），节点规则 0.0173，KEFIT 0.0156——
+**KEFIT 的图是重建，不是它自己输入的正解**，离它近不说明对。B-14 的带因此在边规则上重量、变宽，
+从精度声明降为对 KEFIT 的防劣化。★POINT 约束那一片（t5976_primary）哪条规则都不收敛，照记。
+
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
 
 ### 判据（抄自 `FYTOK-SRS-03` v0.43）
@@ -84,12 +98,13 @@ GS 残差、`B-16` / `V-19` 定边界对 CHEASE 与 Solov'ev。★它们属于**
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-forward-boundary-rule-vs-kefit`](../../reports/eq-forward-boundary-rule-vs-kefit.md) | 对拍 | 未判（读数） | KEFIT | 1.22 | 草稿 | [jsonld](../../records/eq-forward-boundary-rule-vs-kefit.jsonld) |
-| [`eq-forward-chease-solovev`](../../reports/eq-forward-chease-solovev.md) | 对拍 | 成立 | CHEASE | 1.22 | 草稿 | [jsonld](../../records/eq-forward-chease-solovev.jsonld) |
-| [`eq-forward-green-response-shared`](../../reports/eq-forward-green-response-shared.md) | 验证 | 成立 | 它自己的有限差分雅可比，以及由单位电流装出的响应阵 | 2.20 | 草稿 | [jsonld](../../records/eq-forward-green-response-shared.jsonld) |
-| [`eq-forward-kefit-east137985`](../../reports/eq-forward-kefit-east137985.md) | 对拍 | 成立 | KEFIT | 1.22 | 草稿 | [jsonld](../../records/eq-forward-kefit-east137985.jsonld) |
-| [`eq-forward-self-contained-core`](../../reports/eq-forward-self-contained-core.md) | 验证 | 成立 | 各自的依赖声明与导入图 | 1.23 | 草稿 | [jsonld](../../records/eq-forward-self-contained-core.jsonld) |
-| [`eq-forward-solovev-fixed-boundary`](../../reports/eq-forward-solovev-fixed-boundary.md) | 验证 | 成立 | Solov'ev 解析平衡 (closed form) | 1.23 | 草稿 | [jsonld](../../records/eq-forward-solovev-fixed-boundary.jsonld) |
+| [`eq-forward-boundary-rule-vs-kefit`](../../reports/eq-forward-boundary-rule-vs-kefit.md) | 对拍 | 成立 | FreeGSNKE · KEFIT | 1.23 | 草稿 | [jsonld](../../records/eq-forward-boundary-rule-vs-kefit.jsonld) |
+| [`eq-forward-chease-solovev`](../../reports/eq-forward-chease-solovev.md) | 对拍 | 成立 | CHEASE | 1.23 | 草稿 | [jsonld](../../records/eq-forward-chease-solovev.jsonld) |
+| [`eq-forward-free-boundary-convergence`](../../reports/eq-forward-free-boundary-convergence.md) | 验证 | 成立 | 抄录的判据：「自由边界 Ip 约束收敛 rel 1e-6；收敛参数显式回显」 | 1.0 | 草稿 | [jsonld](../../records/eq-forward-free-boundary-convergence.jsonld) |
+| [`eq-forward-green-response-shared`](../../reports/eq-forward-green-response-shared.md) | 验证 | 成立 | 它自己的有限差分雅可比，以及由单位电流装出的响应阵 | 2.21 | 草稿 | [jsonld](../../records/eq-forward-green-response-shared.jsonld) |
+| [`eq-forward-kefit-east137985`](../../reports/eq-forward-kefit-east137985.md) | 对拍 | 成立 | KEFIT | 1.23 | 草稿 | [jsonld](../../records/eq-forward-kefit-east137985.jsonld) |
+| [`eq-forward-self-contained-core`](../../reports/eq-forward-self-contained-core.md) | 验证 | 成立 | 各自的依赖声明与导入图 | 1.24 | 草稿 | [jsonld](../../records/eq-forward-self-contained-core.jsonld) |
+| [`eq-forward-solovev-fixed-boundary`](../../reports/eq-forward-solovev-fixed-boundary.md) | 验证 | 成立 | Solov'ev 解析平衡 (closed form) | 1.24 | 草稿 | [jsonld](../../records/eq-forward-solovev-fixed-boundary.jsonld) |
 | [`eq-forward-veq-fixed-boundary`](../../reports/eq-forward-veq-fixed-boundary.md) | 验证 | 不成立 | Solov'ev 解析平衡 (closed form) · CHEASE · VEQ / VEQPy | 1.1 | 草稿 | [jsonld](../../records/eq-forward-veq-fixed-boundary.jsonld) |
 
 ### 缺口

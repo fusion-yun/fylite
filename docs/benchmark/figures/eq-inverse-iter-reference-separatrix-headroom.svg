@@ -17,16 +17,16 @@
 <text x="572.0" y="34" font-size="11" fill="#8a8a8a" text-anchor="middle">judgement</text>
 <text x="370" y="72.0" font-size="12" fill="#9a9a9a" text-anchor="end">设计分离面对目标曲线的逐点距离（中位数）</text>
 <rect x="572.0" y="61.0" width="2.0" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
-<text x="578.4" y="72.0" font-size="11" fill="#e0a030" text-anchor="start">1.01x</text>
-<text x="370" y="100.0" font-size="12" fill="#9a9a9a" text-anchor="end">线圈电流峰值（是否落在机器能给的范围内）</text>
-<rect x="572.0" y="89.0" width="132.5" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
-<text x="710.5" y="100.0" font-size="11" fill="#2e9e4f" text-anchor="start">24x</text>
-<text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">逆解的收敛状态（读数，不判）</text>
-<circle cx="572.0" cy="124.0" r="4" fill="#8a8a8a"/>
-<text x="584.0" y="128.0" font-size="11" fill="#8a8a8a">恒等：不成立</text>
-<text x="370" y="156.0" font-size="12" fill="#9a9a9a" text-anchor="end">达成的形状对目标形状（kappa 与 delta_lowe…</text>
-<rect x="475.1" y="145.0" width="96.9" height="14" rx="3" fill="#d64545" opacity="0.85"/>
-<text x="469.1" y="156.0" font-size="11" fill="#d64545" text-anchor="end">超出 10.2 倍</text>
+<text x="578.9" y="72.0" font-size="11" fill="#e0a030" text-anchor="start">1.02x</text>
+<text x="370" y="100.0" font-size="12" fill="#9a9a9a" text-anchor="end">线圈电流：守住机器额定（DINA-IMAS 的 ITER …</text>
+<rect x="572.0" y="89.0" width="2.0" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
+<text x="578.0" y="100.0" font-size="11" fill="#e0a030" text-anchor="start">1x</text>
+<text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">在额定内的设计收敛（converged = 1，残差 ≤ …</text>
+<circle cx="572.0" cy="124.0" r="4" fill="#6f8fbf"/>
+<text x="584.0" y="128.0" font-size="11" fill="#8a8a8a">恒等：成立</text>
+<text x="370" y="156.0" font-size="12" fill="#9a9a9a" text-anchor="end">达成的形状对**机器做得到的**目标（kappa 与 de…</text>
+<rect x="572.0" y="145.0" width="46.3" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
+<text x="624.3" y="156.0" font-size="11" fill="#2e9e4f" text-anchor="start">3.04x</text>
 <text x="370" y="184.0" font-size="12" fill="#9a9a9a" text-anchor="end">目标曲线自身的缺陷（记在册里，不在脚注里）</text>
 <circle cx="572.0" cy="180.0" r="4" fill="#8a8a8a"/>
 <text x="584.0" y="184.0" font-size="11" fill="#8a8a8a">读数：不判</text>

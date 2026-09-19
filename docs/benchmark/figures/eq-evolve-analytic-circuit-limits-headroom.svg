@@ -19,14 +19,14 @@
 <rect x="572.0" y="61.0" width="199.1" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
 <text x="777.1" y="72.0" font-size="11" fill="#2e9e4f" text-anchor="start">118x</text>
 <text x="370" y="100.0" font-size="12" fill="#9a9a9a" text-anchor="end">理想导体的磁通漂移 / 它被移动的量</text>
-<rect x="572.0" y="89.0" width="255.7" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
-<text x="833.7" y="100.0" font-size="11" fill="#2e9e4f" text-anchor="start">461x</text>
+<rect x="572.0" y="89.0" width="212.8" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
+<text x="790.8" y="100.0" font-size="11" fill="#2e9e4f" text-anchor="start">165x</text>
 <text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">回路方程的最大残差（磁通冻结 / 电压驱动 / 电流驱动 …</text>
 <rect x="572.0" y="117.0" width="288.0" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
-<text x="866.0" y="128.0" font-size="11" fill="#2e9e4f" text-anchor="start">4.57e+03x</text>
+<text x="866.0" y="128.0" font-size="11" fill="#2e9e4f" text-anchor="start">1.86e+03x</text>
 <text x="370" y="156.0" font-size="12" fill="#9a9a9a" text-anchor="end">电压驱动与电流驱动两条路复现同一段壳电流的最劣相对差</text>
 <rect x="572.0" y="145.0" width="2.0" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
-<text x="578.1" y="156.0" font-size="11" fill="#e0a030" text-anchor="start">1x</text>
+<text x="578.0" y="156.0" font-size="11" fill="#e0a030" text-anchor="start">1x</text>
 <text x="370" y="184.0" font-size="12" fill="#9a9a9a" text-anchor="end">每一耦合步都是电流自身的一个已收敛平衡</text>
 <circle cx="572.0" cy="180.0" r="4" fill="#6f8fbf"/>
 <text x="584.0" y="184.0" font-size="11" fill="#8a8a8a">恒等：成立</text>

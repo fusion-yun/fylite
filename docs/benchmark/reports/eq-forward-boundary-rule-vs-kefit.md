@@ -2,7 +2,7 @@
 title: "eq-forward-boundary-rule-vs-kefit"
 ---
 
-# 两种边界规则对 KEFIT 的图：收敛的那一条反而更远
+# 两种边界规则：边规则是自由边界正问题的解——对独立代码 FreeGSNKE 0.0041（在它自己正/逆两解之差 0.0087 之内）；节点规则不收敛、靠 10.5 kA 虚拟对贴近 KEFIT
 
 <!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/eq-forward-boundary-rule-vs-kefit.jsonld`，本页只是它的可读面。 -->
 
@@ -10,25 +10,24 @@ title: "eq-forward-boundary-rule-vs-kefit"
 
 ## 摘要
 
-- **类**：对拍　**判决**：**未判（读数）**
-- **量的是**：两种边界规则对 KEFIT 的图：收敛的那一条反而更远
-- **参考**：KEFIT
+- **类**：对拍　**判决**：**成立**
+- **量的是**：两种边界规则：边规则是自由边界正问题的解——对独立代码 FreeGSNKE 0.0041（在它自己正/逆两解之差 0.0087 之内）；节点规则不收敛、靠 10.5 kA 虚拟对贴近 KEFIT
+- **参考**：FreeGSNKE · KEFIT
 - **验的需求**：`FR-EQ-001`
-- **跑在内核**：`fylite_kernel@0f7e5af3b3cf`（新鲜度 **current**）
-- **记录版本**：1.22　**评审**：草稿　**日期**：2026-09-16
-
-:::{warning} 这是一条**已裁定保留**的缺口
-
-2026-09-16 记名读数（非缺陷但未定）：edge 规则收敛而离 KEFIT 更远，node 规则不收敛却更近；两者差在虚拟对是否带电流。判它需要独立于两者的真值，这道题上没有。用户裁定「保留负面结果」，本条以 inconclusive 原样留册。
-:::
+- **跑在内核**：`fylite_kernel@915ed1249591`（新鲜度 **current**）
+- **记录版本**：1.23　**评审**：草稿　**日期**：2026-09-19
 
 ## 问的是什么
 
 **被量的**：同一道前向题的**两种边界规则**：node（节点规则，带虚拟对）与 edge（边规则）
 
+**参考**：FreeGSNKE（fydoc CASE-23 corpus/freegsnke（静态正解，Lao85 剖面拟合 KEFIT 的 p′/FF′ 到 1e-9，KEFIT 十二路线圈电流））
+
+> ★★独立的第三个解：同一组线圈电流与剖面上的自由边界正问题。它自己的正解与逆解（线圈挪 0.37 kA·t）相差 0.0087——这是本条读「一致」的尺度。
+
 **参考**：KEFIT
 
-> KEFIT 的记录运行（同 eq-forward-kefit-east137985 的那一批），本处不重跑。
+> ★KEFIT 的图是**重建**，不是它自己输入的正解：FreeGSNKE 在同一组电流与剖面上离它 0.0156——所以「谁离 KEFIT 近」判不了规则，留作读数。
 
 **口径与适用域**：
 
@@ -45,31 +44,36 @@ title: "eq-forward-boundary-rule-vs-kefit"
 
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
-| 两种规则各自对 KEFIT 的 psi_N 偏差，以及各自的收敛状态 | 0 | measured_band | node：psi_N RMS 0.007364 · 轴 4.11 mm · 虚拟对 10525.4 A · **converged = 0 / settled = 1**（残差 0.00291，62 次，0.2 s）；edge：psi_N RMS 0.01834 · 轴 9.24 mm · 虚拟对 34.1 A · **converged = 1 / settled = 0**（残差 9.77e-10，5664 次，14.1 s） | **未判（读数）** |
-| 四个切片的全貌 | — | — | t4041_mag：node 0.007364 / edge 0.01834 · t4944_mag：node 0.006545 / edge 0.02265 · t5976_mag：node 0.006637 / edge 0.02363 · t5976_primary：node 0.02212 / edge 0.02861 | **未判（读数）** |
+| 边规则（缺省）对 FreeGSNKE 的 psi_N 偏差（KEFIT 边界内 RMS，t = 4.041 s） | 0.00872201 | reference_self_reported | t = 4.041 s，KEFIT 边界内 psi_N RMS：边规则对 FreeGSNKE 0.0041 · 节点规则 0.0173 · KEFIT 自己 0.0156 · FreeGSNKE 逆解 0.0087。磁轴 Z：边 +8.0 mm · FreeGSNKE +6.7 · 节点 -3.7 · KEFIT -0.9 | **成立** |
+| 收敛且虚拟对电流为零级（\|fb\| < 1e-3 Ip）——解的是所述的问题，不是带着虚构外力的另一个问题 | — | reference_self_reported | 三个纯磁测切片：边规则 t4041 收敛 753 次、残差 9.9e-10、对 -50 A · t4944 收敛 785 次、残差 9.9e-10、对 -44 A · t5976 收敛 764 次、残差 9.5e-10、对 -33 A；节点规则 t4041 settled 残差 2.9e-03、对 10.5 kA · t4944 settled 残差 3.7e-03、对 13.7 kA · t5976 settled 残差 1.3e-03、对 14.2 kA | **成立** |
+| 两种规则对 KEFIT 的 psi_N 偏差（读数，不判） | — | reference_self_reported | t4041_mag：边 0.0185 / 节点 0.0074 · t4944_mag：边 0.0228 / 节点 0.0065 · t5976_mag：边 0.0237 / 节点 0.0066 · t5976_primary：边 0.0256 / 节点 0.0221 | **未判（读数）** |
 
-**`两种规则各自对 KEFIT 的 psi_N 偏差，以及各自的收敛状态`** — ★★**本条没有带，是一条读数。** 两种规则解的是同一道题的两种提法，谁离 KEFIT 近不等于谁对——KEFIT 自己也只是一次运行。给它画一条带，等于替这个选择预先判了案。
+**`边规则（缺省）对 FreeGSNKE 的 psi_N 偏差（KEFIT 边界内 RMS，t = 4.041 s）`** — ★带 = 参考自己的两个解（FreeGSNKE 正解与逆解）之差：落在参考自身的散布之内，就是参考分不开的一致。
 
-**★t4041_mag：收敛的那条更远**
+**`收敛且虚拟对电流为零级（|fb| < 1e-3 Ip）——解的是所述的问题，不是带着虚构外力的另一个问题`** — ★虚拟对是数值控制器，不是导体：不动点处它应当不带电流。带着 10 kA 的「解」是另一个问题（多一根导体）的解。
 
-- ★★**这正是本条存在的理由**：edge 规则**真收敛了**（残差 9.77e-10），而它离 KEFIT 的图比**没收敛**的 node 规则远 2.5 倍。
-- ★差别在那个虚拟对上：node 规则让它带着约 10.5 kA，edge 规则把它削到几十安培。**B-14 的读数是靠那对电流撑起来的平衡**——所以 B-14 与本条要一起读。
-- ★**不判谁对。** 判它需要一个独立于两者的真值，而这道题上没有。若哪天 edge 规则不再收敛、或 node 规则开始收敛，本读数即失效。
-- ★代价也记上：edge 规则用了 5664 次迭代 / 14.1 s，node 规则 62 次 / 0.2 s。
+**★★边规则 = 独立代码的解：对 FreeGSNKE 0.0041（带 0.0087）；节点规则 0.0173**
 
-**四个切片的全貌**
+- ★★这就回答了本条此前判不了的那个问题：此前只有 KEFIT 一个参照，而节点规则离它更近（0.007 对 0.018）；有了独立的第三个解，才看清 KEFIT 本身不是这个正问题的解（离 FreeGSNKE 0.0156），节点规则的「近」来自那对虚拟电流把柱子按在 KEFIT 的位置上。
+- ★FreeGSNKE 只有这一片（CASE-23 的记录只跑了 4.041 s）；其余三片仍只有 KEFIT 作参照，读数见第三格——四片同向：边规则离 KEFIT 远 2.5 倍左右，与这一片一致。
 
-- ★四片同向：node 规则都更靠近 KEFIT。**一致的方向说明这不是某一片的偶然**，是两种提法的系统差。
+**边规则收敛、虚拟对 -50 A；节点规则 settled、带 10.5 kA**
+
+- ★用户 2026-09-19 裁定边规则为 `code/forward` · `code/discharge` 的缺省；节点规则以 `edge_fraction = 0` 留作对照。
+- ★边规则此前要 5664 次才收敛，是因为每次下垂修正都要重新收敛到 1e-9；现在在 1e-4 就修、且修正不再缩小对电流时就停——同一不动点（对 FreeGSNKE 0.0041 不变），750–790 次。
+
+**对 KEFIT（读数）**
+
+- ★KEFIT 不是这个正问题的解，离它的远近不判规则。t5976_primary（POINT 约束剖面）两种规则都不收敛，见 `eq-forward-free-boundary-convergence`。
 
 ## 不可比的部分
 
-- ★★**对拍不是验证**：两套提法与 KEFIT 的差，说明不了谁对——三方都可能偏。
-- ★**本条不给带、不给判决**，它是一条读数（登记册允许这样：`overall_verdict = inconclusive`）。把一个未定的选择写成一条「通过」的记录，比不记更坏。
-- ★参考侧（KEFIT）是归档记录，不在本处重跑。
+- ★★本条由 inconclusive 转 pass（2026-09-19）：缺的是独立于两者的真值，FreeGSNKE 在同一组输入上的正解就是它。
+- ★对拍不是验证：两码一致说明没有明显算错，不说明物理全对；但两码在 0.004 内一致、且都离 KEFIT 0.016–0.018，足以判定「离 KEFIT 近」不是正确性的标志。
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.22　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.23　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -97,21 +101,25 @@ title: "eq-forward-boundary-rule-vs-kefit"
 | 1.20 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
 | 1.21 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 ★本条的判据与数值**未改口径**。 |
 | 1.22 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`0f7e5af3b3cf`：1.5-D 各通道耦合整体求解成为缺省——`FR-TR-006`，用户裁定「决定要整体求解」；Te/Ti 块系统、交换隐式，遍数迭代到收敛，α · 辐射 · 欧姆在步内重算）。内核侧 **cargo test 822 过、0 失败、35 忽略**。★`code/evolve` 的缺省数值随之动（ITER 15 MA 上 P_α +1.6 %）；其余入口逐位不变，旧路径以 `sequential` 留作对照。 ★本条的判据与数值**未改口径**。 |
+| 1.23 | 2026-09-19 | Claude Opus 5 | ★★由 inconclusive 转 pass：缺的是独立于两者的真值——FreeGSNKE 在同一组电流与剖面上的正解（CASE-23 归档）。边规则离它 0.0041，落在它自己正/逆两解之差 0.0087 之内；节点规则 0.0173、不收敛、带 10.5 kA 虚拟对；KEFIT 0.0156（它的图是重建，不是它输入的正解）。对 KEFIT 的远近改记读数。读数 `forward_convergence_east137985.json` 由新工具 `tools/benchmark-forward-convergence.py` 生成。原 open_defect 关闭。 内核换代（`915ed1249591`：自由边界缺省换成边规则——`FR-EQ-001`，用户裁定「边规则为缺省」；无位置控制器的设计锚在上一次解、残差读线圈自己的场、末尾撤锚——用户裁定「做正经的修」；逆解线性核的合成场回收锚——`FR-EQ-005`）。内核侧 **cargo test 823 过、0 失败、35 忽略**。★`code/forward` 与无位置控制器的 `code/discharge` 缺省数值随之动；ITER 的 c4 路径与其余入口逐位不变，节点规则以 `edge_fraction = 0` 留作对照。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `fylite_kernel@0f7e5af3b3cf`（库 `sha256:ac8204aa49349cc0ac53b3b5f9d7b91630ce4d69380fc7aa37034c89ce54dfe8`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
+- 内核 `fylite_kernel@915ed1249591`（库 `sha256:02975458f9f5425ca8c01674bb6070f754ac752edce0e143aec07fccee0ee7c2`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
-- `docs/benchmark/readings/forward_edge_rule_metrics.json`    `sha256:f7be7c606e3212d3371558a631e97fedb157bde868b668164b4712922aa9558e`
-- `FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/evolve_free_boundary_east137985.json`    `sha256:3ed068ab61d9d59ec67ad727513015301f471fa440e8be9656d5584e4d44fe1a`    ★实验类原始读数，指针 + sha256
+- `docs/benchmark/readings/forward_convergence_east137985.json`    `sha256:b85776186d192a9eca810fea56d0ace56b245392f7f402b9a46b90bdfdb4051c`    ★两种规则对 KEFIT 与对 FreeGSNKE（tools/benchmark-forward-convergence.py 生成）
+- `tools/benchmark-forward-convergence.py`    `sha256:9a260a32ea9ed1623ca13858f27ffedc7b77bf18969a86fab653c6b3c1e6ae0f`    读数生成器
+- `FYDOC-CASE-23-east-137985-efit-east/corpus/freegsnke/freegsnke_vstab_east137985.tar.gz`    `sha256:df6725b4bfe4ad664620c4503dfb4d8aea5b951b36b772a8fc1902f3cfbc6c81`    ★FreeGSNKE 侧原件（参考类，指针 + sha256）
+- `docs/benchmark/readings/forward_edge_rule_metrics.json`    `sha256:093e91fd8355bac3afa9de5a18edb27e73160cc2080dad57a5f2e84945753bc2`    两种规则对 KEFIT 的派生指标（tools/benchmark-equilibrium-metrics.py）
 
 **守它的门**：
 
-- `python/tests/test_benchmark_evolve_free_boundary.py::test_v21_the_forward_edge_rule_is_a_reading_not_a_band`
+- `python/tests/test_benchmark_equilibrium.py::test_fr_eq_001_the_edge_rule_is_the_independent_code_s_answer` —— ★第一、二格：对 FreeGSNKE 在其自身散布内；节点规则不收敛、对 > 5 kA
+- `python/tests/test_benchmark_evolve_free_boundary.py::test_v21_the_forward_edge_rule_is_a_reading_not_a_band` —— 第三格：两种规则对 KEFIT 的读数逐位复现
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

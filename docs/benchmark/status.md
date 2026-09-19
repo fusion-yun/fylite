@@ -10,7 +10,7 @@ title: 验证状态 (Verification status)
 
 ## 基准内核 (reference kernel)
 
-- **`fylite_kernel@0f7e5af3b3cf`**（内核仓的 git 提交）
+- **`fylite_kernel@915ed1249591`**（内核仓的 git 提交）
 - 声明于 (recorded)：2026-09-19
 
 :::{note} ★指纹锁在**内核仓的 git 提交**上（用户 2026-09-19 裁定），不再锁在库的字节上
@@ -25,20 +25,16 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**58** 条
-- 判决 (verdict)：成立 54 · 不成立 **1** · 未判 2 · 未评估 1
-- 新鲜度 (freshness)：当前 57 · **过期 1** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 58 · 已被取代 0
+- 记录 (records)：**60** 条
+- 判决 (verdict)：成立 58 · 不成立 **1** · 未判 0 · 未评估 1
+- 新鲜度 (freshness)：当前 59 · **过期 1** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 60 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
 ★★这些记录判 **fail**，而且**有意留着**——不是没人管，是量化清楚之后裁定先不改。
 
 ★**它们与「新冒出来的失败」分开计**：`--ci` 对前者退 3、对后者退 1。若两者混在一个退出码里，红就成了常态，而常态的红没有人看——真正新出的失败会被它盖住。
-
-### [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md)
-
-2026-09-16 记名读数（非缺陷但未定）：edge 规则收敛而离 KEFIT 更远，node 规则不收敛却更近；两者差在虚拟对是否带电流。判它需要独立于两者的真值，这道题上没有。用户裁定「保留负面结果」，本条以 inconclusive 原样留册。
 
 ### [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md)
 
@@ -48,9 +44,9 @@ title: 验证状态 (Verification status)
 
 2026-09-19 用户裁定：作为 `method = veq` 的**已知、已接受的局限**保留，待后续改进。EAST #137985 ψ_N = 0.995 面上 ψ_N 对 CHEASE NS80 的 RMS 1.0e-4（l = m = 10），过 FR-EQ-001 的 5e-4 但未达网格档立下的 4.92e-5；q[0.1–0.9] 与网格档同级（1.03e-3），磁轴差 0.35 mm。★原因是 MXH 边界表示跟不住近分界面的轮廓（拟合 RMS 0.11 mm、最大 0.44 mm），加阶不救（l10/m12 9.0e-5、6.1 s；l = m = 12 不收敛）。★用法上的结论：光滑形状与快速求解用 `veq`，要边界逐点保真用缺省的 `grid`。改进方向：边界表示（更高阶或非 MXH 的边界族）、解析雅可比（高阶收敛与速度）。
 
-### [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md)
+### [`eq-inverse-core-field-recovery`](reports/eq-inverse-core-field-recovery.md)
 
-用户裁定「不改内核，保留负面结果」（本会话，ITER 这一例点名在内）：ITER 参考分离面在这台机器的线圈额定内**买不到**——无界设计要 PF1 1.14 倍、PF6 1.28 倍的 DINA 额定，形状仍差（kappa −3 %、delta_lower −10 %）；在额定内重解守住额定、分离面 11.8 mm，但不再收敛（残差 0.072）。**这是设计本身的结论，不是实现的缺陷**：同一需求 `FR-EQ-005` 的 FreeGSNKE 对拍记录判成立。
+2026-09-19 ★门在内核仓：本条唯一的门是 Rust 单测，本仓 CI 跑不到它（与 `tr-pedestal-sawtooth-kadomtsev` 同一处代价）。
 
 ### [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md)
 
@@ -96,10 +92,10 @@ title: 验证状态 (Verification status)
 
 | 组 | 域 | 需求 | 覆盖 | 记录 | 成立 | 不成立 | 过期 |
 | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](domains/eq/forward.md) | 4 | 4 | 7 | 5 | 1 | 1 |
+| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](domains/eq/forward.md) | 4 | 4 | 8 | 7 | 1 | 1 |
 | 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](domains/eq/surface.md) | 3 | 3 | 2 | 2 | 0 | 0 |
 | 平衡 (Equilibrium) | [演化自由边界与涡流电路](domains/eq/evolve.md) | 1 | 1 | 1 | 1 | 0 | 0 |
-| 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](domains/eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 0 |
+| 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](domains/eq/inverse.md) | 1 | 1 | 3 | 3 | 0 | 0 |
 | 平衡 (Equilibrium) | [测量重构与约束阶梯](domains/eq/reconstruct.md) | 8 | 8 | 8 | 7 | 0 | 0 |
 | 平衡 (Equilibrium) | [约定与口径：COCOS 与插件接入](domains/eq/convention.md) | 2 | 2 | 2 | 2 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [竖直稳定性、线圈受力与电磁线性模型](domains/mhd/vertical.md) | 3 | 3 | 3 | 3 | 0 | 0 |
@@ -117,64 +113,66 @@ title: 验证状态 (Verification status)
 
 | 记录 | 域 | 类 | 判决 | 版本 | 末次修订 | 评审 | 跑在内核 | 新鲜度 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | eq-convention | 验证 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-convention-ladder-flux-gauge`](reports/eq-convention-ladder-flux-gauge.md) | eq-convention | 验证 | 成立 | 1.16 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-evolve-analytic-circuit-limits`](reports/eq-evolve-analytic-circuit-limits.md) | eq-evolve | 验证 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) | eq-forward | 对拍 | 未判（读数） | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) | eq-forward | 对拍 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md) | eq-forward | 验证 | 成立 | 2.20 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | eq-forward | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
+| [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | eq-convention | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-convention-ladder-flux-gauge`](reports/eq-convention-ladder-flux-gauge.md) | eq-convention | 验证 | 成立 | 1.17 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-evolve-analytic-circuit-limits`](reports/eq-evolve-analytic-circuit-limits.md) | eq-evolve | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) | eq-forward | 对拍 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) | eq-forward | 对拍 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-forward-free-boundary-convergence`](reports/eq-forward-free-boundary-convergence.md) | eq-forward | 验证 | 成立 | 1.0 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md) | eq-forward | 验证 | 成立 | 2.21 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | eq-forward | 验证 | 成立 | 1.24 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.24 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
 | [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md) | eq-forward | 验证 | 不成立 | 1.1 | 2026-09-19 | 草稿 | `fylite_kernel@57e763955e5e` | stale |
-| [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.24 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md) | eq-reconstruct | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-reconstruct-fast-ion-pressure`](reports/eq-reconstruct-fast-ion-pressure.md) | eq-reconstruct | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-reconstruct-kinetic-outer`](reports/eq-reconstruct-kinetic-outer.md) | eq-reconstruct | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-reconstruct-mse-shelved`](reports/eq-reconstruct-mse-shelved.md) | eq-reconstruct | 验证 | 未评估 | 1.3 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-reconstruct-posterior-bands`](reports/eq-reconstruct-posterior-bands.md) | eq-reconstruct | 验证 | 成立 | 1.15 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | eq-reconstruct | 验证 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | eq-surface | 验证 | 成立 | 1.17 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-analytic-ballooning-first-stability`](reports/mhd-analytic-ballooning-first-stability.md) | mhd-analytic | 验证 | 成立 | 1.13 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-analytic-external-kink-qlimit`](reports/mhd-analytic-external-kink-qlimit.md) | mhd-analytic | 验证 | 成立 | 1.14 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-deltaw-delivery-records`](reports/mhd-deltaw-delivery-records.md) | mhd-deltaw | 验证 | 成立 | 1.10 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-deltaw-normal-modes`](reports/mhd-deltaw-normal-modes.md) | mhd-deltaw | 验证 | 成立 | 1.10 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-deltaw-screw-pinch`](reports/mhd-deltaw-screw-pinch.md) | mhd-deltaw | 验证 | 成立 | 1.10 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-deltaw-toroidal-fixed-boundary`](reports/mhd-deltaw-toroidal-fixed-boundary.md) | mhd-deltaw | 对拍 | 成立 | 1.9 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-deltaw-toroidal-free-boundary`](reports/mhd-deltaw-toroidal-free-boundary.md) | mhd-deltaw | 对拍 | 成立 | 1.9 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-deltaw-wall-and-rwm`](reports/mhd-deltaw-wall-and-rwm.md) | mhd-deltaw | 对拍 | 成立 | 1.9 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-energy-conformal-map`](reports/mhd-energy-conformal-map.md) | mhd-energy | 验证 | 成立 | 1.12 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-energy-coupled-assembly`](reports/mhd-energy-coupled-assembly.md) | mhd-energy | 验证 | 成立 | 1.11 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-energy-fluid-high-beta`](reports/mhd-energy-fluid-high-beta.md) | mhd-energy | 验证 | 成立 | 1.11 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-energy-surface-current-beta-limit`](reports/mhd-energy-surface-current-beta-limit.md) | mhd-energy | 验证 | 成立 | 1.14 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-energy-three-term-assembly`](reports/mhd-energy-three-term-assembly.md) | mhd-energy | 验证 | 成立 | 1.11 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-energy-vacuum-general-shape`](reports/mhd-energy-vacuum-general-shape.md) | mhd-energy | 验证 | 成立 | 1.11 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-energy-variational-cylinder`](reports/mhd-energy-variational-cylinder.md) | mhd-energy | 验证 | 成立 | 1.11 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | mhd-vertical | 验证 | 成立 | 1.19 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | mhd-vertical | 确认 | 成立 | 2.16 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`mhd-vertical-lti-export`](reports/mhd-vertical-lti-export.md) | mhd-vertical | 验证 | 成立 | 1.9 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 成立 | 1.24 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-closure-lazy-plugin-resolution`](reports/tr-closure-lazy-plugin-resolution.md) | tr-closure | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-closure-plugin-dispatch`](reports/tr-closure-plugin-dispatch.md) | tr-closure | 验证 | 成立 | 1.21 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | tr-conservation | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-conservation-time-order`](reports/tr-conservation-time-order.md) | tr-conservation | 验证 | 成立 | 1.19 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-coupling-equilibrium-outer-loop`](reports/tr-coupling-equilibrium-outer-loop.md) | tr-coupling | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-coupling-interpretive-inversion`](reports/tr-coupling-interpretive-inversion.md) | tr-coupling | 验证 | 成立 | 1.10 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | tr-coupling | 验证 | 成立 | 1.21 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | tr-equations | 验证 | 成立 | 3.18 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-equations-channel-descriptor`](reports/tr-equations-channel-descriptor.md) | tr-equations | 验证 | 成立 | 1.18 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md) | tr-paradigm | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | tr-paradigm | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-paradigm-momentum-channel`](reports/tr-paradigm-momentum-channel.md) | tr-paradigm | 验证 | 成立 | 1.8 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 成立 | 1.25 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-pedestal-eped-feedback`](reports/tr-pedestal-eped-feedback.md) | tr-pedestal | 验证 | 成立 | 1.1 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 成立 | 1.26 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
+| [`eq-inverse-core-field-recovery`](reports/eq-inverse-core-field-recovery.md) | eq-inverse | 验证 | 成立 | 1.0 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 成立 | 1.25 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md) | eq-reconstruct | 验证 | 成立 | 1.21 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-reconstruct-fast-ion-pressure`](reports/eq-reconstruct-fast-ion-pressure.md) | eq-reconstruct | 验证 | 成立 | 1.21 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-reconstruct-kinetic-outer`](reports/eq-reconstruct-kinetic-outer.md) | eq-reconstruct | 验证 | 成立 | 1.21 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-reconstruct-mse-shelved`](reports/eq-reconstruct-mse-shelved.md) | eq-reconstruct | 验证 | 未评估 | 1.4 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-reconstruct-posterior-bands`](reports/eq-reconstruct-posterior-bands.md) | eq-reconstruct | 验证 | 成立 | 1.16 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | eq-reconstruct | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.24 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | eq-surface | 验证 | 成立 | 1.18 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-analytic-ballooning-first-stability`](reports/mhd-analytic-ballooning-first-stability.md) | mhd-analytic | 验证 | 成立 | 1.14 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-analytic-external-kink-qlimit`](reports/mhd-analytic-external-kink-qlimit.md) | mhd-analytic | 验证 | 成立 | 1.15 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-deltaw-delivery-records`](reports/mhd-deltaw-delivery-records.md) | mhd-deltaw | 验证 | 成立 | 1.11 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-deltaw-normal-modes`](reports/mhd-deltaw-normal-modes.md) | mhd-deltaw | 验证 | 成立 | 1.11 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-deltaw-screw-pinch`](reports/mhd-deltaw-screw-pinch.md) | mhd-deltaw | 验证 | 成立 | 1.11 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-deltaw-toroidal-fixed-boundary`](reports/mhd-deltaw-toroidal-fixed-boundary.md) | mhd-deltaw | 对拍 | 成立 | 1.10 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-deltaw-toroidal-free-boundary`](reports/mhd-deltaw-toroidal-free-boundary.md) | mhd-deltaw | 对拍 | 成立 | 1.10 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-deltaw-wall-and-rwm`](reports/mhd-deltaw-wall-and-rwm.md) | mhd-deltaw | 对拍 | 成立 | 1.10 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-energy-conformal-map`](reports/mhd-energy-conformal-map.md) | mhd-energy | 验证 | 成立 | 1.13 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-energy-coupled-assembly`](reports/mhd-energy-coupled-assembly.md) | mhd-energy | 验证 | 成立 | 1.12 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-energy-fluid-high-beta`](reports/mhd-energy-fluid-high-beta.md) | mhd-energy | 验证 | 成立 | 1.12 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-energy-surface-current-beta-limit`](reports/mhd-energy-surface-current-beta-limit.md) | mhd-energy | 验证 | 成立 | 1.15 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-energy-three-term-assembly`](reports/mhd-energy-three-term-assembly.md) | mhd-energy | 验证 | 成立 | 1.12 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-energy-vacuum-general-shape`](reports/mhd-energy-vacuum-general-shape.md) | mhd-energy | 验证 | 成立 | 1.12 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-energy-variational-cylinder`](reports/mhd-energy-variational-cylinder.md) | mhd-energy | 验证 | 成立 | 1.12 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | mhd-vertical | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | mhd-vertical | 确认 | 成立 | 2.17 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`mhd-vertical-lti-export`](reports/mhd-vertical-lti-export.md) | mhd-vertical | 验证 | 成立 | 1.10 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 成立 | 1.24 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 成立 | 1.25 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-closure-lazy-plugin-resolution`](reports/tr-closure-lazy-plugin-resolution.md) | tr-closure | 验证 | 成立 | 1.21 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-closure-plugin-dispatch`](reports/tr-closure-plugin-dispatch.md) | tr-closure | 验证 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | tr-conservation | 验证 | 成立 | 1.21 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-conservation-time-order`](reports/tr-conservation-time-order.md) | tr-conservation | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-coupling-equilibrium-outer-loop`](reports/tr-coupling-equilibrium-outer-loop.md) | tr-coupling | 验证 | 成立 | 1.21 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-coupling-interpretive-inversion`](reports/tr-coupling-interpretive-inversion.md) | tr-coupling | 验证 | 成立 | 1.11 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | tr-coupling | 验证 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | tr-equations | 验证 | 成立 | 3.19 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-equations-channel-descriptor`](reports/tr-equations-channel-descriptor.md) | tr-equations | 验证 | 成立 | 1.19 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md) | tr-paradigm | 验证 | 成立 | 1.21 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | tr-paradigm | 验证 | 成立 | 1.21 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-paradigm-momentum-channel`](reports/tr-paradigm-momentum-channel.md) | tr-paradigm | 验证 | 成立 | 1.9 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 成立 | 1.26 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-pedestal-eped-feedback`](reports/tr-pedestal-eped-feedback.md) | tr-pedestal | 验证 | 成立 | 1.2 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.21 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
+| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 成立 | 1.27 | 2026-09-19 | 草稿 | `fylite_kernel@915ed1249591` | current |
 
 ## 接 CI/CD (wiring this into CI)
 

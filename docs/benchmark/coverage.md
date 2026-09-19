@@ -20,7 +20,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-001` | MUST | 自由边界前向 G-S 求解 | [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) · [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) · [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) · [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) · [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md) | 对拍 · 对拍 · 对拍 · 验证 · 验证 | 未判（读数） · 成立 · 成立 · 成立 · 不成立 |
+| `FR-EQ-001` | MUST | 自由边界前向 G-S 求解 | [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) · [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) · [`eq-forward-free-boundary-convergence`](reports/eq-forward-free-boundary-convergence.md) · [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) · [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) · [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md) | 对拍 · 对拍 · 验证 · 对拍 · 验证 · 验证 | 成立 · 成立 · 成立 · 成立 · 成立 · 不成立 |
 | `FR-EQ-002` | MUST | Green 响应核为共享一等资产 | [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md) | 验证 | 成立 |
 | `NR-EQ-002` | MUST | 解析基准精度 | [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) · [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md) | 验证 · 验证 | 成立 · 不成立 |
 | `NR-EQ-005` | MUST | 自包含数值核（无后端依赖） | [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | 验证 | 成立 |
@@ -49,7 +49,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-005` | MUST | 静态逆解（形状$\to$线圈电流） | [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) · [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | 对拍 · 验证 | 成立 · 未判（读数） |
+| `FR-EQ-005` | MUST | 静态逆解（形状$\to$线圈电流） | [`eq-inverse-core-field-recovery`](reports/eq-inverse-core-field-recovery.md) · [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) · [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | 验证 · 对拍 · 验证 | 成立 · 成立 · 成立 |
 
 ## 平衡 (Equilibrium) · 测量重构与约束阶梯
 

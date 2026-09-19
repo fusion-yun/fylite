@@ -1,0 +1,9 @@
+{
+ "what": "FR-EQ-005 静态逆解线性核：已知电流合成场回收（内核测试 static_inverse_core_tests 的 [register] 输出，cargo test -- --nocapture，2026-09-19）",
+ "test": "fylite_kernel rust/fylite/src/case.rs::static_inverse_core_tests::the_static_inverse_core_recovers_a_field_synthesised_from_known_currents",
+ "coil_set": "DINA ITER 12 elements / 11 channels (CS1U+CS1L one channel)",
+ "rows": "24 boundary psi rows (R0 6.2, a 2, kappa 1.8, delta 0.4) + B_R, B_Z at (5.15, -3.40) x R0",
+ "field_on_rows": 5.7e-14,
+ "field_unseen": 1.5e-13,
+ "currents": 3.2e-12
+}

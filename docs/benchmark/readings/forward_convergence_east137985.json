@@ -1,0 +1,281 @@
+{
+ "what": "EAST #137985 自由边界正解（code/forward）：缺省路径（边规则）的收敛与 Ip 约束、收敛设置回显；两种边界规则对 KEFIT 与对独立代码 FreeGSNKE",
+ "freegsnke": {
+  "archive": "corpus/freegsnke/freegsnke_vstab_east137985.tar.gz",
+  "slice": "t4041_mag",
+  "profile_fit": {
+   "degree": 2,
+   "alpha": [
+    -419078.4905700451,
+    91833.766791642,
+    163622.3618209455
+   ],
+   "beta": [
+    -0.6693706528745772,
+    1.8947419127878193,
+    -0.612685630117122
+   ],
+   "max_rel_residual_pprime": 1.1999764735296564e-09,
+   "max_rel_residual_ffprim": 7.582158886482383e-10
+  },
+  "forward": {
+   "axis_R": 1.894008208791103,
+   "axis_Z": 0.00666085096762451,
+   "ip_A": 392708.734,
+   "R_current": 1.8847721871577714,
+   "Z_current": 0.006562442129047961,
+   "limited": false,
+   "boundary_level": 0.999999,
+   "xpoint_nearest_kefit": {
+    "fgs": [
+     1.565231292976858,
+     -0.7436849323465355
+    ],
+    "kefit": [
+     1.56646604,
+     -0.745559041
+    ],
+    "dist_mm": 2.24430021524493
+   },
+   "boundary": {
+    "R_geo": 1.8506330798156019,
+    "a": 0.4343457036830105,
+    "kappa": 1.6587311827005384,
+    "Z_top": 0.6993701472058886,
+    "Z_bot": -0.7415553783361467,
+    "Z_mid": -0.021092615565129036,
+    "delta_u": 0.4619202587117699,
+    "delta_l": 0.6345937751389881
+   },
+   "boundary_dist_to_kefit_mm": {
+    "median": 3.3111672437871786,
+    "max": 44.4577611049455
+   },
+   "xpoints_R_Z_psin": [
+    [
+     1.565231292976858,
+     -0.7436849323465355,
+     1.0
+    ],
+    [
+     1.559649182298634,
+     0.7712127338372238,
+     1.018351903435058
+    ]
+   ],
+   "kefit_xpoints_R_Z_psin": [
+    [
+     1.56646604,
+     -0.745559041,
+     1.0000000014544808
+    ],
+    [
+     1.55894204,
+     0.766641309,
+     1.042204231940444
+    ]
+   ],
+   "psin_rms_inside_kefit_boundary": 0.015558077115668529,
+   "seconds": 8.1,
+   "relative_change": 0.00017423732619099353,
+   "converged": false
+  }
+ },
+ "slices": {
+  "t4041_mag": {
+   "ip_target_A": 392708.734,
+   "default": {
+    "seconds": 1.95,
+    "converged": 1.0,
+    "settled": 0.0,
+    "iterations": 753.0,
+    "residual": 9.867643673960179e-10,
+    "fb_amp": -50.46261589592492,
+    "ip": 392708.7340000004,
+    "ip_rel": 1.1102230246251565e-15,
+    "echo": {
+     "tol": 1e-09,
+     "max_iter": 3000.0,
+     "edge_fraction": 1.0,
+     "relax": 0.3,
+     "fb_gain": 8.0,
+     "ip_target": 392708.734
+    },
+    "rule_note": "boundary rule: edge (the boundary cells carry their fraction of the current)"
+   },
+   "node": {
+    "seconds": 0.23,
+    "converged": 0.0,
+    "settled": 1.0,
+    "iterations": 62.0,
+    "residual": 0.002910441218690314,
+    "fb_amp": 10525.381943571607,
+    "ip": 392708.73400000064,
+    "ip_rel": 1.5543122344752192e-15,
+    "echo": {
+     "tol": 1e-09,
+     "max_iter": 600.0,
+     "edge_fraction": 0.0,
+     "relax": 0.3,
+     "fb_gain": 8.0,
+     "ip_target": 392708.734
+    },
+    "rule_note": "boundary rule: node (edge_fraction = 0; a node carries its whole cell or nothing)"
+   },
+   "psin_rms_vs_kefit": {
+    "default": 0.01848768039843746,
+    "node": 0.007364428528893277,
+    "freegsnke": 0.015571694969660807,
+    "freegsnke_inverse": 0.024222867507354688
+   },
+   "psin_rms_vs_freegsnke": {
+    "kefit": 0.015571694969660807,
+    "default": 0.004139493015598299,
+    "node": 0.017262151009994932,
+    "freegsnke_inverse": 0.008722007261518961
+   },
+   "axis_z_m": {
+    "kefit": -0.000949262371,
+    "default": 0.007982417996054966,
+    "node": -0.003676703979857472,
+    "freegsnke": 0.00666085096762451,
+    "freegsnke_inverse": 0.012174055643292455
+   }
+  },
+  "t4944_mag": {
+   "ip_target_A": 392567.281,
+   "default": {
+    "seconds": 2.1,
+    "converged": 1.0,
+    "settled": 0.0,
+    "iterations": 785.0,
+    "residual": 9.919102864019722e-10,
+    "fb_amp": -44.12495616248512,
+    "ip": 392567.28100000083,
+    "ip_rel": 1.9984014443252818e-15,
+    "echo": {
+     "tol": 1e-09,
+     "max_iter": 3000.0,
+     "edge_fraction": 1.0,
+     "relax": 0.3,
+     "fb_gain": 8.0,
+     "ip_target": 392567.281
+    },
+    "rule_note": "boundary rule: edge (the boundary cells carry their fraction of the current)"
+   },
+   "node": {
+    "seconds": 0.23,
+    "converged": 0.0,
+    "settled": 1.0,
+    "iterations": 63.0,
+    "residual": 0.003689177287190086,
+    "fb_amp": 13663.55463328469,
+    "ip": 392567.28100000025,
+    "ip_rel": 6.661338147750939e-16,
+    "echo": {
+     "tol": 1e-09,
+     "max_iter": 600.0,
+     "edge_fraction": 0.0,
+     "relax": 0.3,
+     "fb_gain": 8.0,
+     "ip_target": 392567.281
+    },
+    "rule_note": "boundary rule: node (edge_fraction = 0; a node carries its whole cell or nothing)"
+   },
+   "psin_rms_vs_kefit": {
+    "default": 0.022783511885127727,
+    "node": 0.006544916797449594
+   }
+  },
+  "t5976_mag": {
+   "ip_target_A": 391709.767,
+   "default": {
+    "seconds": 1.98,
+    "converged": 1.0,
+    "settled": 0.0,
+    "iterations": 764.0,
+    "residual": 9.537296200646877e-10,
+    "fb_amp": -32.91645674562401,
+    "ip": 391709.76699999993,
+    "ip_rel": -1.1102230246251565e-16,
+    "echo": {
+     "tol": 1e-09,
+     "max_iter": 3000.0,
+     "edge_fraction": 1.0,
+     "relax": 0.3,
+     "fb_gain": 8.0,
+     "ip_target": 391709.767
+    },
+    "rule_note": "boundary rule: edge (the boundary cells carry their fraction of the current)"
+   },
+   "node": {
+    "seconds": 0.23,
+    "converged": 0.0,
+    "settled": 1.0,
+    "iterations": 62.0,
+    "residual": 0.0012733268853640102,
+    "fb_amp": 14169.977872190548,
+    "ip": 391709.76700000005,
+    "ip_rel": 2.220446049250313e-16,
+    "echo": {
+     "tol": 1e-09,
+     "max_iter": 600.0,
+     "edge_fraction": 0.0,
+     "relax": 0.3,
+     "fb_gain": 8.0,
+     "ip_target": 391709.767
+    },
+    "rule_note": "boundary rule: node (edge_fraction = 0; a node carries its whole cell or nothing)"
+   },
+   "psin_rms_vs_kefit": {
+    "default": 0.023741765957220093,
+    "node": 0.006637418577842667
+   }
+  },
+  "t5976_primary": {
+   "ip_target_A": 395946.591,
+   "default": {
+    "seconds": 7.53,
+    "converged": 0.0,
+    "settled": 0.0,
+    "iterations": 3000.0,
+    "residual": 0.006176694089765698,
+    "fb_amp": -1627.8585451720894,
+    "ip": 395946.591,
+    "ip_rel": 0.0,
+    "echo": {
+     "tol": 1e-09,
+     "max_iter": 3000.0,
+     "edge_fraction": 1.0,
+     "relax": 0.3,
+     "fb_gain": 8.0,
+     "ip_target": 395946.591
+    },
+    "rule_note": "boundary rule: edge (the boundary cells carry their fraction of the current)"
+   },
+   "node": {
+    "seconds": 1.56,
+    "converged": 0.0,
+    "settled": 0.0,
+    "iterations": 600.0,
+    "residual": 0.0116041218317757,
+    "fb_amp": -462.3596237313089,
+    "ip": 395946.59099999996,
+    "ip_rel": -1.1102230246251565e-16,
+    "echo": {
+     "tol": 1e-09,
+     "max_iter": 600.0,
+     "edge_fraction": 0.0,
+     "relax": 0.3,
+     "fb_gain": 8.0,
+     "ip_target": 395946.591
+    },
+    "rule_note": "boundary rule: node (edge_fraction = 0; a node carries its whole cell or nothing)"
+   },
+   "psin_rms_vs_kefit": {
+    "default": 0.025636210136214338,
+    "node": 0.022124027836380736
+   }
+  }
+ }
+}

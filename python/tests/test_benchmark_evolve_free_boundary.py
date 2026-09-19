@@ -30,7 +30,10 @@ UNHELD = ("notes", "seconds", "environment")
 #: ★bands (2026-09-15): the two identities are exact up to roundoff (the recorded values are ~1e-15 / ~1e-13, the bands a
 #: thousand times that); the loop equation is solved to the free-boundary solve's own tolerance (1e-9); the drive
 #: reproduction is the measured value rounded up (three significant figures)
-V21_BAND = {"wall_decay_rel": 1e-12, "flux_drift_over_moved": 1e-10, "circuit_residual": 1e-9, "shell_rel_max": 4.51e-09}
+#: ★2026-09-19 `shell_rel_max` re-measured 4.51e-9 → 5.70e-9: the edge rule's droop trim now fires at a looser residual
+#: and stops when it stops shrinking the pair (FR-EQ-001), which moves this march's start inside the solve's own 1e-9
+#: tolerance — the two runs are the same fixed point to that tolerance, and this reading is a difference of two of them
+V21_BAND = {"wall_decay_rel": 1e-12, "flux_drift_over_moved": 1e-10, "circuit_residual": 1e-9, "shell_rel_max": 5.70e-09}
 
 
 def _tool():
