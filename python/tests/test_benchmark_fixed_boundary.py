@@ -10,6 +10,11 @@ reads a residual off someone else's map (``B-10`` → ``V-16``).  The side compu
   KEFIT's g-file there and held against the recorded readings; CHEASE's side is the recorded, sha256-indexed archive.
 
 No kernel library with ``code/fixed_boundary``: the gate SKIPS by name.
+
+★2026-09-19 (VEQ phase 2, record ``eq-forward-veq-fixed-boundary``): the same door with ``method = veq`` — the parametric
+MXH-Chebyshev solve (arXiv:2606.11821, kernel ``veq.rs``) resampled onto the grid method's rectangle.  Its gates run the
+Solov'ev case at the tool's cheap and accurate resolutions against the closed form and against the grid method, and the
+EAST case against CHEASE's archived NS = 80 map.  A library whose door does not know ``method = veq`` SKIPS them by name.
 """
 from __future__ import annotations
 
@@ -36,6 +41,24 @@ V19_CHEASE_80 = {"psin_rms": 3.91e-06, "psin_max": 5.86e-05, "axis_mm": 1.75e-06
 #: ★B-16's measured band: fylite 129² against CHEASE NS = NT = 80 on KEFIT's psi_N = 0.995 surface of #137985 t4041_mag
 B16_BAND = {"psin_rms": 4.92e-05, "psin_max": 2.66e-04, "axis_mm": 0.00468, "span_rel": 7.54e-04, "ip_rel": 9.68e-04,
             "q_rel_rms_01_09": 1.05e-03, "q_rel_max_01_09": 1.83e-03, "q95_rel": 1.86e-03}
+
+#: ★VEQ's measured bands (2026-09-19, three significant figures rounded up).  ★Numbers that sit at the solve's round-off
+#: (below ~1e-8: the node error, the axis, the flux span and q0 of the accurate tier) get a FLOOR instead — the Levenberg-
+#: Marquardt path is not bit-reproducible across hosts, and a band at 5e-10 would only measure that.  psin_rms / psin_max
+#: are read through a bicubic spline of the 129² resampled map (the tool's `compare`), so they carry the map's
+#: interpolation error (2.2e-6 rms), not the solve's; the node error is the solve's.
+V19_VEQ = {"cheap": {"node_error": 1.06e-06, "psin_rms": 2.18e-06, "psin_max": 3.99e-05, "axis_mm": 1.75e-05, "span_rel": 1.35e-09,
+                     "ip_rel": 2.19e-08, "q0_rel": 2.03e-07},
+           "accurate": {"node_error": 1e-08, "psin_rms": 2.17e-06, "psin_max": 4.00e-05, "axis_mm": 1e-06, "span_rel": 1e-09,
+                        "ip_rel": 2.37e-08, "q0_rel": 1e-08}}
+#: FR-EQ-001's own criterion (FYTOK-SRS-03: fixed-boundary Solov'ev deep interior < 5e-4), held on both tiers as well
+FR_EQ_001 = 5e-4
+#: grid 129² against veq (accurate) on the same rectangle: the grid method's own error
+V19_VEQ_VS_GRID = {"psin_rms": 1.02e-05, "psin_max": 9.39e-05, "axis_mm": 0.0261, "ip_rel": 1.72e-05, "q0_rel": 1.98e-05,
+                   "q_rel_rms_01_09": 2.30e-04}
+#: ★B-16 with veq (accurate: l = m = 10, 40 x 40) against CHEASE NS = NT = 80 (the case store's archive)
+B16_VEQ_BAND = {"psin_rms": 1.00e-04, "psin_max": 1.13e-03, "axis_mm": 0.347, "span_rel": 8.40e-04, "ip_rel": 8.43e-04,
+                "q_rel_rms_01_09": 1.04e-03, "q_rel_max_01_09": 1.85e-03, "q95_rel": 2.32e-03}
 
 
 def _tool():
@@ -123,3 +146,62 @@ def test_b16_kefit_context_is_a_reading(case):
     want = json.loads((case / READINGS).read_text(encoding="utf-8"))["compare"]
     fy, ch = want["fylite_129_vs_kefit"], want["chease_80_vs_kefit"]
     assert abs(fy["axis_mm"] - ch["axis_mm"]) < 0.05 and abs(fy["psin_rms"] - ch["psin_rms"]) < 1e-4
+
+
+# ------------------------------------------------------------------------------------------------ method = veq
+
+
+@pytest.fixture(scope="module")
+def veq_tool(tool):
+    sol = tool.Solovev()
+    try:
+        s = tool.fylite_side(sol.problem(), 33, "veq", tool.SOLOVEV_VEQ["cheap"])
+    except Exception as e:  # noqa: BLE001 — a library whose door predates method = veq refuses it by name
+        pytest.skip(f"this library's code/fixed_boundary has no method = veq: {e}")
+    if s["facts"].get("method") != 1.0:
+        pytest.skip("this library's code/fixed_boundary ignored method = veq")
+    return tool
+
+
+@pytest.mark.parametrize("tier", ["cheap", "accurate"])
+def test_veq_recovers_the_solovev_map_inside_its_contour(veq_tool, tier):
+    t = veq_tool
+    sol = t.Solovev()
+    prob, exact = sol.problem(), sol.side()
+    s = t.fylite_side(prob, 129, "veq", t.SOLOVEV_VEQ[tier])
+    f = s["facts"]
+    assert f["method"] == 1.0 and f["converged"] == 1.0 and f["veq_admissible"] == 1.0 and f["veq_symmetric"] == 1.0
+    got = dict(t.compare(exact, s, prob), node_error=t.node_error(sol, s))
+    assert got["psin_rms"] < FR_EQ_001, got["psin_rms"]
+    _in(got, V19_VEQ[tier], f"V-19 veq {tier}")
+
+
+def test_veq_and_grid_agree_on_the_same_rectangle(veq_tool):
+    t = veq_tool
+    prob = t.Solovev().problem()
+    g, v = t.fylite_side(prob, 129), t.fylite_side(prob, 129, "veq", t.SOLOVEV_VEQ["accurate"])
+    assert g["grid"] == v["grid"]
+    for k in ("rg", "zg", "fraction"):
+        assert (g["nodes"][k] == v["nodes"][k]).all(), k
+    _in(t.compare(g, v, prob), V19_VEQ_VS_GRID, "V-19 grid 129 vs veq")
+
+
+def test_b16_veq_against_the_chease_archive(veq_tool):
+    """The EAST case (KEFIT's psi_N = 0.995 surface of #137985 t4041_mag) with method = veq against CHEASE NS = NT = 80 from
+    the case store's sha256-indexed archive.  ★Needs only the KEFIT tar and the CHEASE archive, not the B-16 readings."""
+    import yaml
+    from fylite.engine import benchmark as bm
+    store = bm.store_dir()
+    case = store / CASE if store is not None else None
+    if case is None or not (case / ARCHIVE).is_file():
+        pytest.skip(f"no {ARCHIVE} in the case store (set $FYDOC_ORACLE to the fydoc cases/ tree)")
+    t = veq_tool
+    sums = yaml.safe_load((case / "case.yaml").read_text(encoding="utf-8"))["data"]["checksums"]
+    arch = (case / ARCHIVE).read_bytes()
+    assert hashlib.sha256(arch).hexdigest() == sums[ARCHIVE.removeprefix("corpus/")]
+    prob, _ = t.east_problem(case)
+    v = t.fylite_side(prob, 129, "veq", t.EAST_VEQ["accurate"])
+    assert v["facts"]["converged"] == 1.0 and v["facts"]["veq_admissible"] == 1.0
+    with tarfile.open(case / ARCHIVE, "r:gz") as tf:
+        gb = tf.extractfile("chease_fixed_boundary_east137985/ns80/EQDSK_COCOS_02.OUT").read()
+    _in(t.compare(t.gfile_side(gb), v, prob), B16_VEQ_BAND, "B-16 veq accurate vs CHEASE 80")

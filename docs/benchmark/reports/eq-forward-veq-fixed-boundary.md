@@ -1,0 +1,159 @@
+---
+title: "eq-forward-veq-fixed-boundary"
+---
+
+# 定边界两法并排：code/fixed_boundary 的 method = veq（参数化 MXH–Chebyshev）对 grid，Solov'ev 闭式解与 EAST 面上的 CHEASE，连同墙钟
+
+<!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/eq-forward-veq-fixed-boundary.jsonld`，本页只是它的可读面。 -->
+
+*平衡 (Equilibrium) · [前向自由边界与 Green 响应核](../domains/eq/forward.md)　|　记录正本：`records/eq-forward-veq-fixed-boundary.jsonld`*
+
+## 摘要
+
+- **类**：验证　**判决**：**不成立**
+- **量的是**：定边界两法并排：code/fixed_boundary 的 method = veq（参数化 MXH–Chebyshev）对 grid，Solov'ev 闭式解与 EAST 面上的 CHEASE，连同墙钟
+- **参考**：Solov'ev 解析平衡 (closed form) · CHEASE · VEQ / VEQPy
+- **验的需求**：`FR-EQ-001` · `NR-EQ-002` · `FR-EQ-012` · `FR-EQ-013`
+- **跑在内核**：`fylite_kernel@57e763955e5e`（新鲜度 **stale**）
+- **记录版本**：1.1　**评审**：草稿　**日期**：2026-09-19
+
+:::{warning} 这是一条**已裁定保留**的缺口
+
+2026-09-19 用户裁定：作为 `method = veq` 的**已知、已接受的局限**保留，待后续改进。EAST #137985 ψ_N = 0.995 面上 ψ_N 对 CHEASE NS80 的 RMS 1.0e-4（l = m = 10），过 FR-EQ-001 的 5e-4 但未达网格档立下的 4.92e-5；q[0.1–0.9] 与网格档同级（1.03e-3），磁轴差 0.35 mm。★原因是 MXH 边界表示跟不住近分界面的轮廓（拟合 RMS 0.11 mm、最大 0.44 mm），加阶不救（l10/m12 9.0e-5、6.1 s；l = m = 12 不收敛）。★用法上的结论：光滑形状与快速求解用 `veq`，要边界逐点保真用缺省的 `grid`。改进方向：边界表示（更高阶或非 MXH 的边界族）、解析雅可比（高阶收敛与速度）。
+:::
+
+## 问的是什么
+
+**被量的**：内核门 code/fixed_boundary 的两档：`method = veq`（内核 veq.rs，阶段 2 过门；便宜档与精确档）与缺省 `method = grid`（fixedbnd，33² · 65² · 129²）；veq 的答案重采到 grid 129² 的同一张矩形上，经 tools/benchmark-fixed-boundary.py 的 fylite_side() 读回
+
+**参考**：Solov'ev 解析平衡 (closed form)（Solov'ev 1968，本仓 tools/benchmark-fixed-boundary.py:Solovev 逐式转写）
+
+> ★Solov'ev 那一半是**验证**：解析解，差多少就是错多少。
+
+**参考**：CHEASE（本机构建，NS = NT = 80（Solov'ev 本次重跑；EAST 面另有 fydoc 归档 sha256:f8088bd7bd1d…，逐位同数））
+
+> ★EAST 那一半是**对拍**：没有真值，两边都带离散误差；带取 grid 记录 eq-surface-chease-fixed-boundary-east 的同一组。
+
+**参考**：VEQ / VEQPy（arXiv:2606.11821v1；VEQPy 2b64c9a）
+
+> 方法出处（被移植者），**不是本条的参照**：与 VEQPy 的逐系数一致（1e-14）由内核 veq.rs 的 agrees_with_veqpy_* 测试守，不在本册。
+
+**口径与适用域**：
+
+> 两道题同 grid 记录。①Solov'ev 定边界解析平衡：R0 = 1.8 m · B0 = 2.0 T · e2 = 1.07544 · Ip(闭式) = 3451548 A · q0(闭式) = 0.8348157；边界 720 点，比较落在轮廓内 18805 个格点（121 × 201 格）与 129² 重采图的整格节点上。②EAST #137985 t4041_mag，KEFIT 的 psi_N = 0.995 面（360 条射线），r0 = 1.75 m · f_edge = 4.501726288 T·m · 面内 Ip = 393379.2 A · 剖面 101 点；比较落在面内 17945 点。★veq 的设定：Solov'ev 便宜档 l = m = 4、16 × 16，精确档 l = m = 8、32 × 32；EAST 便宜档 l = m = 6、32 × 32，精确档 l = m = 10、40 × 40；veq_tol 1e-11，veq_fit_tol 2e-3。★径向标签 psi_N；Ψ 为整圈 Wb、边界为 0，p′ / FF′ 每整圈 Wb（与 fixedbnd 同一规约）。
+
+## 判据与量到多少
+
+:::{figure} ../figures/eq-forward-veq-fixed-boundary-headroom.svg
+:alt: eq-forward-veq-fixed-boundary 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
+| 判据 | 容差 | 取法 | 量到 | 判 |
+| :--- | ---: | :--- | :--- | :--- |
+| Solov'ev 深内点 psi_N 对闭式解（RMS，veq 精确档，129² 重采图上的双三次读数） | 0.0005 | reference_self_reported | veq 精确档（l = m = 8，32²）RMS 2.167e-06 · max 3.992e-05；便宜档（l = m = 4，16²）RMS 2.176e-06 · max 3.983e-05；grid 129² RMS 1.083e-05 · max 1.059e-04 | **成立** |
+| Solov'ev 整格节点上 psi_N 对闭式解（max，veq 精确档）——解本身的误差，不经插值 | 1e-06 | measured_band | veq 精确档 max 5.154e-10 · 便宜档 1.054e-06；grid 33² / 65² / 129² 为 1.451e-03 / 4.578e-04 / 5.512e-05 | **成立** |
+| q0 对闭式解的相对偏差（veq 两档） | 0.0001 | measured_band | veq 精确档 +1.029e-09 · 便宜档 −2.022e-07；grid 129² −1.974e-05；CHEASE NS=80 +3.558e-06 | **成立** |
+| 磁轴位置对闭式解 [mm] 与 Ip 相对偏差（veq 两档） | 0.0261 | measured_band | veq 精确档：轴 1.632e-09 mm · Ip +2.365e-08 · 跨度 9.3e-12；便宜档：轴 1.741e-05 mm · Ip +2.184e-08；grid 129²：轴 0.02602 mm · Ip +1.719e-05 | **成立** |
+| 求解器自证：收敛、可容许（Jacobian > 0、psi_N 单调）、MXH 拟合 RMS 在门的拒绝阈值内 [m] | 0.0009 | measured_band | 精确档：converged = 1 · 可容许 · 残差 1.45e-12 · 88 未知数 · 570 次求值 · MXH 拟合 RMS 1.36e-10 m；便宜档：converged = 1 · 可容许 · 残差 6.5e-13 · 28 未知数 · 69 次求值 · 拟合 RMS 2.62e-07 m | **成立** |
+| EAST 面上 q 剖面 psi_N∈[0.1,0.9] 对 CHEASE NS=80 的相对差（RMS，veq 精确档） | 0.00105 | measured_band | veq 精确档（l = m = 10，40²，250 未知数）q[0.1,0.9] RMS 1.031e-03 · max 1.849e-03 · q95 2.318e-03 · q0 5.949e-03；便宜档（l = m = 6）1.860e-03 · q0 1.946e-02 · q95 1.660e-02；grid 129² 1.043e-03 · q0 1.895e-03 · q95 1.855e-03 | **成立** |
+| EAST 面上 psi_N 对 CHEASE NS=80（面内 RMS，veq 精确档） | 4.92e-05 | measured_band | veq 精确档 RMS 9.992e-05 · max 1.129e-03 · 轴 0.3464 mm · 跨度 −8.396e-04 · Ip −8.426e-04；便宜档 RMS 5.295e-04 · 轴 1.049 mm；grid 129² RMS 4.920e-05 · max 2.655e-04 · 轴 0.00468 mm | **不成立** |
+| 墙钟：同一扇门、同一台机器（三次取最小，含 Python 侧的树编解码） | — | — | Solov'ev：grid 33² / 65² / 129² = 0.655 / 1.411 / 2.945 s；veq 便宜档 0.326 s、精确档 0.558 s（均重采到 129²）。EAST：grid 65² / 129² = 0.725 / 2.404 s；veq 便宜档 0.417 s、精确档 2.836 s | **未判（读数）** |
+
+**`Solov'ev 深内点 psi_N 对闭式解（RMS，veq 精确档，129² 重采图上的双三次读数）`** — ★判据取自 FYTOK-SRS-03 验证矩阵 FR-EQ-001 行原文「定边界 Solov'ev 深内点 < 5e-4」，与 grid 记录 eq-forward-solovev-fixed-boundary 同一条。
+
+**`Solov'ev 整格节点上 psi_N 对闭式解（max，veq 精确档）——解本身的误差，不经插值`** — ★带取内核门测 veq_through_the_door_recovers_solovev 的同一条（1e-6）：比 grid 129² 的 5.5e-5 小两个量级以上，但远在舍入之上——带不画在 5e-10 的实测上，那只会量 LM 路径的可复现性。
+
+**`q0 对闭式解的相对偏差（veq 两档）`** — 与 grid 记录 criterion/5 **同一条带**：画在同题 CHEASE NS=80 的 3.56e-06 上、放宽到 1e-4。
+
+**`磁轴位置对闭式解 [mm] 与 Ip 相对偏差（veq 两档）`** — 与 grid 记录 criterion/3 · 4 **同一组带**（轴 0.0261 mm、Ip 1.72e-5）：意思是「不劣于 grid 129²」。Ip 一项另判 1.72e-5。
+
+**`求解器自证：收敛、可容许（Jacobian > 0、psi_N 单调）、MXH 拟合 RMS 在门的拒绝阈值内 [m]`** — 阈值 = 门的 veq_fit_tol 缺省 2e-3 × a（Solov'ev a ≈ 0.45 m）：超过它门会拒绝，所以记录里的每一档都必须在它之内。
+
+**`EAST 面上 q 剖面 psi_N∈[0.1,0.9] 对 CHEASE NS=80 的相对差（RMS，veq 精确档）`** — 与 grid 记录 eq-surface-chease-fixed-boundary-east criterion/2 **同一条带**（那一域的主判据：磁面量与 q 剖面是下游用掉的东西）。
+
+**`EAST 面上 psi_N 对 CHEASE NS=80（面内 RMS，veq 精确档）`** — 与 grid 记录 eq-surface-chease-fixed-boundary-east criterion/1 **同一条带**。★那条带画在 grid 129² 自己的实测上——对 veq 它量的是「是否不劣于 grid」。
+
+**Solov'ev 深内点 psi_N（129² 重采图，轮廓内 18805 点）**
+
+- ★两档 veq 的 RMS 几乎相同，因为它**不是解的误差**：compare() 在 129² 图上用双三次样条读 psi，这两个数是那张图的插值误差（近边为主：边界外是一阶延拓，二阶导在边界上跳）。解本身的误差看 criterion/2 那一条。
+- ★同一张图、同一个读法下 grid 129² 是 1.08e-05——所以「经矩形图读」的下游，换 veq 得到约 5 倍的改善，不是解本身那 1e5 倍。
+
+**Solov'ev 整格节点上的 psi_N（解本身）**
+
+- ★谱收敛对二阶收敛：veq 把未知数从 28 加到 88，误差降三个量级多；grid 每加密一档降 3–8 倍。这一条是 NR-EQ-002（解析基准精度）在新方法上的读数。
+
+**q0 对闭式解**
+
+- ★veq 的 q0 取自通量坐标（论文 Eq. 52 的轴极限），不在重采的图上追等值线。同题 veq 精确档对 CHEASE 的 q0 差 −3.557e-06，与 CHEASE 自己对闭式解的 +3.558e-06 逐位相消——**那一差全是 CHEASE 的**。
+- ★q(x) 另由内核门测对精确围道积分核过（7.4e-8，参照多边形自己的误差）；grid 129² 的 q(x) 对 veq 在 x = 0.995 差 4.0e-3，这是 grid 侧在图上追线的误差。
+
+**磁轴与 Ip**
+
+- ★两档 Ip 都停在 2.2–2.4e-8：那是**参照侧**用 20000 点多边形做 Ampère 积分自己的误差（内核阶段 1 note 已记），不是 veq 的。
+
+**EAST 面上 q 剖面对 CHEASE**
+
+- ★过带只余 2 %，而且只是精确档：便宜档在这道题上 q95 差到 1.7e-2，**不能**当成 grid 65²（0.73 s）的替代。
+- ★q0 veq 精确档对 CHEASE 5.95e-3，比 grid 的 1.90e-3 大三倍；两法之间 q0 差 4.05e-3。本题没有真值，判不了谁对，照实记。
+
+**★EAST 面上 psi_N 对 CHEASE——**不过**：MXH 边界在近分界面处跟不住**
+
+- ★★病根在**边界表示**，不在求解：veq 解的是拟合出的 MXH 曲线，而这条 psi_N = 0.995 的面贴着下 X 点、有一处近乎尖角。10 阶谐波的拟合 RMS 0.108 mm、最坏 0.440 mm；6 阶是 0.469 / 2.19 mm。grid 解的是给定轮廓本身（gap_max 按设计很小）。
+- ★**加阶数买不回来**（readings 的 veq_order_scan_vs_chease_ns80）：l = 10、m = 12（拟合 RMS 0.084 mm）6.1 s 得 9.0e-05；l = m = 12 在 2 万次求值上限内**不收敛**，14.6 s 得 6.4e-05。都还在带外，而耗时已是 grid 129² 的 2.5–6 倍。
+- ★所以门的缺省留在 grid；veq 在光滑、远离 X 点的边界上是更准也更快的一档（上面 1–5 条），在近分界面的面上不是。门对拟合 RMS > 2e-3 × a 的轮廓直接拒绝，正是为了不让这类面被悄悄磨平——本题 0.108 mm ≪ 0.9 mm，门放行了它，所以这条读数才有意义。
+- ★本条未由用户裁定保留（没有 provenance.open_defect）——按本册规矩，它在 --ci 里算「要处理」。
+
+**墙钟：同一扇门、同一台机器（三次取最小，含 Python 侧的树编解码）**
+
+- ★本册第一次记墙钟。它是**同机相对**读数，不作性能承诺：沙盒 Linux、未绑核、单线程 --release。
+- ★veq 的墙钟一大半不是求解：Solov'ev 上重采矩形从 17² 到 257² 时，便宜档 0.115 → 0.879 s、精确档 0.301 → 1.166 s（readings 的 veq_resample_seconds）——129² 的重采约 0.23 s，求解加剖面约 0.1 s（便宜）/ 0.3 s（精确）。
+- ★在 Solov'ev 上 veq 精确档以 0.56 s 拿到比 grid 129²（2.9 s）好 1e5 倍的节点误差；在 EAST 面上 veq 精确档（2.8 s）比 grid 129²（2.4 s）**更慢且对 CHEASE 更远**——Jacobian 用有限差分（250 未知数 → 每次 Jacobian 250 次残差）是阶段 1 note 记下的主要耗时。
+
+## 不可比的部分
+
+- ★**veq 解的不是给定轮廓，而是它的 MXH 拟合**：拟合误差（记为事实 mxh_fit_rms / mxh_fit_max，也填 gap_rms / gap_max）就是边界上的误差。Solov'ev 轮廓是光滑曲线，拟合到 1e-10 m；EAST 近分界面的面到 1e-4 m，那道题的精度由它定。
+- ★**重采图的边界外不是真空场**：veq 只解内部，门在边界外填一阶延拓 ∇ψ·(P − P_b)（C¹，给双三次读者用）；grid 的边界外是真实的真空延拓。读边界外 psi 的下游（X 点搜索、限制器接触）不该用 veq 的图。
+- ★**哪些量是喂进去的**：边界轮廓、p′、FF′、B0 与（EAST）面内 Ip 都是输入；算出来的是 psi、轴、Ip、q。
+- ★**本条的内核提交不是册子的基准内核**：记录跑在 fylite_kernel 57e763955e5e（阶段 2，分支 feat/veq-fixed-boundary，未合入），而 meta/kernel.json 仍是 0f7e5af3b3cf——**有意没有 --bump-kernel**（那会让全册转 stale）。所以本条在状态页上显示为 stale，直到该分支合入、基准内核换代、全册重验。
+- ★EAST 的原始输入与各码的图是实验类，留在 fydoc（FYDOC-CASE-23）；本仓只有派生的比较数、墙钟与拟合质量。
+
+## 追溯
+
+- 首次入册 2026-09-19　末次修订 2026-09-19　版本 1.1　评审 草稿
+
+**变更史**（★改判本身留在册里，不覆盖旧结论）：
+
+| 版本 | 日期 | 谁 | 做了什么 |
+| :--- | :--- | :--- | :--- |
+| 1.0 | 2026-09-19 | Claude Opus 5 | 首次入册：VEQ 定边界求解过门（阶段 2，内核 57e763955e5e）后，同一扇门两档并排——Solov'ev 上 veq 过 FR-EQ-001 与 grid 的全部带（节点误差 5.2e-10 对 grid 5.5e-5），EAST 面上 q 剖面过带、psi_N 不过（9.99e-5 对带 4.92e-5，病根是 MXH 边界表示）；本册第一次记墙钟。★基准内核**未** bump（记录显示 stale），等分支合入后随全册重验。 |
+| 1.1 | 2026-09-19 | Claude Opus 5 | EAST 面 ψ_N 一格的 fail 按用户裁定记为 `method = veq` 的已知、已接受局限（provenance.open_defect），判决不改、待后续改进。 |
+
+## 复算
+
+**这次跑在**：
+
+- 内核 `fylite_kernel@57e763955e5e`（库 `sha256:a065a4bf6b69768ceee9d1b75b841dd6859cc119137e7080cb576c9d3c88e2d0`）　—— ★阶段 2 的内核提交（分支 feat/veq-fixed-boundary，未合入）。**不等于** `meta/kernel.json` 的基准 0f7e5af3b3cf：有意未 --bump-kernel，本条因此显示为 stale。库的 sha256 是本次所用 libfylite_runtime.so（公开仓 `bash rust/build.sh --no-io`，链入该提交的内核静态库）。
+
+**输入（每一项都带 sha256，否则指针指不住任何东西）**：
+
+- `docs/benchmark/readings/fixed_boundary_veq.json`    `sha256:b658ec0d55d7eb16f5e65e33d8a34dc8c22c95ea97f3268ab68e3099d87d8a31`    本次运行的派生读数（两题、两法、各档的比较数与墙钟，另有 veq 重采耗时与 EAST 高阶扫描）。★由 `python tools/benchmark-fixed-boundary.py solovev --out DIR` 与 `east --case … --out DIR` 产出后摘录；EAST 一侧只摘派生量。
+- `FYDOC-CASE-23-east-137985-efit-east/corpus/chease/chease_fixed_boundary_east137985.tar.gz`    `sha256:f8088bd7bd1d6b58e993cadf5df4adabf8d223324dbdae847d83c61d176ac200`    ★实验类：CHEASE NS = 40 / 80 在 EAST 面上的归档，指针 + sha256；本次重跑的 CHEASE 与它给出逐位相同的比较数。
+- `FYDOC-CASE-23-east-137985-efit-east/corpus/kefit/kefit_raw_east137985.tar.gz`    `sha256:001d33a06fdc39da3cf15a0240484f182cf0c85e832bf7802894e8c63aca0258`    ★实验类：KEFIT raw-tree 包，指针 + sha256；边界与剖面取自包内 rejected/t4041_mag/g137985.04041（成员 sha256 299c8746c1cc…，与 grid 记录同一件）。
+
+**守它的门**：
+
+- `python/tests/test_benchmark_fixed_boundary.py::test_veq_recovers_the_solovev_map_inside_its_contour` —— 守 criterion/1–5（两档，按名参数化）；库的门不认识 method = veq 时按名 skip
+- `python/tests/test_benchmark_fixed_boundary.py::test_veq_and_grid_agree_on_the_same_rectangle` —— 同一张矩形、同一份格分数，两法之差在 grid 自己的误差内
+- `python/tests/test_benchmark_fixed_boundary.py::test_b16_veq_against_the_chease_archive` —— 守 criterion/6 与 criterion/7 的**实测**（带画在本次 veq 的读数上，防劣化；不是 criterion/7 的判据）；需 `$FYDOC_ORACLE`
+- `$FYLITE_KERNEL/rust/fylite/src/case.rs::case::fixed_boundary_tests::method_grid_is_the_default_to_the_bit` —— 内核门测：缺省与显式 grid 全记录逐位相同。★内核仓的门（``$FYLITE_KERNEL`/…`）：本仓 CI 跑不到，检出不在时登记闸按名跳过；该分支未合入前，指向别的内核检出时这四条的 fn 不存在
+- `$FYLITE_KERNEL/rust/fylite/src/case.rs::case::fixed_boundary_tests::veq_through_the_door_recovers_solovev` —— 内核门测：psi_N 4.8e-10 · q0 8.3e-10 · q(x) 对精确围道积分 7.4e-8 · 边界外延拓为二阶
+- `$FYLITE_KERNEL/rust/fylite/src/case.rs::case::fixed_boundary_tests::grid_and_veq_agree_on_solovev` —— 内核门测：同题两法之差
+- `$FYLITE_KERNEL/rust/fylite/src/case.rs::case::fixed_boundary_tests::veq_refusals_name_the_setting` —— 内核门测：未知 method、各 veq_* 坏值、MXH 拟合过阈值（设定与带尖角轮廓两种）按名拒绝
+
+```bash
+python tools/benchmark-book.py --check   # 本页与记录同源吗
+python tools/benchmark-book.py --ci      # 过期了吗、不成立吗
+```

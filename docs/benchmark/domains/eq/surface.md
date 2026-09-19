@@ -79,6 +79,15 @@ MXH 的六阶谐波表达不了尖角，所以这不是这份实现的缺陷，�
 | [`eq-surface-chease-fixed-boundary-east`](../../reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 | CHEASE | 1.23 | 草稿 | [jsonld](../../records/eq-surface-chease-fixed-boundary-east.jsonld) |
 | [`eq-surface-mxh-gfile-fit`](../../reports/eq-surface-mxh-gfile-fit.md) | 验证 | 成立 | 闭式 —— 圆的精确退化与一个已知 MXH 形的原样回收 · 本机拿得到的 g-file 边界 | 1.17 | 草稿 | [jsonld](../../records/eq-surface-mxh-gfile-fit.jsonld) |
 
+### 覆盖它的记录在别的域
+
+★这几条本域需求由**别处**的记录答了——同一份证据同时回答两条需求时，它只能挂在一个域下。上面的记录表列的是「属于本域的记录」，所以这里点名说清它在哪。
+
+| 需求 | 覆盖它的记录 | 它属于哪一域 |
+| :--- | :--- | :--- |
+| `FR-EQ-012` | [`eq-forward-veq-fixed-boundary`](../../reports/eq-forward-veq-fixed-boundary.md) | eq-forward |
+| `FR-EQ-013` | [`eq-forward-veq-fixed-boundary`](../../reports/eq-forward-veq-fixed-boundary.md) | eq-forward |
+
 ### 缺口
 
 本域没有 MUST 级空缺。

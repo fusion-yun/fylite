@@ -19,6 +19,11 @@ Subcommands
     surface's psi_N (101 points, linear in KEFIT's 65), F at 0.995 for the edge field, and the current inside by Ampere's
     law on its map.  fylite (65², 129²) · CHEASE (NS = NT = 40, 80) · KEFIT's own free-boundary map inside the surface.
 
+Both subcommands also run the door's second solver, ``method = veq`` (2026-09-19, VEQ phase 2: the parametric
+MXH-Chebyshev solve of arXiv:2606.11821, kernel ``veq.rs``) at a cheap and an accurate resolution (``SOLOVEV_VEQ`` ·
+``EAST_VEQ``), resampled onto the finest grid run's 129² rectangle, and record every door call's wall time (the least of
+``--repeat`` calls) beside its numbers — grid and veq side by side.
+
 Conventions (measured on the Solov'ev case, recorded in its readings): fylite takes p', FF' per full-turn Wb in the
 axis-maximum orientation; CHEASE's EXPEQ takes ``-mu0 R0^2 / B0 * 2 pi p'`` and ``-2 pi FF' / B0`` on sqrt(psi_N), the
 boundary in units of R0EXP, T = 1 at the edge (B0EXP = F_edge / R0EXP) and CURRT = mu0 I_p / (R0EXP B0EXP) with NCSCAL = 2.
@@ -113,16 +118,41 @@ class Solovev:
 
 # ------------------------------------------------------------------------------------------------ the three solvers
 
-def fylite_side(prob: dict, n: int) -> dict:
+#: ★2026-09-19 (VEQ phase 2): the door's second solver, ``method = veq`` (arXiv:2606.11821; kernel ``veq.rs``), at two
+#: resolutions per case — a cheap one and an accurate one — resampled onto the same n x n rectangle as the grid method
+SOLOVEV_VEQ = {"cheap": {"veq_radial": 4, "veq_harmonics": 4, "veq_nr": 16, "veq_ntheta": 16},
+               "accurate": {"veq_radial": 8, "veq_harmonics": 8, "veq_nr": 32, "veq_ntheta": 32}}
+EAST_VEQ = {"cheap": {"veq_radial": 6, "veq_harmonics": 6, "veq_nr": 32, "veq_ntheta": 32},
+            "accurate": {"veq_radial": 10, "veq_harmonics": 10, "veq_nr": 40, "veq_ntheta": 40}}
+GRID_FACTS = ("ip", "psi_axis", "axis_r", "axis_z", "q0", "q95", "iterations", "converged", "residual", "gap_rms", "gap_max",
+              "kept", "condition", "beta_p", "p_axis", "volume")
+VEQ_FACTS = ("ip", "psi_axis", "axis_r", "axis_z", "q0", "q95", "iterations", "converged", "residual", "gap_rms", "gap_max",
+             "beta_p", "p_axis", "volume", "method", "veq_nfev", "veq_njev", "veq_unknowns", "veq_admissible", "veq_symmetric",
+             "mxh_fit_rms", "mxh_fit_max")
+#: wall-clock repeats per door call (the minimum is recorded; ``--repeat``)
+REPEAT = 3
+
+
+def fylite_side(prob: dict, n: int, method: str = "grid", veq: dict | None = None, repeat: int = 1) -> dict:
+    """fylite through ``code/fixed_boundary``; ``seconds`` is the door call's wall time (the least of ``repeat`` calls:
+    Python's tree encode/decode included, the spline below not)."""
+    import time
     from scipy.interpolate import RectBivariateSpline
     from fylite.io import fydoc
-    plan = {"settings": {"nr": n, "nz": n},
+    settings = {"nr": n, "nz": n}
+    if method != "grid":
+        settings.update(method=method, **(veq or {}))
+    plan = {"settings": settings,
             "inputs": {"equilibrium": {"time_slice": {"boundary": {"outline": {"r": prob["r"], "z": prob["z"]}},
                                                       "profiles_1d": {"psi_norm": prob["x"], "dpressure_dpsi": prob["pp"],
                                                                       "f_df_dpsi": prob["ff"]}},
                                        "vacuum_toroidal_field": {"r0": np.array(prob["r0"]),
                                                                  "b0": np.array(prob["f_edge"] / prob["r0"])}}}}
-    rec = fydoc.complete("code/fixed_boundary", plan)
+    times = []
+    for _ in range(max(1, repeat)):
+        t0 = time.perf_counter()
+        rec = fydoc.complete("code/fixed_boundary", plan)
+        times.append(time.perf_counter() - t0)
     f = {k: float(v["value"]) for k, v in rec["facts"].items()}
     F = {k: np.asarray(v["data"], float) for k, v in rec["fields"].items()}
     rg, zg = F["grid_r"], F["grid_z"]
@@ -131,9 +161,9 @@ def fylite_side(prob: dict, n: int) -> dict:
     qx, qq = F["q_x"], F["q"]
     return {"psin": lambda rr, zz: 1.0 - sp(rr, zz, grid=False) / f["psi_axis"], "axis": (f["axis_r"], f["axis_z"]),
             "span": -f["psi_axis"], "ip": f["ip"], "q0": f["q0"], "q_of": lambda xx: np.interp(xx, qx, np.abs(qq)),
-            "facts": {k: f[k] for k in ("ip", "psi_axis", "axis_r", "axis_z", "q0", "q95", "iterations", "converged", "residual",
-                                        "gap_rms", "gap_max", "kept", "condition", "beta_p", "p_axis", "volume")},
-            "notes": list(rec.get("notes") or []), "grid": [len(rg), len(zg)],
+            "facts": {k: f[k] for k in (GRID_FACTS if method == "grid" else VEQ_FACTS)},
+            "notes": list(rec.get("notes") or []), "grid": [len(rg), len(zg)], "seconds": min(times),
+            "settings": {k: v for k, v in settings.items()},
             "nodes": {"rg": rg, "zg": zg, "psi": psi, "fraction": F["fraction"].reshape(len(rg), len(zg)), "psi_axis": f["psi_axis"]}}
 
 
@@ -236,10 +266,20 @@ def solovev(out: Path, with_chease: bool = True) -> dict:
                        "pprime_Pa_per_Wb": sol.pp, "ffprime_T2m2_per_Wb": sol.ff, "outline_points": len(prob["r"]),
                        "ip_ampere_A": exact["ip"], "q0_closed_form": exact["q0"]},
            "fylite": {}, "chease": {}}
+    grid = {}
     for n in (33, 65, 129):
-        s = fylite_side(prob, n)
-        res["fylite"][f"n{n}"] = {"facts": s["facts"], "notes": s["notes"], "node_error": node_error(sol, s), "compare": compare(exact, s, prob)}
+        grid[n] = s = fylite_side(prob, n, repeat=REPEAT)
+        res["fylite"][f"n{n}"] = {"facts": s["facts"], "notes": s["notes"], "node_error": node_error(sol, s), "compare": compare(exact, s, prob),
+                                  "seconds": s["seconds"]}
     res["fylite"]["node_error_ratio_65_129"] = res["fylite"]["n65"]["node_error"] / res["fylite"]["n129"]["node_error"]
+    #: the same door, method = veq, resampled onto the 129² rectangle of the finest grid run
+    res["fylite_veq"] = {}
+    veq = {}
+    for tag, st in SOLOVEV_VEQ.items():
+        veq[tag] = s = fylite_side(prob, 129, "veq", st, repeat=REPEAT)
+        res["fylite_veq"][tag] = {"settings": s["settings"], "facts": s["facts"], "notes": s["notes"], "node_error": node_error(sol, s),
+                                  "compare": compare(exact, s, prob), "seconds": s["seconds"]}
+    res["fylite_veq"]["accurate_vs_grid_129"] = compare(grid[129], veq["accurate"], prob)
     if with_chease:
         runs = {}
         with tempfile.TemporaryDirectory() as d:
@@ -247,9 +287,11 @@ def solovev(out: Path, with_chease: bool = True) -> dict:
                 runs[f"ns{ns}"] = chease_run(prob, Path(d) / f"ns{ns}", ns, "Solov'ev fixed boundary (V-19)")
                 c = gfile_side(runs[f"ns{ns}"]["EQDSK_COCOS_02.OUT"])
                 res["chease"][f"ns{ns}"] = {"compare": compare(exact, c, prob), "psi_units": "g-file per radian, axis minimum"}
-        f129 = fylite_side(prob, 129)
+        f129 = grid[129]
         c80 = gfile_side(runs["ns80"]["EQDSK_COCOS_02.OUT"])
         res["fylite_129_vs_chease_ns80"] = compare(c80, f129, prob)
+        for tag in SOLOVEV_VEQ:
+            res[f"fylite_veq_{tag}_vs_chease_ns80"] = compare(c80, veq[tag], prob)
     (out / "solovev_fixed_boundary.json").write_text(json.dumps(res, indent=1, default=float) + "\n", encoding="utf-8")
     return res
 
@@ -301,8 +343,12 @@ def east(case: Path, out: Path) -> dict:
            "fylite": {}, "chease": {}, "compare": {}}
     sides = {"kefit": kef}
     for n in (65, 129):
-        sides[f"fylite_{n}"] = s = fylite_side(prob, n)
-        res["fylite"][f"n{n}"] = {"facts": s["facts"], "notes": s["notes"]}
+        sides[f"fylite_{n}"] = s = fylite_side(prob, n, repeat=REPEAT)
+        res["fylite"][f"n{n}"] = {"facts": s["facts"], "notes": s["notes"], "seconds": s["seconds"]}
+    res["fylite_veq"] = {}
+    for tag, st in EAST_VEQ.items():
+        sides[f"veq_{tag}"] = s = fylite_side(prob, 129, "veq", st, repeat=REPEAT)
+        res["fylite_veq"][tag] = {"settings": s["settings"], "facts": s["facts"], "notes": s["notes"], "seconds": s["seconds"]}
     runs = {}
     with tempfile.TemporaryDirectory() as d:
         for ns in (40, 80):
@@ -310,7 +356,9 @@ def east(case: Path, out: Path) -> dict:
             sides[f"chease_{ns}"] = gfile_side(runs[f"ns{ns}"]["EQDSK_COCOS_02.OUT"])
             res["chease"][f"ns{ns}"] = {"q0": sides[f"chease_{ns}"]["q0"], "ip": sides[f"chease_{ns}"]["ip"]}
     for ref, got in [("chease_80", "fylite_129"), ("chease_80", "fylite_65"), ("chease_80", "chease_40"), ("fylite_129", "fylite_65"),
-                     ("kefit", "fylite_129"), ("kefit", "chease_80")]:
+                     ("kefit", "fylite_129"), ("kefit", "chease_80"),
+                     ("chease_80", "veq_cheap"), ("chease_80", "veq_accurate"), ("fylite_129", "veq_accurate"), ("veq_accurate", "veq_cheap"),
+                     ("kefit", "veq_accurate")]:
         res["compare"][f"{got}_vs_{ref}"] = compare(sides[ref], sides[got], prob)
     tar = pack_runs(runs, "chease_fixed_boundary_east137985")
     (out / "chease_fixed_boundary_east137985.tar.gz").write_bytes(tar)
@@ -328,7 +376,9 @@ def main() -> int:
     b = sub.add_parser("east")
     b.add_argument("--out", type=Path, required=True)
     b.add_argument("--case", type=Path, help=f"the {CASE23} directory (default $FYDOC_ORACLE/{CASE23})")
+    ap.add_argument("--repeat", type=int, default=REPEAT, help="wall-clock repeats per door call (the least is recorded)")
     args = ap.parse_args()
+    globals()["REPEAT"] = max(1, args.repeat)
     args.out.mkdir(parents=True, exist_ok=True)
     if args.cmd == "solovev":
         res = solovev(args.out, not args.no_chease)

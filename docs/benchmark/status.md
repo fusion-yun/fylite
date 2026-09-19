@@ -25,10 +25,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**57** 条
-- 判决 (verdict)：成立 54 · 不成立 **0** · 未判 2 · 未评估 1
-- 新鲜度 (freshness)：当前 57 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 57 · 已被取代 0
+- 记录 (records)：**58** 条
+- 判决 (verdict)：成立 54 · 不成立 **1** · 未判 2 · 未评估 1
+- 新鲜度 (freshness)：当前 57 · **过期 1** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 58 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
@@ -43,6 +43,10 @@ title: 验证状态 (Verification status)
 ### [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md)
 
 2026-09-17 ★**剩下的那一处**：两扇门是两次独立调用，调用方**显式**传不同的求积阶数时仍会分开，跨调用的一致性没有东西强制（代价量过：环 2.8e-04 / 探针 4.0e-03）。★缓解已到位——默认值共享、两边都回显所用阶数，于是这件事查得到；**但查得到不等于不会发生**，补一道跨门的门禁才算真收口。
+
+### [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md)
+
+2026-09-19 用户裁定：作为 `method = veq` 的**已知、已接受的局限**保留，待后续改进。EAST #137985 ψ_N = 0.995 面上 ψ_N 对 CHEASE NS80 的 RMS 1.0e-4（l = m = 10），过 FR-EQ-001 的 5e-4 但未达网格档立下的 4.92e-5；q[0.1–0.9] 与网格档同级（1.03e-3），磁轴差 0.35 mm。★原因是 MXH 边界表示跟不住近分界面的轮廓（拟合 RMS 0.11 mm、最大 0.44 mm），加阶不救（l10/m12 9.0e-5、6.1 s；l = m = 12 不收敛）。★用法上的结论：光滑形状与快速求解用 `veq`，要边界逐点保真用缺省的 `grid`。改进方向：边界表示（更高阶或非 MXH 的边界族）、解析雅可比（高阶收敛与速度）。
 
 ### [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md)
 
@@ -92,7 +96,7 @@ title: 验证状态 (Verification status)
 
 | 组 | 域 | 需求 | 覆盖 | 记录 | 成立 | 不成立 | 过期 |
 | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](domains/eq/forward.md) | 4 | 4 | 6 | 5 | 0 | 0 |
+| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](domains/eq/forward.md) | 4 | 4 | 7 | 5 | 1 | 1 |
 | 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](domains/eq/surface.md) | 3 | 3 | 2 | 2 | 0 | 0 |
 | 平衡 (Equilibrium) | [演化自由边界与涡流电路](domains/eq/evolve.md) | 1 | 1 | 1 | 1 | 0 | 0 |
 | 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](domains/eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 0 |
@@ -122,6 +126,7 @@ title: 验证状态 (Verification status)
 | [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
 | [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | eq-forward | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
 | [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
+| [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md) | eq-forward | 验证 | 不成立 | 1.1 | 2026-09-19 | 草稿 | `fylite_kernel@57e763955e5e` | stale |
 | [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
 | [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.24 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
 | [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md) | eq-reconstruct | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |

@@ -90,6 +90,7 @@ GS 残差、`B-16` / `V-19` 定边界对 CHEASE 与 Solov'ev。★它们属于**
 | [`eq-forward-kefit-east137985`](../../reports/eq-forward-kefit-east137985.md) | 对拍 | 成立 | KEFIT | 1.22 | 草稿 | [jsonld](../../records/eq-forward-kefit-east137985.jsonld) |
 | [`eq-forward-self-contained-core`](../../reports/eq-forward-self-contained-core.md) | 验证 | 成立 | 各自的依赖声明与导入图 | 1.23 | 草稿 | [jsonld](../../records/eq-forward-self-contained-core.jsonld) |
 | [`eq-forward-solovev-fixed-boundary`](../../reports/eq-forward-solovev-fixed-boundary.md) | 验证 | 成立 | Solov'ev 解析平衡 (closed form) | 1.23 | 草稿 | [jsonld](../../records/eq-forward-solovev-fixed-boundary.jsonld) |
+| [`eq-forward-veq-fixed-boundary`](../../reports/eq-forward-veq-fixed-boundary.md) | 验证 | 不成立 | Solov'ev 解析平衡 (closed form) · CHEASE · VEQ / VEQPy | 1.1 | 草稿 | [jsonld](../../records/eq-forward-veq-fixed-boundary.jsonld) |
 
 ### 缺口
 
