@@ -810,5 +810,115 @@
  "inventory": {
   "comparable": false,
   "why": "fylite particle_balance: dN/dt = S_fuel − N/τ_p − S_burn with a constant τ_p; METIS: loss N/τ_ref, τ_ref = min(τ_He, τ_p)/(1 − R_recyc f_n0a) (recycling folded in), source from internal density feedback (not stored; metis_gaz.m reconstructs it by closing METIS's own budget with an assumed η_p = 0.5)"
+ },
+ "w_th_like_for_like": {
+  "_comment": "2026-09-18/19：把约定对齐之后再比——METIS 的体平均按 fylite 自己的剖面形状换成轴值，峰化指数 / 边缘份额 / Ti/Te 拟合到 METIS 自己的剖面",
+  "points": [
+   {
+    "case": "ITER_rampup_ECCD",
+    "t_s": 45.6552,
+    "fit": {
+     "edge_frac": 0.0025,
+     "peaking_n": 0.31729323308270674,
+     "peaking_t": 2.4853383458646614,
+     "ti_over_te": 0.35802353364007694
+    },
+    "fed": {
+     "ne_axis": 1.897390694103909e+19,
+     "te_axis_keV": 15.831066350954245
+    },
+    "w_rel_total": 0.0015932034436762048,
+    "decomposition": {
+     "no_dilution_ni_eq_ne": 0.02523049970096536,
+     "rho_weight_vs_metis_vpr_ne_avg": 0.021829845290873173,
+     "rho_weight_vs_metis_vpr_te_avg": 0.05209925211150357,
+     "metis_vpr_over_ellipse_at_x_0p5": 0.9064183603330311
+    },
+    "axis_rel": {
+     "ne": -0.02481872964520926,
+     "te": -0.056978582349219264
+    },
+    "metis_wth_vs_profile_integral": -0.0007855689708845537
+   },
+   {
+    "case": "ITER_rampup_ECCD",
+    "t_s": 62.6379,
+    "fit": {
+     "edge_frac": 0.0,
+     "peaking_n": 0.31729323308270674,
+     "peaking_t": 2.2675438596491224,
+     "ti_over_te": 0.48002507194974103
+    },
+    "fed": {
+     "ne_axis": 2.5330552797223293e+19,
+     "te_axis_keV": 14.17310889378551
+    },
+    "w_rel_total": 0.002036517477224596,
+    "decomposition": {
+     "no_dilution_ni_eq_ne": 0.029922641157565044,
+     "rho_weight_vs_metis_vpr_ne_avg": 0.023120745503757645,
+     "rho_weight_vs_metis_vpr_te_avg": 0.05593996481683616,
+     "metis_vpr_over_ellipse_at_x_0p5": 0.8928658996606238
+    },
+    "axis_rel": {
+     "ne": -0.02463004531257773,
+     "te": -0.06264987078479989
+    },
+    "metis_wth_vs_profile_integral": -0.0003935525997055267
+   },
+   {
+    "case": "ITER_rampup_ECCD",
+    "t_s": 83.0172,
+    "fit": {
+     "edge_frac": 0.0,
+     "peaking_n": 0.31729323308270674,
+     "peaking_t": 1.8616541353383458,
+     "ti_over_te": 0.6256557228823398
+    },
+    "fed": {
+     "ne_axis": 3.2897895533638894e+19,
+     "te_axis_keV": 11.633407127694994
+    },
+    "w_rel_total": 0.00024010124561495608,
+    "decomposition": {
+     "no_dilution_ni_eq_ne": 0.0353019928088778,
+     "rho_weight_vs_metis_vpr_ne_avg": 0.02552810200970157,
+     "rho_weight_vs_metis_vpr_te_avg": 0.06809105597000675,
+     "metis_vpr_over_ellipse_at_x_0p5": 0.8827172775266228
+    },
+    "axis_rel": {
+     "ne": -0.026340922826251556,
+     "te": -0.07288754162456212
+    },
+    "metis_wth_vs_profile_integral": -2.7246618071630202e-05
+   },
+   {
+    "case": "ITER_rampup_ECCD_expo_inte",
+    "t_s": 45.6552,
+    "fit": {
+     "edge_frac": 0.0025,
+     "peaking_n": 0.31729323308270674,
+     "peaking_t": 2.4853383458646614,
+     "ti_over_te": 0.35615313928786424
+    },
+    "fed": {
+     "ne_axis": 1.894592867260836e+19,
+     "te_axis_keV": 15.823269963898287
+    },
+    "w_rel_total": -0.0004542696207392383,
+    "decomposition": {
+     "no_dilution_ni_eq_ne": 0.025130918940919678,
+     "rho_weight_vs_metis_vpr_ne_avg": 0.023180258164267276,
+     "rho_weight_vs_metis_vpr_te_avg": 0.054991374101048596,
+     "metis_vpr_over_ellipse_at_x_0p5": 0.9012870774077862
+    },
+    "axis_rel": {
+     "ne": -0.026286725224934582,
+     "te": -0.060414949265868656
+    },
+    "metis_wth_vs_profile_integral": -0.0012333656777978597
+   }
+  ],
+  "reading": "W 对上到 ±0.2 %，但那是三个 2–7 % 的效应相消：0D 不计稀释（n_i = n_e，+2.5…+3.5 %）、0D 的体平均按 dV ∝ 2ρ dρ（椭圆几何）而 METIS 的 dV/dρ 往外偏（x = 0.5 处只有 0.88–0.91）、以及幂律剖面形状。轴值差 −2.5 % / −6…−7 % 恰是那一处加权之差（−2.2 % / −5.0…−6.4 %）。不能记成立"
  }
 }

@@ -108,7 +108,8 @@
    "verdict": "inconclusive",
    "caveat": [
     "★★**喂进去的是体平均 <ne> 与 <Te>，轴值是各自的峰化约定生成的**——所以这两行比的是约定，不是算法。证据在散布上：ne 的偏差四点几乎不变（-0.265 · -0.265 · -0.266 · -0.266），因为 fylite 的 `peaking_n` 是**固定输入**；而 Te 的偏差在 -0.729..-0.676 之间动，因为 METIS 的剖面形状随工作点变而 fylite 的不变。",
-    "★要让这一行可判，得喂**剖面**而不是体平均——那是 1.5D 的事，0D 这一层做不到。"
+    "★要让这一行可判，得喂**剖面**而不是体平均——那是 1.5D 的事，0D 这一层做不到。",
+    "★★2026-09-19 对齐约定后再量：METIS 体平均按 0D 剖面形状换成轴值、峰化拟合到 METIS 剖面，轴值差 ne -0.025 · -0.025 · -0.026 · -0.026、Te -0.057 · -0.063 · -0.073 · -0.060——**恰是体平均加权之差**（0D 的 $2\\rho\\,d\\rho$ 对 METIS 的 $dV/d\\rho$：ne +2.2…+2.6 %、Te +5.2…+6.8 %）。峰化约定的病根拆掉之后，剩下的是几何。"
    ]
   },
   {
@@ -128,10 +129,12 @@
    "title": "★W_th —— **判不了**，而且被峰化约定夹在 −69 % 与 +80 % 之间",
    "criterion": "benchmark/records/tr-pedestal-zerod-bookkeeping-metis/criterion/4",
    "bound": "upper",
-   "deviation_literal": "喂体平均（本条的输入）：−0.640 · −0.668 · −0.694 · −0.641；喂 METIS 自己的轴值：+0.797 · +0.574 · +0.286 · +0.805。METIS 自己：存下的 W_th 对它自己剖面的积分 −0.078 % · −0.039 % · −0.003 % · −0.124 %",
+   "deviation_literal": "喂体平均（本条的输入）：−0.640 · −0.668 · −0.694 · −0.641；喂 METIS 自己的轴值：+0.797 · +0.574 · +0.286 · +0.805。METIS 自己：存下的 W_th 对它自己剖面的积分 −0.078 % · −0.039 % · −0.003 % · −0.124 %。★★**约定对齐之后**（METIS 体平均按 0D 自己的剖面形状换成轴值，峰化指数 / 边缘份额 / Ti/Te 拟合到 METIS 剖面）：+0.0016 · +0.0020 · +0.0002 · -0.0005——对上到 ±0.2 %，**但那是相消**：不计稀释 +0.025 · +0.030 · +0.035 · +0.025，体平均的加权 +0.052 · +0.056 · +0.068 · +0.055（Te），再加幂律形状",
    "verdict": "inconclusive",
    "caveat": [
     "★★**0D 的 `ne_flattop` / `te_flattop` 是轴值**（剖面恰在那里取峰），而本条的输入是 METIS 的**体平均**——同一个槽，两种含义。于是 0D 的 W 由固定峰化指数（n 1.0、T 1.5、Ti/Te 0.9）定，不由能量账定：喂哪一种都只是在量这组指数与 METIS 剖面形状之差。与轴值那一格同一个病根。",
+    "★★**对齐约定之后的 ±0.2 % 不能记成立**：它是三个 2–7 % 的效应相消——①0D 的 `stored_energy` 取 $n_i=n_e$（不计稀释），比 METIS 自己的 $n_i$ 多 +2.5…+3.5 %；②0D 的体平均按 $dV\\propto2\\rho\\,d\\rho$（椭圆几何），METIS 的 $dV/d\\rho$ 往外偏（$x=0.5$ 处只有椭圆的 0.88–0.91），同一条剖面两种平均差 +2.2 %（n）/ +5.2…+6.8 %（T）；③幂律剖面形状。一个靠相消落进带里的数，下一个工作点就会掉出去。",
+    "★**两处都是建模选择，不是记账错误**：稀释要决定计哪些离子（`dt_fraction` 只管燃料，杂质电荷 0D 没有）；加权要一个 Shafranov 位移 / 形状的 $dV/d\\rho$ 模型。都没改——等裁定。",
     "★METIS 的剖面里 $\\langle n_eT_e\\rangle/(\\langle n_e\\rangle\\langle T_e\\rangle)$ = 1.24–1.26：密度与温度的相关本身就值 25 %——一个只吃体平均的 0D 账算不出这一项。",
     "★**存量账不可比**，照实记而不去凑：本仓 `particle_balance` 是 $dN/dt=S-N/\\tau_p-S_{burn}$、$\\tau_p$ 为常数；METIS 的损失项是 $N/\\tau_{ref}$、$\\tau_{ref}=\\min(\\tau_{He},\\tau_p)/(1-R\\,f_{n0a})$（再循环折进去了），源是内部密度反馈、不存盘——`metis_gaz.m` 要假定 $\\eta_p=0.5$ 闭合 METIS 自己的账才反推得出。两边的「抽气」不是同一个量。",
     "★要让 W_th 可判，得喂**剖面**——那是 1.5D `code/evolve` 的事。"
@@ -162,7 +165,7 @@
    },
    {
     "storage_uri": "docs/benchmark/readings/zerod_metis_attribution.json",
-    "checksum": "sha256:0794bd7cf4f6441b409d9e8de42491086fcb4872507adc3033a368c2d9ad9a4c",
+    "checksum": "sha256:58fe57c3f4e69c3c479d1fa27ee2ab731d1ed5471d8226f380679c003d185dc1",
     "comment": "体积逐点归因（84 点 / 28 算例：分离面积分与 D 形积分）、W_th 的约定夹逼、存量账为何不可比"
    },
    {
@@ -199,6 +202,10 @@
    {
     "name": "$FYLITE_KERNEL/rust/fylite/src/case.rs::tests::zerod_takes_the_triangularity_into_the_volume_and_refuses_an_impossible_one",
     "comment": "门：δ 不给即椭圆，|δ| ≥ 1 拒绝"
+   },
+   {
+    "name": "python/tests/test_benchmark_transport_gates.py::test_like_for_like_w_agrees_only_by_cancellation",
+    "comment": "★约定对齐后的 W：相消，不是成立"
    }
   ],
   "kernel": {
@@ -207,9 +214,9 @@
   }
  },
  "provenance": {
-  "record_version": "1.19",
+  "record_version": "1.20",
   "recorded": "2026-09-16",
-  "revised": "2026-09-18",
+  "revised": "2026-09-19",
   "review_status": "draft",
   "open_defect": null,
   "change": [
@@ -332,6 +339,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "**体积缺口补上**（用户要求「close 0d gap」，取代 2026-09-17「保留负面结果」的裁定）：内核 `zerod::plasma_volume` 按 METIS 同一条 D 形积分，`code/zerod` 收 `delta`（不给即椭圆，逐位）。四点对 METIS +0.08 / −0.05 / −0.20 / +0.08 %（此前 +2.87 %），第一格转成立；第二格（散布）转未判——剩下的是 METIS 分离面与 D 形之差。open_defect 撤销；整体 fail → inconclusive。另补 1f999bd 漏的两处登记册格式：zgeo0.m 的 sha256、W_th 一格的数值偏差。"
+   },
+   {
+    "record_version": "1.20",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "约定对齐后再量 W_th 与轴值（METIS 体平均换成 0D 轴值、峰化拟合到 METIS 剖面）：W 对上 ±0.2 % 但是三项相消（不计稀释 +2.5…+3.5 %、体平均加权 +2.2…+6.8 %、幂律形状），轴值差恰是加权之差。两格仍未判，病根拆到两处建模选择（稀释、dV/dρ），等裁定。"
    }
   ]
  }

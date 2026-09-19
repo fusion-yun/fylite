@@ -330,3 +330,26 @@ def test_the_thermal_energy_is_bracketed_by_the_peaking_convention_not_judged():
     assert all(abs(x) < 1.3e-3 for x in w["metis_wth_vs_own_profile_integral"])
     assert all(-0.70 < x < -0.63 for x in w["fed_volume_averages_into_axis_slots_rel"])
     assert all(0.28 < x < 0.81 for x in w["fed_metis_axis_values_rel"])
+
+
+def test_like_for_like_w_agrees_only_by_cancellation():
+    """★★约定对齐之后 W 对 METIS ±0.2 %——但读数把它拆开了：不计稀释与体平均加权各自是几个百分点，
+    相消才落进带里。这道门守的是**拆开的那几项**，从 CASE-10 的剖面当场重算，而不是那个 ±0.2 %。
+    """
+    rec = _read("zerod_metis_attribution.json")["w_th_like_for_like"]["points"]
+    rows = {(r["case"], round(float(r["t_s"]), 4)): r for r in _metis_csv()}
+    x = np.linspace(0.0, 1.0, 21)
+    e = 1.602176634e-19
+    for p in rec:
+        r = rows[(p["case"], round(p["t_s"], 4))]
+        a = {k: np.array([float(r[f"{k}_{i:02d}"]) for i in range(21)]) for k in ("nep", "tep", "tip", "nip", "vpr")}
+        w0 = 1.5 * e * np.trapezoid((a["nep"] * a["tep"] + a["nip"] * a["tip"]) * a["vpr"], x)
+        w1 = 1.5 * e * np.trapezoid(a["nep"] * (a["tep"] + a["tip"]) * a["vpr"], x)
+        v = np.trapezoid(a["vpr"], x)
+        te_r = np.trapezoid(a["tep"] * 2.0 * x, x) / (np.trapezoid(a["tep"] * a["vpr"], x) / v) - 1.0
+        dec = p["decomposition"]
+        assert w1 / w0 - 1.0 == pytest.approx(dec["no_dilution_ni_eq_ne"], rel=1e-9)
+        assert te_r == pytest.approx(dec["rho_weight_vs_metis_vpr_te_avg"], rel=1e-9)
+        #: 相消：总差远小于任一分项
+        assert abs(p["w_rel_total"]) < 0.25 * min(dec["no_dilution_ni_eq_ne"], dec["rho_weight_vs_metis_vpr_te_avg"])
+        assert dec["no_dilution_ni_eq_ne"] > 0.02 and dec["rho_weight_vs_metis_vpr_te_avg"] > 0.05

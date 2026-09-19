@@ -21,7 +21,7 @@ title: "台基、锯齿与 0D 存量"
 `FR-ENG-003`，而 SRS-04 的验证矩阵里**没有给它判据行**——这是上游的缺口，在下面的生成块里
 如实标着，等它补。
 
-★对 METIS 的那条记录判不成立，**2026-09-18 已归因到公式一级**：读 METIS 的 `zgeo0.m` 与认证 .mat，它的体积就是它那条边界围出来的体积——有分离面就积分离面（20 个算例），没有就积带三角度的 D 形（8 个），84 个时刻全部复现；0D 当时用的是 $2\pi^2Ra^2\kappa$，于是 ITER 一族一律高 2.84–2.87 %，差的正是三角形变那一块。★★**同日缺口补上**：0D 改用同一条 D 形的体积（`code/zerod` 的新设定 `delta`，不给即椭圆、逐位），四点对 METIS +0.08 / −0.05 / −0.20 / +0.08 %，体积一格转成立；剩下的 ±0.2 % 是 METIS 的分离面与 D 形之差。★热能 $W_{th}$ 判不了：0D 的 `ne_flattop` / `te_flattop` 是轴值，而喂进去的是 METIS 的体平均——喂体平均偏 −64…−69 %、喂轴值偏 +29…+80 %，落在哪由峰化指数定，不由能量账定。★存量账不可比：两边的「抽气」不是同一个量（METIS 把再循环折进了损失时间，源是内部反馈、不存盘）。
+★对 METIS 的那条记录判不成立，**2026-09-18 已归因到公式一级**：读 METIS 的 `zgeo0.m` 与认证 .mat，它的体积就是它那条边界围出来的体积——有分离面就积分离面（20 个算例），没有就积带三角度的 D 形（8 个），84 个时刻全部复现；0D 当时用的是 $2\pi^2Ra^2\kappa$，于是 ITER 一族一律高 2.84–2.87 %，差的正是三角形变那一块。★★**同日缺口补上**：0D 改用同一条 D 形的体积（`code/zerod` 的新设定 `delta`，不给即椭圆、逐位），四点对 METIS +0.08 / −0.05 / −0.20 / +0.08 %，体积一格转成立；剩下的 ±0.2 % 是 METIS 的分离面与 D 形之差。★把约定对齐之后再量 $W_{th}$（体平均换成 0D 轴值、峰化拟合到 METIS 剖面）：对上到 ±0.2 %，**但那是相消**——0D 不计稀释（+2.5…+3.5 %）与 0D 的体平均按椭圆几何加权（+2.2…+6.8 %）互相抵掉；轴值差恰是那一处加权之差。两处都是建模选择，没改，等裁定。★热能 $W_{th}$ 判不了：0D 的 `ne_flattop` / `te_flattop` 是轴值，而喂进去的是 METIS 的体平均——喂体平均偏 −64…−69 %、喂轴值偏 +29…+80 %，落在哪由峰化指数定，不由能量账定。★存量账不可比：两边的「抽气」不是同一个量（METIS 把再循环折进了损失时间，源是内部反馈、不存盘）。
 
 上一册这一域有 `B-01`（FUSE ITER，台基外推）、`C-09`（ITPA TC33）。已退役。
 
@@ -52,7 +52,7 @@ title: "台基、锯齿与 0D 存量"
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | [`tr-pedestal-sawtooth-kadomtsev`](../../reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 | 它自己混合前的含量积分，以及 Kadomtsev 重联要求的 q = 1 | 1.14 | 草稿 | [jsonld](../../records/tr-pedestal-sawtooth-kadomtsev.jsonld) |
-| [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 未判（读数） | METIS | 1.19 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
+| [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 未判（读数） | METIS | 1.20 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
 
 ### 覆盖它的记录在别的域
 

@@ -15,7 +15,7 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 - **参考**：METIS
 - **验的需求**：`FR-TR-014`
 - **跑在内核**：`sha256:a7a86a75fc27ac15…`（新鲜度 **current**）
-- **记录版本**：1.19　**评审**：草稿　**日期**：2026-09-16
+- **记录版本**：1.20　**评审**：草稿　**日期**：2026-09-16
 
 ## 问的是什么
 
@@ -44,7 +44,7 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 | 体积偏差在各工作点之间的散布（是否系统性） | 0.001 | measured_band | 改后四点散布 2.81e-03（判据 1e-3）；改前 1.33e-04（那时偏差是一个系统常数 +2.87 %） | **未判（读数）** |
 | 轴上 ne / Te 对 METIS | 0.1 | measured_band | ne 轴相对差 -0.265 · -0.265 · -0.266 · -0.266；Te 轴 -0.728 · -0.713 · -0.676 · -0.729 | **未判（读数）** |
 | ★★0D 这一层缺的几样 —— 三样里补了两样（2026-09-17） | — | — | ★**热能 W 补上了**：`summary/w_th` 与 `dw_dt` 现在无条件发出（此前 `stored_energy` 一直在算，只是仅在 `criteria` 开关下以 `criteria_w_th` 出来，而 DD 的 `energy_thermal` 槽空着）。★**加料 / 抽气补上了**：新的燃料存量账（`s_fuel` / `tau_p`，opt-in），实测闭合残差 1.07e-14、账面「起+入−抽−烧 = 终」对到 4.56e-15。★**台基仍然没有**，而且**不该在 0D 有**：台基是边界层结构，0D 是零维体积平均账，没有承载它的径向坐标——它要 1.5D 的 `code/evolve` | **成立** |
-| 热能 W_th 对 METIS（同一组输入） | — | reference_self_reported | 喂体平均（本条的输入）：−0.640 · −0.668 · −0.694 · −0.641；喂 METIS 自己的轴值：+0.797 · +0.574 · +0.286 · +0.805。METIS 自己：存下的 W_th 对它自己剖面的积分 −0.078 % · −0.039 % · −0.003 % · −0.124 % | **未判（读数）** |
+| 热能 W_th 对 METIS（同一组输入） | — | reference_self_reported | 喂体平均（本条的输入）：−0.640 · −0.668 · −0.694 · −0.641；喂 METIS 自己的轴值：+0.797 · +0.574 · +0.286 · +0.805。METIS 自己：存下的 W_th 对它自己剖面的积分 −0.078 % · −0.039 % · −0.003 % · −0.124 %。★★**约定对齐之后**（METIS 体平均按 0D 自己的剖面形状换成轴值，峰化指数 / 边缘份额 / Ti/Te 拟合到 METIS 剖面）：+0.0016 · +0.0020 · +0.0002 · -0.0005——对上到 ±0.2 %，**但那是相消**：不计稀释 +0.025 · +0.030 · +0.035 · +0.025，体平均的加权 +0.052 · +0.056 · +0.068 · +0.055（Te），再加幂律形状 | **未判（读数）** |
 
 **`等离子体体积对 METIS 的相对差`** — ★判据 1 %：两侧拿的是**同一组** R / a / kappa，体积是纯几何量，没有物理模型差可以解释更大的偏离。
 
@@ -68,6 +68,7 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 
 - ★★**喂进去的是体平均 <ne> 与 <Te>，轴值是各自的峰化约定生成的**——所以这两行比的是约定，不是算法。证据在散布上：ne 的偏差四点几乎不变（-0.265 · -0.265 · -0.266 · -0.266），因为 fylite 的 `peaking_n` 是**固定输入**；而 Te 的偏差在 -0.729..-0.676 之间动，因为 METIS 的剖面形状随工作点变而 fylite 的不变。
 - ★要让这一行可判，得喂**剖面**而不是体平均——那是 1.5D 的事，0D 这一层做不到。
+- ★★2026-09-19 对齐约定后再量：METIS 体平均按 0D 剖面形状换成轴值、峰化拟合到 METIS 剖面，轴值差 ne -0.025 · -0.025 · -0.026 · -0.026、Te -0.057 · -0.063 · -0.073 · -0.060——**恰是体平均加权之差**（0D 的 $2\rho\,d\rho$ 对 METIS 的 $dV/d\rho$：ne +2.2…+2.6 %、Te +5.2…+6.8 %）。峰化约定的病根拆掉之后，剩下的是几何。
 
 **★★0D 这一层缺的几样 —— 三样里补了两样（2026-09-17）**
 
@@ -78,6 +79,8 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 **★W_th —— **判不了**，而且被峰化约定夹在 −69 % 与 +80 % 之间**
 
 - ★★**0D 的 `ne_flattop` / `te_flattop` 是轴值**（剖面恰在那里取峰），而本条的输入是 METIS 的**体平均**——同一个槽，两种含义。于是 0D 的 W 由固定峰化指数（n 1.0、T 1.5、Ti/Te 0.9）定，不由能量账定：喂哪一种都只是在量这组指数与 METIS 剖面形状之差。与轴值那一格同一个病根。
+- ★★**对齐约定之后的 ±0.2 % 不能记成立**：它是三个 2–7 % 的效应相消——①0D 的 `stored_energy` 取 $n_i=n_e$（不计稀释），比 METIS 自己的 $n_i$ 多 +2.5…+3.5 %；②0D 的体平均按 $dV\propto2\rho\,d\rho$（椭圆几何），METIS 的 $dV/d\rho$ 往外偏（$x=0.5$ 处只有椭圆的 0.88–0.91），同一条剖面两种平均差 +2.2 %（n）/ +5.2…+6.8 %（T）；③幂律剖面形状。一个靠相消落进带里的数，下一个工作点就会掉出去。
+- ★**两处都是建模选择，不是记账错误**：稀释要决定计哪些离子（`dt_fraction` 只管燃料，杂质电荷 0D 没有）；加权要一个 Shafranov 位移 / 形状的 $dV/d\rho$ 模型。都没改——等裁定。
 - ★METIS 的剖面里 $\langle n_eT_e\rangle/(\langle n_e\rangle\langle T_e\rangle)$ = 1.24–1.26：密度与温度的相关本身就值 25 %——一个只吃体平均的 0D 账算不出这一项。
 - ★**存量账不可比**，照实记而不去凑：本仓 `particle_balance` 是 $dN/dt=S-N/\tau_p-S_{burn}$、$\tau_p$ 为常数；METIS 的损失项是 $N/\tau_{ref}$、$\tau_{ref}=\min(\tau_{He},\tau_p)/(1-R\,f_{n0a})$（再循环折进去了），源是内部密度反馈、不存盘——`metis_gaz.m` 要假定 $\eta_p=0.5$ 闭合 METIS 自己的账才反推得出。两边的「抽气」不是同一个量。
 - ★要让 W_th 可判，得喂**剖面**——那是 1.5D `code/evolve` 的事。
@@ -91,7 +94,7 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-18　版本 1.19　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.20　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -117,6 +120,7 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 | 1.17 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（表面电流模型有壁不稳带 `FR-EQ-021(g)` 与共形基解析导数链 `FR-EQ-025(e)` 入内核，另摘掉六处重复的 `#[test]`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **792 项全通过**（去重后既有 782 + 新锚 10）。★纯增量（没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.18 | 2026-09-18 | Claude Opus 5 (1M context) | 读 METIS 源码（`third_party/metis_2026` 的 `zgeo0.m`）与认证 .mat：体积那处 2.87 % 归因到公式一级——METIS 对自己的边界积分（20 个算例积分离面，8 个积 D 形），84 个时刻全部复现；ITER 一族 D 形积分 ±0.25 % 而椭圆公式 +2.84–2.87 %。新增第四格 W_th（未判）：喂体平均 −64…−69 %、喂轴值 +29…+80 %，由峰化约定夹逼。存量账两边损失项不是同一个量，记不可比。判决仍 fail，内核不动（用户裁定）。 |
 | 1.19 | 2026-09-18 | Claude Opus 5 (1M context) | **体积缺口补上**（用户要求「close 0d gap」，取代 2026-09-17「保留负面结果」的裁定）：内核 `zerod::plasma_volume` 按 METIS 同一条 D 形积分，`code/zerod` 收 `delta`（不给即椭圆，逐位）。四点对 METIS +0.08 / −0.05 / −0.20 / +0.08 %（此前 +2.87 %），第一格转成立；第二格（散布）转未判——剩下的是 METIS 分离面与 D 形之差。open_defect 撤销；整体 fail → inconclusive。另补 1f999bd 漏的两处登记册格式：zgeo0.m 的 sha256、W_th 一格的数值偏差。 |
+| 1.20 | 2026-09-19 | Claude Opus 5 (1M context) | 约定对齐后再量 W_th 与轴值（METIS 体平均换成 0D 轴值、峰化拟合到 METIS 剖面）：W 对上 ±0.2 % 但是三项相消（不计稀释 +2.5…+3.5 %、体平均加权 +2.2…+6.8 %、幂律形状），轴值差恰是加权之差。两格仍未判，病根拆到两处建模选择（稀释、dV/dρ），等裁定。 |
 
 ## 复算
 
@@ -128,7 +132,7 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 
 - `docs/benchmark/readings/zerod_metis_metrics.json`    `sha256:fc3463773fa8d7f64b57c69d8ec486b68f7b69421036f9f891c64c5b1dced8a5`    本条读数：四个工作点的输入覆盖（2026-09-18 起含 METIS 自己的 δ）、体积（D 形与旧椭圆并列）、轴值与两侧剖面
 - `FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv`    `sha256:45eb266a6c85fd7852f826687611a783c62543f6537de58387d49a531724ffa8`    ★METIS 侧原件（参考类，指针 + sha256）
-- `docs/benchmark/readings/zerod_metis_attribution.json`    `sha256:0794bd7cf4f6441b409d9e8de42491086fcb4872507adc3033a368c2d9ad9a4c`    体积逐点归因（84 点 / 28 算例：分离面积分与 D 形积分）、W_th 的约定夹逼、存量账为何不可比
+- `docs/benchmark/readings/zerod_metis_attribution.json`    `sha256:58fe57c3f4e69c3c479d1fa27ee2ab731d1ed5471d8226f380679c003d185dc1`    体积逐点归因（84 点 / 28 算例：分离面积分与 D 形积分）、W_th 的约定夹逼、存量账为何不可比
 - `third_party/metis_2026/METIS-main/zerod/zgeo0.m`    `sha256:4d2aea40e1aa008e626f8b45c4101aad8bf483f069dec74060b0fc84879ed815`    ★METIS 体积公式的源码（参考类，指针）；认证 .mat（MATLAB v5）在同树 certification/metis/
 
 **守它的门**：
@@ -140,6 +144,7 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 - `$FYLITE_KERNEL/rust/fylite/src/zerod.rs::tests::the_d_volume_lands_on_metis_at_the_iter_certification_point` —— 内核侧：ITER 认证点 +0.08 %
 - `$FYLITE_KERNEL/rust/fylite/src/zerod.rs::tests::the_d_volume_is_the_polygon_volume_of_the_same_curve` —— 内核侧：D 形体积对多边形旋转体按 h² 收敛
 - `$FYLITE_KERNEL/rust/fylite/src/case.rs::tests::zerod_takes_the_triangularity_into_the_volume_and_refuses_an_impossible_one` —— 门：δ 不给即椭圆，|δ| ≥ 1 拒绝
+- `python/tests/test_benchmark_transport_gates.py::test_like_for_like_w_agrees_only_by_cancellation` —— ★约定对齐后的 W：相消，不是成立
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗
