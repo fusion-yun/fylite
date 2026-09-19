@@ -83,16 +83,13 @@ def test_a_weakly_energised_outer_coil_is_pulled_inward_by_the_stack(got):
         assert abs(e["f_r_hoop_MN"]) < abs(e["f_r_MN"]), e   # 被互吸压过
 
 
-def test_the_surface_field_is_not_sold_as_a_converged_number(got):
-    """★★表面场**没有收敛**，而门要说出这件事而不是给一个定数。
-
-    取样点在最近一根丝外半个网格处，所以细丝越密、取到的场越高。★验它**单调上升**：
-    这是取样几何决定的方向，一个取样错了的实现不会这样走。
-    """
+def test_the_surface_field_now_converges_with_the_filament_count(got):
+    """★★表面场**收敛了**（2026-09-19）：导体自己的场改为面积分（极坐标 Gauss 求积，内核 `surface_field_converged`），
+    不再是半个网格外的细丝采样。4 / 8 / 16 档的峰值散布从 7.1 % 降到 4e-4——剩下的是**其他**线圈的细丝离散，
+    它们离得远、收敛得快。★旧的细丝采样值低 7–10 %：半格外取样取不到导体表面的峰。"""
     bs = got["convergence"]["b_surface_max_T"]
-    assert all(b < a for b, a in zip(bs, bs[1:])), bs
-    assert got["convergence"]["b_surface_spread_rel"] > 0.01, bs
-    assert any("sensitive to that sampling" in n for n in got["at_nu_8"]["notes"]), got["at_nu_8"]["notes"]
+    assert got["convergence"]["b_surface_spread_rel"] < 1e-3, bs
+    assert any("converged area integral" in n for n in got["at_nu_8"]["notes"]), got["at_nu_8"]["notes"]
 
 
 def test_the_recorded_readings_are_what_this_checkout_computes(got):

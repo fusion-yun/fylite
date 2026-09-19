@@ -95,8 +95,8 @@ def readings(case: Path) -> dict:
             for i in np.flatnonzero(fl["f_r"] < 0.0)],
         "b_surface_T": {"max": float(np.max(fl["b_surface"])), "median": float(np.median(fl["b_surface"]))}}
 
-    #: ★★细丝档的收敛：合力比值该一直在机器精度上，而表面场**不该**收敛得快——
-    #: 它在半个网格外取样，是这一支里最吃离散的量，照实记下来免得被当成一个定数引用
+    #: ★★细丝档的收敛：合力比值该一直在机器精度上；表面场 2026-09-19 起自场是面积分（内核
+    #: `surface_field_converged`），剩下的散布只来自其他线圈的细丝离散
     bs = [out["filament_sweep"][str(n)]["b_surface_max_T"] for n in NU_SWEEP]
     out["convergence"] = {
         "f_z_net_over_absmax": [out["filament_sweep"][str(n)]["f_z_net_over_absmax"] for n in NU_SWEEP],

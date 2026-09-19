@@ -105,6 +105,8 @@ $\mathbf M_{\rm eff}=\mathbf M-(I_p^2/k)\mathbf G\mathbf G^T$ **恰有一个负�
 $\mathbf A$ 会读成「稳」。现在按 $k\ge k_{\rm ideal}=I_p^2\mathbf G^T\mathbf M^{-1}\mathbf G$ 拒绝导出。
 详见 [`mhd-vertical-lti-export`](../../reports/mhd-vertical-lti-export.md)。
 
+**线圈受力（`FR-EQ-014`）**——四条解析锚全过；★表面场 2026-09-19 起**收敛**：导体自己的场改为极坐标 Gauss 面积分（环场用椭圆积分闭式），EAST 峰值在 4 / 8 / 16 档细丝上 2.807 / 2.808 / 2.808 T、散布 4e-4——此前半格外的细丝采样散布 7.1 %、低 7–10 %。★仍判未判，只剩一个原因：判据点名的 DINA 对拍没有语料（DINA-IMAS 仓里只有 ITER 的输入，受力子程序被注释掉）。
+
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
 
 ### 判据（抄自 `FYTOK-SRS-03` v0.43）
@@ -131,9 +133,9 @@ $\mathbf A$ 会读成「稳」。现在按 $k\ge k_{\rm ideal}=I_p^2\mathbf G^T\
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`mhd-vertical-coil-forces-analytic`](../../reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） | 闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列） | 1.13 | 草稿 | [jsonld](../../records/mhd-vertical-coil-forces-analytic.jsonld) |
-| [`mhd-vertical-freegsnke-east137985`](../../reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 成立 | FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚） | 2.12 | 草稿 | [jsonld](../../records/mhd-vertical-freegsnke-east137985.jsonld) |
-| [`mhd-vertical-lti-export`](../../reports/mhd-vertical-lti-export.md) | 验证 | 成立 | 纯电路的解析本征值；单回路刚性色散根；FR-EQ-016 竖直稳定性门的 γ | 1.5 | 草稿 | [jsonld](../../records/mhd-vertical-lti-export.jsonld) |
+| [`mhd-vertical-coil-forces-analytic`](../../reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） | 闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列） | 1.14 | 草稿 | [jsonld](../../records/mhd-vertical-coil-forces-analytic.jsonld) |
+| [`mhd-vertical-freegsnke-east137985`](../../reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 成立 | FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚） | 2.13 | 草稿 | [jsonld](../../records/mhd-vertical-freegsnke-east137985.jsonld) |
+| [`mhd-vertical-lti-export`](../../reports/mhd-vertical-lti-export.md) | 验证 | 成立 | 纯电路的解析本征值；单回路刚性色散根；FR-EQ-016 竖直稳定性门的 γ | 1.6 | 草稿 | [jsonld](../../records/mhd-vertical-lti-export.jsonld) |
 
 ### 缺口
 

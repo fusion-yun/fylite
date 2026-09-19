@@ -14,8 +14,8 @@ title: "eq-inverse-iter-reference-separatrix"
 - **量的是**：ITER 参考分离面上的静态逆解：设计自身的闭合，以及它买不起的那部分形状
 - **参考**：ITER 参考分离面（装置牌上的数字化曲线）
 - **验的需求**：`FR-EQ-005`
-- **跑在内核**：`sha256:6a3256a58b247645…`（新鲜度 **current**）
-- **记录版本**：1.19　**评审**：草稿　**日期**：2026-09-17
+- **跑在内核**：`sha256:e4040bbf79e390d9…`（新鲜度 **current**）
+- **记录版本**：1.20　**评审**：草稿　**日期**：2026-09-17
 
 :::{warning} 这是一条**已裁定保留**的缺口
 
@@ -95,7 +95,7 @@ title: "eq-inverse-iter-reference-separatrix"
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.19　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.20　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -120,12 +120,13 @@ title: "eq-inverse-iter-reference-separatrix"
 | 1.17 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.18 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.19 | 2026-09-19 | Claude Opus 5 (1M context) | 线圈电流一格由未判转不成立：ITER 额定取自 DINA-IMAS（每匝上限 × 本卡片匝数，同一套线圈）。无界设计 PF1 1.14 倍、PF6 1.28 倍额定；有界再解守住额定（PF6 顶格）、分离面 11.8 mm，但不再收敛（残差 0.072）。整体仍 inconclusive（收敛一格只记不判）。 |
+| 1.20 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（线圈表面场收敛入内核：`electromagnetics::surface_field_converged`、`loop_field`，`code/forces` 的 `b_surface` 改用面积分；`FR-EQ-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **812 项全通过**。★只动了 `b_surface`，受力与其余门逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:6a3256a58b2476456c9a1e466d4539c81f93dd5279b1225f1fbed2a4da9a4690`　—— 须设 `$FYLITE_KERNEL_LIB` 指向带该门的构建，并设 `$FYLITE_DEVICE_DIR` 指向 ITER 牌所在目录
+- 内核 `libfylite` `sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6`　—— 须设 `$FYLITE_KERNEL_LIB` 指向带该门的构建，并设 `$FYLITE_DEVICE_DIR` 指向 ITER 牌所在目录
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

@@ -14,8 +14,8 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 - **量的是**：0D 记账对 METIS：体积缺口**已补上**（D 形体积，±0.25 %）；轴值与 W_th 受峰化约定所限判不了
 - **参考**：METIS
 - **验的需求**：`FR-TR-014`
-- **跑在内核**：`sha256:6a3256a58b247645…`（新鲜度 **current**）
-- **记录版本**：1.22　**评审**：草稿　**日期**：2026-09-16
+- **跑在内核**：`sha256:e4040bbf79e390d9…`（新鲜度 **current**）
+- **记录版本**：1.23　**评审**：草稿　**日期**：2026-09-16
 
 ## 问的是什么
 
@@ -94,7 +94,7 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.22　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.23　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -123,12 +123,13 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 | 1.20 | 2026-09-19 | Claude Opus 5 (1M context) | 约定对齐后再量 W_th 与轴值（METIS 体平均换成 0D 轴值、峰化拟合到 METIS 剖面）：W 对上 ±0.2 % 但是三项相消（不计稀释 +2.5…+3.5 %、体平均加权 +2.2…+6.8 %、幂律形状），轴值差恰是加权之差。两格仍未判，病根拆到两处建模选择（稀释、dV/dρ），等裁定。 |
 | 1.21 | 2026-09-19 | Claude Opus 5 (1M context) | 0D 热能计稀释（用户选 a）：内核 `zerod::ion_fraction`（准中性 + Zeff + 杂质配比，METIS 同一记账），`code/zerod` 收 `z_imp` / `z_imp2` / `r_imp2`（不给即 n_i = n_e，逐位）。喂 METIS 自己的 Zeff 与 C + Ar：n_i/n_e 0.90456 对 0.90457；约定对齐后 W 对 METIS −2.4…−3.4 %，相消拆掉了，剩下的是 0D 体平均的椭圆加权（b 未选）。第四格仍未判，偏差改记 0.034。 |
 | 1.22 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（平衡 / MHD 三条判据补齐入内核：`highbeta::surface_energy_book`、`code/vstab` 新报 `k_identity_filaments`，另加 conformal / stability 的锚；`FR-EQ-024` · `025` · `016`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **809 项全通过**（新锚 4 条）。★缺省路径逐位不变，接口摘要、`CASE_CODES`、ABI 均未动。 |
+| 1.23 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（线圈表面场收敛入内核：`electromagnetics::surface_field_converged`、`loop_field`，`code/forces` 的 `b_surface` 改用面积分；`FR-EQ-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **812 项全通过**。★只动了 `b_surface`，受力与其余门逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:6a3256a58b2476456c9a1e466d4539c81f93dd5279b1225f1fbed2a4da9a4690`
+- 内核 `libfylite` `sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

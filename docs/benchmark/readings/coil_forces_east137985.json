@@ -21,7 +21,7 @@
    "f_z_net_over_absmax": 2.738335957636868e-14,
    "f_r_total_N": 31557646.6417935,
    "f_r_absmax_N": 5964276.0637244955,
-   "b_surface_max_T": 2.548313406989178,
+   "b_surface_max_T": 2.806997713106277,
    "hoop_outward_count": 14.0,
    "energised_count": 14.0
   },
@@ -31,7 +31,7 @@
    "f_z_net_over_absmax": 2.2092789981746793e-14,
    "f_r_total_N": 31507483.01040661,
    "f_r_absmax_N": 5950497.475148645,
-   "b_surface_max_T": 2.679331036861358,
+   "b_surface_max_T": 2.807872867499429,
    "hoop_outward_count": 14.0,
    "energised_count": 14.0
   },
@@ -41,7 +41,7 @@
    "f_z_net_over_absmax": -1.784671938175945e-14,
    "f_r_total_N": 31492979.64039048,
    "f_r_absmax_N": 5946430.693770703,
-   "b_surface_max_T": 2.7440206048919316,
+   "b_surface_max_T": 2.808097472081371,
    "hoop_outward_count": 14.0,
    "energised_count": 14.0
   }
@@ -51,7 +51,7 @@
   "n_elements": 14,
   "n_channels": 12,
   "notes": [
-   "filaments 8 x 8 per element; the surface field is sampled at four corners and four face midpoints and is sensitive to that sampling"
+   "filaments 8 x 8 per element for the forces and for the OTHER conductors' field; each conductor's own surface field is a converged area integral (polar Gauss quadrature about the surface point), taken at four corners and four face midpoints"
   ],
   "worst_elements": [
    {
@@ -62,7 +62,7 @@
     "f_r_MN": 3.73614123293536,
     "f_r_hoop_MN": 4.167455127383195,
     "f_z_MN": 3.8851802803285085,
-    "b_surface_T": 2.3714065047981525
+    "b_surface_T": 2.383784304310824
    },
    {
     "element": 4,
@@ -72,7 +72,7 @@
     "f_r_MN": 3.7925124696586074,
     "f_r_hoop_MN": 4.157644631799877,
     "f_z_MN": -3.7258618552818876,
-    "b_surface_T": 2.3661228397381255
+    "b_surface_T": 2.37850694749514
    },
    {
     "element": 3,
@@ -82,7 +82,7 @@
     "f_r_MN": 1.4649550322009413,
     "f_r_hoop_MN": 0.22396730816518545,
     "f_z_MN": 2.056008417727338,
-    "b_surface_T": 2.1126533631804376
+    "b_surface_T": 2.10854519518166
    },
    {
     "element": 10,
@@ -92,7 +92,7 @@
     "f_r_MN": 1.4425468253196978,
     "f_r_hoop_MN": 0.22447130374584678,
     "f_z_MN": -2.017881550876473,
-    "b_surface_T": 2.1025054745787175
+    "b_surface_T": 2.0987411170880947
    },
    {
     "element": 8,
@@ -102,7 +102,7 @@
     "f_r_MN": 2.944177050919007,
     "f_r_hoop_MN": 0.9779750804129838,
     "f_z_MN": -0.9181047851942143,
-    "b_surface_T": 1.9899648923344355
+    "b_surface_T": 2.0717777541617517
    },
    {
     "element": 1,
@@ -112,7 +112,7 @@
     "f_r_MN": 3.49498537433149,
     "f_r_hoop_MN": 1.362192211256431,
     "f_z_MN": 0.8048303116850801,
-    "b_surface_T": 2.1243919123864017
+    "b_surface_T": 2.2213689528566545
    }
   ],
   "hoop_outward_everywhere": true,
@@ -133,8 +133,8 @@
    }
   ],
   "b_surface_T": {
-   "max": 2.679331036861358,
-   "median": 2.0462351834565764
+   "max": 2.807872867499429,
+   "median": 2.0852594356249234
   }
  },
  "convergence": {
@@ -144,10 +144,10 @@
    -1.784671938175945e-14
   ],
   "b_surface_max_T": [
-   2.548313406989178,
-   2.679331036861358,
-   2.7440206048919316
+   2.806997713106277,
+   2.807872867499429,
+   2.808097472081371
   ],
-  "b_surface_spread_rel": 0.0713213295679538
+  "b_surface_spread_rel": 0.00039163846199352203
  }
 }

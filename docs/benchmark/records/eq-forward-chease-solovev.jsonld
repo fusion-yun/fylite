@@ -117,11 +117,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:6a3256a58b2476456c9a1e466d4539c81f93dd5279b1225f1fbed2a4da9a4690"
+   "checksum": "sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6"
   }
  },
  "provenance": {
-  "record_version": "1.18",
+  "record_version": "1.19",
   "recorded": "2026-09-16",
   "revised": "2026-09-19",
   "review_status": "draft",
@@ -233,6 +233,12 @@
     "date": "2026-09-19",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（平衡 / MHD 三条判据补齐入内核：`highbeta::surface_energy_book`、`code/vstab` 新报 `k_identity_filaments`，另加 conformal / stability 的锚；`FR-EQ-024` · `025` · `016`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **809 项全通过**（新锚 4 条）。★缺省路径逐位不变，接口摘要、`CASE_CODES`、ABI 均未动。"
+   },
+   {
+    "record_version": "1.19",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（线圈表面场收敛入内核：`electromagnetics::surface_field_converged`、`loop_field`，`code/forces` 的 `b_surface` 改用面积分；`FR-EQ-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **812 项全通过**。★只动了 `b_surface`，受力与其余门逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。"
    }
   ]
  }
