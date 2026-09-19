@@ -57,9 +57,9 @@ NN 不报错、照样给数，内核把外推度报出来（0.54），门钉住�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-pedestal-eped-feedback`](../../reports/tr-pedestal-eped-feedback.md) | 验证 | 成立 | EPEDNN.jl · 反馈的不动点：下一步的 EPED-NN 目标等于本步的边界 | 1.3 | 草稿 | [jsonld](../../records/tr-pedestal-eped-feedback.jsonld) |
-| [`tr-pedestal-sawtooth-kadomtsev`](../../reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 | 它自己混合前的含量积分，以及 Kadomtsev 重联要求的 q = 1 | 1.22 | 草稿 | [jsonld](../../records/tr-pedestal-sawtooth-kadomtsev.jsonld) |
-| [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 成立 | METIS | 1.28 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
+| [`tr-pedestal-eped-feedback`](../../reports/tr-pedestal-eped-feedback.md) | 验证 | 成立 | EPEDNN.jl · 反馈的不动点：下一步的 EPED-NN 目标等于本步的边界 | 1.4 | 草稿 | [jsonld](../../records/tr-pedestal-eped-feedback.jsonld) |
+| [`tr-pedestal-sawtooth-kadomtsev`](../../reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 | 它自己混合前的含量积分，以及 Kadomtsev 重联要求的 q = 1 | 1.23 | 草稿 | [jsonld](../../records/tr-pedestal-sawtooth-kadomtsev.jsonld) |
+| [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 成立 | METIS | 1.29 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
 
 ### 覆盖它的记录在别的域
 

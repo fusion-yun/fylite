@@ -29,11 +29,18 @@ title: "源项：加热与电流驱动"
   每瓦 1.046 倍。伴随 ECCD 另对 METIS 认证库 30 行（比值 0.03–0.64，中位 0.35——比 METIS 的 Giruzzi 拟合
   低，但对数相关 0.976，趋势同）。
 - **IC**——对 METIS 的七格（共振层、少数离子四料、电子/快离子分配、剖面形状、闭合）加 FWCD 对测量。
-  ★**IC 没有 `code/` 门**：内核有这一族，公开仓的门够不着，所以它的判据全在内核仓的 Rust 单测里，
-  本仓 CI 跑不到——照实记在那条记录的缺口里。
-- **NBI、LH**——只有功率账。★**沉积与驱动效率没有登记的外部参照**：本机没有 RABBIT / NUBEAM 之类的
-  束码输出，LH 也没有另一个码在同一算例上的答案（METIS 认证库里带 LH 的行被故意排除，因为 METIS 在那些行上
-  乘了一个 LH/EC 协同因子，本码不建模它）。这是本域**最大的空白**，不是排版。
+  ★2026-09-19 起**有门**（`code/icrh`，0-D 局域，与模型同），前四格由公开仓经门逐行重跑，数与内核函数级逐位相同。
+  ★仍缺：1.5D 源里没有 IC（`code/evolve` 只沉入 beam 与 lh）。
+- **NBI**——对 NUBEAM 在 DIII-D 测试例上的答案：束离子出生率差 2.4 %、出生形心差 0.04（psi_N）。
+  ★但 NUBEAM 那一份是 **20 ms 的暂态**（两步、从零快离子起步），出生以后的事——加热分到电子还是离子、驱动多少电流、
+  储多少能——它只答到 20 ms，本码答的是定常：这几样**只记读数**，离子道差一倍分不清是物理还是暂态。
+  出生对杂质阻止很敏感（常数碳密度把形心推到 0.50），照记。
+- **LH**——对 GENRAY 在 EAST #71230 上的四条射线：沉积形心在 GENRAY 内侧 0.10（psi_N）。差的来源是量出来的——
+  GENRAY 射线上的 N∥ 在吸收前上移 5–7 %，本码不算上移；把 GENRAY 自己量到的上移喂进去，差降到 0.04；
+  同一批射线的 ξ_eff 在 2.9–3.4，本码缺省 ξ = 3 在其中。★LH 的**驱动电流不可比**：本码的效率 eta_cd 是输入。
+
+仍然空着的：NBI 的定常加热分配与电流（要一个跑到稳态的束码答案）、LH 的驱动效率（要一个把效率当答案的码）、
+IC 进输运。
 
 ★参考侧的出处：TORAY 那份冻结件（`cfedr_toray_20ma.txt`）标着 `release: internal`、取自受限语料，
 只存在于私有内核仓；本册的读数只记比较量（偏差、比值、TORAY 的几个标量），不转存它的剖面与射线。
@@ -56,10 +63,12 @@ title: "源项：加热与电流驱动"
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-sources-ec-toray-cfedr`](../../reports/tr-sources-ec-toray-cfedr.md) | 对拍 | 成立 | TORAY-GA | 1.0 | 草稿 | [jsonld](../../records/tr-sources-ec-toray-cfedr.jsonld) |
-| [`tr-sources-eccd-metis`](../../reports/tr-sources-eccd-metis.md) | 对拍 | 成立 | METIS | 1.0 | 草稿 | [jsonld](../../records/tr-sources-eccd-metis.jsonld) |
-| [`tr-sources-icrh-metis`](../../reports/tr-sources-icrh-metis.md) | 对拍 | 成立 | METIS · FWCD 测量（JFT-2M · DIII-D · Tore-Supra，METIS fitetafwcd.m 所回归的表） | 1.0 | 草稿 | [jsonld](../../records/tr-sources-icrh-metis.jsonld) |
-| [`tr-sources-power-closure`](../../reports/tr-sources-power-closure.md) | 验证 | 成立 | 抄录的判据：「P_inj = P_abs + P_shine + P_orbit 逐项闭合为可测不变量」（源族表）·「源沉积积分必须闭合到注入额定值」（NR-TR-001） | 1.0 | 草稿 | [jsonld](../../records/tr-sources-power-closure.jsonld) |
+| [`tr-sources-ec-toray-cfedr`](../../reports/tr-sources-ec-toray-cfedr.md) | 对拍 | 成立 | TORAY-GA | 1.1 | 草稿 | [jsonld](../../records/tr-sources-ec-toray-cfedr.jsonld) |
+| [`tr-sources-eccd-metis`](../../reports/tr-sources-eccd-metis.md) | 对拍 | 成立 | METIS | 1.1 | 草稿 | [jsonld](../../records/tr-sources-eccd-metis.jsonld) |
+| [`tr-sources-icrh-metis`](../../reports/tr-sources-icrh-metis.md) | 对拍 | 成立 | METIS · FWCD 测量（JFT-2M · DIII-D · Tore-Supra，METIS fitetafwcd.m 所回归的表） | 1.1 | 草稿 | [jsonld](../../records/tr-sources-icrh-metis.jsonld) |
+| [`tr-sources-lh-genray`](../../reports/tr-sources-lh-genray.md) | 对拍 | 成立 | GENRAY | 1.0 | 草稿 | [jsonld](../../records/tr-sources-lh-genray.jsonld) |
+| [`tr-sources-nbi-nubeam`](../../reports/tr-sources-nbi-nubeam.md) | 对拍 | 成立 | NUBEAM | 1.0 | 草稿 | [jsonld](../../records/tr-sources-nbi-nubeam.jsonld) |
+| [`tr-sources-power-closure`](../../reports/tr-sources-power-closure.md) | 验证 | 成立 | 抄录的判据：「P_inj = P_abs + P_shine + P_orbit 逐项闭合为可测不变量」（源族表）·「源沉积积分必须闭合到注入额定值」（NR-TR-001） | 1.1 | 草稿 | [jsonld](../../records/tr-sources-power-closure.jsonld) |
 
 ### 覆盖它的记录在别的域
 

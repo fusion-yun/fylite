@@ -1,0 +1,176 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-sources-lh-genray",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "LH 对 GENRAY（EAST #71230，2.45 GHz）：沉积形心在 GENRAY 内侧 0.102（psi_N）——差的是 GENRAY 射线上 5–7 % 的 N∥ 上移，喂进去后剩 0.038；驱动电流不可比（效率是输入）",
+  "en": "LH against GENRAY (EAST #71230, 2.45 GHz): the deposition centroid 0.102 inside GENRAY's in psi_N — the missing piece is the 5–7 % N∥ upshift on GENRAY's rays, which leaves 0.038 once fed in; the driven current is not comparable (the efficiency is an input)"
+ },
+ "domain": "tr-sources",
+ "requirement": [
+  "FR-TR-004"
+ ],
+ "comparison_kind": "benchmark",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · code/wave（解析 LH：Landau 共振 T_e = m_e c²/(2 ξ² N∥²) 处的高斯沉积，可及性判据）",
+  "comment": "GENRAY 那一次的 g 文件、密度 / 温度剖面与发射 N∥ 原样喂门；缺省 ξ = 3、无上移"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:Code",
+   "name": "GENRAY",
+   "version": "v10.13_200117，EAST #71230 4.8 s，2.45 GHz 栅格发射，4 条射线（N∥ 16.51），1 MW；BORAY 仓（hsxie/boray，BSD-3）的数据",
+   "comment": "★射线追踪对解析模型：GENRAY 解出每条射线的 N∥ 演化与沿线吸收，本码只取一个共振条件。能比的是**位置**；宽度由本码的宽度下限定，吸收份额两边都是 1（构造使然），驱动电流本码是 eta_cd·P/(n̄R)——效率是输入，不是答案。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-sources-lh-genray/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "功率沉积形心（psi_N）：本码缺省设置对 GENRAY",
+   "norm": "absolute",
+   "tolerance_basis": "measured_band",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.12
+   },
+   "comment": "★带画在实测（0.102）之上，理由写在下一格：差的来源是量出来的，不是调出来的。"
+  },
+  {
+   "id": "benchmark/records/tr-sources-lh-genray/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "诊断：喂入 GENRAY 射线上量到的 N∥ 上移后，形心差 ≤ 0.05 且小于缺省",
+   "norm": "absolute",
+   "tolerance_basis": "measured_band",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.05
+   },
+   "comment": "★这一格不是给本码开后门：上移取自参考自己的射线，所以它证的是「缺的就是上移」，而不是「喂了就对」。"
+  },
+  {
+   "id": "benchmark/records/tr-sources-lh-genray/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "账与几何：沉积 = 注入；门的壳体积和对 GENRAY 的体积",
+   "norm": "relative",
+   "tolerance_basis": "measured_band",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.005
+   }
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "缺省：形心 0.402 对 0.504（差 -0.102）",
+   "criterion": "benchmark/records/tr-sources-lh-genray/criterion/1",
+   "bound": "upper",
+   "verdict": "pass",
+   "deviation_literal": "本码 0.4016、GENRAY 0.5040（psi_N，功率加权）；宽度（标准差）0.050 对 0.053；电流形心 GENRAY 0.507",
+   "measured_deviation": 0.10243260329586368,
+   "caveat": [
+    "★宽度相近（比 0.94）是本码 `width_floor` = 0.05 的巧合，不是物理——单一 N∥ 时本码的宽度就是这个下限。",
+    "★rho 的映射：GENRAY 的 indexrho = 4 即 rho = sqrt(psi_N / psifactr)，在每个射线点上对 g 文件核过（最劣 2.5e-6）。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "喂入上移后差 -0.038",
+   "criterion": "benchmark/records/tr-sources-lh-genray/criterion/2",
+   "bound": "upper",
+   "verdict": "pass",
+   "deviation_literal": "GENRAY 射线上吸收处 N∥ / 发射 N∥（功率加权 10 / 50 / 90 %）：1.046 / 1.058 / 1.073；本码以 1.046–1.073 为上移区间，形心 0.4664（差 -0.0376）。同一批射线上 ξ_eff = v_ph / sqrt(2 T_e / m_e)：2.91 / 3.10 / 3.37——本码缺省 ξ = 3 在其中",
+   "measured_deviation": 0.03760546803177628,
+   "caveat": [
+    "★形心对 ξ 很敏感（约 0.4 psi_N / 单位 ξ）：共振在 T_res ∝ 1/(ξ² N²)。所以「ξ 取 3 对」这一条是这一格能成立的前提，由 GENRAY 自己的射线证。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "账 3e-16、体积 -0.02 %",
+   "criterion": "benchmark/records/tr-sources-lh-genray/criterion/3",
+   "bound": "upper",
+   "verdict": "pass",
+   "deviation_literal": "沉积 1.000000 MW 对注入 1.000000；壳体积和 10.870 m³、GENRAY 10.872 m³",
+   "measured_deviation": 0.00016487088067673739
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "驱动电流（读数，不判）",
+   "bound": "reading",
+   "verdict": "inconclusive",
+   "deviation_literal": "GENRAY I∥ -54.2 kA（1 MW）；本码在门的示意效率 1e19 A/W/m² 下 1163 kA——GENRAY 隐含的效率 4.66e+17 A/W/m²（低 21 倍：200 eV 的冷等离子体、N∥ 16.5 的高 N∥ 情形）",
+   "caveat": [
+    "★★本码的 LH 电流是 eta_cd × P / (n̄ R₀)——效率是**输入**；拿它对 GENRAY 的电流，比的是输入。本码的电流恒为正，GENRAY 的为负（符号约定未对齐）。能比的只有电流的位置：它跟着功率走，两边都是。"
+   ]
+  }
+ ],
+ "validity_domain": "EAST #71230 4.8 s（g071230.004800），2.45 GHz、4 条射线、N∥ 16.51（N_pol 0）、1 MW；剖面取 GENRAY 自己的 densprof / temprof（ne 1e19 → 1e18、Te 200 → 10 eV，D、Zeff 1）。可及性不受考验：最高 n_acc 1.71，远低于 16.5。★单一射线束、单一时刻；一个冷、高 N∥ 的算例。",
+ "caveat": [
+  "★★**对拍不是验证**：射线追踪与解析模型在位置上差多少、差在哪，是这条记录的全部结论。",
+  "★GENRAY 的 genray.in 不在盘上：发射谱与剖面取自其输出 nc 本身。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-19",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/lh_genray_east71230.json",
+    "comment": "比较量（tools/benchmark-hcd.py lh）",
+    "checksum": "sha256:2914d8f480e2177e9d27014dd8b3c46ed8dd98f5bbd276720cdd59df424fb501"
+   },
+   {
+    "storage_uri": "tools/benchmark-hcd.py",
+    "comment": "读数生成器（closure · toray · kernel 三个子命令）",
+    "checksum": "sha256:9fbebb10c8e0d65fe11cb0e298b0ab1631996865a0d2979ddd1e39cf62d784eb"
+   },
+   {
+    "storage_uri": "third_party/boray/eqdata/genray/EAST/lhw/east_lh_multiray.nc",
+    "comment": "GENRAY 输出（BSD-3），指针 + sha256",
+    "checksum": "sha256:ffa807582654e3083695b3b78a487cd1ce5f186df5b7f62676b35ae4e4c577b1"
+   },
+   {
+    "storage_uri": "third_party/boray/eqdata/genray/EAST/g071230.004800",
+    "comment": "平衡",
+    "checksum": "sha256:25a9ba90de0cee21b160e4fdc6166f152273ff89e11eb2af382abc01dd55673a"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "python/tests/test_benchmark_hcd.py::test_lh_the_deposition_sits_where_genray_absorbs_it",
+    "comment": "第一、二格"
+   },
+   {
+    "name": "python/tests/test_benchmark_hcd.py::test_lh_the_account_and_the_volume_agree",
+    "comment": "第三格"
+   },
+   {
+    "name": "python/tests/test_benchmark_hcd.py::test_lh_reproduces_its_reading"
+   }
+  ],
+  "kernel": {
+   "name": "fylite_kernel",
+   "commit": "b27d7145ab3e68e5cb84914827a552e7a78537ea",
+   "library_sha256": "sha256:2851c58ae6777d4783fc0071cfc21526509617470a174159a38a47de0074f074",
+   "comment": "与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-19",
+  "revised": "2026-09-19",
+  "review_status": "draft",
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5",
+    "summary": "新立（用户「建 NBI and LH，icrf benchmark」）：LH 沉积位置对 GENRAY——此前 LH 只有功率账、没有任何外部参照。"
+   }
+  ],
+  "open_defect": "2026-09-19 ★本码不算 N∥ 上移（缺省位置差 0.10 psi_N 的来源）；LH 驱动电流的效率是输入，没有可判的外部答案。"
+ }
+}

@@ -297,13 +297,13 @@
   ],
   "kernel": {
    "name": "fylite_kernel",
-   "commit": "e05a90fd06fe061fef60dc0501db1a8043e7735a",
-   "library_sha256": "sha256:19f2501e8437587d71fc7642cbcfc9aa63c7ebf2a5d89e7a4b92dec2f788c223",
+   "commit": "b27d7145ab3e68e5cb84914827a552e7a78537ea",
+   "library_sha256": "sha256:2851c58ae6777d4783fc0071cfc21526509617470a174159a38a47de0074f074",
    "comment": "与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。"
   }
  },
  "provenance": {
-  "record_version": "1.14",
+  "record_version": "1.15",
   "recorded": "2026-09-18",
   "revised": "2026-09-19",
   "review_status": "draft",
@@ -398,6 +398,12 @@
     "date": "2026-09-19",
     "by": "Claude Opus 5",
     "summary": "内核换代后的全册重验：内核换代（`e05a90fd06fe`：`code/rf_ray` 的说明照实——吸收与伴随 ECCD 已实现；HCD 对 METIS 的测试打印登记读数（新域 `tr-sources`）；其间合入 VEQ 定边界求解（`code/fixed_boundary` 的 `method = veq`，缺省 `grid` 逐位不变）。内核侧：`fyo` 7 · `heating` 60 · `rfray` 61 全过。★没有一处缺省数值变动。 ★本条的判据与数值**未改口径**。"
+   },
+   {
+    "record_version": "1.15",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5",
+    "summary": "内核换代后的全册重验：内核换代（`b27d7145ab3e`：新门 `code/icrh`——ICRH 少数离子加热第一次经门可达，`CASE_CODES` 41 → 42，只加不改）。内核侧：`icrh_door` 2 · `fyo` 7 全过。★没有一处既有缺省数值变动。 ★本条的判据与数值**未改口径**。"
    }
   ]
  }
