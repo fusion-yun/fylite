@@ -70,6 +70,17 @@ with imas.DBEntry("imas:hdf5?path=<算例根目录>/imas", "r") as db:
 ## 模型层级
 
 - **小截面 / 二维磁面**：fylite `code/discharge`，位置控制 C4（电流形心设定点），线圈额定上限取装置卡（104014 表 1），每个采样时刻冷解一次；目标 Miller 形状与 Iₚ 按回放文件逐参数线性插值。采样：上升 16 个、平顶 3 个、下降 10 个。
+- **热启选项（`eq_sequence.py --warm`，缺省关）**：每片把上一片成功解的线圈电流（`discharge/fylite:channel_aturns`）与盒内磁通（`discharge/fylite:psi_warm`，65×65 与盒网格同）交给下一片，`warm = 1`、`seed = flux_max`（`seed = target` 下门不读 `psi_warm`）；退火仍走满 8 遍（`--warm-passes N` 可改）。热启片被拒则同片冷解重算（两次墙钟都记入）；`--warm-max-gap S` 让相隔超过 S 秒的片冷解。`index.json` 每片记 `wall_s` 与 `warm`（被拒重算的另记 `warm_refused` · `warm_wall_s`）。实测（2026-09-19，29 片，同机顺序跑，冷解两遍逐位相同）：
+
+  | 方式 | 总墙钟 | 热启片均耗 | 拒绝 | 平均 / 最大 gap rms | 偏滤器位形片数 | 与冷解差（max \|Δψ_N\| · LCFS 最大偏离） |
+  | :--- | ---: | ---: | :--- | :--- | ---: | :--- |
+  | 冷解（缺省） | 283 s | — | 0 | 0.162 / 0.353 m | 13 | — |
+  | `--warm` | 239 s（−16 %） | 8.1 s | 2（6193 · 6209 s，冷解重算） | 0.156 / 0.305 m | 11 | 0.29 · 0.58 m |
+  | `--warm --warm-max-gap 20` | 242 s | 8.2 s | 1（6209 s） | 0.176 / 0.353 m | 11 | 同上，下降段另一支 |
+  | `--warm --warm-seed target`（只交电流） | 218 s（−23 %） | 7.3 s | 1（6205 s） | 0.166 / 0.322 m | 10 | 0.61 · 0.48 m |
+  | `--warm --warm-passes 2` | 96 s（−66 %） | 2.9 s | 1（6209 s） | 0.180 / 0.444 m | 13 | 0.53 · 0.77 m |
+
+  **结论：缺省冷解。** 热启省的只是第 0 遍的起点，8 遍退火仍占大头，所以只快 16 %；而退火落在哪个局部解取决于起点——热启的答案**依赖历史**：40 · 45 s 丢了偏滤器位形（冷解有），平顶 κ 1.78 对冷解 1.84（gap 反而小 0.05 m），下降段不再与上升段同形同解（冷解逐片镜像），低电流下降段热启被拒 1–2 片。大跳变处（65→100→150→6150 s）改冷解既不省时（平顶热启片 7.8–8.0 s 对冷解 8.4–9.0 s）也不让下降段回到冷解那一支。演示产物要的是每片可单独复算，故保留冷解；要快速预览时用 `--warm --warm-passes 2`（约 3 倍速，形状差到 0.4 m 级）。
 - **时序信号 / 一维剖面**：fylite `code/zerod` 三遍——① 以回放线平均密度求轴上密度；② tier B（IPB98(y,2)）预测轴上 Tₑ；③ 以预测 Tₑ 走规定档出剖面与判据。剖面是参数化形状，**不是输运解**。定标：Tᵢ/Tₑ = 0.80（CASE-20 轴上 23.0 / 28.7 keV），H 因子 0.91（使平顶 W_th ≈ CASE-20 的 807 MJ），Z_eff 取 CASE-20 工况，B₀ 6.3 T @ 7.8 m。回读：平顶 P_fus ≈ 2.01 GW、Q ≈ 19.7（CASE-20 为 1.51 GW）。
 - **1.5-D 会话推进**：公开仓 `fylite.engine.session`（每 10 ms 一次 `code/evolve`），CASE-20 给定 LCFS 工况 + I-9 加料标定 + L-H martin08，自 65 s 起（该时刻加热 102 MW 与燃烧起步态相符）。结果：恒 H 模、P_fus 稳定在约 1.18 GW、W_th 748 MJ；每步墙钟 p50 295 ms · p99 362 ms · 最大 478 ms。
 
@@ -187,7 +198,7 @@ $PY scripts/write_imas15.py eq_lim app/device_cfedr.json full2.csv ft2.csv ft2.c
 # netcdf / hdf5 不在默认搜索路径时，先把它们所在目录放进 LD_LIBRARY_PATH
 PY=python3                      # 装了 imas-python / h5py / matplotlib 的那个解释器
 REPLAY=<内核仓>/docs/cases/pcs/cfedr-d2025-replay.json
-PYTHONPATH=fylite/python $PY scripts/eq_sequence.py app/device_cfedr.json $REPLAY eq_lim
+PYTHONPATH=fylite/python $PY scripts/eq_sequence.py app/device_cfedr.json $REPLAY eq_lim   # --warm：见「模型层级」热启一条
 PYTHONPATH=fylite/python $PY scripts/zerod_run.py plan_fuelled.json $REPLAY zerod_cal.npz '{"tite": 0.80, "hfac": 0.91}'
 PYTHONPATH=fylite/python $PY scripts/pcs_replay_drive.py plan_fuelled.json $REPLAY 65 95 session.csv
 $PY scripts/assemble.py eq_lim zerod_cal.npz app/device_cfedr.json session.csv discharge.json
