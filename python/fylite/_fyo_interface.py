@@ -1290,6 +1290,7 @@ CODE_PARAMS = {
         'deposit': {'key': 'deposit', 'type': 'boolean', 'via': 'rf_ray_case', 'default': 'false'},
         'divergence': {'key': 'divergence', 'type': 'float', 'via': 'rf_ray_case'},
         'ds_max': {'key': 'ds_max', 'type': 'float', 'via': 'rf_ray_case', 'default': '1.0e-2', 'required': False},
+        'dw_tol': {'key': 'dw_tol', 'type': 'float', 'via': 'rf_ray_case', 'default': 'rf::RayOptions::default(', 'required': False},
         'eccd': {'key': 'eccd', 'type': 'boolean', 'via': 'rf_ray_case', 'default': 'false'},
         'h_max': {'key': 'h_max', 'type': 'float', 'via': 'rf_ray_case', 'default': '1.0e-4', 'required': False},
         'lh_band': {'key': 'lh_band', 'type': 'float', 'via': 'rf_ray_lh', 'default': '0.4', 'required': False},

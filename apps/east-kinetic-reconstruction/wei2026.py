@@ -754,6 +754,26 @@ def method_card(clean_opts):
             "window_s": WINDOW_S}
 
 
+def advance_in_vacuum(r0: float, z0: float, pol_deg: float, tor_deg: float, r_max: float):
+    """EC 束从发射镜（文献给的是 R ≈ 3 m 处，在反演网格外）沿直线走进网格：真空里的直线传播是精确的，
+    到新点后把方向在当地 (R, φ, Z) 框架里重算成内核的两个角。内核约定：k̂ = (−cosθp·cosθt, −sinθt, −sinθp·cosθt)，
+    θp > 0 朝下，θt > 0 朝 −y，θp = θt = 0 径向向内（fylite_kernel rfray.rs Launch::from_launcher）。"""
+    tp, tt = math.radians(pol_deg), math.radians(tor_deg)
+    k = (-math.cos(tp) * math.cos(tt), -math.sin(tt), -math.sin(tp) * math.cos(tt))
+    x, y, z = r0, 0.0, z0
+    step = 0.001
+    for _ in range(5000):
+        if math.hypot(x, y) <= r_max:
+            break
+        x, y, z = x + step * k[0], y + step * k[1], z + step * k[2]
+    r, phi = math.hypot(x, y), math.atan2(y, x)
+    kr = k[0] * math.cos(phi) + k[1] * math.sin(phi)
+    kp = -k[0] * math.sin(phi) + k[1] * math.cos(phi)
+    tt2 = math.asin(max(-1.0, min(1.0, -kp)))
+    tp2 = math.atan2(-k[2] / math.cos(tt2), -kr / math.cos(tt2))
+    return r, z, math.degrees(tp2), math.degrees(tt2)
+
+
 def source_rows(fi: dict, code: str) -> dict:
     """``code/wave`` · ``code/rf_ray`` 的 core_sources 输出 → {grid_psin, p_e, j}（按后缀认键，不猜下标拼法）。"""
     cs = {k: v for k, v in fi.items() if k.startswith("core_sources")}
@@ -829,7 +849,9 @@ def cmd_transport(a) -> int:
     # ---- B: EC（code/rf_ray；发射几何要用户给——fylite 记它为未知）
     ec_on = [b for b in heat["ec"] if b["net"] > 0]
     if ec_on and a.ec_launch:
-        r0, z0, pol, tor = (float(v) for v in a.ec_launch.split(","))
+        r_m, z_m, pol_m, tor_m = (float(v) for v in a.ec_launch.split(","))
+        #: 发射点在反演网格外时，沿束直线走到网格边内 2 cm（真空传播，物理不变）
+        r0, z0, pol, tor = advance_in_vacuum(r_m, z_m, pol_m, tor_m, fi["grid_r"][-1] - 0.02)
         beams = [{"name": b["name"], "frequency": {"data": b["frequency"]}, "power_launched": {"data": b["net"]},
                   "launching_position": {"r": r0, "z": z0}, "fylite:angle_pol": math.radians(pol),
                   "fylite:angle_tor": math.radians(tor), "mode": b["mode"]} for b in ec_on]
@@ -837,11 +859,21 @@ def cmd_transport(a) -> int:
         eqd_l = json.loads(json.dumps(eqd))
         eqd_l["time_slice"]["profiles_1d"].update({"psi_norm": lad["psi_norm"], "rho_tor": lad["rho_tor"],
                                                    "dvolume_drho_tor": lad["dvolume_drho_tor"]})
-        ef, ei, en = lib.door("code/rf_ray", {"deposit": 1, "current_drive": 1, "zeff": a.zeff},
+        ec_set = {"deposit": 1, "current_drive": 1, "zeff": a.zeff}
+        if a.ec_waist and a.ec_focus is not None:
+            #: 高斯束（内核 L3）：束腰半径与「镜面到束腰」的距离是发射器光学参数；发射点已沿束前移了一段，焦距相应扣掉
+            ec_set.update(beam_waist=a.ec_waist, beam_focus=a.ec_focus - math.dist((r_m, z_m), (r0, z0)))
+        ef, ei, en = lib.door("code/rf_ray", ec_set,
                               {"equilibrium": eqd, "core_profiles": cp_ec, "ec_launchers": {"beam": beams}})
         sources.append(dict(source_rows(ei, "code/rf_ray"), name="ec"))
         report["ec"] = {"p_absorbed": K._r(ef.get("power_absorbed")), "i_ec": K._r(ef.get("current_driven")),
-                        "launch": {"r": r0, "z": z0, "angle_pol_deg": pol, "angle_tor_deg": tor}, "notes": en}
+                        "deposition": {"psin": K._r(sources[-1]["grid_psin"], 5),
+                                       "rho": K._r([rm.rho(v) for v in sources[-1]["grid_psin"]], 5),
+                                       "p_e": K._r(sources[-1]["p_e"], 5),
+                                       "j": K._r(sources[-1]["j"], 5) if sources[-1]["j"] else None},
+                        "launch": {"r": r0, "z": z0, "angle_pol_deg": pol, "angle_tor_deg": tor},
+                        "launch_mirror": {"r": r_m, "z": z_m, "angle_pol_deg": pol_m, "angle_tor_deg": tor_m},
+                        "beam": {k: v for k, v in ec_set.items() if k.startswith("beam_")} or None, "notes": en}
     elif ec_on:
         report["ec"] = {"skipped": True, "p_net": K._r(heat["p_ec"]),
                         "why": "EC launch geometry is not in the device facts; give --ec-launch R,Z,pol_deg,tor_deg"}
@@ -908,7 +940,9 @@ def main(argv=None) -> int:
     pt.add_argument("--zeff", type=float, default=2.0)
     pt.add_argument("--lh-upshift", default="1.5,2.5",
                     help="code/wave 的 n∥ 上移范围 min,max（缺省 1.5,2.5：内核自己的 LH 测试用的范围；没有上移时 EAST 的 T_e 吸收不了）")
-    pt.add_argument("--ec-launch", help="EC 发射几何 R,Z,极向角°,环向角°（fylite 装置事实里没有）")
+    pt.add_argument("--ec-launch", help="EC 镜面几何 R,Z,极向角°,环向角°（内核约定；逐炮镜面角没有公开值、也没有 MDSplus 节点）")
+    pt.add_argument("--ec-waist", type=float, help="EC 高斯束腰半径 [m]（1/e 场半径；发射器光学参数，没有缺省）")
+    pt.add_argument("--ec-focus", type=float, help="镜面到束腰的距离 [m]（与 --ec-waist 同给）")
     a = ap.parse_args(argv)
     return cmd_profiles(a) if a.cmd == "profiles" else cmd_transport(a)
 
