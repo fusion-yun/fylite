@@ -90,6 +90,41 @@ def stagnation() -> list[dict]:
     return rows
 
 
+#: ★FR-TR-005 (2026-09-19)：临界梯度闭包——阈值取常数闭包定态最陡梯度的这几成，刚度与 d_pc 各扫一档
+CRIT_FRAC = (0.1, 0.2, 0.4)
+CRIT_P2 = (1.0, 3.0, 10.0, 30.0)
+CRIT_DPC = (0.0, 1.0, 10.0)
+
+
+def critical_control() -> dict:
+    """★★判据的对照项，换一族闭包：`critical` 是 chi0 (p1 + p2 max(0, g/g_crit − 1)) —— 阈值之上**不封顶**。
+
+    阈值按常数闭包定态的最陡梯度取几成（那样阈值之上确实有一段剖面）；每个 (阈值, 刚度) 点跑 d_pc = 0 / 1 / 10。
+    裸环顶到 max_inner 且 converged = False 就是停滞；P-C 收敛的那几档还要彼此同解（定态与 d_pc 无关）。"""
+    base = steady("constant", 0.0, chi0=1.0)
+    y = np.asarray(base["y"], float)
+    gmax = float(np.max(np.abs(np.diff(y))) * (N_RHO - 1))
+    rows = []
+    for frac in CRIT_FRAC:
+        for p2 in CRIT_P2:
+            runs = {d: steady("critical", d, chi0=1.0, p1=0.25, p2=p2, g_crit=frac * gmax) for d in CRIT_DPC}
+            ok = [d for d in CRIT_DPC if d > 0.0 and runs[d]["converged"]]
+            dev = None
+            if len(ok) >= 2:
+                a, b = np.asarray(runs[ok[0]]["y"], float), np.asarray(runs[ok[1]]["y"], float)
+                dev = float(np.max(np.abs(b - a) / np.maximum(np.abs(a), 1e-30)))
+            rows.append({"g_crit_over_gmax": frac, "p2": p2,
+                         "runs": {str(d): {"converged": bool(runs[d]["converged"]),
+                                           "inner_iterations": int(runs[d]["inner_iterations"])} for d in CRIT_DPC},
+                         "pc_pair_rel_deviation": dev})
+    return {"closure_form": "chi = chi0 * (p1 + p2 * max(0, |grad y| / g_crit - 1))  —— 阈值之上不封顶（alpha = 1）",
+            "gmax_constant_closure": gmax, "rows": rows,
+            "bare_stalls": sum(1 for r in rows if not r["runs"]["0.0"]["converged"]),
+            "pc_rescues": sum(1 for r in rows if not r["runs"]["0.0"]["converged"]
+                              and any(r["runs"][str(d)]["converged"] for d in CRIT_DPC if d > 0.0)),
+            "n_points": len(rows)}
+
+
 def readings() -> dict:
     const = sweep("constant", chi0=1.0)
     stiff = sweep("stiff", chi0=1.0)
@@ -110,6 +145,7 @@ def readings() -> dict:
                          "不是 P-C 要对付的那类不封顶 / 带阈值的刚性闭包",
             "rows": stag,
         },
+        "critical_control": critical_control(),
     }
 
 

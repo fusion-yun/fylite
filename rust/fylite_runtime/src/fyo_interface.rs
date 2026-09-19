@@ -1395,6 +1395,7 @@ pub const CODES: &[Code] = &[
     ] },
     Code { name: "transport", door: "transport_case", krate: "fylite_kernel", params: &[
         Param { key: "a", value_type: "float", default: "", required: false, via: "transport_case" },
+        Param { key: "alpha", value_type: "float", default: "1.0", required: false, via: "transport_case" },
         Param { key: "amin", value_type: "float", default: "1.0", required: false, via: "transport_case" },
         Param { key: "b0", value_type: "float", default: "", required: false, via: "transport_case" },
         Param { key: "bunit", value_type: "float", default: "", required: false, via: "transport_case" },
@@ -1404,6 +1405,7 @@ pub const CODES: &[Code] = &[
         Param { key: "dpc", value_type: "float", default: "0.0", required: false, via: "transport_case" },
         Param { key: "dt", value_type: "float", default: "", required: false, via: "transport_case" },
         Param { key: "edge", value_type: "float", default: "0.3", required: false, via: "transport_case" },
+        Param { key: "g_crit", value_type: "float", default: "1.0", required: false, via: "transport_case" },
         Param { key: "kappa", value_type: "float", default: "1.0", required: false, via: "transport_case" },
         Param { key: "max_inner", value_type: "float", default: "200.0", required: false, via: "transport_case" },
         Param { key: "n", value_type: "float", default: "", required: true, via: "transport_case" },

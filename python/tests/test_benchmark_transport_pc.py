@@ -45,6 +45,16 @@ ACCEPT = 1e-9
 #: 一个没收敛的解**不是定态**，拿它比不动点没有意义——所以它记在读数里、不进判据。
 #: 这不是把不利数据摘出去：不收敛这件事本身就在读数的 `converged` 上写着。
 JUDGED_MAX_D_PC = 40.0
+#: 停滞的判法：顶到工具的 max_inner（4000）且 converged = False
+MAX_INNER_FLOOR = 4000
+
+
+def _tool():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("benchmark_transport", ROOT / "tools" / "benchmark-transport.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
 
 
 @pytest.fixture(scope="module")
@@ -107,3 +117,28 @@ def test_the_large_d_pc_end_is_recorded_as_not_converged(want):
     top = stiff[100.0]
     assert not top["converged"], "d_pc=100 现在收敛了——读数该重取，判据的判到档可以放宽"
     assert top["inner_iterations"] == want["settings"]["max_inner"], top
+
+
+def test_a_critical_gradient_closure_stalls_the_bare_loop_and_pereverzev_rescues_it(want):
+    """★★判据的对照项落地（2026-09-19）：换一族**不封顶**的闭包——临界梯度 chi0 (p1 + p2 max(0, g/g_crit − 1))。
+    阈值取常数闭包定态最陡梯度的 0.1 / 0.2 / 0.4，刚度 p2 = 1 / 3 / 10 / 30：**裸环 12 点全停滞**（顶到 max_inner、
+    converged = False），P-C 在其中 9 点收敛，而两档 d_pc 都收敛处定态同解到 4e-12。`stiff` 那一族造不出停滞，是因为它饱和。"""
+    c = want["critical_control"]
+    assert c["bare_stalls"] == c["n_points"] == 12
+    assert c["pc_rescues"] >= 1
+    for r in c["rows"]:
+        assert r["runs"]["0.0"]["converged"] is False and r["runs"]["0.0"]["inner_iterations"] >= MAX_INNER_FLOOR
+        if r["pc_pair_rel_deviation"] is not None:
+            assert r["pc_pair_rel_deviation"] < 1e-9, r
+
+
+def test_the_critical_readings_are_what_this_checkout_computes(want):
+    """★读数不悄悄过期：从公开入口当场重算一个点（阈值 0.2、p2 = 1），停滞 / 收敛与迭代数逐位对上。"""
+    tool = _tool()
+    try:
+        got = tool.critical_control()
+    except Exception as e:  # noqa: BLE001 — 没有运行库就按名跳过
+        pytest.skip(f"no runtime library here: {e}")
+    w = {(r["g_crit_over_gmax"], r["p2"]): r for r in want["critical_control"]["rows"]}
+    for r in got["rows"]:
+        assert r["runs"] == w[(r["g_crit_over_gmax"], r["p2"])]["runs"], r

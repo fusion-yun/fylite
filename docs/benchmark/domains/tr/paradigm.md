@@ -23,7 +23,9 @@ title: "求解范式：刚性稳定化与稳态通量匹配"
 因为两条路走到同一不动点的精度由 `tol` 定，不由对消的代数定。对消在代数上精确，量出来的
 数是收敛容差的像——这两件事必须分开说，合起来说就成了夸大。
 
-★而第三句演示不了，理由不在参数没扫够，在闭包的形式里：内核的 `stiff` 闭包是
+★★★**2026-09-19 第三句也落地了**：内核加了临界梯度闭包（`critical`，阈值之上不封顶），阈值 × 刚度 12 点上裸环**全部停滞**、P-C 救回 9 点、两档 d_pc 同解到 4e-12——记录转成立。下面是当初为什么在 `stiff` 上演示不了：
+
+而第三句演示不了，理由不在参数没扫够，在闭包的形式里：内核的 `stiff` 闭包是
 $\chi_0(p_1 + p_2 g/(1+g))$，对梯度**有界且饱和**。扫遍刚度盒十二点（$\chi$ 动态范围
 最高 8001 倍），裸环**一点都没停滞**，最慢 495 次内迭代。梯度→$\chi$→梯度 的回授被饱和
 封住，Picard 映射保持压缩；而 P-C 要对付的正是 $\chi$ 随梯度**不封顶**或**带阈值**的那类
@@ -85,7 +87,7 @@ Prandtl 数中位 **0.415**——判它的只是「落在 O(1)」，因为 $\chi
 | [`tr-paradigm-coupled-block-adr`](../../reports/tr-paradigm-coupled-block-adr.md) | 验证 | 未判（读数） | 抄录的判据：「ADR 裁决记录」，证据栏「候选 ADR（[TBD]）」 | 1.18 | 草稿 | [jsonld](../../records/tr-paradigm-coupled-block-adr.jsonld) |
 | [`tr-paradigm-flux-match-vs-pde`](../../reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 | fylite · `transport::solve_steady`（PDE，dt = inf） | 1.18 | 草稿 | [jsonld](../../records/tr-paradigm-flux-match-vs-pde.jsonld) |
 | [`tr-paradigm-momentum-channel`](../../reports/tr-paradigm-momentum-channel.md) | 验证 | 成立 | FYTOK-SRS-04 `FR-TR-008` 判据「动量通道设计成文」与 pinch 方程的闭式解 | 1.6 | 草稿 | [jsonld](../../records/tr-paradigm-momentum-channel.jsonld) |
-| [`tr-paradigm-pereverzev`](../../reports/tr-paradigm-pereverzev.md) | 验证 | 未判（读数） | P-C 项在不动点上的恒等对消（解析不变性） | 1.22 | 草稿 | [jsonld](../../records/tr-paradigm-pereverzev.jsonld) |
+| [`tr-paradigm-pereverzev`](../../reports/tr-paradigm-pereverzev.md) | 验证 | 成立 | P-C 项在不动点上的恒等对消（解析不变性） | 1.23 | 草稿 | [jsonld](../../records/tr-paradigm-pereverzev.jsonld) |
 
 ### 缺口
 

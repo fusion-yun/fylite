@@ -26,7 +26,7 @@ title: 验证状态 (Verification status)
 ## 总览 (overview)
 
 - 记录 (records)：**56** 条
-- 判决 (verdict)：成立 48 · 不成立 **0** · 未判 7 · 未评估 1
+- 判决 (verdict)：成立 49 · 不成立 **0** · 未判 6 · 未评估 1
 - 新鲜度 (freshness)：当前 56 · **过期 0** · 未知 0
 - 评审 (review)：已评审 0 · 草稿 56 · 已被取代 0
 
@@ -116,7 +116,7 @@ title: 验证状态 (Verification status)
 | MHD 稳定性 (MHD Stability) | [全 delta-W、V5 基准与阻性壁模](domains/mhd/deltaw.md) | 6 | 6 | 6 | 6 | 0 | 0 |
 | 输运 (Transport) | [方程组求解与边界条件](domains/tr/equations.md) | 2 | 2 | 2 | 2 | 0 | 0 |
 | 输运 (Transport) | [闭包插件面：输运系数与源项](domains/tr/closure.md) | 3 | 3 | 4 | 2 | 0 | 0 |
-| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 4 | 4 | 2 | 0 | 0 |
+| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 4 | 4 | 3 | 0 | 0 |
 | 输运 (Transport) | [台基、锯齿与 0D 存量](domains/tr/pedestal.md) | 3 | 2 | 2 | 1 | 0 | 0 |
 | 输运 (Transport) | [双模、平衡耦合与代理栈](domains/tr/coupling.md) | 3 | 3 | 3 | 3 | 0 | 0 |
 | 输运 (Transport) | [守恒、金标 parity 与口径](domains/tr/conservation.md) | 5 | 2 | 2 | 2 | 0 | 0 |
@@ -178,7 +178,7 @@ title: 验证状态 (Verification status)
 | [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md) | tr-paradigm | 验证 | 未判（读数） | 1.18 | 2026-09-19 | 草稿 | `fylite_kernel@51d34102a406` | current |
 | [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | tr-paradigm | 验证 | 成立 | 1.18 | 2026-09-19 | 草稿 | `fylite_kernel@51d34102a406` | current |
 | [`tr-paradigm-momentum-channel`](reports/tr-paradigm-momentum-channel.md) | tr-paradigm | 验证 | 成立 | 1.6 | 2026-09-19 | 草稿 | `fylite_kernel@51d34102a406` | current |
-| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@51d34102a406` | current |
+| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@51d34102a406` | current |
 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.18 | 2026-09-19 | 草稿 | `fylite_kernel@51d34102a406` | current |
 | [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 未判（读数） | 1.24 | 2026-09-19 | 草稿 | `fylite_kernel@51d34102a406` | current |
 

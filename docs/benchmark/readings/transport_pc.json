@@ -1,5 +1,242 @@
 {
  "closure_form": "chi = chi0 * (p1 + p2 * |grad y| / (1 + |grad y|))  —— 有界、饱和",
+ "critical_control": {
+  "bare_stalls": 12,
+  "closure_form": "chi = chi0 * (p1 + p2 * max(0, |grad y| / g_crit - 1))  —— 阈值之上不封顶（alpha = 1）",
+  "gmax_constant_closure": 0.4462463653807891,
+  "n_points": 12,
+  "pc_rescues": 9,
+  "rows": [
+   {
+    "g_crit_over_gmax": 0.1,
+    "p2": 1.0,
+    "pc_pair_rel_deviation": 1.8931949119650116e-12,
+    "runs": {
+     "0.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "1.0": {
+      "converged": true,
+      "inner_iterations": 66
+     },
+     "10.0": {
+      "converged": true,
+      "inner_iterations": 396
+     }
+    }
+   },
+   {
+    "g_crit_over_gmax": 0.1,
+    "p2": 3.0,
+    "pc_pair_rel_deviation": null,
+    "runs": {
+     "0.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "1.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "10.0": {
+      "converged": true,
+      "inner_iterations": 357
+     }
+    }
+   },
+   {
+    "g_crit_over_gmax": 0.1,
+    "p2": 10.0,
+    "pc_pair_rel_deviation": null,
+    "runs": {
+     "0.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "1.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "10.0": {
+      "converged": true,
+      "inner_iterations": 337
+     }
+    }
+   },
+   {
+    "g_crit_over_gmax": 0.1,
+    "p2": 30.0,
+    "pc_pair_rel_deviation": null,
+    "runs": {
+     "0.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "1.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "10.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     }
+    }
+   },
+   {
+    "g_crit_over_gmax": 0.2,
+    "p2": 1.0,
+    "pc_pair_rel_deviation": 2.66096432086842e-12,
+    "runs": {
+     "0.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "1.0": {
+      "converged": true,
+      "inner_iterations": 71
+     },
+     "10.0": {
+      "converged": true,
+      "inner_iterations": 550
+     }
+    }
+   },
+   {
+    "g_crit_over_gmax": 0.2,
+    "p2": 3.0,
+    "pc_pair_rel_deviation": null,
+    "runs": {
+     "0.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "1.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "10.0": {
+      "converged": true,
+      "inner_iterations": 540
+     }
+    }
+   },
+   {
+    "g_crit_over_gmax": 0.2,
+    "p2": 10.0,
+    "pc_pair_rel_deviation": null,
+    "runs": {
+     "0.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "1.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "10.0": {
+      "converged": true,
+      "inner_iterations": 548
+     }
+    }
+   },
+   {
+    "g_crit_over_gmax": 0.2,
+    "p2": 30.0,
+    "pc_pair_rel_deviation": null,
+    "runs": {
+     "0.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "1.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "10.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     }
+    }
+   },
+   {
+    "g_crit_over_gmax": 0.4,
+    "p2": 1.0,
+    "pc_pair_rel_deviation": 4.0815419932749905e-12,
+    "runs": {
+     "0.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "1.0": {
+      "converged": true,
+      "inner_iterations": 93
+     },
+     "10.0": {
+      "converged": true,
+      "inner_iterations": 736
+     }
+    }
+   },
+   {
+    "g_crit_over_gmax": 0.4,
+    "p2": 3.0,
+    "pc_pair_rel_deviation": null,
+    "runs": {
+     "0.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "1.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "10.0": {
+      "converged": true,
+      "inner_iterations": 747
+     }
+    }
+   },
+   {
+    "g_crit_over_gmax": 0.4,
+    "p2": 10.0,
+    "pc_pair_rel_deviation": null,
+    "runs": {
+     "0.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "1.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "10.0": {
+      "converged": true,
+      "inner_iterations": 743
+     }
+    }
+   },
+   {
+    "g_crit_over_gmax": 0.4,
+    "p2": 30.0,
+    "pc_pair_rel_deviation": null,
+    "runs": {
+     "0.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "1.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     },
+     "10.0": {
+      "converged": false,
+      "inner_iterations": 4000
+     }
+    }
+   }
+  ]
+ },
  "d_pc_independence": {
   "constant": {
    "points": [

@@ -721,11 +721,11 @@
    "domain": "tr-paradigm",
    "path": "records/tr-paradigm-pereverzev.jsonld",
    "comparison_kind": "verification",
-   "overall_verdict": "inconclusive",
+   "overall_verdict": "pass",
    "requirement": [
     "FR-TR-005"
    ],
-   "record_version": "1.22",
+   "record_version": "1.23",
    "review_status": "draft",
    "freshness": "current"
   },

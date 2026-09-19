@@ -253,6 +253,7 @@ def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
               power: float = 4.0, width: float = 0.35,
               y_init=None, edge_value: float = 0.3, closure: str = "constant",
               chi0: float = 1.0, p1: float = 0.25, p2: float = 1.75,
+              g_crit: float = 1.0, alpha: float = 1.0,
               dt: float = float("inf"), theta: float = 1.0,
               steps: int = 1, relax: float = 1.0, relax_coeff: float = 1.0,
               tol: float = 1e-10, max_inner: int = 200, neo=None,
@@ -342,6 +343,10 @@ def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
                 "edge": float(edge_value), "dpc": float(d_pc), "theta": float(theta),
                 "steps": float(max(int(steps), 1)), "relax": float(relax),
                 "relax_coeff": float(relax_coeff), "tol": float(tol), "max_inner": float(max_inner)}
+    #: ★FR-TR-005 (2026-09-19): the critical-gradient closure's threshold and exponent — only sent with it,
+    #: so every other closure's request stays what it was
+    if str(closure) in ("critical", "4"):
+        settings.update({"g_crit": float(g_crit), "alpha": float(alpha)})
     if np.isfinite(dt):
         settings["dt"] = float(dt)
     #: ★the neoclassical tier's surfaces (2026-09-05): the bar's Miller shape,

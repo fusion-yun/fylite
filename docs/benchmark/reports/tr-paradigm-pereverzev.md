@@ -10,12 +10,12 @@ title: "tr-paradigm-pereverzev"
 
 ## 摘要
 
-- **类**：验证　**判决**：**未判（读数）**
+- **类**：验证　**判决**：**成立**
 - **量的是**：Pereverzev-Corrigan 稳定化：定态与 d_pc 无关（量到 1.4e-11），而判据要的「裸环停滞对照」在本闭包族上演示不了
 - **参考**：P-C 项在不动点上的恒等对消（解析不变性）
 - **验的需求**：`FR-TR-005`
 - **跑在内核**：`fylite_kernel@51d34102a406`（新鲜度 **current**）
-- **记录版本**：1.22　**评审**：草稿　**日期**：2026-09-16
+- **记录版本**：1.23　**评审**：草稿　**日期**：2026-09-16
 
 ## 问的是什么
 
@@ -42,7 +42,7 @@ title: "tr-paradigm-pereverzev"
 | :--- | ---: | :--- | :--- | :--- |
 | 定态剖面 y(ρ) 相对 d_pc = 0 的逐点相对偏差，inf 范数（无量纲；ρ = 归一化径向标签，[0,1] 均匀 41 点） | 1e-09 | reference_self_reported | constant 闭包：3.006e-14 (d_pc=0.1) · 7.676e-14 (1) · 1.014e-12 (10) · 4.490e-12 (40)；stiff 闭包：5.977e-14 (0.1) · 2.962e-13 (1) · 3.069e-12 (10) · 1.446e-11 (40)。判到的最大值 1.446e-11，接受档 1e-9。 | **成立** |
 | 裸环（d_pc = 0）与 d_pc = 40 的 Picard 内迭代次数之差（次）——★证明这一项真的进了装配，否则 criterion/1 是拿一个解跟它自己比 | 1 | machine_precision | constant：2 次 → 1010 次（差 1008）；stiff：43 次 → 1996 次（差 1953）。内核自己那道门断的是同一件事（`assert_ne!(plain.inner_iterations, stab.inner_iterations)`）。 | **成立** |
-| 判据的对照项：刚性闭包下裸环停滞（顶到 max_inner 且 converged = False）的操作点个数 | 1 | measured_band | 刚度盒 12 点（p1 ∈ {0.25, 0.05, 0.01} × p2 ∈ {1.75, 5, 20, 80}，chi 动态范围 8 … 8001 倍），d_pc = 0 **全部收敛**，最慢 495 次内迭代、残差 ~1e-14。停滞点个数 = 0，判据要求 ≥ 1。 | **未判（读数）** |
+| 判据的对照项：刚性闭包下裸环停滞（顶到 max_inner 且 converged = False）的操作点个数 | 1 | measured_band | 临界梯度闭包 $\chi_0(p_1+p_2\max(0,g/g_c-1))$（阈值之上不封顶），阈值取常数闭包定态最陡梯度（0.446）的 0.1 / 0.2 / 0.4、刚度 p2 = 1 / 3 / 10 / 30：**裸环（d_pc = 0）12 点全部顶到 max_inner = 4000、converged = False**；d_pc = 1 / 10 在其中 **9 点**收敛（p2 = 1 时 d_pc = 1 用 66–93 次，p2 ≤ 10 时 d_pc = 10 用 337–747 次），p2 = 30 两档都不够。两档都收敛处定态逐点相对差 1.9e-12 · 2.7e-12 · 4.1e-12。★`stiff` 那一族（饱和）刚度盒 12 点照旧全收敛，读数并列留着 | **成立** |
 
 **定态对 d_pc 不敏感——成立，但它是 Picard 容差限，不是机器精度**
 
@@ -53,23 +53,22 @@ title: "tr-paradigm-pereverzev"
 
 - ★代价随 d_pc 近乎线性上行，且**多数区间是净变贵**：constant 2 → 13 → 42 → 277 → 1010 → 2406；stiff 43 → 28 → 71 → 550 → 1996 → 4000(cap)。只有 stiff 闭包 d_pc = 0.1 这一点上稳定化**减少**了迭代（43 → 28）。「稳定化」在这一族闭包上不等于「更快」。
 
-**★★判据的对照项演示不了：这一族闭包造不出停滞的裸环**
+**★★判据的对照项**演示出来了**：临界梯度闭包下裸环 12 点全停滞，P-C 救回 9 点，两档 d_pc 同解到 4e-12**
 
-- ★★机理在闭包的形式里，不是参数没扫够：`case.rs::diffusivity_of` 是 `chi0 (p1 + p2 g/(1+g))`，对梯度**有界且饱和**——g→∞ 时 chi 趋于 `chi0 (p1+p2)`。梯度→chi→梯度 的回授被饱和封住，Picard 映射保持压缩。而 P-C 要对付的正是 chi 随梯度**不封顶**或**带阈值**的那类闭包。
-- ★所以这一条**不是「没人去量」，是「在本接口上不存在可量的操作点」**。要量它得换一路：`evolve` 的 `turbulent` / `flux-match` 闭包，或 `models/` 里的 QLKNN / TGLFNN 代理。那属于另一条记录。
-- ★判 `inconclusive` 而不是 `pass`：FR-TR-005 的判据有三句话，本记录答了两句。判 pass 会让 coverage 把这一条记成整条覆盖。
+- ★★**换一族闭包，而不是加扫 `stiff` 的参数**：`stiff` 是 $\chi_0(p_1+p_2g/(1+g))$，对梯度饱和，梯度→χ→梯度 的回授被封住，裸 Picard 在那一族里按构造不停滞。P-C 要对付的正是阈值之上 χ 猛涨的那一类——内核 2026-09-19 在 `code/transport` 上加了 `critical` 闭包（`g_crit`、`alpha` 两个设定，其余闭包的请求逐位不变），判据的第三句话在它上面才有操作点。
+- ★P-C 不是万能的：p2 = 30 时 d_pc = 1 与 10 都不够（要更大的 d_pc，而更大的 d_pc 在 `stiff` 上又见过顶到 max_inner），照实记。判据问的是「刚性闭包下 Picard 收敛（裸环停滞对照）」，本格答的是：有停滞、有救回、救回的解与 d_pc 无关。
 
 ## 不可比的部分
 
+- ★★**判成立**（2026-09-19）：三格全过。第三格（裸环停滞对照）在临界梯度闭包上落地——`stiff` 那一族造不出停滞的读数照留，那是饱和闭包的性质。
 - ★★**不可比的部分——本记录不证明定态是「对」的。** 参考是一条解析不变性（P-C 项恒等对消），它只约束定态**与 d_pc 无关**。一个求解器完全可以稳定地、与 d_pc 无关地收敛到一个**错的**定态而通过本记录。要判定态对不对，得靠制造解（NR-TR-002 收敛阶）或金标 parity——那是另外的记录。
 - ★接受档 1e-9 取自内核自己那道门的自报值，**不是独立参考**。上游 SRS-04 的判据只写「离散精确对消」，没有给数。一个独立的档要么由 SRS 补，要么由制造解定出来。
-- ★判据第三句（裸环停滞对照）未能演示，见 criterion/3 的 findings——这是本记录判 `inconclusive` 的唯一原因。
 - ★闭包 `stiff` 是内核自带的解析式，**不是任何物理输运模型**（无临界梯度、无阈值、有界饱和）。本记录量的是求解范式在这一族闭包上的行为，不是物理。
 - ★单通道、固定几何。多通道（n / T / ψ）与平衡耦合下 P-C 的行为不在本记录范围内（FR-TR-001 / FR-TR-012）。
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.22　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.23　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -97,6 +96,7 @@ title: "tr-paradigm-pereverzev"
 | 1.20 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（平衡 / MHD 三条判据补齐入内核：`highbeta::surface_energy_book`、`code/vstab` 新报 `k_identity_filaments`，另加 conformal / stability 的锚；`FR-EQ-024` · `025` · `016`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **809 项全通过**（新锚 4 条）。★缺省路径逐位不变，接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.21 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（线圈表面场收敛入内核：`electromagnetics::surface_field_converged`、`loop_field`，`code/forces` 的 `b_surface` 改用面积分；`FR-EQ-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **812 项全通过**。★只动了 `b_surface`，受力与其余门逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.22 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
+| 1.23 | 2026-09-19 | Claude Opus 5 | 第三格（裸环停滞对照）转成立：内核 `code/transport` 新增临界梯度闭包 `critical`（阈值之上不封顶）；阈值 × 刚度 12 点裸环全停滞，P-C 救回 9 点，两档 d_pc 同解到 4e-12。`stiff` 族无停滞的读数照留。整体 inconclusive → pass。 |
 
 ## 复算
 
@@ -106,7 +106,7 @@ title: "tr-paradigm-pereverzev"
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
-- `docs/benchmark/readings/transport_pc.json`    `sha256:88ade5fe0f02fdbc206fe660061343609433f1c2047d2a3c252756befe3fc6ca`    由 `python tools/benchmark-transport.py readings` 产出；逐位可复现（同一内核上两次运行 sha256 相同）。
+- `docs/benchmark/readings/transport_pc.json`    `sha256:07298d844ca3d534242c55c4e775ae77f77906a5d2c4435ab85924514a76a7e2`    由 `python tools/benchmark-transport.py readings` 产出；逐位可复现（同一内核上两次运行 sha256 相同）。
 
 **守它的门**：
 
@@ -114,6 +114,9 @@ title: "tr-paradigm-pereverzev"
 - `python/tests/test_benchmark_transport_pc.py::test_d_pc_actually_reaches_the_assembly` —— criterion/2
 - `python/tests/test_benchmark_transport_pc.py::test_the_bare_loop_does_not_stagnate_in_this_closure_family` —— ★criterion/3：钉住的是一个**否定结论**。内核哪天接上真正刚性的闭包，它就该红——红在这里读作「对照项第一次可量了，本记录该重判」。
 - `python/tests/test_benchmark_transport_pc.py::test_the_large_d_pc_end_is_recorded_as_not_converged` —— ★不利的那一端留在读数里且标着未收敛——求解器自己说了，没把顶到上限的剖面当定态交回来
+- `python/tests/test_benchmark_transport_pc.py::test_a_critical_gradient_closure_stalls_the_bare_loop_and_pereverzev_rescues_it` —— ★裸环停滞、P-C 救回、同解
+- `python/tests/test_benchmark_transport_pc.py::test_the_critical_readings_are_what_this_checkout_computes` —— 临界闭包读数当场重算
+- `$FYLITE_KERNEL/rust/fylite/src/case.rs::tests::a_critical_gradient_closure_stalls_the_bare_loop_and_pereverzev_rescues_it` —— 内核侧同一件事
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

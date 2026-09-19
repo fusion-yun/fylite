@@ -1438,6 +1438,7 @@ CODE_PARAMS = {
     }},
     'transport': {"door": 'transport_case', "crate": 'fylite_kernel', "parameters": {
         'a': {'key': 'a', 'type': 'float', 'via': 'transport_case'},
+        'alpha': {'key': 'alpha', 'type': 'float', 'via': 'transport_case', 'default': '1.0', 'required': False},
         'amin': {'key': 'amin', 'type': 'float', 'via': 'transport_case', 'default': '1.0', 'required': False},
         'b0': {'key': 'b0', 'type': 'float', 'via': 'transport_case'},
         'bunit': {'key': 'bunit', 'type': 'float', 'via': 'transport_case'},
@@ -1447,6 +1448,7 @@ CODE_PARAMS = {
         'dpc': {'key': 'dpc', 'type': 'float', 'via': 'transport_case', 'default': '0.0', 'required': False},
         'dt': {'key': 'dt', 'type': 'float', 'via': 'transport_case'},
         'edge': {'key': 'edge', 'type': 'float', 'via': 'transport_case', 'default': '0.3', 'required': False},
+        'g_crit': {'key': 'g_crit', 'type': 'float', 'via': 'transport_case', 'default': '1.0', 'required': False},
         'kappa': {'key': 'kappa', 'type': 'float', 'via': 'transport_case', 'default': '1.0', 'required': False},
         'max_inner': {'key': 'max_inner', 'type': 'float', 'via': 'transport_case', 'default': '200.0', 'required': False},
         'n': {'key': 'n', 'type': 'float', 'via': 'transport_case', 'required': True, 'why': 'grid size'},

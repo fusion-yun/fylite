@@ -146,7 +146,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-TR-005` | MUST | 刚性稳定化生产路径 | [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | 验证 | 未判（读数） |
+| `FR-TR-005` | MUST | 刚性稳定化生产路径 | [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | 验证 | 成立 |
 | `FR-TR-006` | MUST | 耦合隐式块解（可选，候选 ADR） | [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md) | 验证 | 未判（读数） |
 | `FR-TR-007` | MUST | 稳态通量匹配 | [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 |
 | `FR-TR-008` | SHOULD | 环向动量 / 转动通道（路线项） | [`tr-paradigm-momentum-channel`](reports/tr-paradigm-momentum-channel.md) | 验证 | 成立 |
