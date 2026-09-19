@@ -105,14 +105,78 @@ def readings(case: Path) -> dict:
     return out
 
 
+FGS_READINGS = "coil_forces_freegs4e_east137985.json"
+
+
+def fylite_nu1(case: Path) -> list[dict]:
+    """本仓 `code/forces` 在 nu = nv = 1（每件线圈一根中心细丝，自感的细环项取 a = sqrt(w h / pi)）上的逐件受力，
+    连同卡片上每件的宽高——FreeGS4E 那一侧要的正是这些。"""
+    from fylite.io import fydoc
+    wv = _wv()
+    dev = wv.east_card()
+    g, a, _ = wv.kefit_slice(case)
+    rec = fydoc.complete("code/forces", {"settings": {"nu": 1.0, "nv": 1.0}, "inputs": {
+        "device": dev, "discharge": {"fylite:channel_aturns": np.asarray(a["ccbrsp"], float)[:12]}}})
+    fl = wv._flat_fields(rec["fields"])
+    els = [e["geometry"]["rectangle"] for co in dev["pf_active"]["coil"] for e in co["element"]
+           if e["geometry"].get("rectangle")]
+    out = []
+    for i in range(len(fl["element_r"])):
+        r, z = float(fl["element_r"][i]), float(fl["element_z"][i])
+        m = [e for e in els if abs(e["r"] - r) < 1e-9 and abs(e["z"] - z) < 1e-9]
+        if len(m) != 1:
+            raise RuntimeError(f"element at ({r}, {z}) matches {len(m)} card rectangles")
+        out.append({"r": r, "z": z, "w": m[0]["width"], "h": m[0]["height"], "aturns": float(fl["element_aturns"][i]),
+                    "fylite_f_r": float(fl["f_r"][i]), "fylite_f_z": float(fl["f_z"][i]), "fylite_hoop": float(fl["f_r_hoop"][i])})
+    return out
+
+
+def freegs4e_readings(case: Path, freegs4e: Path) -> dict:
+    """★★`FR-EQ-014` 的第二套实现（2026-09-19）：FreeGS4E 的 `Coil.getForces`——每件一个 freegs4e 线圈，
+    互作用按 I×B（Green 函数的场，椭圆积分），自力按 Garren & Chen 1994 的环向力。与本仓的虚功 `I_a I_b ∇M` 不共享代码。
+    FreeGS4E 在 uv 临时环境里跑（`tools/freegs4e/coil_forces.py`），不进本仓依赖。"""
+    import subprocess
+    import tempfile
+    els = fylite_nu1(case)
+    with tempfile.TemporaryDirectory() as td:
+        tdp = Path(td)
+        (tdp / "in.json").write_text(json.dumps({"elements": els}), encoding="utf-8")
+        subprocess.run([os.environ.get("UV", "uv"), "run", "--no-project", "--with", "numpy", "--with", "scipy",
+                        "--with", "matplotlib", "--with", "shapely", "--with", str(freegs4e), "python",
+                        str(ROOT / "tools/freegs4e/coil_forces.py"), str(tdp / "in.json"), str(tdp / "out.json")],
+                       check=True, capture_output=True, text=True)
+        fgs = json.loads((tdp / "out.json").read_text(encoding="utf-8"))["freegs4e_forces"]
+    fz = max(abs(e["fylite_f_z"]) for e in els)
+    fr = max(abs(e["fylite_f_r"]) for e in els)
+    rows = [{**e, "freegs4e_f_r": f["f_r"], "freegs4e_f_z": f["f_z"],
+             "rel_f_r": abs(e["fylite_f_r"] - f["f_r"]) / fr, "rel_f_z": abs(e["fylite_f_z"] - f["f_z"]) / fz}
+            for e, f in zip(els, fgs)]
+    return {"reference": "FreeGS4E Coil.getForces (third_party/freegs4e, the FreeGSNKE fork of FreeGS), no plasma",
+            "model": "one freegs4e Coil per card element at its centre (turns 1, current = element ampere-turns, area = w h); "
+                     "fylite code/forces at nu = nv = 1 — the same one-filament geometry, the same thin-ring hoop radius sqrt(w h / pi)",
+            "elements": rows,
+            "summary": {"n": len(rows), "worst_rel_f_r": max(r["rel_f_r"] for r in rows),
+                        "worst_rel_f_z": max(r["rel_f_z"] for r in rows),
+                        "net_inward_f_r_elements": [i for i, r in enumerate(rows) if r["freegs4e_f_r"] < 0.0]}}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
     a = sub.add_parser("readings")
     a.add_argument("--out", type=Path, required=True)
+    fg = sub.add_parser("freegs4e", help="the same coils through FreeGS4E's Coil.getForces (second implementation)")
+    fg.add_argument("--out", type=Path, required=True)
+    fg.add_argument("--freegs4e", type=Path, default=ROOT.parent / "third_party" / "freegs4e")
     a.add_argument("--case", type=Path)
     args = ap.parse_args()
-    case = args.case or Path(os.environ["FYDOC_ORACLE"]) / CASE23
+    case = getattr(args, "case", None) or Path(os.environ["FYDOC_ORACLE"]) / CASE23
+    if args.cmd == "freegs4e":
+        res = freegs4e_readings(case, args.freegs4e)
+        args.out.mkdir(parents=True, exist_ok=True)
+        (args.out / FGS_READINGS).write_text(json.dumps(res, indent=1, default=float) + "\n", encoding="utf-8")
+        print(json.dumps(res["summary"], indent=1, default=float))
+        return 0
     res = readings(case)
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / READINGS).write_text(json.dumps(res, indent=1, default=float) + "\n", encoding="utf-8")

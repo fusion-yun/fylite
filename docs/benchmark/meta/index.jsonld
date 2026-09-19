@@ -14,9 +14,9 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 54,
-  "open_must": 1,
-  "records": 55,
+  "covered": 56,
+  "open_must": 0,
+  "records": 56,
   "stale": 0,
   "failing": 0
  },
@@ -163,7 +163,7 @@
    "requirement": [
     "FR-EQ-005"
    ],
-   "record_version": "1.20",
+   "record_version": "1.21",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -216,6 +216,20 @@
     "FR-EQ-010"
    ],
    "record_version": "1.17",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/eq-reconstruct-mse-shelved",
+   "domain": "eq-reconstruct",
+   "path": "records/eq-reconstruct-mse-shelved.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "unevaluated",
+   "requirement": [
+    "FR-EQ-007",
+    "FR-EQ-009"
+   ],
+   "record_version": "1.0",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -485,11 +499,11 @@
    "domain": "mhd-vertical",
    "path": "records/mhd-vertical-coil-forces-analytic.jsonld",
    "comparison_kind": "verification",
-   "overall_verdict": "inconclusive",
+   "overall_verdict": "pass",
    "requirement": [
     "FR-EQ-014"
    ],
-   "record_version": "1.14",
+   "record_version": "1.15",
    "review_status": "draft",
    "freshness": "current"
   },

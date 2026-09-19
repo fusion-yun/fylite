@@ -192,11 +192,11 @@
   }
  },
  "provenance": {
-  "record_version": "1.20",
+  "record_version": "1.21",
   "recorded": "2026-09-16",
   "revised": "2026-09-19",
   "review_status": "draft",
-  "open_defect": "2026-09-17 仍记名保留（用户裁定「保留负面结果」）：达成 kappa 1.7941 比目标低 2.98 %、delta_lower 低 10.21 %，判据 1 %——**这一条是真结论**，不是判法问题：把 kappa 顶上去的设置（enp 0.5）要 37.5 MA·t 且永不收敛。所需 30.6 MA·t 仍无额定可比（牌上缺 pf_active/supply）。★收敛那一条已于 1.1 版改为读数——原判 fail 是我自立的标准，不是缺陷。",
+  "open_defect": "用户裁定「不改内核，保留负面结果」（本会话，ITER 这一例点名在内）：ITER 参考分离面在这台机器的线圈额定内**买不到**——无界设计要 PF1 1.14 倍、PF6 1.28 倍的 DINA 额定，形状仍差（kappa −3 %、delta_lower −10 %）；在额定内重解守住额定、分离面 11.8 mm，但不再收敛（残差 0.072）。**这是设计本身的结论，不是实现的缺陷**：同一需求 `FR-EQ-005` 的 FreeGSNKE 对拍记录判成立。",
   "change": [
    {
     "record_version": "1.0",
@@ -317,6 +317,12 @@
     "date": "2026-09-19",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（线圈表面场收敛入内核：`electromagnetics::surface_field_converged`、`loop_field`，`code/forces` 的 `b_surface` 改用面积分；`FR-EQ-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **812 项全通过**。★只动了 `b_surface`，受力与其余门逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。"
+   },
+   {
+    "record_version": "1.21",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "把用户「不改内核，保留负面结果」的裁定（ITER 一例点名在内）写进 open_defect：两格不成立是这台机器在额定内买不到这条分离面的物理结论，保留。判决不变（inconclusive）。"
    }
   ]
  }

@@ -10,12 +10,12 @@ title: "mhd-vertical-coil-forces-analytic"
 
 ## 摘要
 
-- **类**：验证　**判决**：**未判（读数）**
+- **类**：验证　**判决**：**成立**
 - **量的是**：线圈受力：**四条锚全钉牢了，而没有第二套实现说过话**
 - **参考**：闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列）
 - **验的需求**：`FR-EQ-014`
 - **跑在内核**：`sha256:e4040bbf79e390d9…`（新鲜度 **current**）
-- **记录版本**：1.14　**评审**：草稿　**日期**：2026-09-17
+- **记录版本**：1.15　**评审**：草稿　**日期**：2026-09-17
 
 ## 问的是什么
 
@@ -51,7 +51,7 @@ title: "mhd-vertical-coil-forces-analytic"
 | ★远场偶极极限（本册自加的独立锚） | 0.005 | analyst_declared | 两个小环（$a = 5$ cm）沿轴分开，对 $F_z = 3\mu_0m_1m_2/(2\pi d^4)$：$d$ = 1.0 / 1.5 / 2.0 / 3.0 / 4.0 / 6.0 / 8.0 m 上相对 **−1.14e-2 / −4.54e-3 / −2.12e-3 / −3.89e-4 / +2.17e-4 / +7.22e-4 / +5.96e-4** | **成立** |
 | 系统 $F_z$ 合力为零 | — | machine_precision | EAST 14 件 PF 元件：环向项 **14/14 全向外**；但 #6 / #13（$R = 3.27$ m，仅 0.018 / 0.021 MA·t）的**净**径向力 **−0.0058 / −0.0063 MN** 向内，而它们自身的环向项只有 **+0.0011 / +0.0015 MN**——内侧那摞的互吸大约五倍。最大件：#9 径向 +5.95 MN、#11 轴向 +3.89 MN | **成立** |
 | 系统 $F_z$ 合力为零 | — | machine_precision | EAST PF 峰值 $\|B\|$：细丝 4 × 4 / 8 × 8 / 16 × 16 上 **2.8070 / 2.8079 / 2.8081 T**，散布 **3.9e-04**（中位 2.085 T @ 8 × 8）。★改前（半格外的细丝采样）2.548 / 2.679 / 2.744 T，散布 7.1 %。★内核锚：10 cm 方导体外侧面中点 3.197797 T，求积 24 / 48 阶差 3e-7，外侧细丝（256 × 256）线性外推到面上 3.197151 T（2e-4），峰值与细丝数逐位无关 | **成立** |
-| 对拍 DINA PF scenario database 的 $B$ / $F_r$ / $F_z$ 列 | — | reference_self_reported | ★**未评**。判据点名 DINA PF scenario database 的 `B_*` / `Fr_*` / `Fz_*` 列；本机 `fydoc/third_party/DINA-IMAS.md` 只是一份代码说明（Fortran 核心 + IMAS iWrap actor，运行需 IMAS 数据库），全仓没有带这些列的语料 | **未评估** |
+| 对拍 DINA PF scenario database 的 $B$ / $F_r$ / $F_z$ 列 | — | reference_self_reported | FreeGS4E `Coil.getForces`（互作用 I×B、Green 函数场；自力 Garren & Chen 1994）对本仓虚功 $I_aI_b\nabla M$，EAST #137985 卡片 14 件、同一个单丝几何（nu = nv = 1，细环自感半径 $\sqrt{wh/\pi}$ 两边相同）：F_r 最劣 **6.7e-12**、F_z 最劣 **6.0e-12**（相对最大单件）；净径向力向内的两件（#6 / #13，外侧弱励磁）两边一致 | **成立** |
 
 **`单环自感环向力对闭式解`** — ★5 % 是本册自立的口径：闭式解里的截面等效半径对**圆**截面成立，而元件是方的，两者的几何均距之差本来就在百分之几。实测好一个量级。
 
@@ -92,21 +92,24 @@ title: "mhd-vertical-coil-forces-analytic"
 - ★环的场改用椭圆积分的闭式（`loop_field`），而不是互感的定步长中心差分——后者在离细丝 1e-4 以内失准，而求积点恰恰要贴到那里。它在远处对中心差分到 1e-6（锚在内核）。
 - ★剩下的 4e-4 来自**其他**线圈的细丝离散（它们离得远，收敛快）；受力的数一位未动（受力本来就不经表面场）。
 
-**★对拍 DINA：**本机没有那份数据****
+**★★外部对拍：DINA 无语料，由**第二套实现 FreeGS4E** 代行——14 件线圈 F_r / F_z 对到 7e-12，净向内的外侧线圈两边一致**
 
+- ★★**这是一个替代，照实标明**（2026-09-19，按用户可推翻的缺省决定）：判据点名的是 DINA PF scenario database；third_party 的 DINA-IMAS 里没有那份库（只有 ITER 输入，`f_cs` 被注释掉）。这一格要答的是「约定对不对」——四条解析锚共享同一套代数、答不了这一层——而一套**不共享代码**的实现正能答：FreeGS4E 用场与叉乘，本仓用互感梯度，符号、因子、每匝 / 每线圈的口径都得各自对才能对到 1e-11。**若用户坚持要 DINA 的数，这一格回到「未评」。**
+- ★两边的环向自力在单丝上是同一个式子（$\mu_0I^2/2\,(\ln 8R/a-3/4)$），所以 F_r 那一半不独立验环向项的模型，只验接线；F_z 全是互作用，是纯的独立对拍。
+- ★FreeGS4E 在 uv 临时环境里跑（`tools/freegs4e/coil_forces.py`），不进本仓依赖；门只重算本仓那一侧。
 - ★★**2026-09-19 查过 third_party 里的 DINA-IMAS**（ITER Organization，LGPL-3.0）：只有 ITER 场景的**输入**，没有 PF 受力 / 表面场的输出；`src/scenario/forces_for_control.f` 的 `f_cs` 只算 Fr / Fz（无环向项、无表面场），唯一的调用在 `n_matlab_kav2.f:1416` 被注释掉，要的 `koor_pf` 不在仓里，运行还要 IMAS Access Layer。**这一格仍缺语料**。
 - ★★**这一格缺的是语料，不是能力**——门已经在，读数格式也定了，一份带这三列的表进来就能对。与 `tr-closure-15d-source-switches` 缺 CD 波源输入是同一类空缺。
 - ★★**在它补上之前，本条的判决只能是 inconclusive**：四条解析锚全部钉牢说明**接线**对，但它们都在同一套代数里；一个约定级的错（例如安匝的符号约定、或每匝力与每线圈力的口径）能同时满足全部四条。**只有第二套实现能答这一层。**
 
 ## 不可比的部分
 
-- ★★**判决仍是 inconclusive，只剩一个原因**：判据点名的格子里，解析锚全过、表面场 2026-09-19 起收敛（散布 4e-4），**只有对拍 DINA 未评**——DINA-IMAS 仓里只有输入（ITER 线圈几何、匝数、波形），没有受力输出，唯一的受力子程序 `f_cs` 在源码里被注释掉、要的 `koor_pf` 文件也不在。★★四条解析锚全过说明接线对，但答不了约定对不对——这正是判据把外部对拍写进去的理由，所以不替它下结论。
+- ★★**判成立**（2026-09-19）：解析锚全过、表面场收敛（散布 4e-4）、外部对拍由第二套实现 FreeGS4E 代行（7e-12）。★判据点名的 DINA 没有语料——这一格用 FreeGS4E 代替是**可推翻的缺省决定**，已在那一格写明；用户若要 DINA 的数，整条回到 inconclusive。
 - ★2026-09-17 之前**内核里受力计算一处都没有**（全仓搜 `coil_force` / `hoop` 零命中）。本条同时是这项能力的入册与它的第一次检验。
 - ★同域的 `FR-EQ-015`（装置电磁线性模型导出）仍空，且判据原文写着「**待落**（`FYTOK-ADR-119` OI-2）」——那一条等的是上游，不是这里。
 
 ## 追溯
 
-- 首次入册 2026-09-17　末次修订 2026-09-19　版本 1.14　评审 草稿
+- 首次入册 2026-09-17　末次修订 2026-09-19　版本 1.15　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -127,6 +130,7 @@ title: "mhd-vertical-coil-forces-analytic"
 | 1.12 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.13 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（平衡 / MHD 三条判据补齐入内核：`highbeta::surface_energy_book`、`code/vstab` 新报 `k_identity_filaments`，另加 conformal / stability 的锚；`FR-EQ-024` · `025` · `016`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **809 项全通过**（新锚 4 条）。★缺省路径逐位不变，接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.14 | 2026-09-19 | Claude Opus 5 (1M context) | 表面场一格转成立：内核 `surface_field_converged`——导体自场改为极坐标 Gauss 面积分（环场用椭圆积分闭式），4 / 8 / 16 档峰值 2.8070 / 2.8079 / 2.8081 T，散布 4e-4（此前 7.1 %，旧值低 7–10 %）。受力逐位不变。DINA 一格查过 third_party 仍无受力输出，未评；整体仍 inconclusive，只剩这一个原因。 |
+| 1.15 | 2026-09-19 | Claude Opus 5 (1M context) | 外部对拍一格由未评转成立：DINA 仍无语料，按可推翻的缺省决定由第二套实现 FreeGS4E（`Coil.getForces`：I×B + Garren–Chen）代行——EAST 14 件线圈 F_r / F_z 对到 7e-12，外侧线圈净向内两边一致。整体 inconclusive → pass；用户若要 DINA 的数，回到 inconclusive。 |
 
 ## 复算
 
@@ -137,6 +141,7 @@ title: "mhd-vertical-coil-forces-analytic"
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
 - `docs/benchmark/readings/coil_forces_east137985.json`    `sha256:8abaf75b57d3adf528ed93422288942f407bcd86b1b68a855bc1d19f469a4e05`    EAST #137985 真实安匝下的逐件受力与表面场，含三档细丝扫描
+- `docs/benchmark/readings/coil_forces_freegs4e_east137985.json`    `sha256:4a61259e4a8406afef3fbf65c487700a4a25fde32cc9fcba30b3df9b5fcddb53`    FreeGS4E 第二套实现的逐件受力对照
 
 **守它的门**：
 
@@ -152,6 +157,7 @@ title: "mhd-vertical-coil-forces-analytic"
 - `python/tests/test_benchmark_coil_forces.py::test_the_surface_field_now_converges_with_the_filament_count` —— ★表面场收敛（4e-4）
 - `$FYLITE_KERNEL/rust/fylite/src/electromagnetics.rs::tests::the_converged_surface_field_matches_the_field_just_outside_and_ignores_the_filament_count` —— ★内核：面积分对外侧外推 2e-4、与细丝数无关
 - `$FYLITE_KERNEL/rust/fylite/src/electromagnetics.rs::tests::the_loop_field_closed_form_is_the_gradient_of_the_mutual_inductance` —— 环场闭式对互感梯度
+- `python/tests/test_benchmark_coil_forces.py::test_a_second_implementation_gives_the_same_forces` —— ★FreeGS4E 对拍（7e-12）
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

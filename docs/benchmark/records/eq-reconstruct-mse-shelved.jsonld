@@ -1,0 +1,104 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/eq-reconstruct-mse-shelved",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "MSE 全形响应行与内部约束行几何门控：**用户裁定搁置**——内核里没有 MSE，被门控的东西还不存在",
+  "en": "MSE response rows and the internal-constraint geometry gating: shelved by the user's ruling — the kernel has no MSE, so the thing to be gated does not exist yet"
+ },
+ "domain": "eq-reconstruct",
+ "requirement": [
+  "FR-EQ-007",
+  "FR-EQ-009"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "unevaluated",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · 重建的约束行（`code/reconstruction`）",
+  "comment": "MSE 响应行不在其中"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "FYTOK-SRS 判据（FR-EQ-007..009 共用一行，抄在 domains/eq/reconstruct.md）",
+   "comment": "A₃ 乘 B_R；中平面 MSE 点的 B_r 列上下对称恒零，测点须偏中平面方可辨"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/eq-reconstruct-mse-shelved/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "MSE 全形响应行与几何门控（FR-EQ-007 · 009）",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/eq-reconstruct-mse-shelved/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "搁置的前提：内核里没有 MSE 响应行",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★MSE —— **未评**：用户 2026-09-17 裁定搁置",
+   "criterion": "benchmark/records/eq-reconstruct-mse-shelved/criterion/1",
+   "bound": "reading",
+   "deviation_literal": "未评。内核与 Python 侧 MSE 零实现；判据不是「门控没做对」，是被门控的东西还不存在，要从响应行写起。",
+   "verdict": "unevaluated",
+   "caveat": [
+    "★★**「包内零标定数值」是必然，不只是政策**：`AAnGAM(n=[1:7])` 是逐机器的几何修正系数，由 EFIT 自己在 input mode 5 跑出来写进 k-file（fydoc `third_party/efit-annex.md` L918）——包内推不出来，只能由调用方给。",
+    "★`docs/guide/constraints.md` 说「`kfile.mse_namelist()` 已处理此事」，全仓搜不到这个函数——文档超前于代码。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "搁置的前提成立：内核源码里没有 MSE / motional / pitch_angle",
+   "criterion": "benchmark/records/eq-reconstruct-mse-shelved/criterion/2",
+   "bound": "identity",
+   "deviation_literal": "`fylite_kernel/rust/fylite/src/*.rs` 全文搜 `\\bmse\\b` · `motional` · `pitch_angle`：零命中",
+   "verdict": "pass",
+   "caveat": [
+    "★这道门守的是裁定的**前提**：一旦有人往内核加了 MSE，它就红——那时这条裁定该重看，而不是被悄悄绕过。"
+   ]
+  }
+ ],
+ "validity_domain": "fylite 内核与重建门（2026-09-19）。",
+ "caveat": [
+  "★★**这是一条裁定记录，不是一次测量**：`FR-EQ-007` / `009` 经用户 2026-09-17 裁定搁置。入册是为了让它在覆盖表上显示为「已裁定」而不是空行——空行的意思是「没人管」，这两条是「决定了先不做」。",
+  "★重启时先读 A₃ ↔ B_R 那条系数约定与 AAnGAM 由 EFIT 生成这两件事（见 finding）。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-19",
+  "has_input": [],
+  "realizes": [
+   {
+    "name": "python/tests/test_benchmark_mse_shelved.py::test_the_kernel_still_has_no_mse_response_row",
+    "comment": "搁置的前提"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-19",
+  "revised": "2026-09-19",
+  "review_status": "draft",
+  "open_defect": "用户 2026-09-17 裁定「搁置 MSE」：`FR-EQ-007` · `FR-EQ-009` 不实现，直到用户重启。前提（内核无 MSE）由门钉住。",
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：把用户「搁置 MSE」的裁定落成记录（判 unevaluated，open_defect 写明谁、何时、为什么），并以一道门钉住它的前提——内核里没有 MSE 响应行。"
+   }
+  ]
+ }
+}

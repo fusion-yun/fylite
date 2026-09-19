@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-19
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**54** 条（94 %）
-- ★**MUST 级空缺 (open MUST)：1 条**
+- 已有记录覆盖 (covered)：**56** 条（98 %）
+- ★**MUST 级空缺 (open MUST)：0 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -58,9 +58,9 @@ title: 需求覆盖 (Requirement coverage)
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-EQ-006` | MUST | 测量重构与约束阶梯 | [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) · [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | 对拍 · 验证 | 成立 · 成立 |
-| `FR-EQ-007` | SHOULD | MSE 全形响应行 | — | — | — |
+| `FR-EQ-007` | SHOULD | MSE 全形响应行 | [`eq-reconstruct-mse-shelved`](reports/eq-reconstruct-mse-shelved.md) | 验证 | 未评估 |
 | `FR-EQ-008` | MUST | 快离子压强外部强迫项 | [`eq-reconstruct-fast-ion-pressure`](reports/eq-reconstruct-fast-ion-pressure.md) | 验证 | 成立 |
-| `FR-EQ-009` | MUST | 内部约束行几何门控 | — | — | — |
+| `FR-EQ-009` | MUST | 内部约束行几何门控 | [`eq-reconstruct-mse-shelved`](reports/eq-reconstruct-mse-shelved.md) | 验证 | 未评估 |
 | `FR-EQ-010` | MUST | kinetic-EFIT 自洽外环接口 | [`eq-reconstruct-kinetic-outer`](reports/eq-reconstruct-kinetic-outer.md) | 验证 | 成立 |
 | `FR-EQ-011` | MUST | 源剖面曲率正则 | [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md) | 验证 | 成立 |
 | `NR-EQ-003` | MUST | 不确定度传播 | [`eq-reconstruct-posterior-bands`](reports/eq-reconstruct-posterior-bands.md) | 验证 | 成立 |
@@ -81,7 +81,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-014` | MUST | 线圈受力与导体表面场 | [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） |
+| `FR-EQ-014` | MUST | 线圈受力与导体表面场 | [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 成立 |
 | `FR-EQ-015` | MUST | 装置电磁线性模型导出（路线） | [`mhd-vertical-lti-export`](reports/mhd-vertical-lti-export.md) | 验证 | 成立 |
 | `FR-EQ-016` | MUST | 轴对称 $n=0$ 竖直稳定性判读 | [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 成立 |
 
@@ -187,9 +187,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 
 ★这些是**硬缺口**：SRS 写的是「必须」，而本册没有任何记录覆盖它们。
 
-| 需求 | 域 | 标题 |
-| :--- | :--- | :--- |
-| `FR-EQ-009` | 测量重构与约束阶梯 | 内部约束行几何门控 |
+没有。
 
 ## 上游未给判据 (requirements the SRS gives no criterion for)
 

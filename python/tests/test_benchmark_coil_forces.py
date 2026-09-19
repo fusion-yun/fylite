@@ -101,3 +101,20 @@ def test_the_recorded_readings_are_what_this_checkout_computes(got):
                 want["filament_sweep"][nu][k], rel=1e-9), (nu, k)
     assert np.isclose(got["at_nu_8"]["b_surface_T"]["max"],
                       want["at_nu_8"]["b_surface_T"]["max"], rtol=1e-9)
+
+
+FGS = ROOT / "docs/benchmark/readings/coil_forces_freegs4e_east137985.json"
+
+
+def test_a_second_implementation_gives_the_same_forces(case):
+    """★★第二套实现（2026-09-19）：FreeGS4E 的 `Coil.getForces`（I×B 的互作用 + Garren–Chen 环向力）对本仓的虚功
+    `I_a I_b ∇M`，EAST #137985 卡片 14 件线圈、同一个单丝几何，F_r 与 F_z 都到 7e-12（相对最大单件）——
+    连「弱励磁的外侧线圈净径向力向内」都两边一致。★FreeGS4E 在 uv 临时环境里跑，这里只重算本仓那一侧。"""
+    rec = json.loads(FGS.read_text(encoding="utf-8"))
+    assert rec["summary"]["worst_rel_f_r"] < 1e-9 and rec["summary"]["worst_rel_f_z"] < 1e-9, rec["summary"]
+    rows = rec["elements"]
+    assert rec["summary"]["net_inward_f_r_elements"] == [i for i, r in enumerate(rows) if r["fylite_f_r"] < 0.0]
+    here = _tool().fylite_nu1(case)
+    for h, r in zip(here, rows):
+        assert h["fylite_f_z"] == pytest.approx(r["fylite_f_z"], rel=1e-12, abs=1e-6)
+        assert h["fylite_f_r"] == pytest.approx(r["fylite_f_r"], rel=1e-12, abs=1e-6)

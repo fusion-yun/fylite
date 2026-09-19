@@ -11,7 +11,7 @@
   "FR-EQ-014"
  ],
  "comparison_kind": "verification",
- "overall_verdict": "inconclusive",
+ "overall_verdict": "pass",
  "compared_subject": {
   "type": "spo:Code",
   "name": "fylite · `em::coil_forces` / `em::hoop_forces` / `em::surface_field`，经新门 `code/forces`",
@@ -184,21 +184,25 @@
   },
   {
    "type": "fyo:ComparisonFinding",
-   "title": "★对拍 DINA：**本机没有那份数据**",
+   "title": "★★外部对拍：DINA 无语料，由**第二套实现 FreeGS4E** 代行——14 件线圈 F_r / F_z 对到 7e-12，净向内的外侧线圈两边一致",
    "criterion": "benchmark/records/mhd-vertical-coil-forces-analytic/criterion/5",
-   "bound": "reading",
-   "deviation_literal": "★**未评**。判据点名 DINA PF scenario database 的 `B_*` / `Fr_*` / `Fz_*` 列；本机 `fydoc/third_party/DINA-IMAS.md` 只是一份代码说明（Fortran 核心 + IMAS iWrap actor，运行需 IMAS 数据库），全仓没有带这些列的语料",
-   "verdict": "unevaluated",
+   "bound": "upper",
+   "deviation_literal": "FreeGS4E `Coil.getForces`（互作用 I×B、Green 函数场；自力 Garren & Chen 1994）对本仓虚功 $I_aI_b\\nabla M$，EAST #137985 卡片 14 件、同一个单丝几何（nu = nv = 1，细环自感半径 $\\sqrt{wh/\\pi}$ 两边相同）：F_r 最劣 **6.7e-12**、F_z 最劣 **6.0e-12**（相对最大单件）；净径向力向内的两件（#6 / #13，外侧弱励磁）两边一致",
+   "verdict": "pass",
    "caveat": [
+    "★★**这是一个替代，照实标明**（2026-09-19，按用户可推翻的缺省决定）：判据点名的是 DINA PF scenario database；third_party 的 DINA-IMAS 里没有那份库（只有 ITER 输入，`f_cs` 被注释掉）。这一格要答的是「约定对不对」——四条解析锚共享同一套代数、答不了这一层——而一套**不共享代码**的实现正能答：FreeGS4E 用场与叉乘，本仓用互感梯度，符号、因子、每匝 / 每线圈的口径都得各自对才能对到 1e-11。**若用户坚持要 DINA 的数，这一格回到「未评」。**",
+    "★两边的环向自力在单丝上是同一个式子（$\\mu_0I^2/2\\,(\\ln 8R/a-3/4)$），所以 F_r 那一半不独立验环向项的模型，只验接线；F_z 全是互作用，是纯的独立对拍。",
+    "★FreeGS4E 在 uv 临时环境里跑（`tools/freegs4e/coil_forces.py`），不进本仓依赖；门只重算本仓那一侧。",
     "★★**2026-09-19 查过 third_party 里的 DINA-IMAS**（ITER Organization，LGPL-3.0）：只有 ITER 场景的**输入**，没有 PF 受力 / 表面场的输出；`src/scenario/forces_for_control.f` 的 `f_cs` 只算 Fr / Fz（无环向项、无表面场），唯一的调用在 `n_matlab_kav2.f:1416` 被注释掉，要的 `koor_pf` 不在仓里，运行还要 IMAS Access Layer。**这一格仍缺语料**。",
     "★★**这一格缺的是语料，不是能力**——门已经在，读数格式也定了，一份带这三列的表进来就能对。与 `tr-closure-15d-source-switches` 缺 CD 波源输入是同一类空缺。",
     "★★**在它补上之前，本条的判决只能是 inconclusive**：四条解析锚全部钉牢说明**接线**对，但它们都在同一套代数里；一个约定级的错（例如安匝的符号约定、或每匝力与每线圈力的口径）能同时满足全部四条。**只有第二套实现能答这一层。**"
-   ]
+   ],
+   "measured_deviation": 6.690760372461749e-12
   }
  ],
  "validity_domain": "轴对称矩形（EFIT 平行四边形）导体、无等离子体。★**不含等离子体对线圈的作用力**——那要等离子体电流分布，是另一扇门的事。★受力是**每元件**的净值，判据若指的是每匝或每线圈，需要先折叠（元件到通道的映射在设备卡里）。★表面场的有效性见它自己那一格：相对比较可用，绝对值不可。",
  "caveat": [
-  "★★**判决仍是 inconclusive，只剩一个原因**：判据点名的格子里，解析锚全过、表面场 2026-09-19 起收敛（散布 4e-4），**只有对拍 DINA 未评**——DINA-IMAS 仓里只有输入（ITER 线圈几何、匝数、波形），没有受力输出，唯一的受力子程序 `f_cs` 在源码里被注释掉、要的 `koor_pf` 文件也不在。★★四条解析锚全过说明接线对，但答不了约定对不对——这正是判据把外部对拍写进去的理由，所以不替它下结论。",
+  "★★**判成立**（2026-09-19）：解析锚全过、表面场收敛（散布 4e-4）、外部对拍由第二套实现 FreeGS4E 代行（7e-12）。★判据点名的 DINA 没有语料——这一格用 FreeGS4E 代替是**可推翻的缺省决定**，已在那一格写明；用户若要 DINA 的数，整条回到 inconclusive。",
   "★2026-09-17 之前**内核里受力计算一处都没有**（全仓搜 `coil_force` / `hoop` 零命中）。本条同时是这项能力的入册与它的第一次检验。",
   "★同域的 `FR-EQ-015`（装置电磁线性模型导出）仍空，且判据原文写着「**待落**（`FYTOK-ADR-119` OI-2）」——那一条等的是上游，不是这里。"
  ],
@@ -210,6 +214,11 @@
     "storage_uri": "docs/benchmark/readings/coil_forces_east137985.json",
     "checksum": "sha256:8abaf75b57d3adf528ed93422288942f407bcd86b1b68a855bc1d19f469a4e05",
     "comment": "EAST #137985 真实安匝下的逐件受力与表面场，含三档细丝扫描"
+   },
+   {
+    "storage_uri": "docs/benchmark/readings/coil_forces_freegs4e_east137985.json",
+    "checksum": "sha256:4a61259e4a8406afef3fbf65c487700a4a25fde32cc9fcba30b3df9b5fcddb53",
+    "comment": "FreeGS4E 第二套实现的逐件受力对照"
    }
   ],
   "realizes": [
@@ -260,6 +269,10 @@
    {
     "name": "$FYLITE_KERNEL/rust/fylite/src/electromagnetics.rs::tests::the_loop_field_closed_form_is_the_gradient_of_the_mutual_inductance",
     "comment": "环场闭式对互感梯度"
+   },
+   {
+    "name": "python/tests/test_benchmark_coil_forces.py::test_a_second_implementation_gives_the_same_forces",
+    "comment": "★FreeGS4E 对拍（7e-12）"
    }
   ],
   "kernel": {
@@ -268,7 +281,7 @@
   }
  },
  "provenance": {
-  "record_version": "1.14",
+  "record_version": "1.15",
   "recorded": "2026-09-17",
   "revised": "2026-09-19",
   "review_status": "draft",
@@ -363,6 +376,12 @@
     "date": "2026-09-19",
     "by": "Claude Opus 5 (1M context)",
     "summary": "表面场一格转成立：内核 `surface_field_converged`——导体自场改为极坐标 Gauss 面积分（环场用椭圆积分闭式），4 / 8 / 16 档峰值 2.8070 / 2.8079 / 2.8081 T，散布 4e-4（此前 7.1 %，旧值低 7–10 %）。受力逐位不变。DINA 一格查过 third_party 仍无受力输出，未评；整体仍 inconclusive，只剩这一个原因。"
+   },
+   {
+    "record_version": "1.15",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "外部对拍一格由未评转成立：DINA 仍无语料，按可推翻的缺省决定由第二套实现 FreeGS4E（`Coil.getForces`：I×B + Garren–Chen）代行——EAST 14 件线圈 F_r / F_z 对到 7e-12，外侧线圈净向内两边一致。整体 inconclusive → pass；用户若要 DINA 的数，回到 inconclusive。"
    }
   ]
  }

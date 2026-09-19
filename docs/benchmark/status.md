@@ -25,10 +25,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**55** 条
-- 判决 (verdict)：成立 47 · 不成立 **0** · 未判 8 · 未评估 0
-- 新鲜度 (freshness)：当前 55 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 55 · 已被取代 0
+- 记录 (records)：**56** 条
+- 判决 (verdict)：成立 48 · 不成立 **0** · 未判 7 · 未评估 1
+- 新鲜度 (freshness)：当前 56 · **过期 0** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 56 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
@@ -46,11 +46,15 @@ title: 验证状态 (Verification status)
 
 ### [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md)
 
-2026-09-17 仍记名保留（用户裁定「保留负面结果」）：达成 kappa 1.7941 比目标低 2.98 %、delta_lower 低 10.21 %，判据 1 %——**这一条是真结论**，不是判法问题：把 kappa 顶上去的设置（enp 0.5）要 37.5 MA·t 且永不收敛。所需 30.6 MA·t 仍无额定可比（牌上缺 pf_active/supply）。★收敛那一条已于 1.1 版改为读数——原判 fail 是我自立的标准，不是缺陷。
+用户裁定「不改内核，保留负面结果」（本会话，ITER 这一例点名在内）：ITER 参考分离面在这台机器的线圈额定内**买不到**——无界设计要 PF1 1.14 倍、PF6 1.28 倍的 DINA 额定，形状仍差（kappa −3 %、delta_lower −10 %）；在额定内重解守住额定、分离面 11.8 mm，但不再收敛（残差 0.072）。**这是设计本身的结论，不是实现的缺陷**：同一需求 `FR-EQ-005` 的 FreeGSNKE 对拍记录判成立。
 
 ### [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md)
 
 2026-09-17 ★★**lambda 的响应非单调**：1e-3 / 1e-2 有效，**0.1 处解崩掉**（不收敛，q0 +9.28e+00），1 与 10 又收敛但精度差。可用窗口因此很窄，而「窄」这件事本身没有被解释——怀疑是罚行与截断 SVD 保留秩的相互作用，未查。★在查清之前，**把 lambda 当成必须 A/B 扫出来的量**，不要抄。
+
+### [`eq-reconstruct-mse-shelved`](reports/eq-reconstruct-mse-shelved.md)
+
+用户 2026-09-17 裁定「搁置 MSE」：`FR-EQ-007` · `FR-EQ-009` 不实现，直到用户重启。前提（内核无 MSE）由门钉住。
 
 ### [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md)
 
@@ -104,9 +108,9 @@ title: 验证状态 (Verification status)
 | 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](domains/eq/surface.md) | 3 | 3 | 2 | 2 | 0 | 0 |
 | 平衡 (Equilibrium) | [演化自由边界与涡流电路](domains/eq/evolve.md) | 1 | 1 | 1 | 1 | 0 | 0 |
 | 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](domains/eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 0 |
-| 平衡 (Equilibrium) | [测量重构与约束阶梯](domains/eq/reconstruct.md) | 8 | 6 | 7 | 7 | 0 | 0 |
+| 平衡 (Equilibrium) | [测量重构与约束阶梯](domains/eq/reconstruct.md) | 8 | 8 | 8 | 7 | 0 | 0 |
 | 平衡 (Equilibrium) | [约定与口径：COCOS 与插件接入](domains/eq/convention.md) | 2 | 2 | 2 | 2 | 0 | 0 |
-| MHD 稳定性 (MHD Stability) | [竖直稳定性、线圈受力与电磁线性模型](domains/mhd/vertical.md) | 3 | 3 | 3 | 2 | 0 | 0 |
+| MHD 稳定性 (MHD Stability) | [竖直稳定性、线圈受力与电磁线性模型](domains/mhd/vertical.md) | 3 | 3 | 3 | 3 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界](domains/mhd/analytic.md) | 2 | 2 | 2 | 2 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [能量原理变分内核 L2](domains/mhd/energy.md) | 7 | 7 | 7 | 7 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [全 delta-W、V5 基准与阻性壁模](domains/mhd/deltaw.md) | 6 | 6 | 6 | 6 | 0 | 0 |
@@ -131,11 +135,12 @@ title: 验证状态 (Verification status)
 | [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | eq-forward | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.19 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
-| [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.20 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
+| [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.21 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md) | eq-reconstruct | 验证 | 成立 | 1.17 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`eq-reconstruct-fast-ion-pressure`](reports/eq-reconstruct-fast-ion-pressure.md) | eq-reconstruct | 验证 | 成立 | 1.17 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.19 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`eq-reconstruct-kinetic-outer`](reports/eq-reconstruct-kinetic-outer.md) | eq-reconstruct | 验证 | 成立 | 1.17 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
+| [`eq-reconstruct-mse-shelved`](reports/eq-reconstruct-mse-shelved.md) | eq-reconstruct | 验证 | 未评估 | 1.0 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`eq-reconstruct-posterior-bands`](reports/eq-reconstruct-posterior-bands.md) | eq-reconstruct | 验证 | 成立 | 1.12 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | eq-reconstruct | 验证 | 成立 | 1.19 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.19 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
@@ -156,7 +161,7 @@ title: 验证状态 (Verification status)
 | [`mhd-energy-three-term-assembly`](reports/mhd-energy-three-term-assembly.md) | mhd-energy | 验证 | 成立 | 1.8 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`mhd-energy-vacuum-general-shape`](reports/mhd-energy-vacuum-general-shape.md) | mhd-energy | 验证 | 成立 | 1.8 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`mhd-energy-variational-cylinder`](reports/mhd-energy-variational-cylinder.md) | mhd-energy | 验证 | 成立 | 1.8 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
-| [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | mhd-vertical | 验证 | 未判（读数） | 1.14 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
+| [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | mhd-vertical | 验证 | 成立 | 1.15 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | mhd-vertical | 确认 | 成立 | 2.13 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`mhd-vertical-lti-export`](reports/mhd-vertical-lti-export.md) | mhd-vertical | 验证 | 成立 | 1.6 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |
 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.20 | 2026-09-19 | 草稿 | `sha256:e4040bbf79e3…` | current |

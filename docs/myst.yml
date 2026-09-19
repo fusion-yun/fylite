@@ -207,6 +207,7 @@ project:
             - file: benchmark/reports/eq-reconstruct-kinetic-outer.md
             - file: benchmark/reports/eq-reconstruct-curvature-prior.md
             - file: benchmark/reports/eq-reconstruct-posterior-bands.md
+            - file: benchmark/reports/eq-reconstruct-mse-shelved.md
             - file: benchmark/reports/eq-convention-gfile-cocos-roundtrip.md
             - file: benchmark/reports/eq-convention-ladder-flux-gauge.md
             - file: benchmark/reports/tr-closure-15d-source-switches.md
