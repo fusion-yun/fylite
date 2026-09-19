@@ -227,7 +227,11 @@ def heating_series(f: Fetch, sm: dict) -> dict:
     for b in sm.get("ec_launchers") or []:
         la = f.sig(b.get("fylite:power_launched"))
         out["ec"].append({"name": b.get("name"), "frequency": b.get("frequency"), "mode": b.get("mode"),
-                          "launched": la, "baseline_window": b.get("fylite:baseline_window") or [-3.0, -1.0]})
+                          "launched": la, "baseline_window": b.get("fylite:baseline_window") or [-3.0, -1.0],
+                          #: 镜面几何与逐炮镜角（装置事实按炮号解析：fydoc providers.ec_launchers 的逐炮覆盖层）
+                          "geometry": {k: b[k] for k in ("launching_position", "fylite:angle_pol", "fylite:angle_tor",
+                                                         "fylite:angles_source", "fylite:beam_waist",
+                                                         "fylite:beam_waist_from_mirror") if k in b}})
     for key, spec in (sm.get("nbi") or {}).items():
         out["nbi"].append({"name": key, "launched": f.sig(spec)})
     return out
@@ -252,7 +256,7 @@ def heating_at(h: dict, t: float, half: float = 0.025) -> dict:
         off = sum(base) / len(base) if base else 0.0
         p = (window_mean(v, tb, t, half) or 0.0) - off
         res["ec"].append({"name": b["name"], "frequency": b["frequency"], "mode": b["mode"], "baseline": off,
-                          "net": max(0.0, p)})
+                          "net": max(0.0, p), "geometry": b.get("geometry") or {}})
     for n in h["nbi"]:
         if n["launched"] is None:
             continue
@@ -848,35 +852,54 @@ def cmd_transport(a) -> int:
                         "notes": wn, "antennas": ants}
     # ---- B: EC（code/rf_ray；发射几何要用户给——fylite 记它为未知）
     ec_on = [b for b in heat["ec"] if b["net"] > 0]
-    if ec_on and a.ec_launch:
-        r_m, z_m, pol_m, tor_m = (float(v) for v in a.ec_launch.split(","))
-        #: 发射点在反演网格外时，沿束直线走到网格边内 2 cm（真空传播，物理不变）
-        r0, z0, pol, tor = advance_in_vacuum(r_m, z_m, pol_m, tor_m, fi["grid_r"][-1] - 0.02)
-        beams = [{"name": b["name"], "frequency": {"data": b["frequency"]}, "power_launched": {"data": b["net"]},
-                  "launching_position": {"r": r0, "z": z0}, "fylite:angle_pol": math.radians(pol),
-                  "fylite:angle_tor": math.radians(tor), "mode": b["mode"]} for b in ec_on]
-        cp_ec = {"profiles_1d": dict(cp_psi["profiles_1d"], zeff=[a.zeff] * len(grid))}
-        eqd_l = json.loads(json.dumps(eqd))
-        eqd_l["time_slice"]["profiles_1d"].update({"psi_norm": lad["psi_norm"], "rho_tor": lad["rho_tor"],
-                                                   "dvolume_drho_tor": lad["dvolume_drho_tor"]})
-        ec_set = {"deposit": 1, "current_drive": 1, "zeff": a.zeff}
-        if a.ec_waist and a.ec_focus is not None:
-            #: 高斯束（内核 L3）：束腰半径与「镜面到束腰」的距离是发射器光学参数；发射点已沿束前移了一段，焦距相应扣掉
-            ec_set.update(beam_waist=a.ec_waist, beam_focus=a.ec_focus - math.dist((r_m, z_m), (r0, z0)))
-        ef, ei, en = lib.door("code/rf_ray", ec_set,
-                              {"equilibrium": eqd, "core_profiles": cp_ec, "ec_launchers": {"beam": beams}})
-        sources.append(dict(source_rows(ei, "code/rf_ray"), name="ec"))
-        report["ec"] = {"p_absorbed": K._r(ef.get("power_absorbed")), "i_ec": K._r(ef.get("current_driven")),
-                        "deposition": {"psin": K._r(sources[-1]["grid_psin"], 5),
-                                       "rho": K._r([rm.rho(v) for v in sources[-1]["grid_psin"]], 5),
-                                       "p_e": K._r(sources[-1]["p_e"], 5),
-                                       "j": K._r(sources[-1]["j"], 5) if sources[-1]["j"] else None},
-                        "launch": {"r": r0, "z": z0, "angle_pol_deg": pol, "angle_tor_deg": tor},
-                        "launch_mirror": {"r": r_m, "z": z_m, "angle_pol_deg": pol_m, "angle_tor_deg": tor_m},
-                        "beam": {k: v for k, v in ec_set.items() if k.startswith("beam_")} or None, "notes": en}
-    elif ec_on:
-        report["ec"] = {"skipped": True, "p_net": K._r(heat["p_ec"]),
-                        "why": "EC launch geometry is not in the device facts; give --ec-launch R,Z,pol_deg,tor_deg"}
+    if ec_on:
+        #: 每束的镜面几何：--ec-launch 给了就一律用它（覆盖）；否则取装置事实按炮号解析出的逐束几何
+        #: （镜位 + 逐炮镜角 + 束光学）；有功率却没有公开镜角的束照实记为未算
+        beams, launches, skipped = [], [], []
+        for b in ec_on:
+            g = b.get("geometry") or {}
+            if a.ec_launch:
+                r_m, z_m, pol_m, tor_m = (float(v) for v in a.ec_launch.split(","))
+                src = "--ec-launch"
+            elif "fylite:angle_pol" in g and "launching_position" in g:
+                r_m, z_m = g["launching_position"]["r"], g["launching_position"]["z"]
+                pol_m, tor_m = math.degrees(g["fylite:angle_pol"]), math.degrees(g["fylite:angle_tor"])
+                src = g.get("fylite:angles_source") or "device facts"
+            else:
+                skipped.append({"name": b["name"], "p_net": K._r(b["net"]),
+                                "why": "no published launch angles for this shot in the device facts; give --ec-launch"})
+                continue
+            #: 发射点在反演网格外时，沿束直线走到网格边内 2 cm（真空传播，物理不变）
+            r0, z0, pol, tor = advance_in_vacuum(r_m, z_m, pol_m, tor_m, fi["grid_r"][-1] - 0.02)
+            waist = a.ec_waist if a.ec_waist else g.get("fylite:beam_waist")
+            focus = a.ec_focus if a.ec_focus is not None else g.get("fylite:beam_waist_from_mirror")
+            beams.append({"name": b["name"], "frequency": {"data": b["frequency"]}, "power_launched": {"data": b["net"]},
+                          "launching_position": {"r": r0, "z": z0}, "fylite:angle_pol": math.radians(pol),
+                          "fylite:angle_tor": math.radians(tor), "mode": b["mode"]})
+            launches.append({"name": b["name"], "source": src, "mirror": {"r": r_m, "z": z_m, "angle_pol_deg": pol_m,
+                             "angle_tor_deg": tor_m}, "launch": {"r": r0, "z": z0, "angle_pol_deg": pol, "angle_tor_deg": tor},
+                             "waist": waist, "waist_from_launch": (focus - math.dist((r_m, z_m), (r0, z0))) if (waist and focus is not None) else None})
+        report["ec"] = {"beams": launches, "skipped": skipped, "p_net": K._r(heat["p_ec"])}
+        if beams:
+            cp_ec = {"profiles_1d": dict(cp_psi["profiles_1d"], zeff=[a.zeff] * len(grid))}
+            ec_set = {"deposit": 1, "current_drive": 1, "zeff": a.zeff}
+            w = [l for l in launches if l["waist"] and l["waist_from_launch"] is not None]
+            if len(w) == len(launches):
+                #: 内核的高斯束参数是整次调用一组：各束的束腰与焦距相同（EAST 四模块同一光学设计）才用它
+                if len({(l["waist"], round(l["waist_from_launch"], 3)) for l in w}) == 1:
+                    ec_set.update(beam_waist=w[0]["waist"], beam_focus=w[0]["waist_from_launch"])
+                else:
+                    ec_set.update(beam_waist=w[0]["waist"], beam_focus=sum(l["waist_from_launch"] for l in w) / len(w))
+            ef, ei, en = lib.door("code/rf_ray", ec_set, {"equilibrium": eqd, "core_profiles": cp_ec,
+                                                          "ec_launchers": {"beam": beams}})
+            sources.append(dict(source_rows(ei, "code/rf_ray"), name="ec"))
+            report["ec"].update({"p_absorbed": K._r(ef.get("power_absorbed")), "i_ec": K._r(ef.get("current_driven")),
+                                 "beam": {k: v for k, v in ec_set.items() if k.startswith("beam_")} or None,
+                                 "deposition": {"psin": K._r(sources[-1]["grid_psin"], 5),
+                                                "rho": K._r([rm.rho(v) for v in sources[-1]["grid_psin"]], 5),
+                                                "p_e": K._r(sources[-1]["p_e"], 5),
+                                                "j": K._r(sources[-1]["j"], 5) if sources[-1]["j"] else None},
+                                 "notes": en})
     # ---- C: 功率平衡反解（code/interpretive，给定源剖面 + 电子–离子交换）
     rho_m = [r * rm.rho_b for r in grid]
     cps = {"profiles_1d": {"grid": {"rho_tor": rho_m}, "electrons": {"temperature": te, "density": ne}}}
@@ -940,9 +963,10 @@ def main(argv=None) -> int:
     pt.add_argument("--zeff", type=float, default=2.0)
     pt.add_argument("--lh-upshift", default="1.5,2.5",
                     help="code/wave 的 n∥ 上移范围 min,max（缺省 1.5,2.5：内核自己的 LH 测试用的范围；没有上移时 EAST 的 T_e 吸收不了）")
-    pt.add_argument("--ec-launch", help="EC 镜面几何 R,Z,极向角°,环向角°（内核约定；逐炮镜面角没有公开值、也没有 MDSplus 节点）")
-    pt.add_argument("--ec-waist", type=float, help="EC 高斯束腰半径 [m]（1/e 场半径；发射器光学参数，没有缺省）")
-    pt.add_argument("--ec-focus", type=float, help="镜面到束腰的距离 [m]（与 --ec-waist 同给）")
+    pt.add_argument("--ec-launch", help="EC 镜面几何 R,Z,极向角°,环向角°（内核约定）：覆盖装置事实里按炮号解析出的逐束几何；"
+                    "缺省取装置事实（有公开镜角的炮才有，如 #81481 · #81490）")
+    pt.add_argument("--ec-waist", type=float, help="EC 高斯束腰半径 [m]（1/e 场半径）：覆盖装置事实的 fylite:beam_waist")
+    pt.add_argument("--ec-focus", type=float, help="镜面到束腰的距离 [m]：覆盖装置事实的 fylite:beam_waist_from_mirror")
     a = ap.parse_args(argv)
     return cmd_profiles(a) if a.cmd == "profiles" else cmd_transport(a)
 

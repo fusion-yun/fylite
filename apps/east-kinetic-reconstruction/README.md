@@ -279,4 +279,4 @@ python3 $A/wei2026.py transport --shot 81481 --time 5.3 -o ~/ekr/tr_81481.json
 ★**限制**：清洗阈值文献没公布，低侧按文献图 1 的剔除样式定（`wei_profiles.CLEAN_DEFAULTS`）；H98 的来源文献没说，
 本应用用抗磁能（缺则动理学 W）与 LH + EC + NBI **源**功率——#63948 多数片因此判 L 模（文献 5.98 s 记 0.943）；
 #81481 的 n_e 由 POINT 弦拟合顶替（没有反射计、TS n_e 有坏道），T_i 只有芯部 T_i0、形状是假设的；EC 的发射几何
-不在装置事实里，缺省不算（`--ec-launch R,Z,极向角,环向角` 给了才算）；LH 快速模型的 η_cd 是待标定的系数。
+★2026-09-19 起**按炮号取自装置事实**：fydoc `providers.ec_launchers` 的逐炮覆盖层（#81481 · #81490，li2023lhcdtemperature §4.1）给镜角，base 页给镜位与束光学；没有公开镜角的炮缺省不算（`--ec-launch R,Z,极向角,环向角` 覆盖）；LH 快速模型的 η_cd 是待标定的系数。
