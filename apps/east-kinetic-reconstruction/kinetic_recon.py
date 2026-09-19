@@ -66,6 +66,13 @@ E_CHARGE = 1.602176634e-19
 SETTINGS = {"npp": 2, "nff": 2, "relax": 0.3, "max_iter": 4000, "tol": 1e-8, "fb_gain": 8.0, "warmup": 40,
             "n_profile": 201, "n_q": 20, "n_theta": 121, "x_lo": 0.06, "x_hi": 0.995}
 ZC_SCAN = [round(-0.030 + 0.004 * k, 3) for k in range(16)]
+#: 竖直设定点扫描的做法（``--scan``）。``full``：每轮每个设定点都在 65² 上冷启动解，取收敛者中 chi2 最小的。
+#: ``coarse``：每轮先把全部设定点在 ``grid``² 的粗网格上解一遍、按粗 chi2 排序，只把最好的 ``top`` 个在 65² 上冷启动
+#: 复核，再从其中最好的往两侧邻点走（65²），直到两侧都不更好；粗网格上收敛的不到 ``min_converged``（份额），或复核的
+#: 无一收敛，这一轮退回全扫。粗网格只用来排序——报出的解与剔道依据总是 65² 上的冷启动解。
+#: ★门槛与 top=4 是在 12 片上量出来的：top=3、不走邻点、不设门槛时 12 片里 3 片的答案与全扫不同（见 README）。
+SCAN_FULL = {"mode": "full"}
+SCAN_COARSE = {"mode": "coarse", "grid": 33, "top": 4, "min_converged": 0.5}
 
 
 def log(msg: str) -> None:
@@ -789,10 +796,12 @@ class Case:
 
 
 def tier_m(c: Case, reject_sigma: float, max_rounds: int, per_round: int, settings: dict,
-           readmit: bool) -> tuple[dict, tuple | None]:
-    """档 M：扫描 + 剔道几轮；``readmit`` 时把起步组之外、在收敛解上残差不超阈值的环收回来，再扫几轮。"""
+           readmit: bool, scan: dict | None = None) -> tuple[dict, tuple | None]:
+    """档 M：扫描 + 剔道几轮；``readmit`` 时把起步组之外、在收敛解上残差不超阈值的环收回来，再扫几轮。
+    ``scan``：竖直设定点扫描的做法（``SCAN_FULL`` 缺省 / ``SCAN_COARSE``，见其注释）。"""
+    scan = dict(SCAN_COARSE, **scan) if (scan or {}).get("mode") == "coarse" else dict(SCAN_FULL)
     rounds, rejected, readmitted = [], [], []
-    best = _m_rounds(c, reject_sigma, max_rounds, per_round, settings, rounds, rejected, 0)
+    best = _m_rounds(c, reject_sigma, max_rounds, per_round, settings, rounds, rejected, 0, scan)
     if best is not None and readmit:
         _, _, _, fi, _ = best
         rl, _ = c.residuals(fi, all_channels=True)
@@ -803,7 +812,7 @@ def tier_m(c: Case, reject_sigma: float, max_rounds: int, per_round: int, settin
                 readmitted.append({"kind": "loop", "index": i, "name": c.loop_names[i], "sigma": _r(rl[i], 3)})
         if readmitted:
             log(f"M readmit: {len(readmitted)} loop(s) predicted within {reject_sigma:g} sigma")
-            again = _m_rounds(c, reject_sigma, max_rounds, per_round, settings, rounds, rejected, len(rounds))
+            again = _m_rounds(c, reject_sigma, max_rounds, per_round, settings, rounds, rejected, len(rounds), scan)
             if again is not None:
                 best = again
             else:                                        #: 回收之后反而解不出：退回，照实记
@@ -811,35 +820,97 @@ def tier_m(c: Case, reject_sigma: float, max_rounds: int, per_round: int, settin
                     c.lw[r["index"]] = 0.0
                 readmitted = [dict(r, reverted=True) for r in readmitted]
     if best is None:
-        return {"status": "error", "error": "没有一个竖直设定点收敛", "rounds": rounds, "rejected": rejected}, None
+        return {"status": "error", "error": "没有一个竖直设定点收敛", "rounds": rounds, "rejected": rejected,
+                "scan": scan}, None
     chi2, zc, fa, fi, notes = best
-    view = tier_view(fa, fi, zc, {"label": "M · 磁测量", "rounds": rounds, "rejected": rejected,
+    view = tier_view(fa, fi, zc, {"label": "M · 磁测量", "scan": _scan_summary(scan, rounds),
+                                  "rounds": rounds, "rejected": rejected,
                                   "readmitted": readmitted, "channels": c.channel_table(fi), "notes": notes,
                                   "constraints": ["磁通环", "磁探针", "Ip", "实测 PF 电流（固定）"]})
     return view, (fa, fi, zc)
 
 
-def _m_rounds(c: Case, reject_sigma, max_rounds, per_round, settings, rounds, rejected, rnd0):
+def _fine_scan(c: Case, settings: dict, zcs: list, scan: list, best):
+    """在 65²（``settings`` 本身的网格）上逐个设定点冷启动反演；读数记进 ``scan``，返回收敛者中 chi2 最小的。"""
+    for zc in zcs:
+        try:
+            fa, fi, notes = c.lib.door("code/reconstruction", dict(settings, zc_anchor=zc),
+                                       {"device": c.card, "discharge": c.full_disc()})
+        except (Refused, KernelError) as e:              #: 一个解不出的设定点也是读数
+            scan.append({"zc": zc, "error": str(e)[-60:]})
+            continue
+        rl, rp = c.residuals(fi)
+        chi2 = sum(v * v for v in rl) + sum(v * v for v in rp)
+        scan.append({"zc": zc, "chi2": _r(chi2, 5), "q0": _r(fa["q0"], 4), "converged": bool(fa["converged"])})
+        if fa["converged"] and (best is None or chi2 < best[0]):
+            best = (chi2, zc, fa, fi, notes)
+    return best
+
+
+def _coarse_scan(c: Case, settings: dict, how: dict):
+    """粗扫一轮（做法见 ``SCAN_COARSE`` 的注释）。返回 (粗网格读数, 65² 读数, 是否退回全扫, 最好的 65² 解)。"""
+    n = int(how["grid"])
+    coarse, ranked = [], []
+    for zc in ZC_SCAN:
+        try:
+            fa, fi, _ = c.lib.door("code/reconstruction", dict(settings, zc_anchor=zc, nw=n, nh=n),
+                                   {"device": c.card, "discharge": c.full_disc()})
+        except (Refused, KernelError) as e:
+            coarse.append({"zc": zc, "error": str(e)[-60:]})
+            continue
+        rl, rp = c.residuals(fi)
+        chi2 = sum(v * v for v in rl) + sum(v * v for v in rp)
+        coarse.append({"zc": zc, "chi2": _r(chi2, 5), "q0": _r(fa["q0"], 4), "converged": bool(fa["converged"])})
+        if fa["converged"]:
+            ranked.append((chi2, zc))
+    fine: list = []
+    if len(ranked) < how["min_converged"] * len(ZC_SCAN):  #: 粗网格上收敛的太少，排序不可信：这一轮照全扫
+        return coarse, fine, True, _fine_scan(c, settings, ZC_SCAN, fine, None)
+    top = [zc for _, zc in sorted(ranked)[: max(1, int(how["top"]))]]
+    best = _fine_scan(c, settings, top, fine, None)
+    if best is None:                                     #: 粗排的前几名在 65² 上都不收敛：这一轮照全扫
+        return coarse, fine, True, _fine_scan(c, settings, [zc for zc in ZC_SCAN if zc not in top], fine, None)
+    while True:                                          #: 65² 上从最好的点往两侧邻点走，直到两侧都不更好
+        k, tried = ZC_SCAN.index(best[1]), {x["zc"] for x in fine}
+        nxt = [ZC_SCAN[j] for j in (k - 1, k + 1) if 0 <= j < len(ZC_SCAN) and ZC_SCAN[j] not in tried]
+        if not nxt:
+            break
+        was = best[1]
+        best = _fine_scan(c, settings, nxt, fine, best)
+        if best[1] == was:
+            break
+    return coarse, fine, False, best
+
+
+def _scan_summary(scan: dict, rounds: list) -> dict:
+    """结果 JSON 里记下跑的是哪种扫法，以及 65² / 粗网格各解了几次。"""
+    out = dict(scan, solves_fine=sum(len(r.get("scan", [])) for r in rounds))
+    if scan.get("mode") == "coarse":
+        out.update(solves_coarse=sum(len(r.get("coarse", [])) for r in rounds),
+                   fallback_rounds=[r["round"] for r in rounds if r.get("fallback")])
+    return out
+
+
+def _m_rounds(c: Case, reject_sigma, max_rounds, per_round, settings, rounds, rejected, rnd0, scan_opts=None):
     """One run of scan + reject rounds.  Returns the last round that converged; if a round after a
     rejection converges nothing, that rejection is undone (so the mask and the answer always agree)."""
+    how = dict(SCAN_COARSE, **(scan_opts or SCAN_FULL))
+    #: 设定点少（热启动的 5 点扫）时粗排省不下什么：照全扫
+    coarse_mode = how["mode"] == "coarse" and len(ZC_SCAN) > 2 * how["top"]
     last_good, last_batch = None, []
     for rnd in range(rnd0, rnd0 + max_rounds):
-        scan, best = [], None
-        for zc in ZC_SCAN:
-            try:
-                fa, fi, notes = c.lib.door("code/reconstruction", dict(settings, zc_anchor=zc),
-                                           {"device": c.card, "discharge": c.full_disc()})
-            except (Refused, KernelError) as e:          #: 一个解不出的设定点也是读数
-                scan.append({"zc": zc, "error": str(e)[-60:]})
-                continue
-            rl, rp = c.residuals(fi)
-            chi2 = sum(v * v for v in rl) + sum(v * v for v in rp)
-            scan.append({"zc": zc, "chi2": _r(chi2, 5), "q0": _r(fa["q0"], 4), "converged": bool(fa["converged"])})
-            if fa["converged"] and (best is None or chi2 < best[0]):
-                best = (chi2, zc, fa, fi, notes)
+        scan, extra = [], {}
+        if coarse_mode:                                  #: ``scan`` 记 65² 的读数（页面按它数收敛），粗网格读数另记
+            coarse, scan, fallback, best = _coarse_scan(c, settings, how)
+            extra = {"strategy": "coarse", "coarse": coarse, "fallback": fallback,
+                     "coarse_converged": sum(1 for s in coarse if s.get("converged"))}
+        else:
+            best = _fine_scan(c, settings, ZC_SCAN, scan, None)
+            if how["mode"] == "coarse":
+                extra = {"strategy": "full", "why": f"only {len(ZC_SCAN)} set points"}
         n_used = sum(1 for v in c.lw if v > 0) + sum(1 for v in c.pw if v > 0)
         if best is None:
-            rounds.append({"round": rnd, "scan": scan, "converged": 0, "n_used": n_used})
+            rounds.append({"round": rnd, "scan": scan, "converged": 0, "n_used": n_used, **extra})
             for r in last_batch:                         #: 这一批剔完反而解不出：撤回
                 if r["kind"] == "loop":
                     c.lw[r["index"]] = 1.0 / c.loop_sigma[r["index"]]
@@ -854,8 +925,10 @@ def _m_rounds(c: Case, reject_sigma, max_rounds, per_round, settings, rounds, re
                       + [(abs(v), "probe", i) for i, v in enumerate(rp) if abs(v) > reject_sigma], reverse=True)
         rounds.append({"round": rnd, "scan": scan, "converged": sum(1 for s in scan if s.get("converged")),
                        "n_used": n_used, "zc": zc, "chi2": _r(chi2, 5), "chi2_per_channel": _r(chi2 / n_used, 4),
-                       "q0": _r(fa["q0"], 4)})
-        log(f"M round {rnd}: {rounds[-1]['converged']}/{len(ZC_SCAN)} converged, zc {zc * 1e3:+.0f} mm, "
+                       "q0": _r(fa["q0"], 4), **extra})
+        said = (f"coarse {extra['coarse_converged']}/{len(ZC_SCAN)}, fine {rounds[-1]['converged']}/{len(scan)}"
+                + (" (fallback)" if extra["fallback"] else "") if "coarse" in extra else f"{rounds[-1]['converged']}/{len(ZC_SCAN)}")
+        log(f"M round {rnd}: {said} converged, zc {zc * 1e3:+.0f} mm, "
             f"chi2/channel {chi2 / n_used:.2f}, q0 {fa['q0']:.3f}, {len(cand)} channel(s) > {reject_sigma:g} sigma")
         if not cand or rnd == rnd0 + max_rounds - 1:
             break                                        #: 最后一轮只量，不剔——剔了就没有对应的解了
@@ -1106,6 +1179,21 @@ def tier_p(c: Case, base, kin, th: dict, a, settings: dict) -> dict:
 
 # ================================================================================================ run
 
+def scan_from_args(a) -> dict:
+    """``--scan`` / ``--scan-grid`` / ``--scan-top`` → ``tier_m`` 的 ``scan``。"""
+    if a.scan == "coarse":
+        return dict(SCAN_COARSE, grid=a.scan_grid, top=a.scan_top)
+    return dict(SCAN_FULL)
+
+
+def add_scan_args(p, default: str) -> None:
+    p.add_argument("--scan", choices=("full", "coarse"), default=default,
+                   help="档 M 竖直设定点扫描：full 全部在 65² 上解；coarse 先在粗网格上扫、只把最好的几个在 65² 上复核"
+                        f"（缺省 {default}）")
+    p.add_argument("--scan-grid", type=int, default=SCAN_COARSE["grid"], help="coarse 的粗网格边长（缺省 33）")
+    p.add_argument("--scan-top", type=int, default=SCAN_COARSE["top"], help="coarse 在 65² 上复核几个设定点（缺省 4）")
+
+
 def cmd_run(a) -> int:
     lib = Lib(Path(a.lib) if a.lib else DEFAULT_LIB)
     meas, th, origin = load_input(a.input, a.time, a.thomson)
@@ -1124,7 +1212,7 @@ def cmd_run(a) -> int:
                       "library": lib.path.name, "kernel_built": k.get("built"), "kernel_sha256": k.get("sha256"),
                       "rustc": (k.get("toolchain") or {}).get("rustc")},
            "settings": {"npp": a.npp, "nff": a.nff, "loops": a.loops, "loop_start_rule": c.loop_start_rule,
-                        "reject_sigma": a.reject_sigma,
+                        "reject_sigma": a.reject_sigma, "scan": scan_from_args(a),
                         "point_off": a.point_off, "p_on": a.p_on, "dead_sigma": a.dead_sigma,
                         "kinetic_passes": a.kinetic_passes, "kinetic_tol": a.kinetic_tol, "thomson_clip": a.thomson_clip,
                         "sigma_scales": a.sigma_scales, "curv": a.curv, "p_fast_frac": a.p_fast_frac,
@@ -1140,7 +1228,8 @@ def cmd_run(a) -> int:
                       "chords": [{"name": _name(ch), "los": ch.get("line_of_sight")} for ch in _aos(card.get("polarimeter"))]},
            "tiers": {}}
     tiers = set(a.tiers.upper())
-    m_view, base_m = tier_m(c, a.reject_sigma, a.max_rounds, a.per_round, settings, a.loops == "B+readmit")
+    m_view, base_m = tier_m(c, a.reject_sigma, a.max_rounds, a.per_round, settings, a.loops == "B+readmit",
+                            scan_from_args(a))
     out["tiers"]["M"] = m_view
     if base_m is not None:
         out["device"]["limiter"] = {"r": _r(base_m[1]["limiter_r"], 5), "z": _r(base_m[1]["limiter_z"], 5)}
@@ -1185,6 +1274,7 @@ def main(argv=None) -> int:
     r.add_argument("--reject-sigma", type=float, default=5.0, help="档 M 剔道阈值 [sigma]")
     r.add_argument("--max-rounds", type=int, default=6)
     r.add_argument("--per-round", type=int, default=4)
+    add_scan_args(r, "coarse")
     r.add_argument("--point-off", type=lambda s: [int(x) for x in s.split(",") if x], default=[],
                    help="手动关掉的 POINT 弦（1 起，逗号分隔；B-06 主集为 4,7,8,11）")
     r.add_argument("--dead-sigma", type=float, default=8.0, help="零假设残差超过它的 POINT 行判为死道")

@@ -613,7 +613,7 @@ function renderMagnetics(res) {
   if (rea.length) h += "<p class=\"note\">收回的环（在收敛解上的残差不超阈值）：" + rea.map((r) => `<span class="tag">${esc(r.name)} ${g(r.sigma, 2)}σ</span>`).join("") + "</p>";
   $("rejected").innerHTML = h;
   $("rounds").innerHTML = "<table><thead><tr><th class=\"l\">轮</th><th>收敛 / 设定点</th><th>用道</th><th>竖直设定点 [mm]</th><th>χ²/道</th><th>q₀</th></tr></thead><tbody>"
-    + (M.rounds || []).map((r) => `<tr><td class="l">${r.round}</td><td class="num">${r.converged}/${r.scan.length}</td><td class="num">${r.n_used}</td><td class="num">${fin(r.zc) ? sgn(r.zc * 1e3, 0) : "—"}</td><td class="num">${f(r.chi2_per_channel, 2)}</td><td class="num">${f(r.q0, 3)}</td></tr>`).join("") + "</tbody></table>";
+    + (M.rounds || []).map((r) => `<tr><td class="l">${r.round}</td><td class="num">${r.converged}/${r.scan.length}${r.strategy === "coarse" ? ` <span class="muted">（粗 ${r.coarse_converged}/${r.coarse.length}${r.fallback ? "，退回全扫" : ""}）</span>` : ""}</td><td class="num">${r.n_used}</td><td class="num">${fin(r.zc) ? sgn(r.zc * 1e3, 0) : "—"}</td><td class="num">${f(r.chi2_per_channel, 2)}</td><td class="num">${f(r.q0, 3)}</td></tr>`).join("") + "</tbody></table>";
 }
 
 function renderK(res) {
