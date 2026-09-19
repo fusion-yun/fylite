@@ -22,13 +22,13 @@
 <rect x="528.9" y="89.0" width="43.1" height="14" rx="3" fill="#d64545" opacity="0.85"/>
 <text x="522.9" y="100.0" font-size="11" fill="#d64545" text-anchor="end">超出 2.81 倍</text>
 <text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">轴上 ne / Te 对 METIS</text>
-<circle cx="572.0" cy="124.0" r="4" fill="#8a8a8a"/>
-<text x="584.0" y="128.0" font-size="11" fill="#8a8a8a">读数：不判</text>
+<rect x="572.0" y="117.0" width="85.1" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
+<text x="663.1" y="128.0" font-size="11" fill="#2e9e4f" text-anchor="start">7.7x</text>
 <text x="370" y="156.0" font-size="12" fill="#9a9a9a" text-anchor="end">★★0D 这一层缺的几样 —— 三样里补了两样（2026-…</text>
 <circle cx="572.0" cy="152.0" r="4" fill="#8a8a8a"/>
 <text x="584.0" y="156.0" font-size="11" fill="#8a8a8a">读数：不判</text>
 <text x="370" y="184.0" font-size="12" fill="#9a9a9a" text-anchor="end">热能 W_th 对 METIS（同一组输入）</text>
-<circle cx="572.0" cy="180.0" r="4" fill="#8a8a8a"/>
-<text x="584.0" y="184.0" font-size="11" fill="#8a8a8a">无数值</text>
+<rect x="572.0" y="173.0" width="27.8" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
+<text x="605.8" y="184.0" font-size="11" fill="#e0a030" text-anchor="start">1.95x</text>
 <text x="8" y="232" font-size="10.5" fill="#8a8a8a">★绿而窄（&lt; 2 倍）另着色：它与余量一千倍的判据在表上长得一样，在这里不一样。　生成：tools/benchmark-figures.py</text>
 </svg>

@@ -14,8 +14,8 @@ title: "tr-pedestal-sawtooth-kadomtsev"
 - **量的是**：锯齿崩塌与 Kadomtsev 重分布：**混合是重排，不是抹平**
 - **参考**：它自己混合前的含量积分，以及 Kadomtsev 重联要求的 q = 1
 - **验的需求**：`FR-TR-010` · `NR-TR-001`
-- **跑在内核**：`fylite_kernel@51d34102a406`（新鲜度 **current**）
-- **记录版本**：1.18　**评审**：草稿　**日期**：2026-09-17
+- **跑在内核**：`fylite_kernel@94ca1a29d6ed`（新鲜度 **current**）
+- **记录版本**：1.19　**评审**：草稿　**日期**：2026-09-19
 
 :::{warning} 这是一条**已裁定保留**的缺口
 
@@ -66,12 +66,12 @@ title: "tr-pedestal-sawtooth-kadomtsev"
 
 ## 不可比的部分
 
-- ★★**同时声明 `NR-TR-001`（守恒性），但读者要知道它的另一半**：抄录把 `NR-TR-001` 的判据写作「见 `FR-TR-004`/`FR-TR-010` 判据」。`FR-TR-010` 这一半由本条答（三格全成立）；`FR-TR-004` 那一半由 `tr-closure-15d-source-switches` 与 `tr-closure-dt-burn-astra` 覆盖，而那两条各自**记着 fail**（驱动电流三道恒零 · α 份额偏 1.2 % · α 的 e/i 分配偏高 8.6 %）。★**所以 `NR-TR-001` 不是一句「守恒性成立」**：它的一半干净，另一半带着已记名的缺口。
+- ★★**同时声明 `NR-TR-001`（守恒性），但读者要知道它的另一半**：抄录把 `NR-TR-001` 的判据写作「见 `FR-TR-004`/`FR-TR-010` 判据」。`FR-TR-010` 这一半由本条答（三格全成立）；`FR-TR-004` 那一半由 `tr-closure-15d-source-switches` 与 `tr-closure-dt-burn-astra` 覆盖，那两条 2026-09-19 都已转成立（驱动三道开了源就有数 · α 份额精确等于 Q 值之比 · α 的 e/i 分配 Post 式 1.3 %）。★**所以 `NR-TR-001` 的两半现在都干净**；各自的判据与边界照各记录所记。
 - ★本条的数来自内核自测（`transport::tests`）在 `--nocapture` 下报出的实测值——那两道测试本就存在，本轮只是**让它们把量到的数说出来**：一条只说「过了」的测试，给不了记录一个可以写下来的数。
 
 ## 追溯
 
-- 首次入册 2026-09-17　末次修订 2026-09-19　版本 1.18　评审 草稿
+- 首次入册 2026-09-17　末次修订 2026-09-19　版本 1.19　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -96,12 +96,13 @@ title: "tr-pedestal-sawtooth-kadomtsev"
 | 1.16 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（平衡 / MHD 三条判据补齐入内核：`highbeta::surface_energy_book`、`code/vstab` 新报 `k_identity_filaments`，另加 conformal / stability 的锚；`FR-EQ-024` · `025` · `016`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **809 项全通过**（新锚 4 条）。★缺省路径逐位不变，接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.17 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（线圈表面场收敛入内核：`electromagnetics::surface_field_converged`、`loop_field`，`code/forces` 的 `b_surface` 改用面积分；`FR-EQ-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **812 项全通过**。★只动了 `b_surface`，受力与其余门逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.18 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
+| 1.19 | 2026-09-19 | Claude Opus 5 | `NR-TR-001` 的另一半（FR-TR-004 两条）已转成立，caveat 随之改口。 内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `fylite_kernel@51d34102a406`（库 `sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
+- 内核 `fylite_kernel@94ca1a29d6ed`（库 `sha256:d7bb2708e0594700521df0703ab6345fcb232511e39b652ff061c0ecd69d4119`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

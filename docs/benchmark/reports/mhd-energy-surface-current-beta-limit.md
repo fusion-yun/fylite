@@ -14,8 +14,8 @@ title: "mhd-energy-surface-current-beta-limit"
 - **量的是**：表面电流模型的解析 β 极限：**根是 1.69，而 0.21 属于 1.71**
 - **参考**：Freidberg, *Ideal MHD* (Cambridge, 2014), §12.8, Eqs. (12.154)–(12.166)
 - **验的需求**：`FR-EQ-021`
-- **跑在内核**：`fylite_kernel@51d34102a406`（新鲜度 **current**）
-- **记录版本**：1.12　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`fylite_kernel@94ca1a29d6ed`（新鲜度 **current**）
+- **记录版本**：1.13　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -92,7 +92,7 @@ title: "mhd-energy-surface-current-beta-limit"
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.12　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.13　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -111,12 +111,13 @@ title: "mhd-energy-surface-current-beta-limit"
 | 1.10 | 2026-09-19 | Claude Opus 5 (1M context) | 闭合点那处「不复现」查清了：直接跑上游 fyeq 的 `unstable_band`，1.35 上开（带宽 0.4541，本内核 0.4542）、闭合在 1.321 与 1.322 之间，与本内核的 1.32165 一致；SRS 正文的「≤ 1.35 闭合」是正文的误差，不是实现的。判决不变（成立）。 |
 | 1.11 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（线圈表面场收敛入内核：`electromagnetics::surface_field_converged`、`loop_field`，`code/forces` 的 `b_surface` 改用面积分；`FR-EQ-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **812 项全通过**。★只动了 `b_surface`，受力与其余门逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.12 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
+| 1.13 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 ★本条的判据与数值**未改口径**。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `fylite_kernel@51d34102a406`（库 `sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
+- 内核 `fylite_kernel@94ca1a29d6ed`（库 `sha256:d7bb2708e0594700521df0703ab6345fcb232511e39b652ff061c0ecd69d4119`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

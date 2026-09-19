@@ -14,8 +14,8 @@ title: "tr-paradigm-pereverzev"
 - **量的是**：Pereverzev-Corrigan 稳定化：定态与 d_pc 无关（量到 1.4e-11），而判据要的「裸环停滞对照」在本闭包族上演示不了
 - **参考**：P-C 项在不动点上的恒等对消（解析不变性）
 - **验的需求**：`FR-TR-005`
-- **跑在内核**：`fylite_kernel@51d34102a406`（新鲜度 **current**）
-- **记录版本**：1.23　**评审**：草稿　**日期**：2026-09-16
+- **跑在内核**：`fylite_kernel@94ca1a29d6ed`（新鲜度 **current**）
+- **记录版本**：1.24　**评审**：草稿　**日期**：2026-09-16
 
 ## 问的是什么
 
@@ -68,7 +68,7 @@ title: "tr-paradigm-pereverzev"
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.23　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.24　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -97,12 +97,13 @@ title: "tr-paradigm-pereverzev"
 | 1.21 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（线圈表面场收敛入内核：`electromagnetics::surface_field_converged`、`loop_field`，`code/forces` 的 `b_surface` 改用面积分；`FR-EQ-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **812 项全通过**。★只动了 `b_surface`，受力与其余门逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.22 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
 | 1.23 | 2026-09-19 | Claude Opus 5 | 第三格（裸环停滞对照）转成立：内核 `code/transport` 新增临界梯度闭包 `critical`（阈值之上不封顶）；阈值 × 刚度 12 点裸环全停滞，P-C 救回 9 点，两档 d_pc 同解到 4e-12。`stiff` 族无停滞的读数照留。整体 inconclusive → pass。 |
+| 1.24 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 ★本条的判据与数值**未改口径**。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `fylite_kernel@51d34102a406`（库 `sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
+- 内核 `fylite_kernel@94ca1a29d6ed`（库 `sha256:d7bb2708e0594700521df0703ab6345fcb232511e39b652ff061c0ecd69d4119`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

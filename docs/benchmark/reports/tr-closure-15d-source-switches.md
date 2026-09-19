@@ -2,7 +2,7 @@
 title: "tr-closure-15d-source-switches"
 ---
 
-# 1.5D 演化：加料 / 加热 / 驱动 / 台基 / 锯齿的开关，真的进装配了吗
+# 1.5D 演化：加料 / 加热 / 驱动 / 台基 / 锯齿的开关都进了装配；驱动电流三道开了源就有数
 
 <!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/tr-closure-15d-source-switches.jsonld`，本页只是它的可读面。 -->
 
@@ -10,17 +10,12 @@ title: "tr-closure-15d-source-switches"
 
 ## 摘要
 
-- **类**：验证　**判决**：**未判（读数）**
-- **量的是**：1.5D 演化：加料 / 加热 / 驱动 / 台基 / 锯齿的开关，真的进装配了吗
+- **类**：验证　**判决**：**成立**
+- **量的是**：1.5D 演化：加料 / 加热 / 驱动 / 台基 / 锯齿的开关都进了装配；驱动电流三道开了源就有数
 - **参考**：基线自身（同一算例、只改一个开关）
 - **验的需求**：`FR-TR-004` · `FR-TR-009`
-- **跑在内核**：`fylite_kernel@51d34102a406`（新鲜度 **current**）
-- **记录版本**：1.21　**评审**：草稿　**日期**：2026-09-16
-
-:::{warning} 这是一条**已裁定保留**的缺口
-
-2026-09-16 记名保留（用户裁定「内核欠缺的功能也保留」）：驱动电流三道 `j_bs` / `j_cd` / `j_lh` 在所有变体里恒为零，**驱动源项这一块验不了**。三个产出名字都在，缺的是喂给它们的输入——下一步是造一个带 CD 波源的算例，而不是删掉这条判据。★2026-09-18 门已补上（五道：读数逐位复现 · 每档能量平衡 · 每个控件都活 · 锯齿无电流通道按名拒绝 · ★驱动电流恒零——这一道守的是**负面结果**，哪天接上 CD 波源它会红，那正是该红的时候）。
-:::
+- **跑在内核**：`fylite_kernel@94ca1a29d6ed`（新鲜度 **current**）
+- **记录版本**：1.22　**评审**：草稿　**日期**：2026-09-19
 
 ## 问的是什么
 
@@ -45,17 +40,17 @@ title: "tr-closure-15d-source-switches"
 
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
-| 能量平衡的最劣残差 | 1e-12 | machine_precision | 最劣残差 **1.298e-13**（台基那档；判据 1e-12，余量约 7.7 倍）。★2026-09-18 更正：原记 1.154e-13 是**基线那一档**的，不是全部变体里最劣的 | **成立** |
-| 每个打开的控件，至少改变一项产出（否则它是死的） | 1 | measured_band | 台基 8 项（含 `t_ped`）· 加料 9 项（含 `ne`/`ni`）· DT 7 项 · 电流道 2 项（`q` 0→3.415、`psi` 0→36.57） | **成立** |
+| 能量平衡的最劣残差 | 1e-12 | machine_precision | 最劣残差 **1.347e-13**（DT那档；判据 1e-12）。★2026-09-19 α 份额改后逐档重量：baseline 9.283e-14 · pedestal 9.900e-14 · current 9.283e-14 · density 6.895e-14 · dt_target 1.347e-13。★2026-09-18 更正：原记 1.154e-13 是基线那一档的，不是全部变体里最劣的 | **成立** |
+| 每个打开的控件，至少改变一项产出（否则它是死的） | 1 | measured_band | 台基 8 项（含 `t_ped`）· 加料 9 项（含 `ne`/`ni`）· DT 7 项 · 电流道 2 项（`q` 0→3.416、`psi` 0→36.57） | **成立** |
 | ★锯齿与 ipctl —— **按名拒绝**，并说明依赖 | — | — | `sawtooth=True` 单开被拒：": "the sawtooth needs the current channel: its trigger is q(0) < 1 and q is a result only where current diffusion is solved \u2014 pass `current=True | **成立** |
-| 驱动电流三道（自举 / 外部 CD / LH）是否给得出非零值 | 1 | measured_band | `j_bs` · `j_cd` · `j_lh` 在**所有**变体里绝对值最大均为 0（含开了电流道之后） | **不成立** |
+| 驱动电流三道（自举 / 外部 CD / LH）是否给得出非零值 | 1 | measured_band | 自举（`bootstrap`）：j_bs 峰值 3.499e+05 A/m²；给定 CD `i_cd` 1 MA / 2 MA：j_cd 峰值 1.598e+05 / 3.196e+05 A/m²，沉积积分 ∫j dA 对所给电流 -1.1e-16 / -1.1e-16，2 MA 恰为 1 MA 的两倍；三档能量平衡 9.28e-14。★LH（j_lh）与束的执行器：内核仓 `tests/test_evolve_executors_code.py` 在 EAST g-file 上逐位对上 `code/wave` / `code/beam`。★此前（开关扫描只开电流道、不给源）：三道恒为 0 | **成立** |
 | 算例的默认姿态（读数） | — | — | 基线控件：`pedestal`=False · `current`=False · `ipctl`=False · `sawtooth`=False · `heat`=True · `closure`='constant' · `density`=False · `dt_target`=0.0 · `impurity`='Ne' · `brem`=True · `quasi`=False | **未判（读数）** |
 
 **`能量平衡的最劣残差`** — ★平衡是恒等式，容差取舍入级；它是这一域最硬的一条自证。
 
 **`每个打开的控件，至少改变一项产出（否则它是死的）`** — ★**下限判据**：改变项数 ≥ 1。★这一条守的是「控件接线了」，不是「接得对」。
 
-**`驱动电流三道（自举 / 外部 CD / LH）是否给得出非零值`** — ★★下限判据，且**本算例过不了**：三道恒为零，见 finding。
+**`驱动电流三道（自举 / 外部 CD / LH）是否给得出非零值`** — ★★下限判据：每一道**开了自己的源**之后给得出非零值。★2026-09-19 前这一格判 fail——开关扫描的 `current` 档只打开电流道、不给源，三道恒为零；那是算例的姿态，不是内核的缺口。
 
 **能量平衡闭到舍入**
 
@@ -71,10 +66,11 @@ title: "tr-closure-15d-source-switches"
 - ★★**这是一条好的拒绝，所以记成成立**：它不是默默给个数，而是点名说「锯齿要电流道，它的触发是 q(0) < 1，而 q 只有在解了电流扩散的地方才是结果」。`ipctl=True` 单开同样按名拒绝。
 - ★**一个安静地给出无意义结果的开关，比一个拒绝的开关危险得多**——后者至少让人知道缺什么。
 
-**★★驱动电流三道恒为零 —— **本算例拿不到数****
+**★★驱动电流三道 —— **成立**（2026-09-19）：开了源就有数，给定 CD 的沉积积分闭合到舍入**
 
-- ★★所以「驱动源项」这一块在本算例的配置下**验不了**：自举电流没有产出，外部 CD 与 LH 也没有源。这不等于内核没有这三道——`j_bs` / `j_cd` / `j_lh` 三个产出**名字都在**，只是本算例没有给它们输入（`closure='constant'`，无 CD 波源）。
-- ★2026-09-16 用户裁定「内核欠缺的功能也保留」：判据立在这里，**下一步是造一个带 CD 源的算例把它喂起来**，而不是把这条判据删掉。
+- ★★**此前「恒为零」的原因**：开关扫描的 `current` 档只打开电流扩散，没有给任何一道**源**——`bootstrap`、`i_cd`、LH 功率都是各自的输入。那一档的零现在仍然是零（门照守），它说明的是「开了道不给源就没有电流」，不是「没有这三道」。
+- ★2026-09-16 的裁定是「内核欠缺的功能也保留」、下一步「造一个带 CD 源的算例」；这一次造的就是它：`tools/benchmark-evolve15.py` 的 `DRIVEN` 三档，读数 `evolve15_driven_currents.json`。
+- ★本格判的是**接线**（源进了装配、积分守恒），不是**物理**：自举系数、CD 效率对外部参照的比较在 `tr-closure` 域的别的记录里。
 
 **算例的默认姿态（读数）**
 
@@ -83,12 +79,12 @@ title: "tr-closure-15d-source-switches"
 ## 不可比的部分
 
 - ★★**本条验的是「接线了」，不是「接得对」**：一个开关改变了产出，只说明它进了装配，不说明它算的物理对。后者要外部参考——那是 `tr-closure` 域里另外几条记录的事。
-- ★**整体判 inconclusive**：平衡与四个开关都成立，但驱动三道拿不到数（判 fail），而锯齿只能间接验（它依赖电流道）。有一条验不了，整体就不该给干脆的判决。
+- ★**整体判 pass**（2026-09-19 由 inconclusive 改）：平衡、四个开关、驱动三道都成立；锯齿按名拒绝（它依赖电流道），另有一档间接验。
 - ★**哪些量是喂进去的**：几何、Ip、边界值、加热功率与沉积、杂质种类与浓度全是输入；算出来的是剖面演化、平衡残差与各源项的空间分布。
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.21　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.22　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -115,25 +111,29 @@ title: "tr-closure-15d-source-switches"
 | 1.19 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（平衡 / MHD 三条判据补齐入内核：`highbeta::surface_energy_book`、`code/vstab` 新报 `k_identity_filaments`，另加 conformal / stability 的锚；`FR-EQ-024` · `025` · `016`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **809 项全通过**（新锚 4 条）。★缺省路径逐位不变，接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.20 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（线圈表面场收敛入内核：`electromagnetics::surface_field_converged`、`loop_field`，`code/forces` 的 `b_surface` 改用面积分；`FR-EQ-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **812 项全通过**。★只动了 `b_surface`，受力与其余门逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.21 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
+| 1.22 | 2026-09-19 | Claude Opus 5 | ★驱动电流一格转成立（原 open_defect「内核欠缺的功能也保留」关闭：缺的是算例的源，不是内核）：自举非零、给定 CD 1 / 2 MA 沉积积分闭合到 1e-16。α 份额改后逐档重量，最劣平衡残差换到 DT 那档 1.347e-13。四份读数由新工具 `tools/benchmark-evolve15.py` 重生成。整体 inconclusive → pass。 内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `fylite_kernel@51d34102a406`（库 `sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
+- 内核 `fylite_kernel@94ca1a29d6ed`（库 `sha256:d7bb2708e0594700521df0703ab6345fcb232511e39b652ff061c0ecd69d4119`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
-- `docs/benchmark/readings/evolve15_switch_sweep.json`    `sha256:2dc268fe0c7bc0557155f3671d85c5ba1bc977e333329446158e964be3f79023`    开关扫描：基线 + 五个变体，逐量对比
-- `docs/benchmark/readings/evolve15_sources_pedestal.json`    `sha256:48f9a5f69f817ae07f3192fbd23ccfe1d2ae6fd5c17b5e82a03dc7531762c93e`    基线一次运行的源项逐项、台基与平衡读数
+- `docs/benchmark/readings/evolve15_switch_sweep.json`    `sha256:053e3b64fa3025394f382a44f7c43a0c05596e4c68635da2d2cb5f969c80597e`    开关扫描：基线 + 五个变体，逐量对比；2026-09-19 由 tools/benchmark-evolve15.py 在新内核上重生成
+- `docs/benchmark/readings/evolve15_sources_pedestal.json`    `sha256:e7c86b4e829b9e2cdf2e98a893b7ebea4788b2d3d91987e02cf0f45a22cd0686`    基线一次运行的源项逐项、台基与平衡读数；2026-09-19 同上重生成
+- `docs/benchmark/readings/evolve15_driven_currents.json`    `sha256:042952bfa7b486734d51eccbc2c132760e1f5ab4f2a53ff5bc55705b09415598`    ★驱动三道各开自己的源（自举 · 给定 CD 1 MA / 2 MA）；tools/benchmark-evolve15.py 生成
+- `tools/benchmark-evolve15.py`    `sha256:172210dc9d62dde435d752f29b0fcacd15c17f9ee5d80003c7d65222499038d4`    ★四份读数的生成器（2026-09-19 补进；此前读数由一次性脚本量）
 
 **守它的门**：
 
 - `python/tests/test_benchmark_transport_gates.py::test_the_switch_sweep_reproduces_its_recorded_readings` —— 五档里可跑的四档 + 基线，p_alpha 与读数逐位相同
-- `python/tests/test_benchmark_transport_gates.py::test_the_energy_balance_holds_on_every_variant` —— 第一格：按全部变体判，最劣是台基那档
+- `python/tests/test_benchmark_transport_gates.py::test_the_energy_balance_holds_on_every_variant` —— 第一格：按全部变体判，并逐档对上读数
 - `python/tests/test_benchmark_transport_gates.py::test_every_opened_switch_moves_at_least_one_output` —— 第二格：打开的控件至少动一项产出
 - `python/tests/test_benchmark_transport_gates.py::test_the_sawtooth_is_refused_without_the_current_channel` —— 锯齿那一档当初就是按名拒绝的，现在仍是
-- `python/tests/test_benchmark_transport_gates.py::test_the_driven_currents_are_still_zero` —— ★第三格：守的是记名的负面结果
+- `python/tests/test_benchmark_transport_gates.py::test_the_current_switch_alone_feeds_the_driven_channels_nothing` —— 开关扫描的 current 档只开道不给源：三道仍为零（算例姿态）
+- `python/tests/test_benchmark_transport_gates.py::test_the_driven_currents_answer_when_their_sources_are_given` —— ★第三格：自举非零、CD 沉积积分闭合、线性，逐位对上读数
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

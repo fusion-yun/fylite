@@ -75,15 +75,15 @@
   ],
   "kernel": {
    "name": "fylite_kernel",
-   "commit": "<内核仓的 git 提交，40 位>",
-   "library_sha256": "sha256:…（可选，只记不判）",
-   "comment": "★这次验证跑在哪个内核提交上。状态页拿它与 `meta/kernel.json` 的基准提交比——不一致即**过期**，等着重跑。"
+   "commit": "94ca1a29d6edc790945673601bcfe9762bcb3526",
+   "library_sha256": "sha256:d7bb2708e0594700521df0703ab6345fcb232511e39b652ff061c0ecd69d4119",
+   "comment": "与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "YYYY-MM-DD",
-  "revised": "YYYY-MM-DD",
+  "revised": "2026-09-19",
   "review_status": "draft | reviewed | superseded",
   "reviewer": [
    {
@@ -99,6 +99,12 @@
     "date": "YYYY-MM-DD",
     "by": "谁",
     "summary": "首次入册"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5",
+    "summary": "内核换代后的全册重验：内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 ★本条的判据与数值**未改口径**。"
    }
   ]
  }

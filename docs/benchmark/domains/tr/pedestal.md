@@ -14,6 +14,12 @@ title: "台基、锯齿与 0D 存量"
 上一册把这条判据挂在 `B-01`（FUSE ITER）上正是为此。**一个不报错的外推是本册最该防的
 那类错。**
 
+★2026-09-19 这条判据有了自己的记录（`tr-pedestal-eped-feedback`）：内核的 EPED1-NN 对 EPEDNN.jl
+三台装置 27 个数逐位到 $8.9\times10^{-16}$；台基反馈在 ITER 15 MA 的 1.5D 演化里推 1000 步，末步
+相对步长 $7\times10^{-8}$——滞后一步的反馈，这就是边界离 EPED-NN 目标的距离。★判收敛时**关了 α**：
+定 $\chi$ 下开 α 会热失控，没有不动点；而开 α 那一档恰好演示了上面那条警告——状态被推出训练箱，
+NN 不报错、照样给数，内核把外推度报出来（0.53），门钉住它必须被报出来。
+
 锯齿的判据是守恒：Kadomtsev 重分布前后含量守恒到 $10^{-12}$，外加 $\psi$ 态的 $q$ 判据。
 守恒这一条不需要外部参考，是自证；而且它对"重分布写错了"极其敏感。
 
@@ -21,7 +27,7 @@ title: "台基、锯齿与 0D 存量"
 `FR-ENG-003`，而 SRS-04 的验证矩阵里**没有给它判据行**——这是上游的缺口，在下面的生成块里
 如实标着，等它补。
 
-★对 METIS 的那条记录判不成立，**2026-09-18 已归因到公式一级**：读 METIS 的 `zgeo0.m` 与认证 .mat，它的体积就是它那条边界围出来的体积——有分离面就积分离面（20 个算例），没有就积带三角度的 D 形（8 个），84 个时刻全部复现；0D 当时用的是 $2\pi^2Ra^2\kappa$，于是 ITER 一族一律高 2.84–2.87 %，差的正是三角形变那一块。★★**同日缺口补上**：0D 改用同一条 D 形的体积（`code/zerod` 的新设定 `delta`，不给即椭圆、逐位），四点对 METIS +0.08 / −0.05 / −0.20 / +0.08 %，体积一格转成立；剩下的 ±0.2 % 是 METIS 的分离面与 D 形之差。★把约定对齐之后再量 $W_{th}$（体平均换成 0D 轴值、峰化拟合到 METIS 剖面）：对上到 ±0.2 %，**但那是相消**——0D 不计稀释（+2.5…+3.5 %）与 0D 的体平均按椭圆几何加权（+2.2…+6.8 %）互相抵掉；轴值差恰是那一处加权之差。★2026-09-19 稀释补上（`code/zerod` 的 `z_imp` / `z_imp2` / `r_imp2`，n_i/n_e 与 METIS 同为 0.9046）：相消拆掉之后 W 剩 −2.4…−3.4 %，就是 0D 体平均的椭圆加权——那一处要 $dV/d\rho$ 模型，留给 1.5D。★热能 $W_{th}$ 判不了：0D 的 `ne_flattop` / `te_flattop` 是轴值，而喂进去的是 METIS 的体平均——喂体平均偏 −64…−69 %、喂轴值偏 +29…+80 %，落在哪由峰化指数定，不由能量账定。★存量账不可比：两边的「抽气」不是同一个量（METIS 把再循环折进了损失时间，源是内部反馈、不存盘）。
+★对 METIS 的那条记录判不成立，**2026-09-18 已归因到公式一级**：读 METIS 的 `zgeo0.m` 与认证 .mat，它的体积就是它那条边界围出来的体积——有分离面就积分离面（20 个算例），没有就积带三角度的 D 形（8 个），84 个时刻全部复现；0D 当时用的是 $2\pi^2Ra^2\kappa$，于是 ITER 一族一律高 2.84–2.87 %，差的正是三角形变那一块。★★**同日缺口补上**：0D 改用同一条 D 形的体积（`code/zerod` 的新设定 `delta`，不给即椭圆、逐位），四点对 METIS +0.08 / −0.05 / −0.20 / +0.08 %，体积一格转成立；剩下的 ±0.2 % 是 METIS 的分离面与 D 形之差。★把约定对齐之后再量 $W_{th}$（体平均换成 0D 轴值、峰化拟合到 METIS 剖面）：对上到 ±0.2 %，**但那是相消**——0D 不计稀释（+2.5…+3.5 %）与 0D 的体平均按椭圆几何加权（+2.2…+6.8 %）互相抵掉；轴值差恰是那一处加权之差。★2026-09-19 稀释补上（`code/zerod` 的 `z_imp` / `z_imp2` / `r_imp2`，n_i/n_e 与 METIS 同为 0.9046）：相消拆掉之后 W 剩 −2.4…−3.4 %，就是 0D 体平均的椭圆加权。★★同日体平均的权重也补上（用户选 b）：`code/zerod` 收一条平衡的 $dV/d\rho$（`dvolume_drho_tor`，只当权重），或用 `kappa_axis` / `shift_axis` 走嵌套 D 形面（METIS `gg0d.m` 同一个雅可比）；都不给仍是 $2\rho$、逐位。绑 METIS 自己的 vpr 之后 $W_{th}$ 对 METIS +0.3…+1.0 %、轴值 ≤ 1.3 %，剩下的只有幂律剖面形状，**$W_{th}$ 与轴值两格转成立**；D 形面只收窄到 −0.2…−1.6 %——低阶 $\kappa(x)$ 追不上 METIS 那条非单调的 $\kappa(x)$，没有平衡时 0D 仍带 1–2 % 的权重残差。★喂体平均进轴值槽的那种比法（偏 −64…−69 % / 喂轴值 +29…+80 %）量的是峰化约定，不判。★存量账不可比：两边的「抽气」不是同一个量（METIS 把再循环折进了损失时间，源是内部反馈、不存盘）。
 
 上一册这一域有 `B-01`（FUSE ITER，台基外推）、`C-09`（ITPA TC33）。已退役。
 
@@ -51,8 +57,9 @@ title: "台基、锯齿与 0D 存量"
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-pedestal-sawtooth-kadomtsev`](../../reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 | 它自己混合前的含量积分，以及 Kadomtsev 重联要求的 q = 1 | 1.18 | 草稿 | [jsonld](../../records/tr-pedestal-sawtooth-kadomtsev.jsonld) |
-| [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 未判（读数） | METIS | 1.24 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
+| [`tr-pedestal-eped-feedback`](../../reports/tr-pedestal-eped-feedback.md) | 验证 | 成立 | EPEDNN.jl · 反馈的不动点：下一步的 EPED-NN 目标等于本步的边界 | 1.0 | 草稿 | [jsonld](../../records/tr-pedestal-eped-feedback.jsonld) |
+| [`tr-pedestal-sawtooth-kadomtsev`](../../reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 | 它自己混合前的含量积分，以及 Kadomtsev 重联要求的 q = 1 | 1.19 | 草稿 | [jsonld](../../records/tr-pedestal-sawtooth-kadomtsev.jsonld) |
+| [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 成立 | METIS | 1.25 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
 
 ### 覆盖它的记录在别的域
 

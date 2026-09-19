@@ -985,5 +985,134 @@
   ],
   "reading": "W 对上到 ±0.2 %，但那是三个 2–7 % 的效应相消：0D 不计稀释（n_i = n_e，+2.5…+3.5 %）、0D 的体平均按 dV ∝ 2ρ dρ（椭圆几何）而 METIS 的 dV/dρ 往外偏（x = 0.5 处只有 0.88–0.91）、以及幂律剖面形状。轴值差 −2.5 % / −6…−7 % 恰是那一处加权之差（−2.2 % / −5.0…−6.4 %）。不能记成立",
   "diluted_reading": "2026-09-19 计稀释之后（METIS 自己的 Zeff 与 C 6 + Ar 18 × 0.06）：W 的剩余偏差是体平均加权与幂律形状两项之和——稀释那一项拿掉了，剩下的就是那两处。"
+ },
+ "w_th_weighted": {
+  "_comment": "2026-09-19 FR-TR-014 b：0D 体平均的权重三种取法（METIS 自己的 21 点网格、计稀释、约定对齐，轴值按各自的权重从 METIS 体平均换算）——circular 即 2ρ（旧）；shaped 为嵌套 D 形面，κ(0) 与 Shafranov 位移取 METIS 自己的；bound 为绑 METIS 自己的 vpr。★bound 的剩余就是幂律剖面形状一项。生成：tools/benchmark-zerod-weight.py reading",
+  "points": [
+   {
+    "case": "ITER_rampup_ECCD",
+    "t_s": 45.6552,
+    "n_rho": 21,
+    "shape": {
+     "kappa_axis": 1.412512536330813,
+     "shift_axis_m": 0.12455391038747589,
+     "source": "METIS post.profil0d.kx(:, 1) · post.zerod.d0 (certification archive)"
+    },
+    "circular": {
+     "w_rel": -0.012764598575804012,
+     "fed": {
+      "ne_axis": 1.918815576902732e+19,
+      "te_axis_keV": 15.848069137269048
+     }
+    },
+    "shaped": {
+     "w_rel": -0.0015059356789338854,
+     "fed": {
+      "ne_axis": 1.9467496385747476e+19,
+      "te_axis_keV": 16.697454017863862
+     }
+    },
+    "bound": {
+     "w_rel": 0.010270091210439323,
+     "fed": {
+      "ne_axis": 1.964217144946139e+19,
+      "te_axis_keV": 16.694177089659473
+     }
+    }
+   },
+   {
+    "case": "ITER_rampup_ECCD",
+    "t_s": 62.6379,
+    "n_rho": 21,
+    "shape": {
+     "kappa_axis": 1.4597588346332648,
+     "shift_axis_m": 0.11988311346567507,
+     "source": "METIS post.profil0d.kx(:, 1) · post.zerod.d0 (certification archive)"
+    },
+    "circular": {
+     "w_rel": -0.016601056123109012,
+     "fed": {
+      "ne_axis": 2.5617541451448955e+19,
+      "te_axis_keV": 14.187492079212529
+     }
+    },
+    "shaped": {
+     "w_rel": -0.007001494858544231,
+     "fed": {
+      "ne_axis": 2.5939476716443714e+19,
+      "te_axis_keV": 14.816220543300819
+     }
+    },
+    "bound": {
+     "w_rel": 0.008406789062722533,
+     "fed": {
+      "ne_axis": 2.6271509765467226e+19,
+      "te_axis_keV": 14.985898528749729
+     }
+    }
+   },
+   {
+    "case": "ITER_rampup_ECCD",
+    "t_s": 83.0172,
+    "n_rho": 21,
+    "shape": {
+     "kappa_axis": 1.5108250769579419,
+     "shift_axis_m": 0.11607008009569487,
+     "source": "METIS post.profil0d.kx(:, 1) · post.zerod.d0 (certification archive)"
+    },
+    "circular": {
+     "w_rel": -0.023192990600660365,
+     "fed": {
+      "ne_axis": 3.327062023655538e+19,
+      "te_axis_keV": 11.644058761843233
+     }
+    },
+    "shaped": {
+     "w_rel": -0.015643320913876435,
+     "fed": {
+      "ne_axis": 3.3621515995922526e+19,
+      "te_axis_keV": 12.033580177603168
+     }
+    },
+    "bound": {
+     "w_rel": 0.0031633854395251224,
+     "fed": {
+      "ne_axis": 3.42221224750591e+19,
+      "te_axis_keV": 12.385031652339107
+     }
+    }
+   },
+   {
+    "case": "ITER_rampup_ECCD_expo_inte",
+    "t_s": 45.6552,
+    "n_rho": 21,
+    "shape": {
+     "kappa_axis": 1.445216744160224,
+     "shift_axis_m": 0.12540753404360536,
+     "source": "METIS post.profil0d.kx(:, 1) · post.zerod.d0 (certification archive)"
+    },
+    "circular": {
+     "w_rel": -0.01468475924488481,
+     "fed": {
+      "ne_axis": 1.9159861576668054e+19,
+      "te_axis_keV": 15.84026437678453
+     }
+    },
+    "shaped": {
+     "w_rel": -0.005998620135965579,
+     "fed": {
+      "ne_axis": 1.937502767559169e+19,
+      "te_axis_keV": 16.490797403938124
+     }
+    },
+    "bound": {
+     "w_rel": 0.009824008929660052,
+     "fed": {
+      "ne_axis": 1.9641426775488926e+19,
+      "te_axis_keV": 16.730370230350026
+     }
+    }
+   }
+  ]
  }
 }

@@ -137,7 +137,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-TR-003` | MUST | 输运系数插件族与统一无量纲前端 | [`tr-closure-plugin-dispatch`](reports/tr-closure-plugin-dispatch.md) | 验证 | 成立 |
-| `FR-TR-004` | MUST | 源项插件族与 exp / imp 契约 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) · [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | 验证 · 对拍 | 未判（读数） · 未判（读数） |
+| `FR-TR-004` | MUST | 源项插件族与 exp / imp 契约 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) · [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | 验证 · 对拍 | 成立 · 成立 |
 | `NR-TR-003` | MUST | 插件接入 | [`tr-closure-lazy-plugin-resolution`](reports/tr-closure-lazy-plugin-resolution.md) | 验证 | 成立 |
 
 ## 输运 (Transport) · 求解范式：刚性稳定化与稳态通量匹配
@@ -157,9 +157,9 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-TR-009` | MUST | 连续台基模型 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | 验证 | 未判（读数） |
+| `FR-TR-009` | MUST | 连续台基模型 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) · [`tr-pedestal-eped-feedback`](reports/tr-pedestal-eped-feedback.md) | 验证 · 验证 | 成立 · 成立 |
 | `FR-TR-010` | MUST | 锯齿触发与 Kadomtsev 重分布 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 |
-| `FR-TR-014` | MUST | 0D 存量守恒（加料 / 抽气 / 衰变） | [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 未判（读数） |
+| `FR-TR-014` | MUST | 0D 存量守恒（加料 / 抽气 / 衰变） | [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 成立 |
 
 ## 输运 (Transport) · 双模、平衡耦合与代理栈
 

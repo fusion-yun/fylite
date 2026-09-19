@@ -14,8 +14,8 @@ title: "eq-surface-mxh-gfile-fit"
 - **量的是**：MXH 边界拟合：**残差不是散开的，它堆在 X 点上**
 - **参考**：闭式 —— 圆的精确退化与一个已知 MXH 形的原样回收 · 本机拿得到的 g-file 边界
 - **验的需求**：`FR-EQ-013`
-- **跑在内核**：`fylite_kernel@51d34102a406`（新鲜度 **current**）
-- **记录版本**：1.15　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`fylite_kernel@94ca1a29d6ed`（新鲜度 **current**）
+- **记录版本**：1.16　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -83,7 +83,7 @@ title: "eq-surface-mxh-gfile-fit"
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.15　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.16　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -105,12 +105,13 @@ title: "eq-surface-mxh-gfile-fit"
 | 1.13 | 2026-09-19 | Claude Opus 5 (1M context) | 7 机型齐了（加 JT-60SA 设计平衡与 NSTX，后者从 ψ 图在 ψ_N = 0.999 重描、记明）；第三格按判据自己的 RMS（上游 `fit_diagnostics`：到 MXH 曲线的最近距离）判，17 份全在 2.4 % 带内、DIII-D 1.57 %——此前的「DIII-D 刚出带」是拿本仓更严的同 θ R 向 RMS 去判，两把尺并列记。整体 inconclusive → pass。 |
 | 1.14 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（线圈表面场收敛入内核：`electromagnetics::surface_field_converged`、`loop_field`，`code/forces` 的 `b_surface` 改用面积分；`FR-EQ-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **812 项全通过**。★只动了 `b_surface`，受力与其余门逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.15 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
+| 1.16 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 ★本条的判据与数值**未改口径**。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `fylite_kernel@51d34102a406`（库 `sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
+- 内核 `fylite_kernel@94ca1a29d6ed`（库 `sha256:d7bb2708e0594700521df0703ab6345fcb232511e39b652ff061c0ecd69d4119`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

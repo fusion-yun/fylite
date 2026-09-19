@@ -89,8 +89,8 @@ $\alpha=0$ 时它**逐位**是 1；$\alpha_c(s)$ 单调升，$s=1$ 处 0.6086（
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`mhd-analytic-ballooning-first-stability`](../../reports/mhd-analytic-ballooning-first-stability.md) | 验证 | 成立 | s-α 模型的教科书性质（Connor · Hastie · Taylor 1978） | 1.11 | 草稿 | [jsonld](../../records/mhd-analytic-ballooning-first-stability.jsonld) |
-| [`mhd-analytic-external-kink-qlimit`](../../reports/mhd-analytic-external-kink-qlimit.md) | 验证 | 成立 | 均匀电流柱的闭式带边 | 1.12 | 草稿 | [jsonld](../../records/mhd-analytic-external-kink-qlimit.jsonld) |
+| [`mhd-analytic-ballooning-first-stability`](../../reports/mhd-analytic-ballooning-first-stability.md) | 验证 | 成立 | s-α 模型的教科书性质（Connor · Hastie · Taylor 1978） | 1.12 | 草稿 | [jsonld](../../records/mhd-analytic-ballooning-first-stability.jsonld) |
+| [`mhd-analytic-external-kink-qlimit`](../../reports/mhd-analytic-external-kink-qlimit.md) | 验证 | 成立 | 均匀电流柱的闭式带边 | 1.13 | 草稿 | [jsonld](../../records/mhd-analytic-external-kink-qlimit.jsonld) |
 
 ### 缺口
 

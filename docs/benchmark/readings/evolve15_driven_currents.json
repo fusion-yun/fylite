@@ -1,0 +1,29 @@
+{
+ "what": "驱动电流三道各开自己的源：自举（bootstrap）· 给定 CD（i_cd，沉积积分闭合）；束与 LH 的执行器由内核仓 tests/test_evolve_executors_code.py 在 EAST g-file 上逐位对上 code/beam / code/wave",
+ "runs": {
+  "bootstrap": {
+   "j_bs": 349914.8864761232,
+   "j_cd": 0.0,
+   "j_lh": 0.0,
+   "balance_worst": 9.282952095713986e-14
+  },
+  "i_cd_1MA": {
+   "j_bs": 0.0,
+   "j_cd": 159787.6613240196,
+   "j_lh": 0.0,
+   "balance_worst": 9.282952095713986e-14,
+   "i_cd_requested_A": 1000000.0,
+   "i_cd_integrated_A": 999999.9999999999,
+   "i_cd_rel_error": -1.1102230246251565e-16
+  },
+  "i_cd_2MA": {
+   "j_bs": 0.0,
+   "j_cd": 319575.3226480392,
+   "j_lh": 0.0,
+   "balance_worst": 9.282952095713986e-14,
+   "i_cd_requested_A": 2000000.0,
+   "i_cd_integrated_A": 1999999.9999999998,
+   "i_cd_rel_error": -1.1102230246251565e-16
+  }
+ }
+}

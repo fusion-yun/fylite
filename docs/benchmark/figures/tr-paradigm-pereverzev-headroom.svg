@@ -22,7 +22,7 @@
 <rect x="572.0" y="89.0" width="288.0" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
 <text x="866.0" y="100.0" font-size="11" fill="#2e9e4f" text-anchor="start">1.01e+03x</text>
 <text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">判据的对照项：刚性闭包下裸环停滞（顶到 max_inner…</text>
-<line x1="380.0" y1="124.0" x2="572.0" y2="124.0" stroke="#d64545" stroke-width="7" stroke-linecap="round" opacity="0.85"/>
-<text x="384.0" y="116.0" font-size="11" fill="#d64545">实测为零（下限判据）</text>
+<rect x="572.0" y="117.0" width="103.6" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
+<text x="681.6" y="128.0" font-size="11" fill="#2e9e4f" text-anchor="start">12x</text>
 <text x="8" y="176" font-size="10.5" fill="#8a8a8a">★绿而窄（&lt; 2 倍）另着色：它与余量一千倍的判据在表上长得一样，在这里不一样。　生成：tools/benchmark-figures.py</text>
 </svg>

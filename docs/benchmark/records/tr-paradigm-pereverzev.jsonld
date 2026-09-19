@@ -151,13 +151,13 @@
   ],
   "kernel": {
    "name": "fylite_kernel",
-   "commit": "51d34102a40619a45c8d5d15e74d49bf8a293c28",
-   "library_sha256": "sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6",
+   "commit": "94ca1a29d6edc790945673601bcfe9762bcb3526",
+   "library_sha256": "sha256:d7bb2708e0594700521df0703ab6345fcb232511e39b652ff061c0ecd69d4119",
    "comment": "与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。"
   }
  },
  "provenance": {
-  "record_version": "1.23",
+  "record_version": "1.24",
   "recorded": "2026-09-16",
   "revised": "2026-09-19",
   "review_status": "draft",
@@ -299,6 +299,12 @@
     "date": "2026-09-19",
     "by": "Claude Opus 5",
     "summary": "第三格（裸环停滞对照）转成立：内核 `code/transport` 新增临界梯度闭包 `critical`（阈值之上不封顶）；阈值 × 刚度 12 点裸环全停滞，P-C 救回 9 点，两档 d_pc 同解到 4e-12。`stiff` 族无停滞的读数照留。整体 inconclusive → pass。"
+   },
+   {
+    "record_version": "1.24",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5",
+    "summary": "内核换代后的全册重验：内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 ★本条的判据与数值**未改口径**。"
    }
   ]
  }

@@ -15,7 +15,7 @@
   * `fylite.nn` 的内置目录指着 09-01 就改名掉的 `nn_tables/`，干净检出里一个模型都找不到
     （已修，见 `nn.py` 的 `BUILTIN_DIR`）；
   * α 份额偏 +1.23 % 的成因：`zerod.rs` 写死 `E_ALPHA_FRACTION = 0.2013`，与它自己的注释
-    `3.52/17.59` 差 +0.59 %——与工作点无关，是一个常数；
+    `3.52/17.59` 差 +0.59 %——与工作点无关，是一个常数（2026-09-19 已改为 3.52/17.59 本身）；
   * 1.5D 开关扫描记的「最劣能量平衡残差 1.154e-13」只是基线那一档的，全部变体里最劣的是
     台基那档 1.298e-13。
 """
@@ -182,7 +182,10 @@ def test_the_energy_balance_holds_on_every_variant(sweep):
     """
     worst = {n: _absmax(r["balance_worst"]) for n, r in sweep["runs"].items()}
     assert max(worst.values()) < 1e-12, worst
-    assert max(worst, key=worst.get) == "pedestal", worst
+    #: ★哪一档最劣随内核动（2026-09-19 α 份额改后不再是台基那档）——门判全部变体，并逐档对上读数
+    want = _read("evolve15_switch_sweep.json")["variants"]
+    for n, w in worst.items():
+        assert w == want[n]["balance_worst"], (n, w, want[n]["balance_worst"])
 
 
 def test_every_opened_switch_moves_at_least_one_output(sweep):
@@ -203,31 +206,68 @@ def test_the_sawtooth_is_refused_without_the_current_channel(sweep):
     assert "current" in str(e.value), str(e.value)
 
 
-def test_the_driven_currents_are_still_zero(sweep):
-    """★★**记名的缺口**：驱动电流三道在所有变体里恒为零。
-
-    这道门守的是一个**负面结果**：本册判这一格 inconclusive，因为量不到。
-    ★哪天有人给 1.5D 接上了 CD 波源，这道门会红——**那正是它该红的时候**：
-    记录要跟着改，从「量不到」变成真量一次。
-    """
+def test_the_current_switch_alone_feeds_the_driven_channels_nothing(sweep):
+    """★开关扫描里的 `current` 档只**打开**电流道，不给源——所以三道在那一档仍是零。
+    这是算例的姿态，不是缺口：给了源的那一次见下一道门。"""
     for name, r in sweep["runs"].items():
         for k in ("j_bs", "j_cd", "j_lh"):
             assert _absmax(r[k]) == 0.0, (name, k, _absmax(r[k]))
 
 
+def _evolve15_tool():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("bev15", ROOT / "tools" / "benchmark-evolve15.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_the_driven_currents_answer_when_their_sources_are_given(sweep):
+    """★★FR-TR-004（2026-09-19 转成立）：驱动电流三道**各开自己的源**就有数——自举给非零 j_bs；
+    给定 CD 的沉积积分闭合到舍入（1 MA / 2 MA 两档）。★此前「恒为零」是因为开关扫描只开了电流道、没给源。
+    ★束与 LH 执行器的逐位对拍在内核仓 `tests/test_evolve_executors_code.py`（EAST g-file）。门从公开入口重算，逐位对上读数。"""
+    got = _evolve15_tool().driven_currents(sweep["M"], sweep["base"])["runs"]
+    want = _read("evolve15_driven_currents.json")["runs"]
+    assert got == want
+    assert want["bootstrap"]["j_bs"] > 1e5 and want["bootstrap"]["j_cd"] == 0.0
+    for name in ("i_cd_1MA", "i_cd_2MA"):
+        assert abs(want[name]["i_cd_rel_error"]) < 1e-12, want[name]
+        assert want[name]["j_cd"] > 0.0 and want[name]["balance_worst"] < 1e-12
+    #: 线性：2 MA 的峰值恰是 1 MA 的两倍
+    assert want["i_cd_2MA"]["j_cd"] == pytest.approx(2.0 * want["i_cd_1MA"]["j_cd"], rel=1e-12)
+
+
+# ═══════════════════════════════════════════════════ tr-pedestal-eped-feedback · FR-TR-009
+
+def test_the_pedestal_feedback_settles_on_the_eped_target(sweep):
+    """★★FR-TR-009：台基反馈（EPED1-NN 每步定下一步的边界，滞后一步）推到收敛。
+
+    滞后一步，所以末步的相对步长**就是**「边界离 EPED-NN 目标还有多远」——收敛到目标即它趋零。
+    ★α 关（定 χ 下开 α 会热失控，没有不动点可到）：末步 < 1e-6，且 NN 输入始终在训练箱内（外推 0）。
+    ★α 开那一档照录为读数：状态被推出训练箱（外推 > 0）——正是本域开篇说的「不报错的外推」，门钉住它照实报出来。
+    门从公开入口重跑，逐位对上读数。
+    """
+    tool = _evolve15_tool()
+    got = tool.pedestal_feedback(sweep["M"], sweep["base"])
+    want = _read("pedestal_eped_feedback.json")
+    assert got["runs"] == want["runs"]
+    off, on = want["runs"]["alpha_off"], want["runs"]["alpha_on"]
+    assert off["rel_step_last"] < 1e-6 and off["rel_step_last"] < off["rel_step_mid"], off
+    assert off["ped_extrapolation"] == 0.0, off
+    assert on["ped_extrapolation"] > 0.0 and on["rel_step_last"] > 1e-4, on
+
+
 # ═════════════════════════════════════════════════ tr-closure-dt-burn-astra · FR-TR-004
 
-#: 内核的常数（`zerod.rs::E_ALPHA_FRACTION`）与两个参照
-_ALPHA_FRACTION = 0.2013
+#: 内核的常数（`zerod.rs::E_ALPHA_FRACTION`）：α 与 DT 反应的 Q 值之比本身（2026-09-19 由 0.2013 改）
+_ALPHA_FRACTION = 3.52 / 17.59
 
 
-def test_the_alpha_share_is_the_hardcoded_constant_at_every_operating_point():
-    """★★α 份额在差得很远的工作点上都**恰好**是 0.2013 —— 它是一个写死的常数。
+def test_the_alpha_share_is_the_q_value_ratio_at_every_operating_point():
+    """★★α 份额在差得很远的工作点上都**恰好**是 3.52/17.59——α 的 Q 值对反应的 Q 值。
 
-    ★这条门把记录里那句「α 份额偏 +1.23 %，而分支比是常数、本该到舍入——等内核查」
-    **答上了**：偏差来自 `E_ALPHA_FRACTION = 0.2013`，与它自己的注释 `3.52/17.59`
-    差 +0.59 %，与本册参照 `3.5/17.6` 差 +1.23 %。★这条记录挂着「不改内核、保留负面结果」
-    的裁定，所以常数不动——门钉住它，**常数一动门就红**，记录得跟着改。
+    ★此前是写死的 0.2013（与它自己的注释 `3.52/17.59` 差 +0.59 %），这道门那时钉的是那个常数、
+    挂着「常数一动门就红」。用户 2026-09-19「close FR-TR-*」之后常数改成比值本身，门跟着改。
     """
     M = _model()
     for ne, te in ((1e20, 20.0), (6e19, 12.0), (1.2e20, 28.0)):
@@ -236,11 +276,12 @@ def test_the_alpha_share_is_the_hardcoded_constant_at_every_operating_point():
         assert share == pytest.approx(_ALPHA_FRACTION, rel=1e-12), (ne, te, share)
 
 
-def test_the_alpha_share_offsets_are_the_recorded_ones():
-    """★两个偏差都是从同一个常数算出来的——钉住它们，是钉住「偏差的成因」。"""
-    assert _ALPHA_FRACTION / (3.52 / 17.59) - 1.0 == pytest.approx(5.928125e-3, rel=1e-9)
-    rec = _read("dt_burn_astra_metrics.json")["compare"]["alpha_share_vs_3p5_over_17p6"]
-    assert _ALPHA_FRACTION / (3.5 / 17.6) - 1.0 == pytest.approx(rec, rel=1e-9)
+def test_the_alpha_share_against_the_rounded_branching_is_the_rounding():
+    """★对本册旧参照 3.5/17.6 的 +0.63 % 是**那个参照的四舍五入**，不是实现差——读数记的就是它。"""
+    rec = _read("dt_burn_astra_metrics.json")["compare"]
+    assert rec["alpha_share_vs_q_values"] == pytest.approx(0.0, abs=1e-12)
+    assert rec["alpha_share_vs_3p5_over_17p6"] == pytest.approx(_ALPHA_FRACTION / (3.5 / 17.6) - 1.0, rel=1e-9)
+    assert 0.006 < rec["alpha_share_vs_3p5_over_17p6"] < 0.0065
 
 
 # ══════════════════════════════════════════ tr-pedestal-zerod-bookkeeping-metis · FR-TR-014
@@ -379,3 +420,32 @@ def test_with_dilution_the_like_for_like_w_is_left_with_the_weighting_alone():
         assert -0.036 < p["diluted"]["w_rel"] < -0.022, p
         #: 稀释那一项正好是之前被相消掉的那一块
         assert p["diluted"]["w_rel"] < p["diluted"]["w_rel_undiluted"] - 0.02
+
+
+def test_with_metis_s_own_volume_weight_the_like_for_like_w_lands_within_the_profile_form():
+    """★★FR-TR-014 b：0D 体平均的权重换成 METIS 自己的 dV/dρ（绑 `dvolume_drho_tor`）之后，W 对 METIS
+    +0.3…+1.0 %——剩下的只有幂律剖面形状那一项；嵌套 D 形面（κ(0)、位移取 METIS 自己的）夹在 2ρ 与它之间。
+    门从公开入口逐点重算三种权重，轴值按各自的权重从 METIS 体平均换算（换算与平均用同一权重，不重复计）。"""
+    import importlib.util
+    assert _model() is not None
+    spec = importlib.util.spec_from_file_location("bzw", Path(__file__).resolve().parents[2] / "tools" / "benchmark-zerod-weight.py")
+    bzw = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bzw)
+    att = _read("zerod_metis_attribution.json")
+    like = {(p["case"], round(p["t_s"], 4)): p for p in att["w_th_like_for_like"]["points"]}
+    over = {(p["case"], round(p["t_s"], 4)): p["overrides"] for p in _read("zerod_metis_metrics.json")["points"]}
+    rows = {(r["case"], round(float(r["t_s"]), 4)): r for r in _metis_csv()}
+    pts = att["w_th_weighted"]["points"]
+    assert len(pts) == 4
+    for q in pts:
+        key = (q["case"], round(q["t_s"], 4))
+        shape = (q["shape"]["kappa_axis"], q["shape"]["shift_axis_m"])
+        for v in ("circular", "shaped", "bound"):
+            got = bzw.run_point(like[key], over[key], rows[key], v, shape)
+            assert got["w_rel"] == pytest.approx(q[v]["w_rel"], rel=1e-9, abs=1e-12), (key, v)
+        #: the judged cell: METIS's own geometry, within the 2 % the record states
+        assert abs(q["bound"]["w_rel"]) < 0.02, q
+        #: and the order the attribution says: 2ρ below, the D between, METIS's own weight above
+        assert q["circular"]["w_rel"] < q["shaped"]["w_rel"] < q["bound"]["w_rel"], q
+        #: the shape fed is METIS's: κ on axis below the edge's, the axis shifted outward
+        assert 0.8 < shape[0] / float(rows[key]["kappa_geo"]) < 0.95 and 0.1 < shape[1] < 0.13
