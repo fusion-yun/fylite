@@ -44,6 +44,10 @@ title: 验证状态 (Verification status)
 
 2026-09-17 ★**剩下的那一处**：两扇门是两次独立调用，调用方**显式**传不同的求积阶数时仍会分开，跨调用的一致性没有东西强制（代价量过：环 2.8e-04 / 探针 4.0e-03）。★缓解已到位——默认值共享、两边都回显所用阶数，于是这件事查得到；**但查得到不等于不会发生**，补一道跨门的门禁才算真收口。
 
+### [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md)
+
+2026-09-19 用户裁定：作为 `method = veq` 的**已知、已接受的局限**保留，待后续改进。EAST #137985 ψ_N = 0.995 面上 ψ_N 对 CHEASE NS80 的 RMS 1.0e-4（l = m = 10），过 FR-EQ-001 的 5e-4 但未达网格档立下的 4.92e-5；q[0.1–0.9] 与网格档同级（1.03e-3），磁轴差 0.35 mm。★原因是 MXH 边界表示跟不住近分界面的轮廓（拟合 RMS 0.11 mm、最大 0.44 mm），加阶不救（l10/m12 9.0e-5、6.1 s；l = m = 12 不收敛）。★用法上的结论：光滑形状与快速求解用 `veq`，要边界逐点保真用缺省的 `grid`。改进方向：边界表示（更高阶或非 MXH 的边界族）、解析雅可比（高阶收敛与速度）。
+
 ### [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md)
 
 用户裁定「不改内核，保留负面结果」（本会话，ITER 这一例点名在内）：ITER 参考分离面在这台机器的线圈额定内**买不到**——无界设计要 PF1 1.14 倍、PF6 1.28 倍的 DINA 额定，形状仍差（kappa −3 %、delta_lower −10 %）；在额定内重解守住额定、分离面 11.8 mm，但不再收敛（残差 0.072）。**这是设计本身的结论，不是实现的缺陷**：同一需求 `FR-EQ-005` 的 FreeGSNKE 对拍记录判成立。
@@ -122,7 +126,7 @@ title: 验证状态 (Verification status)
 | [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
 | [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | eq-forward | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
 | [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
-| [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md) | eq-forward | 验证 | 不成立 | 1.0 | 2026-09-19 | 草稿 | `fylite_kernel@57e763955e5e` | stale |
+| [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md) | eq-forward | 验证 | 不成立 | 1.1 | 2026-09-19 | 草稿 | `fylite_kernel@57e763955e5e` | stale |
 | [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
 | [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.24 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
 | [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md) | eq-reconstruct | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |

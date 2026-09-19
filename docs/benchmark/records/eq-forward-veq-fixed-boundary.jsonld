@@ -294,7 +294,7 @@
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-19",
   "revised": "2026-09-19",
   "review_status": "draft",
@@ -304,7 +304,14 @@
     "date": "2026-09-19",
     "by": "Claude Opus 5",
     "summary": "首次入册：VEQ 定边界求解过门（阶段 2，内核 57e763955e5e）后，同一扇门两档并排——Solov'ev 上 veq 过 FR-EQ-001 与 grid 的全部带（节点误差 5.2e-10 对 grid 5.5e-5），EAST 面上 q 剖面过带、psi_N 不过（9.99e-5 对带 4.92e-5，病根是 MXH 边界表示）；本册第一次记墙钟。★基准内核**未** bump（记录显示 stale），等分支合入后随全册重验。"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5",
+    "summary": "EAST 面 ψ_N 一格的 fail 按用户裁定记为 `method = veq` 的已知、已接受局限（provenance.open_defect），判决不改、待后续改进。"
    }
-  ]
+  ],
+  "open_defect": "2026-09-19 用户裁定：作为 `method = veq` 的**已知、已接受的局限**保留，待后续改进。EAST #137985 ψ_N = 0.995 面上 ψ_N 对 CHEASE NS80 的 RMS 1.0e-4（l = m = 10），过 FR-EQ-001 的 5e-4 但未达网格档立下的 4.92e-5；q[0.1–0.9] 与网格档同级（1.03e-3），磁轴差 0.35 mm。★原因是 MXH 边界表示跟不住近分界面的轮廓（拟合 RMS 0.11 mm、最大 0.44 mm），加阶不救（l10/m12 9.0e-5、6.1 s；l = m = 12 不收敛）。★用法上的结论：光滑形状与快速求解用 `veq`，要边界逐点保真用缺省的 `grid`。改进方向：边界表示（更高阶或非 MXH 的边界族）、解析雅可比（高阶收敛与速度）。"
  }
 }
