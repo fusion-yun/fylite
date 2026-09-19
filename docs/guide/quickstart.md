@@ -5,7 +5,7 @@ title: 快速上手 (Quick Start)
 # 快速上手
 
 下面每段都可直接粘贴运行，**全部离线**。除最后一节外都不需要装置；用到装置的两段先按
-[安装与环境](install.md)把装置牌从 A-Box 拖出来（仓内没有 `machine_desc/`），再指一次：
+[安装与环境](install.md)把装置牌从 A-Box 拖出来（装置描述不在本仓），再指一次：
 
 ```bash
 export FYLITE_DEVICE_DIR=~/fylite-decks/east    # 见「安装与环境」：EAST 牌取自内核仓历史
@@ -116,8 +116,7 @@ from fylite.engine import cases                     # 算例语料：catalogue()
 
 ## 走查
 
-★**本仓没有 notebook**，仓根也没有 `examples/` 目录（书里那一篇「典型算例」住在
-`docs/examples/`，与它无关）。走查靠两样东西：
+★**本仓没有 notebook**。走查靠两样东西：
 
 - **`cases/`** —— 25 条算例的计划文档（`fyo:ScenarioSpecification`），
   `fylite.engine.cases` 可列（`catalogue()`）、可查（`load()`）、可跑（`run()`）、
