@@ -1,0 +1,24 @@
+{
+ "_comment": "FR-EQ-025 上游算例复现（2026-09-19）。门：$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_upstream_spectral_convergence_case_is_reproduced_on_its_own_shape",
+ "upstream_case": "fytok/python/fyeq/tests/test_high_beta_energy.py::test_conformal_basis_converges_spectrally_on_a_shaped_domain: r_b = A(1 + 0.18 cos 2θ − 0.07 cos 3θ), g = (0.31 − 0.12i) e^{iθ} + (−0.18 + 0.05i) e^{2iθ}, the top 6 / 12 / 20 conformal modes by |c_k|, harmonic-extension energy vs BEM",
+ "method": "Dirichlet energy is conformally invariant: on the disk ζ^k / ζ̄^{|k|} are orthogonal with 2π|k||c_k|² each, so the truncation error is the energy fraction left out (no quadrature, no BEM needed for the reference)",
+ "energy_rel_error": {
+  "modes": [
+   6,
+   12,
+   20
+  ],
+  "value": [
+   0.013136410049543579,
+   0.0010886381705433879,
+   5.72571853945103e-05
+  ],
+  "upstream": [
+   0.0131,
+   0.00109,
+   5.73e-05
+  ]
+ },
+ "star_basis_2_terms_rel_error": 0.03594,
+ "conformal_12_over_star": 33.0
+}

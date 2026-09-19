@@ -125,12 +125,12 @@ Fourier 系数谱给出。J × B = ∇p 到 5e-16。★印值 $q(s)$ 比这里�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`mhd-deltaw-delivery-records`](../../reports/mhd-deltaw-delivery-records.md) | 验证 | 成立 | IMAS DD 4.1.1 `mhd_linear` 与 SRS 的四条口径纪律 | 1.5 | 草稿 | [jsonld](../../records/mhd-deltaw-delivery-records.jsonld) |
-| [`mhd-deltaw-normal-modes`](../../reports/mhd-deltaw-normal-modes.md) | 验证 | 成立 | Newcomb (1960) Eqs. (6)–(10)；均匀 θ-pinch 的解析谱；FR-EQ-017 的解析带边 | 1.5 | 草稿 | [jsonld](../../records/mhd-deltaw-normal-modes.jsonld) |
-| [`mhd-deltaw-screw-pinch`](../../reports/mhd-deltaw-screw-pinch.md) | 验证 | 成立 | Newcomb, *Hydromagnetic stability of a diffuse linear pinch*, Ann. Phys. **10**, 232 (1960) | 1.5 | 草稿 | [jsonld](../../records/mhd-deltaw-screw-pinch.jsonld) |
-| [`mhd-deltaw-toroidal-fixed-boundary`](../../reports/mhd-deltaw-toroidal-fixed-boundary.md) | 对拍 | 成立 | Chance et al., *Comparative numerical studies of ideal MHD instabilities*, J. Comput. Phys. 28, 1 (1978), Table I | 1.4 | 草稿 | [jsonld](../../records/mhd-deltaw-toroidal-fixed-boundary.jsonld) |
-| [`mhd-deltaw-toroidal-free-boundary`](../../reports/mhd-deltaw-toroidal-free-boundary.md) | 对拍 | 成立 | Chance et al., *Comparative numerical studies of ideal MHD instabilities*, J. Comput. Phys. 28, 1 (1978), Table I | 1.4 | 草稿 | [jsonld](../../records/mhd-deltaw-toroidal-free-boundary.jsonld) |
-| [`mhd-deltaw-wall-and-rwm`](../../reports/mhd-deltaw-wall-and-rwm.md) | 对拍 | 成立 | Chance 1978 Table I 的 Λ = 2 两行；Freidberg (2014) §11.5 Eqs. (11.148)–(11.150)、(11.169)–(11.170) | 1.4 | 草稿 | [jsonld](../../records/mhd-deltaw-wall-and-rwm.jsonld) |
+| [`mhd-deltaw-delivery-records`](../../reports/mhd-deltaw-delivery-records.md) | 验证 | 成立 | IMAS DD 4.1.1 `mhd_linear` 与 SRS 的四条口径纪律 | 1.6 | 草稿 | [jsonld](../../records/mhd-deltaw-delivery-records.jsonld) |
+| [`mhd-deltaw-normal-modes`](../../reports/mhd-deltaw-normal-modes.md) | 验证 | 成立 | Newcomb (1960) Eqs. (6)–(10)；均匀 θ-pinch 的解析谱；FR-EQ-017 的解析带边 | 1.6 | 草稿 | [jsonld](../../records/mhd-deltaw-normal-modes.jsonld) |
+| [`mhd-deltaw-screw-pinch`](../../reports/mhd-deltaw-screw-pinch.md) | 验证 | 成立 | Newcomb, *Hydromagnetic stability of a diffuse linear pinch*, Ann. Phys. **10**, 232 (1960) | 1.6 | 草稿 | [jsonld](../../records/mhd-deltaw-screw-pinch.jsonld) |
+| [`mhd-deltaw-toroidal-fixed-boundary`](../../reports/mhd-deltaw-toroidal-fixed-boundary.md) | 对拍 | 成立 | Chance et al., *Comparative numerical studies of ideal MHD instabilities*, J. Comput. Phys. 28, 1 (1978), Table I | 1.5 | 草稿 | [jsonld](../../records/mhd-deltaw-toroidal-fixed-boundary.jsonld) |
+| [`mhd-deltaw-toroidal-free-boundary`](../../reports/mhd-deltaw-toroidal-free-boundary.md) | 对拍 | 成立 | Chance et al., *Comparative numerical studies of ideal MHD instabilities*, J. Comput. Phys. 28, 1 (1978), Table I | 1.5 | 草稿 | [jsonld](../../records/mhd-deltaw-toroidal-free-boundary.jsonld) |
+| [`mhd-deltaw-wall-and-rwm`](../../reports/mhd-deltaw-wall-and-rwm.md) | 对拍 | 成立 | Chance 1978 Table I 的 Λ = 2 两行；Freidberg (2014) §11.5 Eqs. (11.148)–(11.150)、(11.169)–(11.170) | 1.5 | 草稿 | [jsonld](../../records/mhd-deltaw-wall-and-rwm.jsonld) |
 
 ### 缺口
 

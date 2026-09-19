@@ -11,7 +11,7 @@
   "FR-EQ-024"
  ],
  "comparison_kind": "verification",
- "overall_verdict": "inconclusive",
+ "overall_verdict": "pass",
  "compared_subject": {
   "type": "spo:Code",
   "name": "fylite · `highbeta::assembled_w` / `closed_form_w` / `polarize` / `marginal_q`",
@@ -86,25 +86,25 @@
  "findings": [
   {
    "type": "fyo:ComparisonFinding",
-   "title": "★★序化平衡下 $\\Delta q_*$ 每 ε 减半降 **8 倍**（三阶）；$\\Delta/\\varepsilon$ 不是常数，更不是 0.10208",
+   "title": "★★上游的 Δ/ε = 0.10208 **复现**（四档 ε 逐档 0.1020798，同值到 1e-12）——在上游自己的表面项截断下；真几何下是三阶",
    "criterion": "benchmark/records/mhd-energy-three-term-assembly/criterion/1",
    "bound": "identity",
-   "deviation_literal": "$k^2=0.5$：ε = 0.4 · 0.2 · 0.1 时 $\\Delta q_*$ = −4.84e-2 · −6.20e-3 · −7.58e-4（比 7.81 · 8.18）；表面项矩阵残差 ε = 0.4…0.05 比 7.88 · 8.09 · 8.07",
-   "verdict": "inconclusive",
+   "deviation_literal": "上游口径（fyeq `test_high_beta_stability.py`）：Δ = max|W_asm − W_closed|（3×3 矩阵元），$k^2=0.9$、$q_*=1.5247$；表面项取该书 Eq. (12.136) 的序化曲率 $\\kappa_n=-(\\cos\\theta/R_0)(1-\\varepsilon\\cos\\theta)$、$B^2=\\hat B^2=B_0^2$、面元 $2\\pi R_0\\,a\\,d\\theta$：ε = 0.2 · 0.1 · 0.05 · 0.025 → Δ/ε = 0.10207981262 · …453 · …459 · …472（上游 0.10208）。★真几何（本内核缺省，$R=R_0+a\\cos\\theta$、两侧真 $B^2$）下同一差是三阶：比值 7.81 · 8.18",
+   "verdict": "pass",
    "caveat": [
+    "★★**此前判未判，是因为没找到 Δ 的定义**——SRS 正文没写。定义在上游测试里（`fytok/python/fyeq/tests/test_high_beta_stability.py`），连同它喂表面项的四样东西（`high_beta_stability.py::_pieces`）。按它的口径喂同一个一般式，Δ/ε 逐档同值到 1e-12、就是 0.10208。",
+    "★★**两种截断都对，量的是不同的东西**：上游只在曲率里留一个 $(1-\\varepsilon\\cos\\theta)$，于是对闭式 (12.140) 的差**恰好一阶**——那个 0.10208 就是这一个因子的系数；本内核的缺省取真几何，面元乘出 $R-a\\cos\\theta=R_0$ 后一阶修正被压强平衡精确抵消，残差三阶（原 caveat 的解析推导仍成立）。本批新增 `surface_energy_book` 作为上游口径，缺省不变。",
     "★★**为什么是三阶**（解析）：表面项一般式 (12.135) 里，磁项 $\\tfrac12(\\hat B^2+B^2)(\\hat\\kappa_n-\\kappa_n)$ 乘面元 $2\\pi Ra\\,d\\theta$ 后，$(\\cos\\theta/R-1/a)\\cdot Ra=-(R-a\\cos\\theta)=-R_0$ **精确**，于是磁项 $=-2\\pi R_0B_\\theta^2F$、$F-1\\approx-\\beta/2$，给出 $+\\pi R_0\\beta B_\\theta^2$；压强项的一阶修正恰为 $-\\pi R_0\\beta B_\\theta^2$。**二者等值反号，一阶修正被压强平衡抵消**，(12.137) 对这一平衡准到相对 $O(\\varepsilon^2)$。",
-    "★Rust 与一段独立 Python 分别算出同一组比值（每个谐波各 8.3–8.5）——不是一处实现的巧合。",
-    "★★**改用有限 ε 的精确压强平衡**（Eq. 12.127）取 $B_\\theta$：残差回到**一阶**，$\\Delta q_*/\\varepsilon$ 趋于随 $k^2$ 变的常数（Richardson 外推：$k^2=0.5$ 约 −0.48，$k^2=0.9$ 约 −0.36）。**两种口径都不是 0.10208**——SRS 没写 Δ 的定义（marginal $q_*$？相对差？某个矩阵元？），本条无从复现那个数，**不去凑**。故判未判。",
-    "★判据的实质（「一致的阶次即证明三项的符号 · 归一 · 基全对」）是满足的：三档 $k^2$ 上比值都在 7.6–8.2，阶次一致；流体项与真空项对闭式路到 1e-15（见下），错只可能在表面项，而表面项残差的阶次有解析解释。"
+    "★Rust 与一段独立 Python 分别算出同一组比值（每个谐波各 8.3–8.5）——不是一处实现的巧合。"
    ]
   },
   {
    "type": "fyo:ComparisonFinding",
-   "title": "三档 $k^2$ 同为三阶（序化）/ 一阶（精确平衡）；★流体项与真空项对闭式路到 4e-15",
+   "title": "★边缘点亦一阶收敛（|Δq*|/ε = 0.09987 · 0.10113 · 0.10177，上游 0.0999 · 0.1011 · 0.1018）；$k^2=0.5/0.7/0.9$ 上矩阵元 Δ/ε 两档同值",
    "criterion": "benchmark/records/mhd-energy-three-term-assembly/criterion/2",
    "bound": "identity",
-   "deviation_literal": "$k^2$ = 0.5 · 0.7 · 0.9 的比值 7.81/8.18 · 7.64/8.14 · 7.59/8.13。流体项（`fluid.rs` 代 12.146）对 (12.147) **4.1e-15**；真空项（边界积分）对 $G_{ml}$ 级数 (12.153) **3.6e-15**——两套完全不同的真空解法到机器精度",
-   "verdict": "inconclusive"
+   "deviation_literal": "上游口径：边缘点 $|\\Delta q_*|/\\varepsilon$ 在 ε = 0.1 · 0.05 · 0.025 为 **0.099875 · 0.101134 · 0.101770**（上游 0.0999 · 0.1011 · 0.1018）；$k^2$ = 0.5 · 0.7 · 0.9 上 Δ/ε 在 ε = 0.1 与 0.05 两档 0.04099178 / 0.04099178 · 0.06656500 / 0.06656500 · 0.10207981 / 0.10207981。$k^2$ = 0.5 · 0.7 · 0.9 的比值 7.81/8.18 · 7.64/8.14 · 7.59/8.13。流体项（`fluid.rs` 代 12.146）对 (12.147) **4.1e-15**；真空项（边界积分）对 $G_{ml}$ 级数 (12.153) **3.6e-15**——两套完全不同的真空解法到机器精度",
+   "verdict": "pass"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -154,7 +154,7 @@
  ],
  "validity_domain": "高 β 表面电流模型、圆截面、三谐波基、$n=1$；**约化**泛函——原则上复现不了 Chance 1978 / Cheng–Chance 1987 的 Table I（那是全 δW + 动能归一）。",
  "caveat": [
-  "★★**判未判**：机器的五格全过；阶次那两格量到的东西与判据写的不同——序化平衡下三阶（有解析解释），精确平衡下一阶但系数随 $k^2$ 变，上游的 0.10208 两种口径都不复现。",
+  "★★**判成立**（2026-09-19）：七格全过。阶次那两格按上游自己的 Δ 定义与表面项截断复现到位（0.10208、边缘点 0.0999 / 0.1011 / 0.1018）；真几何下同一差是三阶，照实并列，不是矛盾。",
   "★★**附带交付 `FR-EQ-021` 的两条**：闭式路在 $k^2=1$ 上逐元复现 (12.164) 的转录（截断按 $1/m_{max}^2$ 降，$m_{max}=1000$ 时 7.4e-8），$\\lambda_{min}=0$ 的根 1.690113290 对转录路 1.690113289——这是 (c') 要的「由三式合成」；整条稳定边界（(e)）从 $k^2\\to0$ 的 $q_*\\to1$ 到 $k^2=1$ 的 1.690113、落在平衡极限上。",
   "★门在内核仓，本仓 CI 跑不到。"
  ],
@@ -166,6 +166,11 @@
     "storage_uri": "docs/benchmark/readings/three_term_assembly.json",
     "checksum": "sha256:21c93eeaa0d406817d870a8b0dc88d2706962735b07aa539f2f3bc5d3702572a",
     "comment": "12.164 重建、整条边界、分项对闭式、两种平衡下的阶次、网格、导数、差分反证、拒绝"
+   },
+   {
+    "storage_uri": "docs/benchmark/readings/three_term_assembly_upstream_delta.json",
+    "checksum": "sha256:97ddc23697936e600ff3bf286188b0a0d8d4710fcfb42ed536d8ce7ff98ca9dd",
+    "comment": "上游 Δ 的定义、表面项口径与复现读数"
    }
   ],
   "realizes": [
@@ -212,15 +217,23 @@
    {
     "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::the_whole_boundary_has_both_analytic_ends",
     "comment": "★附：FR-EQ-021(e)"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::the_book_ordered_surface_term_reproduces_the_upstream_delta_over_eps",
+    "comment": "★Δ/ε = 0.10208"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::with_the_book_surface_term_the_marginal_point_and_every_k_are_first_order",
+    "comment": "★边缘点与三档 k²"
    }
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:3250d2a411eae26a58930a6c611468d94724d3610dcef2da735a6c6ab3418338"
+   "checksum": "sha256:6a3256a58b2476456c9a1e466d4539c81f93dd5279b1225f1fbed2a4da9a4690"
   }
  },
  "provenance": {
-  "record_version": "1.6",
+  "record_version": "1.7",
   "recorded": "2026-09-18",
   "revised": "2026-09-19",
   "review_status": "draft",
@@ -267,6 +280,12 @@
     "date": "2026-09-19",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。"
+   },
+   {
+    "record_version": "1.7",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "阶次两格转成立：Δ 的定义在上游测试里（max|W_asm − W_closed|，k² = 0.9、q* = 1.5247），按上游喂表面项的口径（Eq. 12.136 序化曲率、B² = B₀²、面元 2πR₀a dθ）新增 `surface_energy_book`，Δ/ε 逐档 0.1020798（到 1e-12）、边缘点 0.0999 / 0.1011 / 0.1018 全复现。真几何缺省下三阶，并列记。整体 inconclusive → pass。"
    }
   ]
  }

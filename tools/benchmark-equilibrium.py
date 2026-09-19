@@ -349,7 +349,31 @@ def iter_card_and_target(repo: Path) -> tuple[dict, np.ndarray, tuple[float, flo
     return dev, target, ITER_XPOINT
 
 
-def iter_shape(out: Path, settings: dict | None = None) -> dict:
+#: ★★2026-09-19：ITER 线圈额定取自 DINA-IMAS（ITER Organization，LGPL-3.0，`third_party/DINA-IMAS`）——
+#: `machines/iter/15MA_40ka/dat/control_data.dat` 的每匝电流上限 [kA]，乘本卡片自己的匝数。
+#: ★同一套线圈：DINA 的 `tokamak_config.dat` 与本卡片 12 个线圈**匝数逐一相同**（554 · 248.6 · 115.2 · 185.9 ·
+#: 169.9 · 216.8 · 459.4），中心相差不到 1 cm——与那份「12 个圆全不同」的 ITER-FEAT 2000 不是一回事。
+#: ★DINA 还有一个 `c_cur_max = 0.98` 的控制裕度，这里**不乘**：额定是额定，裕度是控制器的选择。
+DINA_ITER = "DINA-IMAS/machines/iter/15MA_40ka/dat/control_data.dat"
+DINA_KA_PER_TURN = {"CS3U": 45.0, "CS2U": 45.0, "CS1U": 45.0, "CS1L": 45.0, "CS2L": 45.0, "CS3L": 45.0,
+                    "PF1": 48.0, "PF2": 55.0, "PF3": 55.0, "PF4": 55.0, "PF5": 52.0, "PF6": 52.0}
+
+
+def dina_iter_limits(third_party: Path) -> dict[str, float]:
+    """每匝上限 [kA] 从 DINA 的 control_data.dat 当场读出（不信本文件里抄的那张表），并核对与抄的一致。"""
+    lines = [ln.split() for ln in (third_party / DINA_ITER).read_text(encoding="utf-8").splitlines() if ln.strip()]
+    head = next(i for i, ln in enumerate(lines) if ln and ln[0] == "c_cur_max")
+    names = [t.replace("_max(kA)", "") for t in lines[head][1:]]
+    vals = [float(v) for v in lines[head + 1][1:]]
+    got = dict(zip(names, vals))
+    want = {"CS3U": 45.0, "CS2U": 45.0, "CS1": 45.0, "CS2L": 45.0, "CS3L": 45.0,
+            "PF1": 48.0, "PF2": 55.0, "PF3": 55.0, "PF4": 55.0, "PF5": 52.0, "PF6": 52.0}
+    if got != want:
+        raise RuntimeError(f"DINA control_data.dat moved: {got}")
+    return DINA_KA_PER_TURN
+
+
+def iter_shape(out: Path, settings: dict | None = None, *, dina_limits: bool = False) -> dict:
     """V-22: the ITER reference separatrix as an inverse problem — no second code, so the readings are the design's own.
 
     There is no reference side for this shape: the TEQ / TOSCA ITER equilibria are pointer-only entries into an
@@ -360,6 +384,13 @@ def iter_shape(out: Path, settings: dict | None = None) -> dict:
     repo = ROOT
     dev, target, xpt = iter_card_and_target(repo)
     st = dict(ITER_SETTINGS if settings is None else settings)
+    rating = {}
+    if dina_limits:
+        ka = dina_iter_limits(Path(os.environ.get("FYLITE_THIRD_PARTY", ROOT.parent / "third_party")))
+        for coil in dev["pf_active"]["coil"]:
+            turns = sum(abs(float(e.get("turns_with_sign", 1.0))) for e in coil["element"])
+            coil["fylite:i_max_aturn"] = ka[coil["name"]] * 1e3 * turns
+            rating[coil["name"]] = coil["fylite:i_max_aturn"]
     #: the target is closed through the X-point corner (see ITER_XPOINT)
     tgt = np.r_[target, np.array([xpt])]
     inputs = {"device": dev,
@@ -400,12 +431,22 @@ def iter_shape(out: Path, settings: dict | None = None) -> dict:
                      "limits_held": bool(facts.get("n_at_coil_limit", 0.0) > 0.0),
                      "unbounded_because": ITER_CURRENT_NOTE},
     }
+    if dina_limits:
+        names = [c["name"] for c in dev["pf_active"]["coil"]]
+        lim = np.array([rating[nm] for nm in names])
+        result["currents"] = {"aturns": [float(v) for v in at], "max_abs_MAt": float(np.abs(at).max() / 1e6),
+                              "rating_aturns": {nm: float(rating[nm]) for nm in names},
+                              "rating_source": f"third_party/{DINA_ITER} (per-turn kA) x the card's turns",
+                              "use_fraction": {nm: float(abs(a) / l) for nm, a, l in zip(names, at, lim)},
+                              "worst_use_fraction": float(np.max(np.abs(at) / lim)),
+                              "n_at_coil_limit": float(facts.get("n_at_coil_limit", 0.0))}
     g = result["separatrix_vs_target"]
     print(f"V-22 ITER: separatrix {g['median_mm']:.1f} mm median (p95 {g['p95_mm']:.1f}, max {g['max_mm']:.1f}); "
           f"shape_error {facts['shape_error']:.4f}; kappa {facts['shape_kappa']:.3f} vs 1.849; "
           f"max |I| {result['currents']['max_abs_MAt']:.1f} MA.t in {seconds:.0f} s")
     out.mkdir(parents=True, exist_ok=True)
-    (out / "inverse_shape_iter.json").write_text(json.dumps(result, indent=1, default=float) + "\n", encoding="utf-8")
+    name = "inverse_shape_iter_dina_limits.json" if dina_limits else "inverse_shape_iter.json"
+    (out / name).write_text(json.dumps(result, indent=1, default=float) + "\n", encoding="utf-8")
     return result
 
 
@@ -725,6 +766,7 @@ def main() -> int:
     a2.add_argument("--kefit-bundle", type=Path, default=Path(os.environ.get("KEFIT_BUNDLE", ROOT.parent / "third_party" / "kefit_reference_bundle")))
     a5 = sub.add_parser("inverse-shape-iter")
     a5.add_argument("--out", required=True, type=Path)
+    a5.add_argument("--dina-limits", action="store_true", help="bound the coils by DINA-IMAS's ITER ratings")
     a4 = sub.add_parser("inverse-shape")
     a4.add_argument("--case")
     a4.add_argument("--out", required=True, type=Path)
@@ -740,7 +782,7 @@ def main() -> int:
         a.out.mkdir(parents=True, exist_ok=True)
         twin(case_dir(a.case), a.out, a.kefit_exe, a.kefit_bundle)
     elif a.cmd == "inverse-shape-iter":
-        iter_shape(a.out)
+        iter_shape(a.out, dina_limits=a.dina_limits)
     elif a.cmd == "inverse-shape":
         a.out.mkdir(parents=True, exist_ok=True)
         inverse_shape(case_dir(a.case), a.out)

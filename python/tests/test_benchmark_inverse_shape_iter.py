@@ -118,3 +118,41 @@ def test_v22_the_target_curve_is_recorded_with_its_defects(want):
     assert inp["target_points"] == 248
     assert inp["target_open_gap_mm"] > 300.0
     assert inp["target_closed_through"] == [5.15, -3.40]
+
+
+DINA_READ = ROOT / "docs/benchmark/readings/inverse_shape_iter_dina_limits.json"
+
+
+@pytest.fixture(scope="module")
+def bounded(tmp_path_factory):
+    try:
+        return _tool().iter_shape(tmp_path_factory.mktemp("v22d"), dina_limits=True)
+    except FileNotFoundError as e:
+        pytest.skip(f"no third_party/DINA-IMAS next to this checkout: {e}")
+    except Exception as e:  # noqa: BLE001
+        if "device" in str(e).lower() or "library" in str(e).lower() or "discharge" in str(e):
+            pytest.skip(f"no code/discharge / ITER card through the tree door here: {e}")
+        raise
+
+
+def test_v22_the_unbounded_design_exceeds_the_dina_ratings_on_pf1_and_pf6(want):
+    """★★2026-09-19：DINA-IMAS 的 ITER 每匝额定 × 本卡片的匝数（同一套线圈：匝数逐一相同、中心差 < 1 cm）。
+    无界设计要 PF1 13.57 MA·t（额定 11.93）、PF6 30.61 MA·t（额定 23.89）——这台机器给不出。"""
+    rat = json.loads(DINA_READ.read_text(encoding="utf-8"))["currents"]["rating_aturns"]
+    names = list(rat)
+    over = {nm: abs(a) / rat[nm] for nm, a in zip(names, want["currents"]["aturns"]) if abs(a) > rat[nm]}
+    assert set(over) == {"PF1", "PF6"}, over
+    assert 1.13 < over["PF1"] < 1.15 and 1.27 < over["PF6"] < 1.29
+
+
+def test_v22_within_the_dina_ratings_the_design_holds_them_and_does_not_settle(bounded):
+    """★有界之后：每件都在额定内（PF6 顶格），分离面中位 11.8 mm（比无界还近），形状照旧差（kappa 1.793）——
+    但**不再收敛**：600 次迭代残差 0.072（无界时 settled，残差 9.7e-4）。买不起的那部分形状，在额定内也买不到。"""
+    c = bounded["currents"]
+    assert c["worst_use_fraction"] <= 1.0 + 1e-9, c["use_fraction"]
+    assert c["n_at_coil_limit"] >= 1.0
+    f = bounded["design"]["facts"]
+    assert f["settled"] == 0.0 and f["residual"] > 0.01
+    want = json.loads(DINA_READ.read_text(encoding="utf-8"))
+    _walk(bounded["separatrix_vs_target"], want["separatrix_vs_target"], "separatrix_vs_target")
+    _walk(bounded["design"]["facts"], want["design"]["facts"], "design/facts")

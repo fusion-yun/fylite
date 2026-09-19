@@ -24,7 +24,9 @@
   "k_door": 211638.63752228953,
   "rel_magnitude": -0.008894997997298981,
   "sign_door": 1.0,
-  "sign_identity": -1.0
+  "sign_identity": -1.0,
+  "k_identity_filaments": 211638.64478836695,
+  "rel_filaments": 3.433247114885102e-08
  },
  "closed_form_ladder": {
   "_comment": "\u95ed\u5f0f\u53ea\u5728\u963b\u6027\u58c1\u652f\u6210\u7acb\uff1b\u8fd9\u4e00\u68af\u5b50\u7ed9\u51fa\u5b83\u4ece\u54ea\u4e00\u6863\u8d77\u53ef\u6bd4",

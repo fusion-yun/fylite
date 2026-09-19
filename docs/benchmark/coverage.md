@@ -83,7 +83,7 @@ title: 需求覆盖 (Requirement coverage)
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-EQ-014` | MUST | 线圈受力与导体表面场 | [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） |
 | `FR-EQ-015` | MUST | 装置电磁线性模型导出（路线） | [`mhd-vertical-lti-export`](reports/mhd-vertical-lti-export.md) | 验证 | 成立 |
-| `FR-EQ-016` | MUST | 轴对称 $n=0$ 竖直稳定性判读 | [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 未判（读数） |
+| `FR-EQ-016` | MUST | 轴对称 $n=0$ 竖直稳定性判读 | [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 成立 |
 
 ## MHD 稳定性 (MHD Stability) · 解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界
 
@@ -105,8 +105,8 @@ delta-W 变分求解器本身：柱极限对不对、环几何耦合装配对不
 | `FR-EQ-021` | MUST | 表面电流模型的解析 β 极限（L2 的 oracle，非 L2 本体） | [`mhd-energy-surface-current-beta-limit`](reports/mhd-energy-surface-current-beta-limit.md) | 验证 | 成立 |
 | `FR-EQ-022` | MUST | 高 $\beta$ 序约化流体能量 $\delta W_F$（L2 的物理面） | [`mhd-energy-fluid-high-beta`](reports/mhd-energy-fluid-high-beta.md) | 验证 | 成立 |
 | `FR-EQ-023` | MUST | 一般位形的真空扰动能 $\delta W_V$（L2 三项的最后一项） | [`mhd-energy-vacuum-general-shape`](reports/mhd-energy-vacuum-general-shape.md) | 验证 | 成立 |
-| `FR-EQ-024` | MUST | 三项装配层 | [`mhd-energy-three-term-assembly`](reports/mhd-energy-three-term-assembly.md) | 验证 | 未判（读数） |
-| `FR-EQ-025` | MUST | 星形域到单位圆盘的共形映射 | [`mhd-energy-conformal-map`](reports/mhd-energy-conformal-map.md) | 验证 | 未判（读数） |
+| `FR-EQ-024` | MUST | 三项装配层 | [`mhd-energy-three-term-assembly`](reports/mhd-energy-three-term-assembly.md) | 验证 | 成立 |
+| `FR-EQ-025` | MUST | 星形域到单位圆盘的共形映射 | [`mhd-energy-conformal-map`](reports/mhd-energy-conformal-map.md) | 验证 | 成立 |
 
 ## MHD 稳定性 (MHD Stability) · 全 delta-W、V5 基准与阻性壁模
 

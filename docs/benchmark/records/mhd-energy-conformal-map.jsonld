@@ -11,7 +11,7 @@
   "FR-EQ-025"
  ],
  "comparison_kind": "verification",
- "overall_verdict": "inconclusive",
+ "overall_verdict": "pass",
  "compared_subject": {
   "type": "spo:Code",
   "name": "fylite · `conformal::ConformalMap`（`theodorsen` / `f` / `df` / `inverse` / `boundary_spectrum`）",
@@ -144,12 +144,14 @@
   },
   {
    "type": "fyo:ComparisonFinding",
-   "title": "★★温和 D 形上共形基每档降 5.7× / 8.7×，星形基停在 4.4e-2；**强 D 形只降 2.4× / 2.8×，N=6 时还不如星形基**",
+   "title": "★★上游算例**复现**：前 6 / 12 / 20 个共形模 1.314e-2 / 1.089e-3 / 5.726e-5（上游 1.31e-2 / 1.09e-3 / 5.73e-5），比星形基好 33 倍；Miller 形上的形状依赖另记",
    "criterion": "benchmark/records/mhd-energy-conformal-map/criterion/5",
    "bound": "identity",
-   "deviation_literal": "调和函数 $u=\\operatorname{Re}w$ 在 768 内点上的最大误差，N = 6 · 12 · 20：Miller κ1.3 δ0.2 共形 **2.29e-2 · 4.05e-3 · 4.64e-4**，星形 4.37e-2 · 4.37e-2 · 4.37e-2（星/共形 1.9 · 10.8 · 94）；Miller κ1.6 δ0.35 共形 **1.21e-1 · 5.11e-2 · 1.81e-2**，星形 7.10e-2（星/共形 **0.59** · 1.39 · 3.9）。上游：1.3e-2 · 1.1e-3 · 5.7e-5，形状未写",
-   "verdict": "inconclusive",
+   "deviation_literal": "上游算例（fyeq `test_conformal_basis_converges_spectrally_on_a_shaped_domain`）：$r_b=A(1+0.18\\cos2\\theta-0.07\\cos3\\theta)$、边界数据 $(0.31-0.12i)e^{i\\theta}+(-0.18+0.05i)e^{2i\\theta}$，按 $|c_k|$ 取前 6 / 12 / 20 个共形模，调和延拓的能量相对差 **1.3136e-2 / 1.0886e-3 / 5.7257e-5**（每档降 12.1× / 19.0×）；两项星形基 3.594e-2，12 个共形模好 **33.0 倍**（判据 > 5×）。★另记（形状依赖）：调和函数 $u=\\operatorname{Re}w$ 在 768 内点上的最大误差，N = 6 · 12 · 20：Miller κ1.3 δ0.2 共形 **2.29e-2 · 4.05e-3 · 4.64e-4**，星形 4.37e-2 · 4.37e-2 · 4.37e-2（星/共形 1.9 · 10.8 · 94）；Miller κ1.6 δ0.35 共形 **1.21e-1 · 5.11e-2 · 1.81e-2**，星形 7.10e-2（星/共形 **0.59** · 1.39 · 3.9）。上游：1.3e-2 · 1.1e-3 · 5.7e-5，形状未写",
+   "verdict": "pass",
    "caveat": [
+    "★★**此前判未判，是因为上游的数没写形状**——形状与量都在上游测试里：一个 $\\cos2\\theta$ / $\\cos3\\theta$ 的星形域、两个物理角谐波的边界数据、量的是**能量**而不是逐点误差。按它的算例量，三档到三位有效数字。",
+    "★**参照不用 BEM**：Dirichlet 能量共形不变，圆盘上 $\\zeta^k$ 与 $\\bar\\zeta^{|k|}$ 两两正交、各带 $2\\pi|k||c_k|^2$，所以截断误差就是没取的那部分能量占比——比上游的 BEM 参照少一层近似。",
     "★★**判据说的「表示」是什么，先要读对**：拿边界 $\\rho(\\theta)$ 本身比，星形基（就是 $\\rho$ 的傅里叶级数）反而远好于共形基——那个读法是错的。判据有意义的读法是**域内调和函数**：$\\delta W$ 的真空势是调和的，共形拉回后在圆盘上是 $\\operatorname{Re}\\sum c_k\\zeta^k$；星形基 $(r/\\rho)^{|k|}e^{ik\\theta}$ 在域内**不调和**，于是停在一个平台上不再下降。本格按后一读法验。",
     "★★**谱收敛的速率是形状的事，不是实现的事**：给定精确映射，截断到 N 模的误差由 $f$ 的解析延拓在圆外最近的奇点决定。强 D 形的奇点离单位圆近，所以慢——**任何正确的实现都给同样的数**。所以强 D 形的 2.4× / 2.8× 不是缺陷，照实留作负面结果（门 `a_strong_d_is_where_the_five_fold_drop_is_lost` 把它钉住）。",
     "★「> 5×」在温和 D 形的 N=6 上只有 1.9×，N=12 起才 > 5×——照实记。",
@@ -207,7 +209,7 @@
  ],
  "validity_domain": "星形域（$\\rho(\\theta)>0$ 单值）、Theodorsen 迭代收敛（近圆的形状）、$M=1024$。★强 D 形（κ1.6 δ0.35）仍收敛且单叶，但调和表示的谱收敛慢。★**不含**非星形域与带 X 点的边界。",
  "caveat": [
-  "★★**判未判**：机器的八格全过（另 2026-09-18 补 (e) 解析导数链，成立）；谱收敛那一格上游的数没有形状，而本条量到的收敛速率随形状从 5.7×/8.7× 降到 2.4×/2.8×——这是数学性质，照实报两个形状，不挑。",
+  "★★**判成立**（2026-09-19）：十格全过。谱收敛那一格按上游自己的算例复现到三位（1.31e-2 / 1.09e-3 / 5.73e-5），且比星形基好 33 倍；Miller 形上收敛速率随形状从 5.7×/8.7× 降到 2.4×/2.8× 的读数照留——那是数学性质，不是判据的对象。",
   "★这一条给 `FR-EQ-023` 的真空能铺路：共形拉回之后真空势在圆盘上是谱收敛的，前提是形状别太 D。",
   "★门在内核仓，本仓 CI 跑不到。"
  ],
@@ -224,6 +226,11 @@
     "storage_uri": "docs/benchmark/readings/conformal_derivative_chain.json",
     "checksum": "sha256:2165619b10feee471b40b44a0d72603869efbbe8a5fd5d18989abc455874b8e1",
     "comment": "(e) 解析导数链：(12.147)、差分路、f''、恒等、线性"
+   },
+   {
+    "storage_uri": "docs/benchmark/readings/conformal_upstream_case.json",
+    "checksum": "sha256:1bc0441390bd8df34e8d14a507597186b0c4dfdeec699fa38e37cf4503802d5a",
+    "comment": "上游算例的形状、边界数据与复现读数"
    }
   ],
   "realizes": [
@@ -282,15 +289,19 @@
    {
     "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_poly_basis_keeps_its_derivatives_through_a_linear_combination",
     "comment": "(e) 线性组合"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_upstream_spectral_convergence_case_is_reproduced_on_its_own_shape",
+    "comment": "★上游算例三档 + 星形基对照"
    }
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:3250d2a411eae26a58930a6c611468d94724d3610dcef2da735a6c6ab3418338"
+   "checksum": "sha256:6a3256a58b2476456c9a1e466d4539c81f93dd5279b1225f1fbed2a4da9a4690"
   }
  },
  "provenance": {
-  "record_version": "1.7",
+  "record_version": "1.8",
   "recorded": "2026-09-18",
   "revised": "2026-09-19",
   "review_status": "draft",
@@ -343,6 +354,12 @@
     "date": "2026-09-19",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。"
+   },
+   {
+    "record_version": "1.8",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "谱收敛一格转成立：上游的算例在 fyeq 测试里（星形域 1 + 0.18 cos2θ − 0.07 cos3θ、两谐波边界数据、量调和延拓的能量），按它量得 1.314e-2 / 1.089e-3 / 5.726e-5 对上游 1.31e-2 / 1.09e-3 / 5.73e-5，比星形基好 33 倍。Miller 形上的形状依赖另记。整体 inconclusive → pass。"
    }
   ]
  }

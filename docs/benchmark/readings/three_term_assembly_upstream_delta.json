@@ -1,0 +1,45 @@
+{
+ "_comment": "FR-EQ-024 上游口径复现（2026-09-19）。门：$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::the_book_ordered_surface_term_reproduces_the_upstream_delta_over_eps 与 with_the_book_surface_term_the_marginal_point_and_every_k_are_first_order",
+ "upstream_definition": "fytok/python/fyeq/tests/test_high_beta_stability.py: Δ = max |assemble_energy_matrix(ε) − branch_energy_matrix(k, q*)| over the 3×3 elements, k² = 0.9, q* = 1.5247, ε = 0.2 / 0.1 / 0.05 / 0.025; Δ/ε constant to 1e-6",
+ "upstream_surface_inputs": "Eq. (12.136) curvature κ_n = −(cos θ/R0)(1 − ε cos θ), κ̂_n = κ_n − B_θ²/(a B0²); B² = B̂² = B0²; 2μ0 p = β B0²; dS = 2π R0 · a dθ",
+ "book_ordered": {
+  "delta_over_eps": [
+   0.10207981262449761,
+   0.10207981262453703,
+   0.10207981262458699,
+   0.10207981262472465
+  ],
+  "marginal_abs_dq_over_eps": {
+   "eps": [
+    0.1,
+    0.05,
+    0.025
+   ],
+   "value": [
+    0.09987464933013612,
+    0.1011338006287632,
+    0.10177037390781685
+   ],
+   "upstream": [
+    0.0999,
+    0.1011,
+    0.1018
+   ]
+  },
+  "k2_sweep": {
+   "0.5": [
+    0.04099178,
+    0.04099178
+   ],
+   "0.7": [
+    0.066565,
+    0.066565
+   ],
+   "0.9": [
+    0.10207981,
+    0.10207981
+   ]
+  }
+ },
+ "exact_geometry": "surface_energy (R = R0 + a cos θ, true B² on both sides): the first-order correction cancels against pressure balance, residual third order — the kernel's default, kept; the two are two truncations of Eq. (12.135)"
+}

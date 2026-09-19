@@ -14,8 +14,8 @@ title: "tr-closure-lazy-plugin-resolution"
 - **量的是**：抽象层在导入期不拖进实现：`import fylite.engine` 连 numpy 都不碰
 - **参考**：导入后 `sys.modules` 的增量本身
 - **验的需求**：`NR-TR-003`
-- **跑在内核**：`sha256:3250d2a411eae26a…`（新鲜度 **current**）
-- **记录版本**：1.15　**评审**：草稿　**日期**：2026-09-17
+- **跑在内核**：`sha256:6a3256a58b247645…`（新鲜度 **current**）
+- **记录版本**：1.16　**评审**：草稿　**日期**：2026-09-17
 
 ## 问的是什么
 
@@ -66,7 +66,7 @@ title: "tr-closure-lazy-plugin-resolution"
 
 ## 追溯
 
-- 首次入册 2026-09-17　末次修订 2026-09-19　版本 1.15　评审 草稿
+- 首次入册 2026-09-17　末次修订 2026-09-19　版本 1.16　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -88,12 +88,13 @@ title: "tr-closure-lazy-plugin-resolution"
 | 1.13 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（表面电流模型有壁不稳带 `FR-EQ-021(g)` 与共形基解析导数链 `FR-EQ-025(e)` 入内核，另摘掉六处重复的 `#[test]`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **792 项全通过**（去重后既有 782 + 新锚 10）。★纯增量（没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.14 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.15 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
+| 1.16 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（平衡 / MHD 三条判据补齐入内核：`highbeta::surface_energy_book`、`code/vstab` 新报 `k_identity_filaments`，另加 conformal / stability 的锚；`FR-EQ-024` · `025` · `016`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **809 项全通过**（新锚 4 条）。★缺省路径逐位不变，接口摘要、`CASE_CODES`、ABI 均未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:3250d2a411eae26a58930a6c611468d94724d3610dcef2da735a6c6ab3418338`
+- 内核 `libfylite` `sha256:6a3256a58b2476456c9a1e466d4539c81f93dd5279b1225f1fbed2a4da9a4690`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

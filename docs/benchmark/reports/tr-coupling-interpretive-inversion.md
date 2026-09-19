@@ -14,8 +14,8 @@ title: "tr-coupling-interpretive-inversion"
 - **量的是**：解释性反演核：**接口早已成文，往返按 h² 收敛到 3.8e-5——此前只是没有入册**
 - **参考**：SRS-04 Eq. (eq-srs04-interp) 与本仓的预测性导热求解
 - **验的需求**：`FR-TR-011`
-- **跑在内核**：`sha256:3250d2a411eae26a…`（新鲜度 **current**）
-- **记录版本**：1.5　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`sha256:6a3256a58b247645…`（新鲜度 **current**）
+- **记录版本**：1.6　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -63,7 +63,7 @@ title: "tr-coupling-interpretive-inversion"
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.5　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.6　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -75,12 +75,13 @@ title: "tr-coupling-interpretive-inversion"
 | 1.3 | 2026-09-18 | Claude Opus 5 (1M context) | `code/interpretive` 收给定源剖面（`sources = table`，与 `code/evolve` 同一个 `source_tables`）与电子–离子交换（`exchange = 1`）——east-kinetic-reconstruction 复现 Wei et al. 2026（AIP Adv. 16, 085007）的输运反演要它们：`code/wave` · `code/rf_ray` 算出的沉积照形状反解，ONETWO 的 qdelt 有了对应。内核仓 Rust 门 4 道（`case::interpretive_source_tests`）。只加不改（接口摘要 `1ee10b0ae6f30088` → `54f11c602d6f12b4`，修订号不动）。 ★本条新增的 4 道门跑在内核 `1f2578a`（fylite_kernel 分支 `feat/interpretive-given-sources`，并入 develop 时与 `e6c40c7` 合）上；本册的基准内核指纹**没有**随之更新——更新要全册重验，另起一件事做，在那之前本条的读数仍以 1.2 的基准为准、新门的数写在上面的发现里。 |
 | 1.4 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.5 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
+| 1.6 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（平衡 / MHD 三条判据补齐入内核：`highbeta::surface_energy_book`、`code/vstab` 新报 `k_identity_filaments`，另加 conformal / stability 的锚；`FR-EQ-024` · `025` · `016`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **809 项全通过**（新锚 4 条）。★缺省路径逐位不变，接口摘要、`CASE_CODES`、ABI 均未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:3250d2a411eae26a58930a6c611468d94724d3610dcef2da735a6c6ab3418338`
+- 内核 `libfylite` `sha256:6a3256a58b2476456c9a1e466d4539c81f93dd5279b1225f1fbed2a4da9a4690`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

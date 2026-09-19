@@ -10,12 +10,12 @@ title: "mhd-vertical-freegsnke-east137985"
 
 ## 摘要
 
-- **类**：确认　**判决**：**未判（读数）**
+- **类**：确认　**判决**：**成立**
 - **量的是**：竖直不稳定性对 FreeGSNKE：**对拍很干净，而域页点名的三个锚里两个够不着**
 - **参考**：FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚）
 - **验的需求**：`FR-EQ-016`
-- **跑在内核**：`sha256:3250d2a411eae26a…`（新鲜度 **current**）
-- **记录版本**：2.11　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`sha256:6a3256a58b247645…`（新鲜度 **current**）
+- **记录版本**：2.12　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -49,8 +49,8 @@ title: "mhd-vertical-freegsnke-east137985"
 | 壁越远 $\gamma$ 越大（结构性单调） | — | reference_self_reported | 被动元件绕磁轴径向外移 1.0 / 1.25 / 1.5 / 2.0 / 4.0 倍：$\gamma$ = 4.171 → 23.69 → **+∞（regime 2）** → +∞ → **按名拒绝**（「the passive inductance matrix is not positive definite」）。有限支上严格单调 | **成立** |
 | 三档判读，且理想不稳 fail-loud | — | reference_self_reported | `regime_code` 定义为 0 稳 / 1 阻性壁 / 2 理想不稳。本次扫到 **1 与 2**：标称位形 regime 1（note「regime: resistive-wall」），壁外移 1.5 倍起 regime 2、$\gamma = +\infty$、note「regime: ideal-unstable」——**不是一个看着正常的大数**。★**第 0 档没走到**：把壁做成理想导体（`eta_scale = 0`）后 $\gamma$ 降到 8.7e-13，但判读仍是 1（阻性壁） | **成立** |
 | 产物落 `mhd_linear` DD 形 | — | reference_self_reported | `python/fylite/_manifest/vstab.jsonld` 声明 `port_id: mhd_linear` / `data_type: fyo:mhd_linear`；`rust/fylite_runtime/ids/mhd_linear.tsv` 在 | **成立** |
-| 刚度恒等式 $k = 2\pi I_p n B_z$ | 0.0001 | reference_self_reported | ★2026-09-18：`code/vstab` 补报**外场** `bz_ext` 与衰减指数 `decay_index`，这一格从未评转为可量。EAST #137985：$B_{z,ext}$ = **−0.07536 T**、$n$ = **−1.1280**（拉长位形下 $n<0$，合理），$\|k_{identity}\|$ = 2.0976e5 对门给的 $\|k\|$ = 2.1164e5 —— **相对 8.895e-3**（判据带 1e-4）。★两者**符号相反**，那是约定不是数值差 | **不成立** |
-| 单回路闭式解 $\gamma = (1/\tau_w)\,k/(k_{\rm ideal}-k)$ | — | reference_self_reported | ★2026-09-18：门补了 `passive_take`（只留一组的前 N 件），单回路**配得出来**了。但闭式 $\gamma = (1/\tau_w)k/(k_{ideal}-k)$ **只在阻性壁支成立**（$k < k_{ideal}$），而 EAST 内壳上 $k_{ideal}$ 随件数 **791.8 → 7854 → 4.358e4 → 8.013e4 → 1.054e5 → 2.712e5**（1/2/5/10/20/40 件），$k$ = 2.116e5 —— **只有整层 40 件才翻回阻性壁支**，而那已经不是单回路。40 件上闭式给 2220 对门给的 678.2（差 69 %） | **未评估** |
+| 刚度恒等式 $k = 2\pi I_p n B_z$ | 0.0001 | reference_self_reported | 门新报 `k_identity_filaments` = $-2\pi\sum_i I_iR_i\,\partial B_z/\partial R\|_i$（外场在每根细丝自己的位置取梯度、线圈取门算 k 用的同一个中心单丝模型）：**211638.644788** 对门的 k 211638.637522，相对 **3.43e-08**，同号。点等离子体式 $2\pi I_pnB_z$ 仍记 −0.89 %：其中约 0.53 % 是等离子体有限尺寸（外场只在磁轴取一次），约 0.36 % 是 8 × 8 分丝与中心单丝两种线圈模型之差（逐根细丝但用 8 × 8 时实测 −0.361 %） | **成立** |
+| 单回路闭式解 $\gamma = (1/\tau_w)\,k/(k_{\rm ideal}-k)$ | — | reference_self_reported | 合成装置（五根细丝 0.4 MA、上下对称 PF 对给失稳外场、一件细环被动导体）：k = 7.905e4，近环 k_ideal = 1.439e6（k/k_ideal 0.055），τ_w = 8.781 ms；**γ 门 6.622012 s⁻¹ 对闭式 6.622009 s⁻¹（3.7e-7）**——k 由门的 `vertical_stiffness`、g 由 `coupling_gradient`，而 k_ideal 与 τ_w 各按闭式另算（细环自感、Ohm 电阻、互感对 z 的差分）。远环 k > k_ideal：门按名拒绝（理想不稳），不给「舒服的」增长率。★EAST 卡上的梯子照留：一件导体的 k_ideal 只有 k 的 0.37 %，要整层 40 件才翻回阻性壁支 | **成立** |
 | 耦合梯度 vs 互感的中心差分 | 1e-06 | reference_self_reported | ★判据原话是「对互感中心差分逐位」，但 `coupling_gradient` 里的 `dmdz` **就是**那个中心差分——照字面写出来的门恒真。改用一条不共享代数的闭式：细丝贴近轴时 $M = \mu_0\pi r^2a^2/(2(a^2+z^2)^{3/2})$，于是 $\mathrm{d}M/\mathrm{d}z$ 有闭式。实测 $a = 1$ m、$z = 0.6$ m：$r/a$ = 0.04 → 相对 **+8.429e-4**；$r/a$ = 0.02 → **+2.108e-4**；**比值 4.00** | **成立** |
 
 **`对 FreeGSNKE：壁的 L/R 时间、$\gamma$、$k$、$k_{\rm ideal}$`** — ★1 % 是**本册自立**的口径，判据没给数：两边是两套独立的离散（fylite 的矩形丝 vs FreeGSNKE 的细多边形），差到百分之几都不奇怪。★实测全部好一个量级以上，所以这条口径松不松并不影响结论。
@@ -78,17 +78,16 @@ title: "mhd-vertical-freegsnke-east137985"
 
 - ★这一格只查了**载体在不在**，没查往里写的字段对不对——那要一份 DD 侧的对照，本次没做。
 
-**★★刚度恒等式现在**量得成**，而它只对到 0.89 %，判据要 1e-4**
+**★★刚度恒等式**逐根细丝**取，对门的 k 到 3.4e-8（判据 1e-4），同号；点等离子体式的 0.89 % 拆成有限尺寸 + 线圈模型两项**
 
-- ★★**判 fail，但成因是结构性的**：闭式 $k = 2\pi I_p nB_z$ 是**点**等离子体的说法，而门算的是 814 根分布细丝的耦合梯度——剩下的 0.89 % 就是有限尺寸。要落到 1e-4 得有一个点等离子体，而那不是这台机器的位形。
-- ★★**它仍然值得量**：0.89 % 说明接线对（符号、因子、$2\pi$ 都没错）；若接线错了，这个比值不会落在 1 附近。**所以这一格现在是一条有信息的不成立，不是一个空白**。
-- ★★**总 ψ 顶替不了外场，这一点实测过**：磁轴上 $\nabla\psi = 0$ 是定义，从总场取 $B_z$ 得到 4.3 mT、$n$ = −368.6，推出的 $k$ 差 **19.6 倍且反号**。那个错数留在读数里，因为下一个人的第一反应几乎一定是它。
+- ★★**恒等式不是点等离子体的专利**：外场无旋，$\partial B_R/\partial z=\partial B_z/\partial R$，于是 $k=-2\pi\sum_iI_iR_i\,\partial B_z/\partial R|_i$ 对任何电流分布都是恒等式；判据写的 $2\pi I_pnB_z$ 是它把全部电流放在磁轴上的那一项。按细丝取，就落到两条差分的截断里。
+- ★★**差分之外还有一处要对齐**：门算 k 用的是每件线圈中心的一根细丝（`dmdz` 点对点），门报外场的别处用 8 × 8 分丝——初版拿后者去比，得 0.36 %，那是两种线圈模型之差，不是恒等式的残差。
+- ★总 ψ 顶替不了外场那条陷阱照旧（19.6 倍且反号），读数里留着。
 
-**★★单回路配得出来了，但**这台机器上一件导体撑不住**——闭式的支不对**
+**★★单回路闭式在一台**能被单件导体镇定**的合成装置上成立：门的 γ 对闭式 3.7e-7；撑不住的那一侧按名拒绝**
 
-- ★★**这不再是「配不出来」，是「配出来了而它不成立」**——机制在了，梯子把原因量清楚了：一件被动导体的 $k_{ideal}$ 只有 $k$ 的 **0.37 %**，判读直接是理想不稳。
-- ★40 件上的 69 % 差不是缺陷：那是**把一层壳的最长 L/R 模当成单回路的 $\tau_w$**——一种选择，不是恒等式。本记录 1.0 版就写着这句话，现在有数了。
-- ★★**要真验这条闭式，需要一张能被单件导体镇定的装置卡**（更弱的等离子体、或更近更大的回路）。那是一个合成装置，本册没有造。
+- ★★**「这台机器上撑不住」是真的，所以换一台撑得住的**：闭式只在阻性壁支（k < k_ideal）成立，而 EAST 一件导体的 k_ideal 离 k 差两个半量级。一台合成装置把单件导体放得够近、够粗，闭式就落在门的 γ 上——剩下的 3.7e-7 是两条 ∂M/∂z 差分步长不同。
+- ★对单回路而言闭式在代数上就是门的算法（`control::plant` 的 n = 1 情形），所以本格验的是**整条管线在一个物理几何上交出同一个数**：失稳外场、耦合梯度、电感电阻各由各的函数给出。
 
 **★★耦合梯度对**闭式解**：偏差按 $r^2$ 趋近（比值 4.00）**
 
@@ -98,14 +97,14 @@ title: "mhd-vertical-freegsnke-east137985"
 
 ## 不可比的部分
 
-- ★★**判决仍是 inconclusive，但内容变了**：八格里六格成立（原五格 + 耦合梯度）、一格不成立（刚度恒等式差 0.89 %，判据要 1e-4）、一格未评（单回路——机制已补，但这台机器的卡上撑不住）。★★**三格里两格从「门够不着」变成「量过了」**，而量过之后其中一格是**有信息的不成立**：0.89 % 说明接线对，差的是点等离子体与分布细丝之间的有限尺寸。
+- ★★**判成立**（2026-09-19）：八格全过。刚度恒等式逐根细丝取到 3.4e-8（点等离子体式的 0.89 % 拆成有限尺寸 0.53 % 与线圈模型 0.36 %）；单回路闭式在一台能被单件导体镇定的合成装置上对到 3.7e-7。EAST 卡上一件导体撑不住的梯子照留——那是这台机器的事实，不是缺陷。
 - ★★**同时它也不是 fail**：没有任何一格被证伪，对拍在 1e-3 量级，$\gamma \propto R_w$ 到机器精度。本条要说的是「差三个锚」，不是「算得不对」。
 - ★三格未评各自的补法都已写在 finding 里，且都不是新物理：门多报外场 $B_z$ 与 $n$（第②格）· 门允许按元件挑被动集（第③格）· 内核仓补一道 Rust 单测（第①格）。
 - ★`FR-EQ-014`（线圈受力与导体表面场）与 `FR-EQ-015`（电磁线性模型导出）同域仍空。本条不替它们声明。
 
 ## 追溯
 
-- 首次入册 2026-09-17　末次修订 2026-09-19　版本 2.11　评审 草稿
+- 首次入册 2026-09-17　末次修订 2026-09-19　版本 2.12　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -126,17 +125,19 @@ title: "mhd-vertical-freegsnke-east137985"
 | 2.9 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（表面电流模型有壁不稳带 `FR-EQ-021(g)` 与共形基解析导数链 `FR-EQ-025(e)` 入内核，另摘掉六处重复的 `#[test]`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **792 项全通过**（去重后既有 782 + 新锚 10）。★纯增量（没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 2.10 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 2.11 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
+| 2.12 | 2026-09-19 | Claude Opus 5 (1M context) | 刚度恒等式与单回路两格转成立：门新报 `k_identity_filaments`（逐根细丝、同一个线圈模型）对 k 3.4e-8；合成装置上单回路闭式对门 3.7e-7，撑不住的一侧按名拒绝。整体 inconclusive → pass。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:3250d2a411eae26a58930a6c611468d94724d3610dcef2da735a6c6ab3418338`
+- 内核 `libfylite` `sha256:6a3256a58b2476456c9a1e466d4539c81f93dd5279b1225f1fbed2a4da9a4690`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
 - `docs/benchmark/readings/wall_vstab_east137985.json`    `sha256:4f106103acdd250b9ef317073c447be7eb90f923adadac93f9eaad9c6ed46cc0`    对 FreeGSNKE：壁的 L/R 与互感、竖直不稳的 gamma/k/k_ideal/margin
-- `docs/benchmark/readings/vstab_identities_east137985.json`    `sha256:c14145dd0e24eaddea03f3472b2aa5e032ef679f1513e700f98ddca56f584841`    内部核查：电阻缩放扫描、壁外移扫描、三档判读、载体、以及衰减指数那条陷阱的实测
+- `docs/benchmark/readings/vstab_identities_east137985.json`    `sha256:4b104d9d2b5e84087c7389d85348930fd1552ea01d6470a1040a4b2ff1b23cae`    内部核查：电阻缩放扫描、壁外移扫描、三档判读、载体、以及衰减指数那条陷阱的实测
+- `docs/benchmark/readings/vstab_single_loop_synthetic.json`    `sha256:01026881e7833f8d08a997989f0445b006285cf10653fec9c3bdbea9b74cea72`    单回路闭式的合成装置
 
 **守它的门**：
 
@@ -148,6 +149,8 @@ title: "mhd-vertical-freegsnke-east137985"
 - `python/tests/test_benchmark_mhd_vertical.py::test_the_recorded_identity_readings_are_what_this_checkout_computes` —— ★守的是记录里的数不会悄悄过期
 - `tools/benchmark-wall-vstab.py::identities` —— 读数的产出处（新写的子命令）
 - `$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::the_coupling_gradient_meets_the_closed_form_near_the_axis` —— ★第一格的锚（2026-09-18 新写，不与实现共享代数）
+- `python/tests/test_benchmark_mhd_vertical.py::test_the_stiffness_identity_closes_filament_by_filament` —— ★逐根细丝的刚度恒等式
+- `$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::one_passive_loop_that_can_hold_the_plasma_gives_the_single_loop_closed_form` —— ★单回路闭式（合成装置）
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

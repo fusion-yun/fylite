@@ -14,8 +14,8 @@ title: "eq-inverse-iter-reference-separatrix"
 - **量的是**：ITER 参考分离面上的静态逆解：设计自身的闭合，以及它买不起的那部分形状
 - **参考**：ITER 参考分离面（装置牌上的数字化曲线）
 - **验的需求**：`FR-EQ-005`
-- **跑在内核**：`sha256:3250d2a411eae26a…`（新鲜度 **current**）
-- **记录版本**：1.18　**评审**：草稿　**日期**：2026-09-17
+- **跑在内核**：`sha256:6a3256a58b247645…`（新鲜度 **current**）
+- **记录版本**：1.19　**评审**：草稿　**日期**：2026-09-17
 
 :::{warning} 这是一条**已裁定保留**的缺口
 
@@ -46,7 +46,7 @@ title: "eq-inverse-iter-reference-separatrix"
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
 | 设计分离面对目标曲线的逐点距离（中位数） | 15.5 | measured_band | 中位 15.37 mm · p95 69.81 mm · max 123.2 mm（181 点） | **成立** |
-| 线圈电流峰值（是否落在机器能给的范围内） | 30.7 | measured_band | 峰值 30.61 MA·t · limits_held = False | **未判（读数）** |
+| 线圈电流峰值（是否落在机器能给的范围内） | 30.7 | measured_band | 额定：DINA-IMAS `control_data.dat` 每匝上限（CS 45 · PF1 48 · PF2–4 55 · PF5–6 52 kA）× 本卡片匝数——同一套线圈（匝数逐一相同、中心差 < 1 cm）。无界设计：PF1 13.57 MA·t 对额定 11.93（**1.14**）、PF6 30.61 对 23.89（**1.28**），其余十件在额定内。有界再解：每件都在额定内（PF6 顶格、PF1 0.90），分离面中位 **11.8 mm**（无界 15.4），kappa 1.793、delta_lower 0.485——但 **settled = 0**，600 次迭代残差 0.072（无界 settled、9.7e-4） | **不成立** |
 | 逆解的收敛状态（读数，不判） | 1 | measured_band | converged = 0（settled = 1，残差 0.000965，78 次迭代 / 16 轮） | **未判（读数）** |
 | 达成的形状对目标形状（kappa 与 delta_lower） | 0.01 | measured_band | kappa 1.7941 对目标 1.8492（低 2.98 %）· delta_lower 0.4878 对目标 0.5432（低 10.21 %） | **不成立** |
 | 目标曲线自身的缺陷（记在册里，不在脚注里） | — | — | X 点处开口 322.5 mm，需从角点 [5.15, -3.4] 闭合；目标点 248 个，分段中位 66.67 mm | **未判（读数）** |
@@ -63,10 +63,11 @@ title: "eq-inverse-iter-reference-separatrix"
 
 - ★中位 15 mm 而 max 123 mm：偏差**不是均匀分布**的，尾部集中在 X 点角附近——那正是目标曲线自己有缺陷的地方（见下一条）。只报中位数会把这件事藏起来。
 
-**★线圈电流 —— **未判**：没有上限可比**
+**★线圈电流 —— **不成立**：DINA 的 ITER 额定在，无界设计 PF1 超 14 %、PF6 超 28 %；在额定内设计不再收敛**
 
-- ★★**退火是无界的**：pf_active carries no supply rating on this card (ITER-FEAT 2000's dev:currentMax belongs to a different coil set — 12 of 12 circles differ from base), so the anneal runs unbounded
-- ★于是「设计成功了」这句话缺一个前提：没有人知道这组电流这台机器给不给得出。**一个买得起与否未知的设计，不能记成成立。**
+- ★★**此前判未判，是因为卡片没有额定**；额定在 DINA-IMAS 里（ITER Organization 的场景码，LGPL-3.0）。工具在运行时把它注入卡片（与注入 METIS 墙同一做法），不改卡片。
+- ★★**判不成立的是那组无界电流**：它买到的形状这台机器的 PF1 与 PF6 给不出。在额定内重解，分离面反而更贴（11.8 对 15.4 mm）、形状差不多，但迭代不再停下——「买不起的那部分形状，在额定内也买不到」这句话现在有了第二半。
+- ★DINA 另有一个 `c_cur_max = 0.98` 的控制裕度，这里**没乘**：额定是额定，裕度是控制器的选择。乘上它 PF6 就更紧。
 
 **收敛状态（读数，不判）—— 且这是**跨算例的共性****
 
@@ -87,13 +88,14 @@ title: "eq-inverse-iter-reference-separatrix"
 ## 不可比的部分
 
 - ★★**本条没有外部参考。** ITER 的 TEQ / TOSCA 平衡是指向未设 `$ITER_SCENARIO_ROOT` 的指针，FreeGSNKE 不带 ITER 机器——所以这里不存在「另一个码的答案」可比。量的是设计自身的闭合，这一点决定了本条能声称什么、不能声称什么。
+- ★2026-09-19 线圈电流一格有了上限（DINA-IMAS 的 ITER 额定）并判不成立；整体仍 inconclusive——收敛一格按本条的规矩只记读数不判，有一格不判，整体就不给干脆的判决。
 - ★**哪些量是喂进去的**：目标分离面、Ip、beta0、剖面指数、壁，全是**输入**。算出来的只有线圈电流与它们产生的那条分离面。把目标形状的「接近」当成物理正确性的证据，是这一域最容易犯的夸大。
 - ★**整体判 inconclusive 而不是 fail 或 pass**：闭合带过了（criterion/1），收敛与形状两条不成立（criterion/3、4），电流一条**判不了**（criterion/2，牌上没有额定）。有一条判不了，整体就不该给一个干脆的判决。
 - ★2026-09-16 用户裁定「不改内核，保留负面结果」：以上三条负面结论原样留册，容差不放宽。
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.18　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.19　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -117,16 +119,18 @@ title: "eq-inverse-iter-reference-separatrix"
 | 1.16 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（表面电流模型有壁不稳带 `FR-EQ-021(g)` 与共形基解析导数链 `FR-EQ-025(e)` 入内核，另摘掉六处重复的 `#[test]`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **792 项全通过**（去重后既有 782 + 新锚 10）。★纯增量（没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.17 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.18 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
+| 1.19 | 2026-09-19 | Claude Opus 5 (1M context) | 线圈电流一格由未判转不成立：ITER 额定取自 DINA-IMAS（每匝上限 × 本卡片匝数，同一套线圈）。无界设计 PF1 1.14 倍、PF6 1.28 倍额定；有界再解守住额定（PF6 顶格）、分离面 11.8 mm，但不再收敛（残差 0.072）。整体仍 inconclusive（收敛一格只记不判）。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:3250d2a411eae26a58930a6c611468d94724d3610dcef2da735a6c6ab3418338`　—— 须设 `$FYLITE_KERNEL_LIB` 指向带该门的构建，并设 `$FYLITE_DEVICE_DIR` 指向 ITER 牌所在目录
+- 内核 `libfylite` `sha256:6a3256a58b2476456c9a1e466d4539c81f93dd5279b1225f1fbed2a4da9a4690`　—— 须设 `$FYLITE_KERNEL_LIB` 指向带该门的构建，并设 `$FYLITE_DEVICE_DIR` 指向 ITER 牌所在目录
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
 - `docs/benchmark/readings/inverse_shape_iter.json`    `sha256:16a2a565a3c22574d7e63761fb697f537f003a5103f14c4aec11449cd6c24570`    读数：目标曲线与其缺陷、设置、设计结果、逐点距离、十二路线圈电流。★由 `tools/benchmark-equilibrium.py inverse-shape-iter --out docs/benchmark/readings` 产出。
+- `docs/benchmark/readings/inverse_shape_iter_dina_limits.json`    `sha256:215b2ef715fe64eea5138f11bbce88d462f081aef699ff9e09946e23dbb30324`    DINA 额定下的有界再解：各件用量、分离面、形状、收敛
 
 **守它的门**：
 
@@ -134,6 +138,8 @@ title: "eq-inverse-iter-reference-separatrix"
 - `python/tests/test_benchmark_inverse_shape_iter.py::test_v22_the_design_does_not_buy_shape_with_current_the_machine_lacks`
 - `python/tests/test_benchmark_inverse_shape_iter.py::test_v22_the_target_curve_is_recorded_with_its_defects`
 - `python/tests/test_benchmark_inverse_shape_iter.py::test_v22_the_design_reproduces_its_recorded_readings`
+- `python/tests/test_benchmark_inverse_shape_iter.py::test_v22_the_unbounded_design_exceeds_the_dina_ratings_on_pf1_and_pf6` —— ★无界设计超 PF1 / PF6 额定
+- `python/tests/test_benchmark_inverse_shape_iter.py::test_v22_within_the_dina_ratings_the_design_holds_them_and_does_not_settle` —— ★有界再解：守额定、不收敛
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

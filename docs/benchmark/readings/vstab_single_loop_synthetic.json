@@ -1,0 +1,22 @@
+{
+ "_comment": "FR-EQ-016 单回路闭式的合成装置（2026-09-19）。门：$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::one_passive_loop_that_can_hold_the_plasma_gives_the_single_loop_closed_form",
+ "device": {
+  "plasma": "5 filaments at R0 = 1.8 m (±0.05 m, ±0.06 m), Ip = 0.4 MA",
+  "pf_pair": "(2.8, ±1.1) m, 3e5 A·t each, sign chosen for k > 0",
+  "passive_loop": "R = 1.8 m, thin ring a = 0.05 m, η = 7e-7 Ω·m, at dz = 0.25 m (holds) and 1.5 m (cannot)"
+ },
+ "near": {
+  "k": 79047.0,
+  "k_ideal": 1438500.0,
+  "k_over_k_ideal": 0.055,
+  "tau_w_s": 0.0087807,
+  "gamma_door": 6.622012,
+  "gamma_closed_form": 6.622009,
+  "rel": 3.7e-07
+ },
+ "far": {
+  "k_gt_k_ideal": true,
+  "door": "refused as ideal-unstable (gamma = inf), not a comfortable growth rate"
+ },
+ "why_synthetic": "on the EAST card one passive element's k_ideal is 0.37 % of k (ideal branch); the closed form needs a conductor that can hold the plasma"
+}

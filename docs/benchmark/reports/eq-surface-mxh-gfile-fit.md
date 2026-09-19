@@ -14,8 +14,8 @@ title: "eq-surface-mxh-gfile-fit"
 - **量的是**：MXH 边界拟合：**残差不是散开的，它堆在 X 点上**
 - **参考**：闭式 —— 圆的精确退化与一个已知 MXH 形的原样回收 · 本机拿得到的 g-file 边界
 - **验的需求**：`FR-EQ-013`
-- **跑在内核**：`sha256:3250d2a411eae26a…`（新鲜度 **current**）
-- **记录版本**：1.11　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`sha256:6a3256a58b247645…`（新鲜度 **current**）
+- **记录版本**：1.12　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -83,7 +83,7 @@ title: "eq-surface-mxh-gfile-fit"
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.11　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.12　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -101,12 +101,13 @@ title: "eq-surface-mxh-gfile-fit"
 | 1.9 | 2026-09-18 | Claude Opus 5 (1M context) | MAST 与 JET 入列（`third_party/` 的真 EFIT：MAST 2、JET 6），全部在带内（MAST 0.82 / 1.77 %，JET ≤ 0.62 %），残差同样落在 X 点——球形托卡马克上结论仍成立。第四格由未评转未判（5 / 7 机型，点名的三个都在）。新增第五格：第二套实现 MillerExtendedHarmonic.jl（Julia 1.13）逐份对照，几何逐位、系数 ≤ 5.3e-3、曲线 ≤ 0.78 % 小半径，成立。整体仍 inconclusive（DIII-D 出带 0.06 %）。 |
 | 1.10 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.11 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
+| 1.12 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（平衡 / MHD 三条判据补齐入内核：`highbeta::surface_energy_book`、`code/vstab` 新报 `k_identity_filaments`，另加 conformal / stability 的锚；`FR-EQ-024` · `025` · `016`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **809 项全通过**（新锚 4 条）。★缺省路径逐位不变，接口摘要、`CASE_CODES`、ABI 均未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:3250d2a411eae26a58930a6c611468d94724d3610dcef2da735a6c6ab3418338`
+- 内核 `libfylite` `sha256:6a3256a58b2476456c9a1e466d4539c81f93dd5279b1225f1fbed2a4da9a4690`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

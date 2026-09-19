@@ -189,7 +189,11 @@ def identities(case: Path) -> dict:
         #: 判据的带是 rel < 1e-4，实测差一个量级以上——原因见记录：闭式是**点**
         #: 等离子体的说法，而门算的是分布细丝，剩下的就是有限尺寸。
         "rel_magnitude": (abs(base["k_identity"]) / abs(base["k"]) - 1.0) if base.get("k") else None,
-        "sign_door": float(np.sign(base["k"])), "sign_identity": float(np.sign(base.get("k_identity", 0.0)))}
+        "sign_door": float(np.sign(base["k"])), "sign_identity": float(np.sign(base.get("k_identity", 0.0))),
+        #: ★★2026-09-19：同一条恒等式**逐根细丝**取（门报 `k_identity_filaments`）——外场在每根细丝
+        #: 自己的位置取梯度，于是它对分布电流也是恒等式；剩下的只是两条差分的截断
+        "k_identity_filaments": base.get("k_identity_filaments"),
+        "rel_filaments": ((base["k_identity_filaments"] - base["k"]) / base["k"]) if base.get("k_identity_filaments") is not None else None}
 
     #: ★★闭式解 `gamma = (1/tau_w) k/(k_ideal − k)` —— 它**只在阻性壁支成立**
     #: （`k < k_ideal`）。EAST 卡上一件被动导体的 `k_ideal` 只有 `k` 的 0.4 %，

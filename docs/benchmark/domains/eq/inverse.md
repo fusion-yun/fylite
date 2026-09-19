@@ -18,6 +18,10 @@ title: "静态逆解：形状到线圈电流"
 ★**两个码的逆解结果差 20 % 完全可以两边都没错。** 所以这一域对外部码的比较，记录里必须
 写清双方的正则设置与自由度数——不写，那个比较就不可复算，也就不该收。
 
+★2026-09-19 ITER 那条有了线圈额定：DINA-IMAS（ITER Organization 的场景码）的每匝上限乘本卡片匝数——
+同一套线圈，匝数逐一相同。无界设计要 PF1 的 1.14 倍、PF6 的 1.28 倍额定，**这台机器给不出**；
+在额定内重解，分离面反而更贴（11.8 对 15.4 mm）、形状差不多，但迭代不再停下（残差 0.072）。
+
 上一册的 `V-22`（ITER 参考分离面上的静态逆解）与 `B-21`（对 FreeGSNKE 的逆解）在这一域。已退役。
 
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
@@ -38,8 +42,8 @@ title: "静态逆解：形状到线圈电流"
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-inverse-freegsnke-east137985`](../../reports/eq-inverse-freegsnke-east137985.md) | 对拍 | 成立 | FreeGSNKE | 1.17 | 草稿 | [jsonld](../../records/eq-inverse-freegsnke-east137985.jsonld) |
-| [`eq-inverse-iter-reference-separatrix`](../../reports/eq-inverse-iter-reference-separatrix.md) | 验证 | 未判（读数） | ITER 参考分离面（装置牌上的数字化曲线） | 1.18 | 草稿 | [jsonld](../../records/eq-inverse-iter-reference-separatrix.jsonld) |
+| [`eq-inverse-freegsnke-east137985`](../../reports/eq-inverse-freegsnke-east137985.md) | 对拍 | 成立 | FreeGSNKE | 1.18 | 草稿 | [jsonld](../../records/eq-inverse-freegsnke-east137985.jsonld) |
+| [`eq-inverse-iter-reference-separatrix`](../../reports/eq-inverse-iter-reference-separatrix.md) | 验证 | 未判（读数） | ITER 参考分离面（装置牌上的数字化曲线） | 1.19 | 草稿 | [jsonld](../../records/eq-inverse-iter-reference-separatrix.jsonld) |
 
 ### 缺口
 

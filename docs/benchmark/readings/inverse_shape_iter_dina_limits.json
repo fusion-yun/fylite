@@ -1,0 +1,113 @@
+{
+ "reference": "none (no ITER equilibrium is reachable: TEQ / TOSCA are $ITER_SCENARIO_ROOT pointers, FreeGSNKE has no ITER machine)",
+ "inputs": {
+  "card": "dist/facts/device/iter.jsonld",
+  "wall": "fydoc facts/device/iter/abox/providers/wall/metis.jsonld (injected as the limiter unit `metis_wall`)",
+  "target_points": 248,
+  "target_closed_through": [
+   5.15,
+   -3.4
+  ],
+  "target_open_gap_mm": 322.51638853228695,
+  "target_segment_median_mm": 66.67103208771518,
+  "ip_A": 15000000.0,
+  "settings": {
+   "ip": 15000000.0,
+   "n_points": 24.0,
+   "beta0": 0.6,
+   "emp": 2.0,
+   "r0": 6.2,
+   "nu": 3.0,
+   "passes": 16.0,
+   "x_weight": 1.0,
+   "nw": 129.0,
+   "nh": 129.0,
+   "pc_track_r0": 1.0,
+   "limiter": "metis_wall",
+   "position_control": "c4"
+  }
+ },
+ "design": {
+  "seconds": 61.76,
+  "notes": [
+   "coil limits: the anneal holds the card's coil ratings folded per channel (pf_active/coil/fylite:i_max_aturn x element turn fraction / channel weight)"
+  ],
+  "facts": {
+   "shape_error": 0.03261608001807195,
+   "boundary_gap_rms": 0.020304632308701564,
+   "boundary_gap_max": 0.08268235010089169,
+   "boundary_gap_rms_norm": 0.01024524248517626,
+   "converged": 0.0,
+   "settled": 0.0,
+   "residual": 0.07230509895930604,
+   "iterations": 600.0,
+   "n_passes": 16.0,
+   "n_at_coil_limit": 1.0,
+   "axis_r": 6.422716017837687,
+   "axis_z": 0.5402916018373873,
+   "xpt_r": 5.110248379484229,
+   "xpt_z": -3.3311227636812366,
+   "ip": 15000000.000000015,
+   "shape_r0": 6.218778727657092,
+   "shape_a": 1.9781513079774071,
+   "shape_kappa": 1.792569694853133,
+   "shape_delta_upper": 0.36805302955049446,
+   "shape_delta_lower": 0.48502773428891777,
+   "shape_z0": 0.37461856648521197
+  }
+ },
+ "separatrix_vs_target": {
+  "points": 181,
+  "median_mm": 11.795290570208916,
+  "p95_mm": 63.1507922876242,
+  "max_mm": 105.21352832820472
+ },
+ "currents": {
+  "aturns": [
+   -1246864.0339781428,
+   -3574720.2215303713,
+   -17153944.80117768,
+   -16657108.712236885,
+   -7446015.351344751,
+   7518348.447002445,
+   10739395.478580205,
+   -1960229.4925579377,
+   -5573602.68636995,
+   -4068772.417111899,
+   -8798504.621442793,
+   23888800.0
+  ],
+  "max_abs_MAt": 23.8888,
+  "rating_aturns": {
+   "CS3U": 24930000.0,
+   "CS2U": 24930000.0,
+   "CS1U": 24930000.0,
+   "CS1L": 24930000.0,
+   "CS2L": 24930000.0,
+   "CS3L": 24930000.0,
+   "PF1": 11932800.0,
+   "PF2": 6336000.0,
+   "PF3": 10224500.0,
+   "PF4": 9344500.0,
+   "PF5": 11273600.0,
+   "PF6": 23888800.0
+  },
+  "rating_source": "third_party/DINA-IMAS/machines/iter/15MA_40ka/dat/control_data.dat (per-turn kA) x the card's turns",
+  "use_fraction": {
+   "CS3U": 0.05001460224541287,
+   "CS2U": 0.14339030170599162,
+   "CS1U": 0.6880844284467581,
+   "CS1L": 0.6681551830018807,
+   "CS2L": 0.2986769094001104,
+   "CS3L": 0.30157835728048316,
+   "PF1": 0.8999895647777726,
+   "PF2": 0.3093796547597755,
+   "PF3": 0.5451222735947919,
+   "PF4": 0.4354189541561238,
+   "PF5": 0.7804520846440173,
+   "PF6": 1.0
+  },
+  "worst_use_fraction": 1.0,
+  "n_at_coil_limit": 1.0
+ }
+}

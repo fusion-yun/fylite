@@ -14,8 +14,8 @@ title: "mhd-energy-surface-current-beta-limit"
 - **量的是**：表面电流模型的解析 β 极限：**根是 1.69，而 0.21 属于 1.71**
 - **参考**：Freidberg, *Ideal MHD* (Cambridge, 2014), §12.8, Eqs. (12.154)–(12.166)
 - **验的需求**：`FR-EQ-021`
-- **跑在内核**：`sha256:3250d2a411eae26a…`（新鲜度 **current**）
-- **记录版本**：1.8　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`sha256:6a3256a58b247645…`（新鲜度 **current**）
+- **记录版本**：1.9　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -92,7 +92,7 @@ title: "mhd-energy-surface-current-beta-limit"
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.8　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.9　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -107,12 +107,13 @@ title: "mhd-energy-surface-current-beta-limit"
 | 1.6 | 2026-09-18 | Claude Opus 5 (1M context) | 补 `FR-EQ-021(g)` 有壁支与不稳带（criterion/9，成立）：有壁 W_lp = (12.164) + 负幂真空修正，带按全矩阵 λ_min 定；SRS 三档读数复现，β/ε 0.2159 → 0.3636；★闭合点实测 1.32165，不复现 SRS 的「≤ 1.35」，照实记。同批内核换代（`e16301fa` → `3b703891`），内核侧 792 项全通过。 |
 | 1.7 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.8 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
+| 1.9 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（平衡 / MHD 三条判据补齐入内核：`highbeta::surface_energy_book`、`code/vstab` 新报 `k_identity_filaments`，另加 conformal / stability 的锚；`FR-EQ-024` · `025` · `016`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **809 项全通过**（新锚 4 条）。★缺省路径逐位不变，接口摘要、`CASE_CODES`、ABI 均未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:3250d2a411eae26a58930a6c611468d94724d3610dcef2da735a6c6ab3418338`
+- 内核 `libfylite` `sha256:6a3256a58b2476456c9a1e466d4539c81f93dd5279b1225f1fbed2a4da9a4690`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

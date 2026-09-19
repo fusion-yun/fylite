@@ -119,3 +119,16 @@ def test_the_wall_and_the_growth_rate_agree_with_freegsnke(case):
         assert abs(c["gamma_rel"]) < CROSS_TOL, (name, c)
         assert abs(c["k_rel"]) < CROSS_TOL, (name, c)
         assert abs(c["k_ideal_rel"]) < CROSS_TOL, (name, c)
+
+
+def test_the_stiffness_identity_closes_filament_by_filament(ident):
+    """★★刚度恒等式逐根细丝取（2026-09-19）：`k = −2π Σ I_i R_i ∂B_z/∂R|_i` 对门的 k 到 1e-4 以内（实测 3.4e-8），同号。
+
+    点等离子体式 `2π I_p n B_z` 差 0.89 %：约 0.53 % 是等离子体的有限尺寸（外场只在磁轴取一次），约 0.36 % 是
+    8 × 8 分丝与门的中心单丝两种线圈模型之差——逐根细丝、同一个线圈模型取，两项都没了。"""
+    s = ident["stiffness_identity"]
+    assert abs(s["rel_filaments"]) < 1e-4, s
+    assert math.copysign(1.0, s["k_identity_filaments"]) == math.copysign(1.0, s["k_door"])
+    assert abs(s["rel_magnitude"]) > 1e-3, "the point-plasma form stays off by finite size"
+    want = json.loads(IDENT.read_text(encoding="utf-8"))["stiffness_identity"]
+    assert s["k_identity_filaments"] == pytest.approx(want["k_identity_filaments"], rel=1e-9)

@@ -16,11 +16,11 @@
 <text x="860.0" y="272" font-size="11" fill="#8a8a8a" text-anchor="middle">10³x</text>
 <text x="572.0" y="34" font-size="11" fill="#8a8a8a" text-anchor="middle">judgement</text>
 <text x="370" y="72.0" font-size="12" fill="#9a9a9a" text-anchor="end">★★装配路 vs 闭式路四档 ε 的 $\Delta/\v…</text>
-<circle cx="572.0" cy="68.0" r="4" fill="#8a8a8a"/>
-<text x="584.0" y="72.0" font-size="11" fill="#8a8a8a">恒等：不成立</text>
+<circle cx="572.0" cy="68.0" r="4" fill="#6f8fbf"/>
+<text x="584.0" y="72.0" font-size="11" fill="#8a8a8a">恒等：成立</text>
 <text x="370" y="100.0" font-size="12" fill="#9a9a9a" text-anchor="end">边缘点亦一阶收敛；$k^2=0.5/0.7/0.9$ 上同…</text>
-<circle cx="572.0" cy="96.0" r="4" fill="#8a8a8a"/>
-<text x="584.0" y="100.0" font-size="11" fill="#8a8a8a">恒等：不成立</text>
+<circle cx="572.0" cy="96.0" r="4" fill="#6f8fbf"/>
+<text x="584.0" y="100.0" font-size="11" fill="#8a8a8a">恒等：成立</text>
 <text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">网格已收敛</text>
 <rect x="572.0" y="117.0" width="251.7" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
 <text x="829.7" y="128.0" font-size="11" fill="#2e9e4f" text-anchor="start">418x</text>

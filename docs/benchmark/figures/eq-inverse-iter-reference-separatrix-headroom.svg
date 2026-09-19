@@ -19,8 +19,8 @@
 <rect x="572.0" y="61.0" width="2.0" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
 <text x="578.4" y="72.0" font-size="11" fill="#e0a030" text-anchor="start">1.01x</text>
 <text x="370" y="100.0" font-size="12" fill="#9a9a9a" text-anchor="end">线圈电流峰值（是否落在机器能给的范围内）</text>
-<rect x="572.0" y="89.0" width="2.0" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
-<text x="578.1" y="100.0" font-size="11" fill="#e0a030" text-anchor="start">1x</text>
+<rect x="572.0" y="89.0" width="132.5" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
+<text x="710.5" y="100.0" font-size="11" fill="#2e9e4f" text-anchor="start">24x</text>
 <text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">逆解的收敛状态（读数，不判）</text>
 <circle cx="572.0" cy="124.0" r="4" fill="#8a8a8a"/>
 <text x="584.0" y="128.0" font-size="11" fill="#8a8a8a">恒等：不成立</text>

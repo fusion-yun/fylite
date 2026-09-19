@@ -35,10 +35,15 @@ $\mu_0 I/2R$；再加一条系统合力 $F_z = 0$。四条一起过，接线就�
 **刚度恒等式**判**不成立**，而这是一条**有信息的**不成立。门补报外场 $B_z$ 与衰减指数之后
 （EAST 上 −0.07536 T、$n=-1.128$），$|k|$ 对到 **0.89 %**——判据要 1e-4。
 ★差的是**点等离子体与 814 根分布细丝之间的有限尺寸**，不是接线：若接线错了，这个比值不会落在 1 附近。
+★★**2026-09-19 转成立**：同一条恒等式逐根细丝取——$k=-2\pi\sum_iI_iR_i\,\partial B_z/\partial R|_i$（外场无旋，
+对任何电流分布都是恒等式）——对门的 $k$ 到 **3.4e-8**，同号。0.89 % 拆开是两项：约 0.53 % 是有限尺寸，
+约 0.36 % 是门报外场用的 8 × 8 分丝与门算 $k$ 用的中心单丝两种线圈模型之差。
 
 **单回路**仍判未评，但不再是「配不出来」。门补了 `passive_take` 之后配得出来了，
 而 EAST 内壳上 $k_{ideal}$ 随件数从 791.8 长到 2.712e5，**只有整层 40 件才翻回阻性壁支**——
 一件被动导体撑不住这台机器，闭式的分支条件根本不成立。★要验它需要一张能被单件导体镇定的装置卡。
+★★**2026-09-19 造了一台**（内核测试里的合成装置：五根细丝的等离子体、失稳的上下对称 PF 对、一件紧贴的细环）：
+门的 γ 6.622012 s⁻¹ 对闭式 6.622009 s⁻¹（3.7e-7），而把环挪远到撑不住时，门按名拒绝、不给一个「舒服的」增长率。
 
 ★★另记一处**我自己引入、被既有门禁逮住的回归**：补报外场时把 `axis_r`/`axis_z` 从可选读成了必需，
 4 道 vstab 测试当场红。**一个新报的量把旧输入变成强制，是最容易溜过去的破坏性改动**——
@@ -126,9 +131,9 @@ $\mathbf A$ 会读成「稳」。现在按 $k\ge k_{\rm ideal}=I_p^2\mathbf G^T\
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`mhd-vertical-coil-forces-analytic`](../../reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） | 闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列） | 1.12 | 草稿 | [jsonld](../../records/mhd-vertical-coil-forces-analytic.jsonld) |
-| [`mhd-vertical-freegsnke-east137985`](../../reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 未判（读数） | FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚） | 2.11 | 草稿 | [jsonld](../../records/mhd-vertical-freegsnke-east137985.jsonld) |
-| [`mhd-vertical-lti-export`](../../reports/mhd-vertical-lti-export.md) | 验证 | 成立 | 纯电路的解析本征值；单回路刚性色散根；FR-EQ-016 竖直稳定性门的 γ | 1.4 | 草稿 | [jsonld](../../records/mhd-vertical-lti-export.jsonld) |
+| [`mhd-vertical-coil-forces-analytic`](../../reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） | 闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列） | 1.13 | 草稿 | [jsonld](../../records/mhd-vertical-coil-forces-analytic.jsonld) |
+| [`mhd-vertical-freegsnke-east137985`](../../reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 成立 | FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚） | 2.12 | 草稿 | [jsonld](../../records/mhd-vertical-freegsnke-east137985.jsonld) |
+| [`mhd-vertical-lti-export`](../../reports/mhd-vertical-lti-export.md) | 验证 | 成立 | 纯电路的解析本征值；单回路刚性色散根；FR-EQ-016 竖直稳定性门的 γ | 1.5 | 草稿 | [jsonld](../../records/mhd-vertical-lti-export.jsonld) |
 
 ### 缺口
 
