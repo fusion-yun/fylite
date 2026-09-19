@@ -41,6 +41,7 @@ MXH 与 Miller 的分界在于：**$\theta$ 由 $Z$ 定义、$\theta_R$ 由 $R$ 
 DIII-D 与 CFEDR 在 $\theta/\pi\approx1.5$–$1.7$、$z/a\approx-1.7$（下 X 点）——**无一例外**。
 MXH 的六阶谐波表达不了尖角，所以这不是这份实现的缺陷，是这族参数化的性质。
 ★2026-09-18 判据点名的 **MAST 与 JET** 入列（`third_party/` 里的真 EFIT：MAST 2 份、JET 6 份）：全部在带内（MAST 0.82 / 1.77 %，JET ≤ 0.62 %），残差同样落在 X 点——**球形托卡马克上结论仍成立**。★并有了**第二套实现**：同一批 15 份轮廓交给 FUSE 的 MillerExtendedHarmonic.jl，几何量逐位、形状系数到 5.3e-3、两条重构曲线相距不到 0.78 % 小半径；它取 $Z=Z_0-\kappa a\sin\theta$，于是 $c_J=-c$、$s_J=+s$——这个映射是量出来的。
+★★2026-09-19 **判成立**：7 机型齐了（加 JT-60SA 与 NSTX；NSTX 存的边界不闭合，从 ψ 图在 $\psi_N=0.999$ 重描、记明），而判据的「RMS」上游自己定义过（`fit_diagnostics`：每点到 MXH 曲线的**最近距离**）——按它 17 份真轮廓全在 2.4 % 带内，最劣 DIII-D 1.57 %。此前「DIII-D 2.460 % 刚出带」用的是本仓更严的同 θ R 向误差，是尺的差，不是拟合的差；两把尺并列留着。
 详见 [`eq-surface-mxh-gfile-fit`](../../reports/eq-surface-mxh-gfile-fit.md)。
 
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
@@ -76,7 +77,7 @@ MXH 的六阶谐波表达不了尖角，所以这不是这份实现的缺陷，�
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | [`eq-surface-chease-fixed-boundary-east`](../../reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 | CHEASE | 1.19 | 草稿 | [jsonld](../../records/eq-surface-chease-fixed-boundary-east.jsonld) |
-| [`eq-surface-mxh-gfile-fit`](../../reports/eq-surface-mxh-gfile-fit.md) | 验证 | 未判（读数） | 闭式 —— 圆的精确退化与一个已知 MXH 形的原样回收 · 本机拿得到的 g-file 边界 | 1.12 | 草稿 | [jsonld](../../records/eq-surface-mxh-gfile-fit.jsonld) |
+| [`eq-surface-mxh-gfile-fit`](../../reports/eq-surface-mxh-gfile-fit.md) | 验证 | 成立 | 闭式 —— 圆的精确退化与一个已知 MXH 形的原样回收 · 本机拿得到的 g-file 边界 | 1.13 | 草稿 | [jsonld](../../records/eq-surface-mxh-gfile-fit.jsonld) |
 
 ### 缺口
 

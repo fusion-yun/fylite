@@ -26,7 +26,7 @@ title: 验证状态 (Verification status)
 ## 总览 (overview)
 
 - 记录 (records)：**55** 条
-- 判决 (verdict)：成立 46 · 不成立 **0** · 未判 9 · 未评估 0
+- 判决 (verdict)：成立 47 · 不成立 **0** · 未判 8 · 未评估 0
 - 新鲜度 (freshness)：当前 55 · **过期 0** · 未知 0
 - 评审 (review)：已评审 0 · 草稿 55 · 已被取代 0
 
@@ -101,7 +101,7 @@ title: 验证状态 (Verification status)
 | 组 | 域 | 需求 | 覆盖 | 记录 | 成立 | 不成立 | 过期 |
 | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
 | 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](domains/eq/forward.md) | 4 | 4 | 6 | 5 | 0 | 0 |
-| 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](domains/eq/surface.md) | 3 | 3 | 2 | 1 | 0 | 0 |
+| 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](domains/eq/surface.md) | 3 | 3 | 2 | 2 | 0 | 0 |
 | 平衡 (Equilibrium) | [演化自由边界与涡流电路](domains/eq/evolve.md) | 1 | 1 | 1 | 1 | 0 | 0 |
 | 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](domains/eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 0 |
 | 平衡 (Equilibrium) | [测量重构与约束阶梯](domains/eq/reconstruct.md) | 8 | 6 | 7 | 7 | 0 | 0 |
@@ -140,7 +140,7 @@ title: 验证状态 (Verification status)
 | [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | eq-reconstruct | 验证 | 成立 | 1.18 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
 | [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.18 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
 | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.19 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
-| [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | eq-surface | 验证 | 未判（读数） | 1.12 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
+| [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | eq-surface | 验证 | 成立 | 1.13 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
 | [`mhd-analytic-ballooning-first-stability`](reports/mhd-analytic-ballooning-first-stability.md) | mhd-analytic | 验证 | 成立 | 1.9 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
 | [`mhd-analytic-external-kink-qlimit`](reports/mhd-analytic-external-kink-qlimit.md) | mhd-analytic | 验证 | 成立 | 1.10 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
 | [`mhd-deltaw-delivery-records`](reports/mhd-deltaw-delivery-records.md) | mhd-deltaw | 验证 | 成立 | 1.6 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |

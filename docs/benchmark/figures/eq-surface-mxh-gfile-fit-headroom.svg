@@ -22,11 +22,11 @@
 <rect x="572.0" y="89.0" width="37.7" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
 <text x="615.7" y="100.0" font-size="11" fill="#2e9e4f" text-anchor="start">2.47x</text>
 <text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">真装置 g-file 边界的拟合 RMS（按小半径归一）</text>
-<rect x="571.0" y="117.0" width="2.0" height="14" rx="3" fill="#d64545" opacity="0.85"/>
-<text x="565.0" y="128.0" font-size="11" fill="#d64545" text-anchor="end">超出 1.03 倍</text>
+<rect x="572.0" y="117.0" width="17.7" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
+<text x="595.7" y="128.0" font-size="11" fill="#e0a030" text-anchor="start">1.53x</text>
 <text x="370" y="156.0" font-size="12" fill="#9a9a9a" text-anchor="end">判据点名的 7 机型（MAST / DIII-D / JE…</text>
-<rect x="558.0" y="145.0" width="14.0" height="14" rx="3" fill="#d64545" opacity="0.85"/>
-<text x="552.0" y="156.0" font-size="11" fill="#d64545" text-anchor="end">超出 1.4 倍</text>
+<rect x="572.0" y="145.0" width="2.0" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
+<text x="578.0" y="156.0" font-size="11" fill="#e0a030" text-anchor="start">1x</text>
 <text x="370" y="184.0" font-size="12" fill="#9a9a9a" text-anchor="end">第二套实现：同一批轮廓交给 FUSE 的 MillerEx…</text>
 <circle cx="572.0" cy="180.0" r="4" fill="#6f8fbf"/>
 <text x="584.0" y="184.0" font-size="11" fill="#8a8a8a">恒等：成立</text>

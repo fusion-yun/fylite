@@ -48,6 +48,11 @@ THIRD_PARTY_SOURCES = [
     ("jet",  "solps/solps_data/data/DivGeo/class/jet/g040000.61137.65x65"),
     ("jet",  "solps/solps_data/data/DivGeo/class/jet/g046532.61380.65x65"),
     ("jet",  "solps/solps_data/data/DivGeo/class/jet/g045464.60360.65x65"),
+    #: ★2026-09-19：JT-60SA 的设计平衡（与 CFEDR 同属「机型的设计平衡」，不是实测重建），CRONOS 自带；边界闭合。
+    ("jt60sa", "cronos/equi/equibord/data/jt60sa/MHD_equilibrium_data_24VDPC_v1_0.geqdsk"),
+    #: ★NSTX（R0 0.87 m、a 0.61 m、B0 0.44 T——几何认的机型），DCON 3.80 算例。它存的 rbbbs 首尾差 11 % 小半径（不闭合），
+    #: 所以**从 ψ 图重描**：ψ_N = 1 那条等值线从 X 点漏出去（首尾差 1.23 a），ψ_N = 0.999 闭合，R0 / a / κ 与存的那段一致。
+    ("nstx", "dcon_3.80/equilibria/sabbagh/g108418.00361#psin=0.999"),
 ]
 #: 判据点名却本机没有的机型（找得到 third_party 时为空）
 ABSENT = ["mast", "jet"]
@@ -71,6 +76,61 @@ def all_sources(store: Path):
     return rows
 
 
+def _chain(seg: np.ndarray, tol: float) -> list[np.ndarray]:
+    """把 marching-squares 的线段接成折线（端点在 tol 内相接）。"""
+    segs = [((a, b), (c, d)) for a, b, c, d in seg]
+    used = [False] * len(segs)
+    loops = []
+    for i in range(len(segs)):
+        if used[i]:
+            continue
+        used[i] = True
+        pts = [segs[i][0], segs[i][1]]
+        grown = True
+        while grown:
+            grown = False
+            for j, (p, q) in enumerate(segs):
+                if used[j]:
+                    continue
+                e = pts[-1]
+                if np.hypot(p[0] - e[0], p[1] - e[1]) < tol:
+                    pts.append(q); used[j] = True; grown = True
+                elif np.hypot(q[0] - e[0], q[1] - e[1]) < tol:
+                    pts.append(p); used[j] = True; grown = True
+        loops.append(np.array(pts))
+    return loops
+
+
+def _encloses(poly: np.ndarray, x: float, y: float) -> bool:
+    c = False
+    n = len(poly)
+    for i in range(n):
+        (x1, y1), (x2, y2) = poly[i], poly[(i + 1) % n]
+        if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1):
+            c = not c
+    return c
+
+
+def traced_boundary(path: Path, psin: float):
+    """ψ_N 等值线（内核的 marching squares）里围住磁轴的那一圈——给 rbbbs 缺失或不闭合的 g-file 用。"""
+    from fylite import kernel as K
+    from fylite.io import geqdsk
+    g = geqdsk.read_geqdsk(path)
+    nw, nh = int(g["nw"]), int(g["nh"])
+    psi = np.asarray(g["psirz"], float).reshape(nh, nw).T
+    sgn = 1.0 if g["simag"] > g["sibry"] else -1.0
+    grid = K.Grid(g["rleft"], g["zmid"] - g["zdim"] / 2, g["rdim"] / (nw - 1), g["zdim"] / (nh - 1), nw, nh)
+    seg = K.contour(grid, sgn * psi, sgn * (g["simag"] + psin * (g["sibry"] - g["simag"])), max_seg=20000)
+    loops = [L for L in _chain(seg, 1e-6 * g["rdim"]) if len(L) > 20 and _encloses(L, g["rmaxis"], g["zmaxis"])]
+    if not loops:
+        raise RuntimeError(f"no closed psi_N = {psin} contour around the axis in {path}")
+    L = max(loops, key=len)
+    #: ★与 g-file 的 rbbbs 同一个约定：首点在末尾重复一次（闭合的轮廓）
+    if not np.allclose(L[0], L[-1]):
+        L = np.vstack([L, L[:1]])
+    return L[:, 0], L[:, 1], len(L), 0
+
+
 def read_boundary(path: Path):
     """★用包**自己的** g-file 读取器，不另写一个。
 
@@ -78,6 +138,9 @@ def read_boundary(path: Path):
     崩在抬头（那一行的末两个字段不是 nw / nh）。★**一份格式已经有读取器时，
     第二个解析器不是省事，是又一处会漂的约定。**
     """
+    if "#psin=" in str(path):
+        base, lev = str(path).split("#psin=")
+        return traced_boundary(Path(base), float(lev))
     from fylite.io import geqdsk
     g = geqdsk.read_geqdsk(path)
     rb = np.asarray(g["rbbbs"], float)
@@ -98,10 +161,10 @@ def wv_fields(rec):
 def readings(store: Path) -> dict:
     from fylite.io import fydoc
     out = {"band_rms": BAND, "absent_machines": [],
-           "_comment": "判据点名 7 机型（其中点名 MAST / DIII-D / JET）；语料库 + third_party 覆盖 5 个真机型",
+           "_comment": "判据点名 7 机型（其中点名 MAST / DIII-D / JET）；语料库 + third_party 覆盖 7 个机型（EAST · DIII-D · CFEDR · MAST · JET · JT-60SA · NSTX）",
            "files": [], "by_machine": {}}
     for machine, rel, p in all_sources(store):
-        if not p.is_file():
+        if not Path(str(p).split("#")[0]).is_file():
             out["files"].append({"machine": machine, "file": rel, "skipped": "not in the case store / third_party"})
             continue
         rb, zb, nbbbs, _ = read_boundary(p)
@@ -190,7 +253,7 @@ def crosscheck(store: Path, julia: str, project: str) -> dict:
     with tempfile.TemporaryDirectory() as td:
         tdp = Path(td)
         for k, (machine, rel, p) in enumerate(all_sources(store)):
-            if machine == "synthetic" or not p.is_file():
+            if machine == "synthetic" or not Path(str(p).split("#")[0]).is_file():
                 continue
             rb, zb, _, _ = read_boundary(p)
             rec = fydoc.complete("code/shape", {"settings": {}, "inputs": {"equilibrium": {

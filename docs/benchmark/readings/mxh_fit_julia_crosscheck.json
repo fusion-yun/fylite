@@ -182,10 +182,34 @@
    "max_abs_s_minus_sj": 1.6626016865283963e-05,
    "max_abs_c_minus_cj": 0.14022840232018163,
    "geometry_gap": 1.4168832361451905e-16
+  },
+  {
+   "machine": "jt60sa",
+   "file": "third_party:cronos/equi/equibord/data/jt60sa/MHD_equilibrium_data_24VDPC_v1_0.geqdsk",
+   "n_boundary": 361,
+   "geom_rms_fylite": 0.0011501797260172425,
+   "geom_rms_julia": 0.0011366166435416063,
+   "curve_gap_max_over_a": 0.00023064539775052243,
+   "max_abs_c_plus_cj": 7.912473236289241e-05,
+   "max_abs_s_minus_sj": 9.688134017360461e-05,
+   "max_abs_c_minus_cj": 0.18099775830942147,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "nstx",
+   "file": "third_party:dcon_3.80/equilibria/sabbagh/g108418.00361#psin=0.999",
+   "n_boundary": 141,
+   "geom_rms_fylite": 0.00605738402489466,
+   "geom_rms_julia": 0.006007876838094252,
+   "curve_gap_max_over_a": 0.001197235586495078,
+   "max_abs_c_plus_cj": 0.0004142710260913035,
+   "max_abs_s_minus_sj": 0.00042105498578087763,
+   "max_abs_c_minus_cj": 0.31300856920548514,
+   "geometry_gap": 0.0
   }
  ],
  "summary": {
-  "n_files": 15,
+  "n_files": 17,
   "worst_coeff_gap": 0.005251292435765803,
   "worst_curve_gap_over_a": 0.007842069606355688,
   "worst_geometry_gap": 1.4650404930736262e-16

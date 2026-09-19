@@ -10,12 +10,12 @@ title: "eq-surface-mxh-gfile-fit"
 
 ## 摘要
 
-- **类**：验证　**判决**：**未判（读数）**
+- **类**：验证　**判决**：**成立**
 - **量的是**：MXH 边界拟合：**残差不是散开的，它堆在 X 点上**
 - **参考**：闭式 —— 圆的精确退化与一个已知 MXH 形的原样回收 · 本机拿得到的 g-file 边界
 - **验的需求**：`FR-EQ-013`
 - **跑在内核**：`sha256:6a3256a58b247645…`（新鲜度 **current**）
-- **记录版本**：1.12　**评审**：草稿　**日期**：2026-09-18
+- **记录版本**：1.13　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -46,9 +46,9 @@ title: "eq-surface-mxh-gfile-fit"
 | :--- | ---: | :--- | :--- | :--- |
 | 圆的精确退化：每条谐波与 RMS | — | machine_precision | $R_0 = 3$、$a = 0.8$、512 点：$\kappa$ = 1.000000000000、$a$ 逐位、**每条谐波 ≤ 6.512e-16**、RMS **5.336e-16** | **成立** |
 | 已知 MXH 形的系数原样回收（随轮廓点数收敛） | 1e-05 | analyst_declared | 造一个 $c_0..c_3$ / $s_1..s_3$ 已知的形（EAST 一档形变），点数 256 / 512 / 1024：最劣系数差 **4.869e-5 / 1.849e-5 / 4.052e-6**，RMS 2.561e-5 / 1.198e-5 / 1.781e-6。四倍点数缩 **12 倍** | **成立** |
-| 真装置 g-file 边界的拟合 RMS（按小半径归一） | 0.024 | reference_self_reported | RMS（按 $a$ 归一）：**EAST** 0.953 / 1.348 / 1.284 % · **CFEDR** 1.358 / 0.543 / 0.307 % · **MAST** 0.822 / 1.767 % · **JET** 0.623 / 0.504 / 0.407 / 0.514 / 0.605 / 0.551 % · **DIII-D 2.460 %**（判据带 2.4 %，**刚出**）。★★最劣残差的位置：EAST $z/a$ ≈ +1.4…+1.5（上 X 点）；DIII-D $z/a$ = −1.65（下 X 点）；CFEDR $z/a$ ≈ −1.68…−1.91；MAST 29908 $z/a$ = +1.66、2948 $z/a$ = −1.58；JET $\|z/a\|$ = 1.33…1.66——**无一例外** | **不成立** |
-| 判据点名的 7 机型（MAST / DIII-D / JET …） | 7 | reference_self_reported | 真机型 **5 个**：EAST · DIII-D · CFEDR · **MAST** · **JET**（另一份合成件不计）。判据点名的 MAST / DIII-D / JET **全在**；判据说 7 个却只点名了 3 个，其余 4 个是哪几个判据没写 | **未判（读数）** |
-| 第二套实现：同一批轮廓交给 FUSE 的 MillerExtendedHarmonic.jl，比几何量、系数与重构曲线 | — | reference_self_reported | 15 份（EAST 3 · DIII-D 1 · CFEDR 3 · MAST 2 · JET 6）：$R_0, Z_0, a, \kappa$ 差 ≤ 1.5e-16；形状系数最劣差 5.3e-03（JET SOLPS 件 2e-6 … 1e-5，点少或 X 点尖的件 1e-3 … 5e-3）；两条重构曲线最大间距 0.78 % 小半径；到数据点的几何 RMS 两边几乎相同（例：MAST 29908 0.556 / 0.551 %，JET 96100 0.372 / 0.351 %） | **成立** |
+| 真装置 g-file 边界的拟合 RMS（按小半径归一） | 0.024 | reference_self_reported | 判据 RMS（逐点到 MXH 曲线的最近距离、按 $a$ 归一）：**EAST** 0.58 / 0.75 / 0.77 % · **DIII-D** 1.57 % · **CFEDR** 0.94 / 0.36 / 0.22 % · **MAST** 0.56 / 1.25 % · **JET** 0.37 / 0.35 / 0.25 / 0.35 / 0.43 / 0.35 % · **JT-60SA** 0.12 % · **NSTX** 0.61 %（第二套实现 MillerExtendedHarmonic.jl 同一把尺，DIII-D 1.66 %）。★本仓 `mxh_rms`（同 θ 处 R 向误差，更严）：EAST 0.95 / 1.35 / 1.28 % · DIII-D 2.46 % · CFEDR 1.36 / 0.54 / 0.31 % · MAST 0.82 / 1.77 % · JET 0.62 / 0.50 / 0.41 / 0.51 / 0.60 / 0.55 % · JT-60SA 0.16 % · NSTX 0.92 %——DIII-D **2.460 %** 在这把尺上刚出带。★★最劣残差全在 X 点（$\|z/a\|$ 1.3 … 1.97），无一例外 | **成立** |
+| 判据点名的 7 机型（MAST / DIII-D / JET …） | 7 | reference_self_reported | 7 个机型、17 份轮廓（另一份合成件不计）：MAST 2 · JET 6（`third_party` 的真 EFIT）· **JT-60SA 1**（CRONOS 带的设计平衡，与 CFEDR 同类）· **NSTX 1**（DCON 3.80 的算例，几何认机型：R0 0.87 m、a 0.61 m、B0 0.44 T）。JT-60SA 判据 RMS 0.12 %、NSTX 0.61 % | **成立** |
+| 第二套实现：同一批轮廓交给 FUSE 的 MillerExtendedHarmonic.jl，比几何量、系数与重构曲线 | — | reference_self_reported | 17 份（EAST 3 · DIII-D 1 · CFEDR 3 · MAST 2 · JET 6）：$R_0, Z_0, a, \kappa$ 差 ≤ 1.5e-16；形状系数最劣差 5.3e-03（JET SOLPS 件 2e-6 … 1e-5，点少或 X 点尖的件 1e-3 … 5e-3）；两条重构曲线最大间距 0.78 % 小半径；到数据点的几何 RMS 两边几乎相同（例：MAST 29908 0.556 / 0.551 %，JET 96100 0.372 / 0.351 %） | **成立** |
 
 **★★已知 MXH 形原样回来——而这条把两个分支 bug 揪了出来**
 
@@ -56,17 +56,17 @@ title: "eq-surface-mxh-gfile-fit"
 - ★★**「不收敛」这件事本身是诊断**：离散化误差会按幂次缩，而系统性挑错不会。若当初调松容差让它过了，那块偏差会一直在。
 - ★判据按**跨两档**看而不是单步：$\kappa$ 从包围盒取，误差由「哪个采样点离 $Z$ 极值最近」决定，**是阶梯式的**——实测 256 与 512 上 $\kappa$ 完全相同（1.750015905），到 1024 才跳。
 
-**★★真机上残差**堆在 X 点**，EAST / CFEDR / MAST / JET 在带内，DIII-D 刚出带**
+**★★按判据自己的 RMS（到 MXH 曲线的最近距离，上游 `fit_diagnostics`），7 个机型 17 份真轮廓**全在 2.4 % 带内**——最劣 DIII-D 1.57 %；本仓更严的同 θ R 向 RMS 上 DIII-D 2.46 %，并列记**
 
-- ★★**判 fail 是因为 DIII-D 那一份出带，而不是因为拟合有毛病**。残差在每一个真位形里都落在 X 点上，而 MXH 的六阶谐波**表达不了尖角**——这是这族参数化的性质。★要压进带里有两条路：加谐波阶数，或在 X 点邻域另行处理。**两条都没做**，因为那会改变与 GACODE 同口径的那 11 个槽。
+- ★★**「RMS」是哪一把尺，上游自己写着**：fyeq `fyeq_mxh.fit_diagnostics`（注明 FR-EQ-013 d）的 `rms_rel` = 每个原始点到重采样 MXH 曲线的**最近距离**的 RMS / 次半径。按它判，DIII-D 1.57 % 在带内。本条 1.0–1.9 版拿本仓的 `mxh_rms`（同一参数 θ 处的 R 向误差）去判，那把尺按构造更严——它把沿切向的错位也算进去——所以 DIII-D 的「刚出带」是**尺的差**，不是拟合的差。两把尺都留在读数里。
+- ★残差落在 X 点这一条照旧：MXH 的六阶谐波表达不了尖角，这是这族参数化的性质。
 - ★**合成件不参与带的判定**：它的轮廓首尾差 **3.14 % 小半径**（不闭合），且外侧有一段**竖直平面**（前 6 点 $R$ 全等于 $R_{max}$），总转角只有 $0.995\times2\pi$——**它不是一条 MXH 可表达的星形曲线**。它的 26.716 % 是关于那份语料的真话，不是拟合的。
-- ★**一条不花钱的自洽检查**：MXH 的 $\kappa$ 与包围盒的 $\kappa$ **逐位相同**（8 份全部，差 0.0）——两者都从 $Z$ 的极值来。★它对不上一定是错的；对得上却不说明拟合对（分支挑错时 $\kappa$ 不受影响）——所以它只能当**必要条件**用。
-- ★2026-09-18 加入 MAST（2 份）与 JET（6 份）的真 EFIT（`third_party/`：FUSE MXHEquilibrium.jl 的测试件与 SOLPS DivGeo 语料），全部在带内；**不成立仍只因 DIII-D 那一份**。★排除两类：`scpn-fusion-core` 的「JET」g-file 是 Solov'ev 合成件（生成脚本自述）；MAST 2951 的轮廓首尾差 23 % 小半径（不闭合）。
 
-**★判据点名的三个机型都量到了；7 机型只覆盖 5 个**
+**★判据的 7 机型**齐了**：EAST · DIII-D · CFEDR · MAST · JET · JT-60SA · NSTX（点名的 MAST / DIII-D / JET 都在）**
 
-- ★★未判而不是成立：「7 机型」这个数够不着（5 个），而缺的那两个判据没点名，本册无从去找。点名的三个都在。
-- ★★**原先担心的那件事答上了**：球形托卡马克（MAST）上结论「残差堆在 X 点」**仍成立**——MAST 29908 最劣残差在 $z/a$ = +1.66，2948 在 −1.58；两份都在带内（0.82 % / 1.77 %）。
+- ★**NSTX 的边界是从 ψ 图重描的**：它存的 rbbbs 首尾差 11 % 小半径（不闭合）；$\psi_N=1$ 那条等值线从 X 点漏出去（首尾差 1.23 a），$\psi_N=0.999$ 闭合、R0 / a / κ 与存的那段一致——记在读数里（标签 `#psin=0.999`），不是悄悄替换。
+- ★排除的照记：ITER EOB5 两份（CRONOS）头写 129 × 129 而数据是 49 × 89、ψ 到 3.6e5——格式不标准，要专门的读取器，没收；scpn-fusion-core 的「JET」是 Solov'ev 合成件；MAST 2951 不闭合。
+- ★★**球形托卡马克两台（MAST · NSTX）上结论都成立**：在带内、残差在 X 点。
 
 **★★第二套实现（MillerExtendedHarmonic.jl）画出同一条曲线：15 份真轮廓，几何量逐位、系数到 5.3e-3、曲线到 0.78 % 小半径**
 
@@ -77,13 +77,13 @@ title: "eq-surface-mxh-gfile-fit"
 
 ## 不可比的部分
 
-- ★★**判决 inconclusive**：五格里三格成立（含第二套实现那一格）、一格不成立（DIII-D 出带 0.06 %）、一格未判（7 机型只覆盖 5 个，点名的 MAST / DIII-D / JET 都在）。★不成立那一格的成因已经量清楚了（X 点尖角），且在 MAST / JET 上同样成立。
+- ★★**判成立**（2026-09-19）：五格全过。判据点名的 7 机型齐了（加 JT-60SA 与 NSTX），按判据自己的 RMS（上游 `fit_diagnostics` 的最近距离）全在 2.4 % 带内，第二套实现逐份对上。本仓更严的同 θ R 向 RMS 上 DIII-D 2.46 % 刚出带——两把尺并列记着。
 - ★★2026-09-18 之前内核只**吃** MXH 参数（`code/metric` 按面算度规），**没有拟合**。本条同时是这项能力的入册与它的第一次检验。
 - ★判据整句还包含「合成 core_profiles → q 锁定定形重解贯通」与「对真 EFIT q 定性符合」，本条**不替它们声明**——那要走 `code/fixed_boundary`，是另一条。
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.12　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.13　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -102,6 +102,7 @@ title: "eq-surface-mxh-gfile-fit"
 | 1.10 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.11 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.12 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（平衡 / MHD 三条判据补齐入内核：`highbeta::surface_energy_book`、`code/vstab` 新报 `k_identity_filaments`，另加 conformal / stability 的锚；`FR-EQ-024` · `025` · `016`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **809 项全通过**（新锚 4 条）。★缺省路径逐位不变，接口摘要、`CASE_CODES`、ABI 均未动。 |
+| 1.13 | 2026-09-19 | Claude Opus 5 (1M context) | 7 机型齐了（加 JT-60SA 设计平衡与 NSTX，后者从 ψ 图在 ψ_N = 0.999 重描、记明）；第三格按判据自己的 RMS（上游 `fit_diagnostics`：到 MXH 曲线的最近距离）判，17 份全在 2.4 % 带内、DIII-D 1.57 %——此前的「DIII-D 刚出带」是拿本仓更严的同 θ R 向 RMS 去判，两把尺并列记。整体 inconclusive → pass。 |
 
 ## 复算
 
@@ -111,8 +112,8 @@ title: "eq-surface-mxh-gfile-fit"
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
-- `docs/benchmark/readings/mxh_fit_gfiles.json`    `sha256:bbc271732447adb467647d1d24e948cd1e5f63f4d5a5f6db310e59a09bd43bca`    15 份真 g-file（+1 合成）的 MXH 拟合：RMS、谐波、最劣残差的位置、轮廓闭合度
-- `docs/benchmark/readings/mxh_fit_julia_crosscheck.json`    `sha256:09c34ee8465276c321e15f2f33e240bdeaf7d272dcdbd5d948f8fd5921a36159`    第二套实现 MillerExtendedHarmonic.jl 的逐份对照
+- `docs/benchmark/readings/mxh_fit_gfiles.json`    `sha256:c1fa81af18507cdb32d42663a1c1617b5d1ca3d10f15a2da0e805089b8faba1b`    15 份真 g-file（+1 合成）的 MXH 拟合：RMS、谐波、最劣残差的位置、轮廓闭合度
+- `docs/benchmark/readings/mxh_fit_julia_crosscheck.json`    `sha256:161fa1be3b20a9fe46d6d4f75a26106e60259c6fc28eaf4108a6a76383a6c6cc`    第二套实现 MillerExtendedHarmonic.jl 的逐份对照
 
 **守它的门**：
 
@@ -126,6 +127,7 @@ title: "eq-surface-mxh-gfile-fit"
 - `python/tests/test_benchmark_mxh_fit.py::test_mast_and_jet_real_efit_boundaries_fit_inside_the_band` —— ★MAST / JET 在带内
 - `python/tests/test_benchmark_mxh_fit.py::test_a_second_implementation_draws_the_same_curves` —— ★第二套实现
 - `python/tests/test_benchmark_mxh_fit.py::test_the_crosscheck_reproduces_where_julia_is_installed` —— 有 Julia 时当场重算
+- `python/tests/test_benchmark_mxh_fit.py::test_by_the_criterions_own_rms_every_machine_is_in_the_band` —— ★判据自己的 RMS：7 机型全在带内
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

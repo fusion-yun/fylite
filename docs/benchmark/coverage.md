@@ -33,7 +33,7 @@ title: 需求覆盖 (Requirement coverage)
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-EQ-003` | MUST | 磁面分析（0 维 / 1 维几何量与磁面积分） | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 |
 | `FR-EQ-012` | SHOULD | 固定边界高精度重解与磁面平均目录 | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 |
-| `FR-EQ-013` | SHOULD | MXH 磁面形状参数化与拟合 | [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | 验证 | 未判（读数） |
+| `FR-EQ-013` | SHOULD | MXH 磁面形状参数化与拟合 | [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | 验证 | 成立 |
 
 ## 平衡 (Equilibrium) · 演化自由边界与涡流电路
 

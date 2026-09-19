@@ -135,3 +135,16 @@ def test_the_crosscheck_reproduces_where_julia_is_installed(got):
     want = {r["file"]: r for r in json.loads(CROSS.read_text(encoding="utf-8"))["files"]}
     for r in res["files"]:
         assert r["max_abs_c_plus_cj"] == pytest.approx(want[r["file"]]["max_abs_c_plus_cj"], rel=1e-6, abs=1e-12)
+
+
+def test_by_the_criterions_own_rms_every_machine_is_in_the_band():
+    """★★判据的 RMS 是**上游自己的定义**（fyeq `fyeq_mxh.fit_diagnostics`，标 FR-EQ-013 d）：每个原始点到 MXH 曲线的
+    最近距离的 RMS、按小半径归一——就是交叉核对里的几何 RMS。按它，7 个机型 17 份真轮廓全在 2.4 % 带内，
+    最劣是 DIII-D 1.57 %（第二套实现 1.66 %）。本仓自己的 `mxh_rms`（同 θ 处的 R 向误差）更严，DIII-D 在那把尺上 2.46 %，并列记着。"""
+    rec = json.loads(CROSS.read_text(encoding="utf-8"))
+    machines = {r["machine"] for r in rec["files"]}
+    assert machines >= {"east", "d3d", "cfedr", "mast", "jet", "jt60sa", "nstx"}, machines
+    for r in rec["files"]:
+        assert r["geom_rms_fylite"] <= BAND and r["geom_rms_julia"] <= BAND, r
+    d3d = [r for r in rec["files"] if r["machine"] == "d3d"][0]
+    assert 0.015 < d3d["geom_rms_fylite"] < 0.017

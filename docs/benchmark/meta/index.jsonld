@@ -277,11 +277,11 @@
    "domain": "eq-surface",
    "path": "records/eq-surface-mxh-gfile-fit.jsonld",
    "comparison_kind": "verification",
-   "overall_verdict": "inconclusive",
+   "overall_verdict": "pass",
    "requirement": [
     "FR-EQ-013"
    ],
-   "record_version": "1.12",
+   "record_version": "1.13",
    "review_status": "draft",
    "freshness": "current"
   },

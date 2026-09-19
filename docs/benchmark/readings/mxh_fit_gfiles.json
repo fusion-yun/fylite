@@ -1,7 +1,7 @@
 {
  "band_rms": 0.024,
  "absent_machines": [],
- "_comment": "\u5224\u636e\u70b9\u540d 7 \u673a\u578b\uff08\u5176\u4e2d\u70b9\u540d MAST / DIII-D / JET\uff09\uff1b\u8bed\u6599\u5e93 + third_party \u8986\u76d6 5 \u4e2a\u771f\u673a\u578b",
+ "_comment": "\u5224\u636e\u70b9\u540d 7 \u673a\u578b\uff08\u5176\u4e2d\u70b9\u540d MAST / DIII-D / JET\uff09\uff1b\u8bed\u6599\u5e93 + third_party \u8986\u76d6 7 \u4e2a\u673a\u578b\uff08EAST \u00b7 DIII-D \u00b7 CFEDR \u00b7 MAST \u00b7 JET \u00b7 JT-60SA \u00b7 NSTX\uff09",
  "files": [
   {
    "machine": "east",
@@ -322,6 +322,46 @@
    "worst_residual_theta_over_pi": 1.6968072404998986,
    "worst_residual_z_over_a": -1.3315933886475102,
    "z_extent_asymmetry": 0.0
+  },
+  {
+   "machine": "jt60sa",
+   "file": "third_party:cronos/equi/equibord/data/jt60sa/MHD_equilibrium_data_24VDPC_v1_0.geqdsk",
+   "n_boundary": 361,
+   "mxh_rms": 0.0016309645276749883,
+   "mxh_kappa": 1.8765100875479042,
+   "mxh_delta": 0.4672070792854958,
+   "mxh_zeta": -0.14264670448559247,
+   "miller_kappa": 1.8765100875479042,
+   "miller_delta_upper": 0.4953896908438385,
+   "miller_delta_lower": 0.5186184334372889,
+   "a_m": 1.1771515350000001,
+   "r0_m": 2.958148735,
+   "closure_gap_over_a": 0.0,
+   "in_band": true,
+   "worst_residual_over_a": 0.005613940654757817,
+   "worst_residual_theta_over_pi": 1.5640124133063236,
+   "worst_residual_z_over_a": -1.8386932740991582,
+   "z_extent_asymmetry": 0.0
+  },
+  {
+   "machine": "nstx",
+   "file": "third_party:dcon_3.80/equilibria/sabbagh/g108418.00361#psin=0.999",
+   "n_boundary": 141,
+   "mxh_rms": 0.009217995451402148,
+   "mxh_kappa": 1.9668143279077839,
+   "mxh_delta": 0.3786682841306658,
+   "mxh_zeta": -0.07303477375556873,
+   "miller_kappa": 1.9668143279077839,
+   "miller_delta_upper": 0.31599633007924244,
+   "miller_delta_lower": 0.4818028076381756,
+   "a_m": 0.6049974734210586,
+   "r0_m": 0.8699269813082686,
+   "closure_gap_over_a": 0.0,
+   "in_band": true,
+   "worst_residual_over_a": 0.02950419680064735,
+   "worst_residual_theta_over_pi": 1.5864550703569886,
+   "worst_residual_z_over_a": -1.894713114076775,
+   "z_extent_asymmetry": 0.0
   }
  ],
  "by_machine": {
@@ -345,9 +385,19 @@
    "worst_rms": 0.006229086591323535,
    "all_in_band": true
   },
+  "jt60sa": {
+   "n_files": 1,
+   "worst_rms": 0.0016309645276749883,
+   "all_in_band": true
+  },
   "mast": {
    "n_files": 2,
    "worst_rms": 0.017667989665030547,
+   "all_in_band": true
+  },
+  "nstx": {
+   "n_files": 1,
+   "worst_rms": 0.009217995451402148,
    "all_in_band": true
   },
   "synthetic": {
@@ -357,8 +407,8 @@
   }
  },
  "summary": {
-  "n_files": 16,
-  "n_machines": 6,
+  "n_files": 18,
+  "n_machines": 8,
   "worst_rms": 0.2671556355032925,
   "all_in_band": false,
   "worst_kappa_gap": 0.0
