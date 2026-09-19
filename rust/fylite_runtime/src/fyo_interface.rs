@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "08676a216549fab8";
+pub const DIGEST: &str = "2a4c23f7f678dbce";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -363,7 +363,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "psi_points", shape: "", units: "assembled", gloss: "the mapping step of the kinetic chain: diagnostic points (R, Z) on an equilibrium document's psi map, answered as psi_N by the map's own bilinear sample and flagged confined only when psi_N <= 1 AND inside the boundary outline (psi_N alone cannot tell the private-flux region from the core); a point outside the map's box is refused by name, never extrapolated" },
         Row { key: "xpoints", shape: "", units: "assembled", gloss: "the saddle points of a psi map (Python's plot.find_x_points, the summary's X-point block on its own): the map, psi_axis, psi_boundary and the magnetic axis — surfaces::x_points, nearest psi_N = 1 first, as the xpts field (n_x × 4)" },
         Row { key: "channels", shape: "", units: "assembled", gloss: "the device's BRSP channel map as the kernel folds it (Python's device.conductor_set): the deck's frozen pf_channel_elements rows, or one channel per coil weighted by its elements' turns — electromagnetics::channel_weights, the dense (n_ch × n_el) weights as a field" },
-        Row { key: "rf_ray", shape: "", units: "assembled", gloss: "cold-plasma ray trajectories on an equilibrium document (rfray, the clean-room ray core): the psi map, F table, boundary and the profiles assembled into the tokamak medium (rfray::PsiMedium, C1-continued across the separatrix), one ray traced per `ec_launchers` beam from the kernel's own launcher convention (rfray::Launch::from_launcher) — GEOMETRY ONLY: the trajectory, how deep in psi_N it reached, and why it stopped. Absorption and adjoint ECCD are stages (2) and (3) of docs/note/ec-raytracing.md and are NOT implemented, so this door answers no deposition and no driven current; asking for them is a refusal, not a zero" },
+        Row { key: "rf_ray", shape: "", units: "assembled", gloss: "cold-plasma ray trajectories on an equilibrium document (rfray, the clean-room ray core): the psi map, F table, boundary and the profiles assembled into the tokamak medium (rfray::PsiMedium, C1-continued across the separatrix), one ray traced per `ec_launchers` beam from the kernel's own launcher convention (rfray::Launch::from_launcher) — by default the geometry: the trajectory, how deep in psi_N it reached, and why it stopped. `deposit` adds stage (2) of docs/note/ec-raytracing.md: the relativistic absorption along each ray, the power deposited on psi_N shells and its account (launched = absorbed + left the plasma + not traced); `current_drive` (on top of `deposit`) adds stage (3): the adjoint ECCD current density and the total driven current. Asking for the current without the deposition is a refusal, not a zero" },
         Row { key: "cocos", shape: "", units: "assembled", gloss: "what a psi map's own numbers say about the flux convention it is in (Python's geqdsk.measure_cocos): Δ*ψ by the kernel's stencil against −μ0 R² p' − FF' on the file's own tables, the four candidate gauges (per radian / total flux, dψ / dψ̄) scored by their max residual on the interior (inside the boundary outline when one is given), the winner, the runner-up and the margin" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[

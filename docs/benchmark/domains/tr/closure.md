@@ -23,6 +23,10 @@ $\chi$ 与 $D$ 从哪来、源项怎么沉积。这一章是本册**记录密度
 源项的判据是另一路：沉积积分闭合。源沉积不管形状多复杂，总量必须守住——这一条与插件
 对不对无关，是纯粹的自证，但它抓得住一类别的判据抓不住的错。
 
+★2026-09-19 起**加热与电流驱动单立一章**：[源项：加热与电流驱动](sources.md)。`FR-TR-004` 归那一章，
+本章留下的两条 `tr-closure-*` 源项记录（1.5D 源开关、DT 燃烧对 ASTRA）仍在这里，因为它们判的是
+**接线**——源怎么接进输运方程——而不是某一族源的物理。
+
 上一册这一域有 `V-01`..`V-05`（GACODE 端口、NN 代理、QLKNN、回归套件、动量 parity）、
 `C-05`（Waltz 2007 动量）、`C-11`（QuaLiKiz 基准）。已退役。
 
@@ -40,10 +44,6 @@ $\chi$ 与 $D$ 从哪来、源项怎么沉积。这一章是本册**记录密度
 
 > （FR-TR-003/004）插件按名分派；统一前端共享；沉积积分闭合
 
-**`FR-TR-004` · 源项插件族与 exp / imp 契约** — MUST · 验证方法：检查 + 测试
-
-> （FR-TR-003/004）插件按名分派；统一前端共享；沉积积分闭合
-
 **`NR-TR-003` · 插件接入** — MUST · 验证方法：检查 + 测试
 
 > `TransportSolver["fytrans"]` 惰性解析；抽象类不 import 实现
@@ -52,10 +52,10 @@ $\chi$ 与 $D$ 从哪来、源项怎么沉积。这一章是本册**记录密度
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-closure-15d-source-switches`](../../reports/tr-closure-15d-source-switches.md) | 验证 | 成立 | 基线自身（同一算例、只改一个开关） | 1.24 | 草稿 | [jsonld](../../records/tr-closure-15d-source-switches.jsonld) |
-| [`tr-closure-dt-burn-astra`](../../reports/tr-closure-dt-burn-astra.md) | 对拍 | 成立 | DT 分支比 3.5 / 17.6 · ASTRA | 1.25 | 草稿 | [jsonld](../../records/tr-closure-dt-burn-astra.jsonld) |
-| [`tr-closure-lazy-plugin-resolution`](../../reports/tr-closure-lazy-plugin-resolution.md) | 验证 | 成立 | 导入后 `sys.modules` 的增量本身 | 1.21 | 草稿 | [jsonld](../../records/tr-closure-lazy-plugin-resolution.jsonld) |
-| [`tr-closure-plugin-dispatch`](../../reports/tr-closure-plugin-dispatch.md) | 验证 | 成立 | 彼此 | 1.22 | 草稿 | [jsonld](../../records/tr-closure-plugin-dispatch.jsonld) |
+| [`tr-closure-15d-source-switches`](../../reports/tr-closure-15d-source-switches.md) | 验证 | 成立 | 基线自身（同一算例、只改一个开关） | 1.25 | 草稿 | [jsonld](../../records/tr-closure-15d-source-switches.jsonld) |
+| [`tr-closure-dt-burn-astra`](../../reports/tr-closure-dt-burn-astra.md) | 对拍 | 成立 | DT 分支比 3.5 / 17.6 · ASTRA | 1.26 | 草稿 | [jsonld](../../records/tr-closure-dt-burn-astra.jsonld) |
+| [`tr-closure-lazy-plugin-resolution`](../../reports/tr-closure-lazy-plugin-resolution.md) | 验证 | 成立 | 导入后 `sys.modules` 的增量本身 | 1.22 | 草稿 | [jsonld](../../records/tr-closure-lazy-plugin-resolution.jsonld) |
+| [`tr-closure-plugin-dispatch`](../../reports/tr-closure-plugin-dispatch.md) | 验证 | 成立 | 彼此 | 1.23 | 草稿 | [jsonld](../../records/tr-closure-plugin-dispatch.jsonld) |
 
 ### 缺口
 

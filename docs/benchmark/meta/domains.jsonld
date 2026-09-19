@@ -210,14 +210,25 @@
      "id": "tr-closure",
      "path": "domains/tr/closure.md",
      "title": {
-      "zh": "闭包插件面：输运系数与源项",
-      "en": "The closure plug-in surface — coefficients & sources"
+      "zh": "闭包插件面：输运系数与插件接入",
+      "en": "The closure plug-in surface — transport coefficients & plug-in wiring"
      },
-     "question": "chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那个上游码，逐位对不对。",
+     "question": "chi / D 从哪来、插件怎么接进来——每个插件对着它移植自的那个上游码，逐位对不对。（源项的沉积与驱动 2026-09-19 起归 `tr-sources`。）",
      "requirement": [
       "FR-TR-003",
-      "FR-TR-004",
       "NR-TR-003"
+     ]
+    },
+    {
+     "id": "tr-sources",
+     "path": "domains/tr/sources.md",
+     "title": {
+      "zh": "源项：加热与电流驱动",
+      "en": "Sources — heating & current drive"
+     },
+     "question": "NBI · EC · LH · IC 的功率落在哪、驱动多少电流——每一族的功率账闭不闭合，沉积与驱动效率对着另一个码或测量差多少。",
+     "requirement": [
+      "FR-TR-004"
      ]
     },
     {

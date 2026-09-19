@@ -1,0 +1,134 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-sources-eccd-metis",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "ECCD 对 METIS 认证库：Giruzzi 拟合复现 METIS 的驱动电流 0.944–1.192（32 行）；伴随 ECCD 在 0.03–0.64、中位 0.35，趋势对数相关 0.976",
+  "en": "ECCD against the METIS certification set: the Giruzzi fit reproduces METIS's driven current to 0.944–1.192 (32 rows); adjoint ECCD sits at 0.03–0.64, median 0.35, log-log correlation 0.976"
+ },
+ "domain": "tr-sources",
+ "requirement": [
+  "FR-TR-004"
+ ],
+ "comparison_kind": "benchmark",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite 内核 · heating::eccd_efficiency（Giruzzi 拟合）与 rfray 伴随 ECCD（Lin-Liu 圆截面面上）",
+  "comment": "每行取 METIS 在沉积处给的 T_e · n_e · Z_eff · x · 极向角与 eccdmul × P_EC"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:Code",
+   "name": "METIS",
+   "version": "认证库（fydoc CASE-10 metis_cert_hcd.csv）：P_EC > 100 kW、I_EC > 0、无 LH 的行",
+   "comment": "★METIS 的 ECCD 本身就是 Giruzzi 拟合：第一格判的是「本码的拟合是不是 METIS 那个」，第二格判的是「第一性原理的伴随 ECCD 落在 METIS 的哪里」。★带 LH 的行故意排除：METIS 在那些行上乘一个 LH/EC 协同因子，本码不建模它。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-sources-eccd-metis/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "Giruzzi 拟合对 METIS 驱动电流的比（每行）",
+   "norm": "relative",
+   "tolerance_basis": "measured_band",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.25
+   },
+   "comment": "带 0.85–1.25；另要求散布不为零（lo < 0.99、hi > 1.01）——若每行都对到 1 %，这个拟合就不再是 METIS 的了。"
+  },
+  {
+   "id": "benchmark/records/tr-sources-eccd-metis/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "伴随 ECCD 对 METIS 的比：范围、中位与对数相关",
+   "norm": "relative",
+   "tolerance_basis": "measured_band",
+   "comment": "带：最小 > 0.015、最大 < 1、中位 0.2–0.6、对 METIS 与对拟合的对数相关都 > 0.9。★这一格判的是**趋势**，不是量值。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "Giruzzi 拟合：0.944–1.192（32 行）",
+   "criterion": "benchmark/records/tr-sources-eccd-metis/criterion/1",
+   "bound": "upper",
+   "verdict": "pass",
+   "deviation_literal": "32 行，比值 0.9441 – 1.1915",
+   "measured_deviation": 0.1915
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "伴随 ECCD：中位 0.35、对数相关 0.976",
+   "criterion": "benchmark/records/tr-sources-eccd-metis/criterion/2",
+   "bound": "reading",
+   "verdict": "pass",
+   "deviation_literal": "30 行：本码 / METIS 最小 0.026 · 中位 0.351 · 最大 0.639；本码 / 拟合 0.027 · 0.341 · 0.677；log I 对 METIS 相关 0.9761、对拟合 0.9728",
+   "measured_deviation": 0.3509732592828784,
+   "caveat": [
+    "★★**系统偏低约 3 倍，而且照记**：伴随 ECCD 在 N∥ 0.3 处的相对论共振够不到拟合所保留的那部分电子，拟合（及 METIS）把它算进去了。趋势是同一个（相关 0.976），量值不是。在 TORAY 那一个设计点上本码与 TORAY 差 4.6 %（`tr-sources-ec-toray-cfedr`）——两个第一性原理的码彼此近、都离拟合远，这是本条最该读的一行。",
+    "★两行（test_regul_q0）在该密度与场下没有 X2 根，跳过、照记。"
+   ]
+  }
+ ],
+ "validity_domain": "METIS 认证库中 ECCD 开、无 LH 的行（拟合 32 行、伴随 30 行）；伴随 ECCD 在 Lin-Liu 圆截面 eps = a x / R 的面上、METIS 的极向角处、X2 支、N∥ 0.3。",
+ "caveat": [
+  "★★**参考不是真值**：METIS 的 ECCD 是拟合式。第一格说本码的拟合就是那个拟合；第二格说第一性原理的伴随 ECCD 与它趋势同、量值低 3 倍——不判谁对。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-19",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/hcd_metis_kernel.json",
+    "comment": "内核测试的 [register] 行（tools/benchmark-hcd.py kernel）",
+    "checksum": "sha256:7adbbe36c3c0526570a9fcbbe7dfe55392765b3379ebcd0e51aa4127b657eff8"
+   },
+   {
+    "storage_uri": "tools/benchmark-hcd.py",
+    "comment": "读数生成器（closure · toray · kernel 三个子命令）",
+    "checksum": "sha256:4ace082c4d14898369f529f7e87a1c2e277a1e1dd1bb629cccd3cb5858bf8d28"
+   },
+   {
+    "storage_uri": "FYDOC-CASE-10-metis/corpus/metis_cert_hcd.csv",
+    "comment": "METIS 认证库（HCD 列），指针 + sha256",
+    "checksum": "sha256:344a7584194c5541da74c7b5089b9ba9db8b17ca5d178f177c95a41c9a20690a"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/heating.rs::tests::the_eccd_efficiency_reproduces_metis_driven_current",
+    "comment": "第一格（内核仓）"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/rfray.rs::tests::the_adjoint_eccd_sits_in_the_band_of_metis_and_its_giruzzi_fit",
+    "comment": "第二格（内核仓）"
+   },
+   {
+    "name": "python/tests/test_benchmark_hcd.py::test_hcd_the_kernel_metis_readings_sit_in_the_kernel_bands",
+    "comment": "公开仓侧：登记的读数落在内核测试的带里"
+   }
+  ],
+  "kernel": {
+   "name": "fylite_kernel",
+   "commit": "e05a90fd06fe061fef60dc0501db1a8043e7735a",
+   "library_sha256": "sha256:19f2501e8437587d71fc7642cbcfc9aa63c7ebf2a5d89e7a4b92dec2f788c223",
+   "comment": "与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-19",
+  "revised": "2026-09-19",
+  "review_status": "draft",
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5",
+    "summary": "新立（新域 tr-sources）：ECCD 的 Giruzzi 拟合与伴随 ECCD 对 METIS 认证库——内核仓已有的两道门登记入册，读数由测试的 [register] 行抄出。"
+   }
+  ],
+  "open_defect": "2026-09-19 ★门在内核仓：两格的门都是 Rust 单测，本仓 CI 只守登记读数落在带里，不重跑。"
+ }
+}

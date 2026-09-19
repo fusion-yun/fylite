@@ -157,6 +157,7 @@ project:
           children:
             - file: benchmark/domains/tr/equations.md
             - file: benchmark/domains/tr/closure.md
+            - file: benchmark/domains/tr/sources.md
             - file: benchmark/domains/tr/paradigm.md
             - file: benchmark/domains/tr/pedestal.md
             - file: benchmark/domains/tr/coupling.md
@@ -168,7 +169,7 @@ project:
         #: 读者看不见。★代价照实记：报告与它所属的域，在 toc 上不再有父子关系——
         #: 这层关系改由**正文**承担（各章的「本域的记录」表逐条链过去，由
         #: `test_the_prose_actually_points_at_the_reports` 守着）。
-        #: ★组内按**域树**排序，不按字母：平衡六域 → MHD 四域 → 输运六域，与书的轴一致。
+        #: ★组内按**域树**排序，不按字母：平衡六域 → MHD 四域 → 输运七域，与书的轴一致。
         - title: 逐条报告 (Reports) —— 一条记录一份，固定六节
           children:
             - file: benchmark/reports/eq-forward-boundary-rule-vs-kefit.md
@@ -215,6 +216,10 @@ project:
             - file: benchmark/reports/eq-convention-ladder-flux-gauge.md
             - file: benchmark/reports/tr-closure-15d-source-switches.md
             - file: benchmark/reports/tr-closure-dt-burn-astra.md
+            - file: benchmark/reports/tr-sources-power-closure.md
+            - file: benchmark/reports/tr-sources-ec-toray-cfedr.md
+            - file: benchmark/reports/tr-sources-eccd-metis.md
+            - file: benchmark/reports/tr-sources-icrh-metis.md
             - file: benchmark/reports/tr-paradigm-pereverzev.md
             - file: benchmark/reports/tr-paradigm-flux-match-vs-pde.md
             - file: benchmark/reports/tr-paradigm-coupled-block-adr.md

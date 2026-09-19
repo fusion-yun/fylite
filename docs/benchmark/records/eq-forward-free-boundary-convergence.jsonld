@@ -125,13 +125,13 @@
   ],
   "kernel": {
    "name": "fylite_kernel",
-   "commit": "915ed124959158cb04184d36308c25e939c6a982",
-   "library_sha256": "sha256:02975458f9f5425ca8c01674bb6070f754ac752edce0e143aec07fccee0ee7c2",
+   "commit": "e05a90fd06fe061fef60dc0501db1a8043e7735a",
+   "library_sha256": "sha256:19f2501e8437587d71fc7642cbcfc9aa63c7ebf2a5d89e7a4b92dec2f788c223",
    "comment": "与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-19",
   "revised": "2026-09-19",
   "review_status": "draft",
@@ -141,6 +141,12 @@
     "date": "2026-09-19",
     "by": "Claude Opus 5",
     "summary": "新立（/goal「close FR-EQ-001/005」）：FR-EQ-001 抄录判据的自由边界一半——缺省路径（边规则，用户裁定）Ip 约束收敛、收敛设置回显。"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5",
+    "summary": "内核换代后的全册重验：内核换代（`e05a90fd06fe`：`code/rf_ray` 的说明照实——吸收与伴随 ECCD 已实现；HCD 对 METIS 的测试打印登记读数（新域 `tr-sources`）；其间合入 VEQ 定边界求解（`code/fixed_boundary` 的 `method = veq`，缺省 `grid` 逐位不变）。内核侧：`fyo` 7 · `heating` 60 · `rfray` 61 全过。★没有一处缺省数值变动。 ★本条的判据与数值**未改口径**。"
    }
   ]
  }

@@ -61,8 +61,8 @@ title: "守恒、金标 parity 与口径"
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-conservation-fyo-dd-contract`](../../reports/tr-conservation-fyo-dd-contract.md) | 验证 | 成立 | 仓内的 IMAS DD 表（`rust/fylite_runtime/ids/*.tsv`，82 个 IDS、26752 行） | 1.21 | 草稿 | [jsonld](../../records/tr-conservation-fyo-dd-contract.jsonld) |
-| [`tr-conservation-time-order`](../../reports/tr-conservation-time-order.md) | 验证 | 成立 | 格式**自称**的阶（θ = 1 一阶 · θ = 0.5 二阶） | 1.20 | 草稿 | [jsonld](../../records/tr-conservation-time-order.jsonld) |
+| [`tr-conservation-fyo-dd-contract`](../../reports/tr-conservation-fyo-dd-contract.md) | 验证 | 成立 | 仓内的 IMAS DD 表（`rust/fylite_runtime/ids/*.tsv`，82 个 IDS、26752 行） | 1.22 | 草稿 | [jsonld](../../records/tr-conservation-fyo-dd-contract.jsonld) |
+| [`tr-conservation-time-order`](../../reports/tr-conservation-time-order.md) | 验证 | 成立 | 格式**自称**的阶（θ = 1 一阶 · θ = 0.5 二阶） | 1.21 | 草稿 | [jsonld](../../records/tr-conservation-time-order.jsonld) |
 
 ### 覆盖它的记录在别的域
 
@@ -71,6 +71,7 @@ title: "守恒、金标 parity 与口径"
 | 需求 | 覆盖它的记录 | 它属于哪一域 |
 | :--- | :--- | :--- |
 | `NR-TR-001` | [`tr-pedestal-sawtooth-kadomtsev`](../../reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal |
+| `NR-TR-001` | [`tr-sources-power-closure`](../../reports/tr-sources-power-closure.md) | tr-sources |
 | `NR-TR-004` | [`eq-forward-self-contained-core`](../../reports/eq-forward-self-contained-core.md) | eq-forward |
 
 ### 缺口

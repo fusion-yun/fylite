@@ -139,13 +139,13 @@
   ],
   "kernel": {
    "name": "fylite_kernel",
-   "commit": "915ed124959158cb04184d36308c25e939c6a982",
-   "library_sha256": "sha256:02975458f9f5425ca8c01674bb6070f754ac752edce0e143aec07fccee0ee7c2",
+   "commit": "e05a90fd06fe061fef60dc0501db1a8043e7735a",
+   "library_sha256": "sha256:19f2501e8437587d71fc7642cbcfc9aa63c7ebf2a5d89e7a4b92dec2f788c223",
    "comment": "与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。"
   }
  },
  "provenance": {
-  "record_version": "1.23",
+  "record_version": "1.24",
   "recorded": "2026-09-16",
   "revised": "2026-09-19",
   "review_status": "draft",
@@ -287,6 +287,12 @@
     "date": "2026-09-19",
     "by": "Claude Opus 5",
     "summary": "★★由 inconclusive 转 pass：缺的是独立于两者的真值——FreeGSNKE 在同一组电流与剖面上的正解（CASE-23 归档）。边规则离它 0.0041，落在它自己正/逆两解之差 0.0087 之内；节点规则 0.0173、不收敛、带 10.5 kA 虚拟对；KEFIT 0.0156（它的图是重建，不是它输入的正解）。对 KEFIT 的远近改记读数。读数 `forward_convergence_east137985.json` 由新工具 `tools/benchmark-forward-convergence.py` 生成。原 open_defect 关闭。 内核换代（`915ed1249591`：自由边界缺省换成边规则——`FR-EQ-001`，用户裁定「边规则为缺省」；无位置控制器的设计锚在上一次解、残差读线圈自己的场、末尾撤锚——用户裁定「做正经的修」；逆解线性核的合成场回收锚——`FR-EQ-005`）。内核侧 **cargo test 823 过、0 失败、35 忽略**。★`code/forward` 与无位置控制器的 `code/discharge` 缺省数值随之动；ITER 的 c4 路径与其余入口逐位不变，节点规则以 `edge_fraction = 0` 留作对照。"
+   },
+   {
+    "record_version": "1.24",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5",
+    "summary": "内核换代后的全册重验：内核换代（`e05a90fd06fe`：`code/rf_ray` 的说明照实——吸收与伴随 ECCD 已实现；HCD 对 METIS 的测试打印登记读数（新域 `tr-sources`）；其间合入 VEQ 定边界求解（`code/fixed_boundary` 的 `method = veq`，缺省 `grid` 逐位不变）。内核侧：`fyo` 7 · `heating` 60 · `rfray` 61 全过。★没有一处缺省数值变动。 ★本条的判据与数值**未改口径**。"
    }
   ]
  }

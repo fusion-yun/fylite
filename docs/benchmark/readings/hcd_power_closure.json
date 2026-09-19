@@ -1,0 +1,91 @@
+{
+ "what": "加热与电流驱动的功率账（NR-TR-001 第三句：源沉积积分闭合到注入额定值；FR-TR-004 的源族表）：NBI · LH 在 EAST #137985 t = 4.041 s（CASE-23 KEFIT），EC 在 CFEDR 20 MA（CASE-21）；IC 见内核读数",
+ "profiles": "stated (ne 4e19 (1 − 0.8 x²), Te 2.5 keV (1 − 0.9 x²) + 50 eV, Zeff 1.5 + x², x = psi_N)",
+ "nbi": {
+  "door": "code/beam",
+  "beams": [
+   {
+    "name": "co",
+    "energy": 65000.0,
+    "power": 2000000.0,
+    "rtan": 1.26,
+    "dir": 1.0,
+    "fr": [
+     0.7,
+     0.2,
+     0.1
+    ]
+   },
+   {
+    "name": "ctr",
+    "energy": 80000.0,
+    "power": 1500000.0,
+    "rtan": 1.6,
+    "dir": -1.0,
+    "fr": [
+     0.8,
+     0.15,
+     0.05
+    ]
+   }
+  ],
+  "p_declared_W": 3500000.0,
+  "p_injected_W": 3500000.0,
+  "p_absorbed_W": 3353009.516491269,
+  "p_shine_W": 87904.60913173025,
+  "p_orbit_W": 59085.87437700045,
+  "per_beam_absorbed_W": [
+   1942913.7538706393,
+   1410095.7626206302
+  ],
+  "injected_vs_declared_rel": 0.0,
+  "closure_rel": 0.0,
+  "profile_integral_rel": 0.0,
+  "i_nbi_A": -1891.8738132737947
+ },
+ "lh": {
+  "door": "code/wave",
+  "antennas": [
+   {
+    "name": "LH1",
+    "frequency": 4600000000.0,
+    "power": 1500000.0,
+    "reflected": 100000.0,
+    "band": [
+     1.8,
+     2.4
+    ]
+   },
+   {
+    "name": "LH2",
+    "frequency": 2450000000.0,
+    "power": 800000.0,
+    "reflected": 0.0,
+    "band": [
+     2.0,
+     2.6
+    ]
+   }
+  ],
+  "deposited": 1.0,
+  "p_coupled_W": 2300000.0,
+  "p_absorbed_W": 2300000.0,
+  "p_deposited_W": 2300000.0,
+  "i_lh_A": 572241.4288760411,
+  "absorbed_vs_coupled_rel": 0.0,
+  "profile_integral_rel": 0.0,
+  "per_launcher_sum_rel": 0.0
+ },
+ "ec": {
+  "door": "code/rf_ray",
+  "case": "CFEDR 20 MA (FYDOC-CASE-21)",
+  "p_launched_W": 6000000.0,
+  "p_absorbed_W": 6000000.0000000745,
+  "p_left_W": 3.527882427378911e-10,
+  "p_not_traced_W": 0.0,
+  "p_outside_shells_W": 0.0,
+  "closure_rel": 1.2434497875801753e-14,
+  "shells_plus_outside_rel": 4.440892098500626e-16,
+  "density_times_volume_rel": 1.1399312442790363e-16
+ }
+}

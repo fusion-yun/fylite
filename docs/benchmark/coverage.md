@@ -130,15 +130,22 @@ delta-W 变分求解器本身：柱极限对不对、环几何耦合装配对不
 | `FR-TR-001` | MUST | 多通道 1.5D 输运方程组求解 | [`tr-equations-channel-descriptor`](reports/tr-equations-channel-descriptor.md) | 验证 | 成立 |
 | `FR-TR-002` | MUST | 边界条件族与电流边界驱动 | [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | 验证 | 成立 |
 
-## 输运 (Transport) · 闭包插件面：输运系数与源项
+## 输运 (Transport) · 闭包插件面：输运系数与插件接入
 
-chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那个上游码，逐位对不对。　→ [本域章页](domains/tr/closure.md)
+chi / D 从哪来、插件怎么接进来——每个插件对着它移植自的那个上游码，逐位对不对。（源项的沉积与驱动 2026-09-19 起归 `tr-sources`。）　→ [本域章页](domains/tr/closure.md)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-TR-003` | MUST | 输运系数插件族与统一无量纲前端 | [`tr-closure-plugin-dispatch`](reports/tr-closure-plugin-dispatch.md) | 验证 | 成立 |
-| `FR-TR-004` | MUST | 源项插件族与 exp / imp 契约 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) · [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | 验证 · 对拍 | 成立 · 成立 |
 | `NR-TR-003` | MUST | 插件接入 | [`tr-closure-lazy-plugin-resolution`](reports/tr-closure-lazy-plugin-resolution.md) | 验证 | 成立 |
+
+## 输运 (Transport) · 源项：加热与电流驱动
+
+NBI · EC · LH · IC 的功率落在哪、驱动多少电流——每一族的功率账闭不闭合，沉积与驱动效率对着另一个码或测量差多少。　→ [本域章页](domains/tr/sources.md)
+
+| 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `FR-TR-004` | MUST | 源项插件族与 exp / imp 契约 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) · [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) · [`tr-sources-ec-toray-cfedr`](reports/tr-sources-ec-toray-cfedr.md) · [`tr-sources-eccd-metis`](reports/tr-sources-eccd-metis.md) · [`tr-sources-icrh-metis`](reports/tr-sources-icrh-metis.md) · [`tr-sources-power-closure`](reports/tr-sources-power-closure.md) | 验证 · 对拍 · 对拍 · 对拍 · 对拍 · 验证 | 成立 · 成立 · 成立 · 成立 · 成立 · 成立 |
 
 ## 输运 (Transport) · 求解范式：刚性稳定化与稳态通量匹配
 
@@ -177,7 +184,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `NR-TR-001` | MUST | 守恒性 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 |
+| `NR-TR-001` | MUST | 守恒性 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) · [`tr-sources-power-closure`](reports/tr-sources-power-closure.md) | 验证 · 验证 | 成立 · 成立 |
 | `NR-TR-002` | MUST | 金标 parity 验证 | [`tr-conservation-time-order`](reports/tr-conservation-time-order.md) | 验证 | 成立 |
 | `NR-TR-004` | MUST | 自包含数值核 | [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | 验证 | 成立 |
 | `NR-TR-005` | MUST | IMAS / DD 一致性 | [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | 验证 | 成立 |

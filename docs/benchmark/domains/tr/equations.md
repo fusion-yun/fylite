@@ -65,8 +65,8 @@ $\dot B_0$ 压缩项是这一章里容易漏的一处：它在三个通道里的
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-equations-boundary-family`](../../reports/tr-equations-boundary-family.md) | 验证 | 成立 | 抄录的判据本身 | 3.19 | 草稿 | [jsonld](../../records/tr-equations-boundary-family.jsonld) |
-| [`tr-equations-channel-descriptor`](../../reports/tr-equations-channel-descriptor.md) | 验证 | 成立 | ETS 正则形式（Kalupin & Pereverzev 2015） · 抄录的判据本身 | 1.19 | 草稿 | [jsonld](../../records/tr-equations-channel-descriptor.jsonld) |
+| [`tr-equations-boundary-family`](../../reports/tr-equations-boundary-family.md) | 验证 | 成立 | 抄录的判据本身 | 3.20 | 草稿 | [jsonld](../../records/tr-equations-boundary-family.jsonld) |
+| [`tr-equations-channel-descriptor`](../../reports/tr-equations-channel-descriptor.md) | 验证 | 成立 | ETS 正则形式（Kalupin & Pereverzev 2015） · 抄录的判据本身 | 1.20 | 草稿 | [jsonld](../../records/tr-equations-channel-descriptor.jsonld) |
 
 ### 缺口
 

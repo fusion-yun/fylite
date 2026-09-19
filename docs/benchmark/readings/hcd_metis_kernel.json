@@ -1,0 +1,77 @@
+{
+ "what": "内核仓 heating / rfray 的 METIS 对照与 ICRH 剖面闭合：`cargo test -- --nocapture` 打出的 [register] 行",
+ "reference": {
+  "code": "METIS",
+  "table": "FYDOC-CASE-10-metis/corpus/metis_cert_hcd.csv",
+  "fwcd": "METIS fitetafwcd.m measurements (JFT-2M · DIII-D · Tore-Supra)"
+ },
+ "tests": {
+  "icrh_layer": "heating::tests::the_resonance_layer_is_where_metis_puts_it",
+  "icrh_tail": "heating::tests::the_tail_is_built_from_metis_own_ingredients",
+  "icrh_split": "heating::tests::the_split_and_the_tail_land_in_metis_band",
+  "icrh_unsettled": "heating::tests::the_unsettled_rows_are_excluded_because_they_disagree_wildly",
+  "icrh_profile": "heating::tests::the_profile_shape_reproduces_the_one_metis_wrote",
+  "icrh_closure": "heating::tests::the_icrh_profile_is_a_gaussian_on_the_layer_that_carries_its_power",
+  "fwcd_measured": "heating::tests::the_fwcd_efficiency_reproduces_the_measurements_it_was_fitted_to",
+  "eccd_giruzzi": "heating::tests::the_eccd_efficiency_reproduces_metis_driven_current",
+  "eccd_adjoint": "rfray::tests::the_adjoint_eccd_sits_in_the_band_of_metis_and_its_giruzzi_fit"
+ },
+ "readings": {
+  "eccd_adjoint": {
+   "rows": 30.0,
+   "ratio_min": 0.025604399195681048,
+   "ratio_median": 0.3509732592828784,
+   "ratio_max": 0.6389971394031257,
+   "vs_fit_min": 0.026666805630432906,
+   "vs_fit_median": 0.3413556745602788,
+   "vs_fit_max": 0.6768603765783644,
+   "loglog_corr_metis": 0.9761,
+   "loglog_corr_fit": 0.9728
+  },
+  "eccd_giruzzi": {
+   "rows": 32.0,
+   "ratio_min": 0.9441,
+   "ratio_max": 1.1915
+  },
+  "fwcd_measured": {
+   "points": 18.0,
+   "ratio_min": 0.7683,
+   "ratio_median": 0.9788,
+   "ratio_max": 1.2439
+  },
+  "icrh_closure": {
+   "total_rel": 4.441e-16,
+   "ion_rel": 6.661e-16
+  },
+  "icrh_layer": {
+   "rows": 40.0,
+   "r_res_rel_max": 0.019183,
+   "r_res_rel_median": 0.0016033,
+   "x_res_abs_max": 0.067031
+  },
+  "icrh_profile": {
+   "rows": 36.0,
+   "peak_abs_max": 0.05,
+   "width_rel_max": 0.024074
+  },
+  "icrh_split": {
+   "rows": 16.0,
+   "p_el_ratio_min": 0.9553,
+   "p_el_ratio_max": 1.0791,
+   "w_fast_ratio_min": 0.948,
+   "w_fast_ratio_max": 1.0145
+  },
+  "icrh_tail": {
+   "rows": 36.0,
+   "n_min_rel_max": 0.021451,
+   "fraction_rel_max": 0.024623,
+   "e_crit_rel_max": 0.050635,
+   "tau_s_rel_max": 0.078433
+  },
+  "icrh_unsettled": {
+   "rows": 20.0,
+   "p_el_ratio_min": 0.0197,
+   "p_el_ratio_max": 38.8534
+  }
+ }
+}

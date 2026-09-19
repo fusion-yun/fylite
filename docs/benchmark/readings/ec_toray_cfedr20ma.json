@@ -1,0 +1,44 @@
+{
+ "what": "EC：code/rf_ray 对 TORAY-GA 自己的答案，CFEDR 20 MA（fydoc CASE-21；参考冻结于内核仓 rust/fylite/testdata/reference/cfedr_toray_20ma.txt，内部件——本读数只记比较量）",
+ "reference": {
+  "code": "TORAY-GA",
+  "case": "FYDOC-CASE-21-cfedr-hmode-20ma",
+  "frozen": "rust/fylite/testdata/reference/cfedr_toray_20ma.txt"
+ },
+ "surfaces_psin": [
+  0.9,
+  0.7,
+  0.5,
+  0.35,
+  0.25
+ ],
+ "branch": {
+  "identified": "O",
+  "n_abs_rel_worst": {
+   "O": 3.414910215404632e-05,
+   "X": 0.2390588267853454
+  }
+ },
+ "ray": {
+  "dr_mm_max": 0.3604132028449669,
+  "dz_mm_max": 0.6434850225469635,
+  "deepest_psin": 0.14564896858120513,
+  "deepest_psin_toray": 0.1455287790722876,
+  "deepest_rel": 0.0008258813801895748,
+  "npar_rel_max": 0.000150696605889733
+ },
+ "deposition": {
+  "absorbed_fraction": 1.0000000000000124,
+  "absorbed_fraction_toray": 0.9990322329167,
+  "peak_psin": 0.21000000000000002,
+  "peak_psin_toray": 0.19831312231835005,
+  "peak_dpsin": 0.011686877681649971,
+  "shell_width": 0.020000000000000018
+ },
+ "current": {
+  "zeff_at_peak": 1.9990366419405,
+  "a_per_w": 0.019909570208179104,
+  "a_per_w_toray": 0.01903083178774,
+  "ratio": 1.0461744620645117
+ }
+}

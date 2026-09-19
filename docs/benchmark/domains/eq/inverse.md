@@ -54,9 +54,9 @@ ITER 型 11 路线圈、已知电流合成的边界通量与 X 点场，经逆�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-inverse-core-field-recovery`](../../reports/eq-inverse-core-field-recovery.md) | 验证 | 成立 | 已知电流（孪生真值） | 1.0 | 草稿 | [jsonld](../../records/eq-inverse-core-field-recovery.jsonld) |
-| [`eq-inverse-freegsnke-east137985`](../../reports/eq-inverse-freegsnke-east137985.md) | 对拍 | 成立 | FreeGSNKE | 1.23 | 草稿 | [jsonld](../../records/eq-inverse-freegsnke-east137985.jsonld) |
-| [`eq-inverse-iter-reference-separatrix`](../../reports/eq-inverse-iter-reference-separatrix.md) | 验证 | 成立 | ITER 参考分离面（装置牌上的数字化曲线） | 1.25 | 草稿 | [jsonld](../../records/eq-inverse-iter-reference-separatrix.jsonld) |
+| [`eq-inverse-core-field-recovery`](../../reports/eq-inverse-core-field-recovery.md) | 验证 | 成立 | 已知电流（孪生真值） | 1.1 | 草稿 | [jsonld](../../records/eq-inverse-core-field-recovery.jsonld) |
+| [`eq-inverse-freegsnke-east137985`](../../reports/eq-inverse-freegsnke-east137985.md) | 对拍 | 成立 | FreeGSNKE | 1.24 | 草稿 | [jsonld](../../records/eq-inverse-freegsnke-east137985.jsonld) |
+| [`eq-inverse-iter-reference-separatrix`](../../reports/eq-inverse-iter-reference-separatrix.md) | 验证 | 成立 | ITER 参考分离面（装置牌上的数字化曲线） | 1.26 | 草稿 | [jsonld](../../records/eq-inverse-iter-reference-separatrix.jsonld) |
 
 ### 缺口
 

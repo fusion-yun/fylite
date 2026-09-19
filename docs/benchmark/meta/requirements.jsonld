@@ -415,7 +415,7 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "tr-closure",
+   "domain": "tr-sources",
    "upstream": "`FYTOK-SRS-07` S7-FR-TR-5",
    "design": "`FYTOK-SDD-04`（{ref}`fytrans-arch-plugins`）",
    "group": "tr"
