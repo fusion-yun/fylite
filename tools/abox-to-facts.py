@@ -1020,9 +1020,12 @@ PROGRAM_SIDE = {
         #: use time.  These IDS are chosen per request — every static provider of theirs is
         #: converted here, once (`east_resolution`) — and the runtime's rule
         #: (`fylite_runtime::device_resolve`) picks among the converted groups.
-        "resolved_ids": ("magnetics", "wall"),
+        #: ★2026-09-19: `ec_launchers` resolves by shot too — fydoc's `providers.ec_launchers` holds the
+        #: static page as `base` and per-shot OVERLAYS (`dev:overlayOf`) that carry only the launch angles
+        #: a paper published for that shot (li2023lhcdtemperature §4.1: #81481, #81490)
+        "resolved_ids": ("magnetics", "wall", "ec_launchers"),
         #: the document keys each resolved IDS owns, i.e. what a resolution writes over the card
-        "owned": {"magnetics": ("magnetics", "_basis"), "wall": ("wall",)},
+        "owned": {"magnetics": ("magnetics", "_basis"), "wall": ("wall",), "ec_launchers": ("ec_launchers",)},
         "fixed": {"pf_active": (
             "deck/Luo cross-sections (`yu`) paired by rectangle centre with the `base` electrical "
             "set (user ruling 2026-09-13) — one converted set; a pf_active provider is not a "
@@ -1587,6 +1590,30 @@ def east_chords(ids: str, doc: dict, bind: dict | None, src: str, prefix: str) -
     return out
 
 
+def _ec_overlay(ec: dict | None, overlay: dict | None) -> dict | None:
+    """The static EC page with a per-shot overlay's beam fields laid over it, matched by beam NAME
+    (an overlay beam the page does not have is refused — a silent drop would lose a published angle)."""
+    if ec is None or overlay is None:
+        return ec
+    ec = json.loads(json.dumps(ec))
+    by = {str(b.get("name")): b for b in ec.get("beam") or []}
+    for ob in overlay.get("beam") or []:
+        name = str(ob.get("name"))
+        if name not in by:
+            raise SystemExit(f"EAST ec_launchers overlay: beam {name!r} is not on the static page ({sorted(by)})")
+        by[name].update({k: v for k, v in ob.items() if k != "name"})
+    ec["fylite:overlay"] = str(overlay.get("@id", ""))
+    return ec
+
+
+def _ec_num(v):
+    try:
+        x = float(v[0] if isinstance(v, list) and v else v)
+    except (TypeError, ValueError, IndexError):
+        return None
+    return x if math.isfinite(x) else None
+
+
 def east_hcd(lh: dict | None, ic: dict | None, ec: dict | None, rel: dict,
              lh_bind: dict | None = None, ec_bind: dict | None = None) -> dict:
     """Static H&CD fields.  Port letters and IC level / source power / frequency range have
@@ -1625,6 +1652,33 @@ def east_hcd(lh: dict | None, ic: dict | None, ec: dict | None, rel: dict,
         if doc is None:
             continue
         items, absent = entries(doc, key, opt)
+        if ids == "ec_launchers":
+            #: ★2026-09-19: the launch GEOMETRY the kinetic app hands `code/rf_ray` — the mirror point
+            #: (static page), the beam optics (`dev:beamOptics`: the waist and its distance from the mirror)
+            #: and, when a per-shot overlay was laid over the page, the angles in the KERNEL convention
+            #: (`dev:kernelAngles`, degrees -> `fylite:angle_pol` / `fylite:angle_tor` in rad).  The DD
+            #: `steering_angle_pol/tor` stay empty: the kernel's mapping of their convention is [TBD].
+            for item, a in zip(items, doc.get(key) or []):
+                lp = a.get("launching_position") or {}
+                r, z = _ec_num(lp.get("r")), _ec_num(lp.get("z"))
+                if r is not None and z is not None:
+                    item["launching_position"] = {"r": r, "z": z}
+                ka = a.get("dev:kernelAngles") or {}
+                pol, tor = _ec_num(ka.get("angle_pol_deg")), _ec_num(ka.get("angle_tor_deg"))
+                if pol is not None and tor is not None:
+                    item["fylite:angle_pol"] = math.radians(pol)
+                    item["fylite:angle_tor"] = math.radians(tor)
+                    item["fylite:angles_source"] = doc.get("fylite:overlay") or rel.get("ec_launchers:overlay", "")
+                bo = a.get("dev:beamOptics") or {}
+                w0, f0 = _ec_num(bo.get("waist_m")), _ec_num(bo.get("waist_from_mirror_m"))
+                if w0 is not None and f0 is not None:
+                    item["fylite:beam_waist"] = w0
+                    item["fylite:beam_waist_from_mirror"] = f0
+            for dst, why in (("launching_position", "no numeric launching_position r and z"),
+                             ("fylite:angle_pol", "no per-shot launch angles for this shot (no overlay covers it)"),
+                             ("fylite:beam_waist", "no dev:beamOptics")):
+                if not any(dst in i for i in items):
+                    absent[dst] = why
         bind = {"lh_antennas": lh_bind, "ec_launchers": ec_bind}.get(ids)
         slots = {"lh_antennas": ("power_launched", "power_reflected"),
                  "ec_launchers": ("power_launched",)}.get(ids, ())
@@ -1766,6 +1820,8 @@ def _east_selection(manifest: dict, providers: dict | None, prog: dict) -> dict:
                          f"(resolved per request: {list(prog['resolved_ids'])})")
     out = {}
     for ids in prog["resolved_ids"]:
+        if ids == "ec_launchers" and ids not in provs:
+            continue                                     #: an A-Box without EC providers: the static page, as before
         spec = provs.get(ids) or {}
         name = (providers or {}).get(ids) or spec.get("default")
         avail = spec.get("available") or {}
@@ -1808,6 +1864,12 @@ def build_east_from_abox(fydoc: pathlib.Path, providers: dict | None = None) -> 
                                                    EAST_PF_ELECTRICAL_PROVIDER)
     files.pop("pf_active", None)
     files["magnetics:pcs"] = _provider_file(dev_dir, manifest, "magnetics", "pcs")
+    if "ec_launchers" in sel:
+        ec_spec = (((manifest.get("providers") or {}).get("ec_launchers") or {}).get("available") or {})
+        base_key = ec_spec.get(sel["ec_launchers"], {}).get("overlay_of") or sel["ec_launchers"]
+        files["ec_launchers"] = _provider_file(dev_dir, manifest, "ec_launchers", base_key)
+        if base_key != sel["ec_launchers"]:
+            files["ec_launchers:overlay"] = _provider_file(dev_dir, manifest, "ec_launchers", sel["ec_launchers"])
     for ids in ("interferometer", "polarimeter", "lh_antennas", "ec_launchers", *EAST_SIGNALS):
         b = _binding_file(dev_dir, manifest, ids)
         if b is not None:
@@ -1874,7 +1936,8 @@ def build_east_from_abox(fydoc: pathlib.Path, providers: dict | None = None) -> 
         doc["pf_passive"], vessel = east_pf_passive(load("pf_passive"), rel["pf_passive"])
         doc["wall"]["description_2d"][0]["vessel"] = {"unit": vessel}
         doc["fylite:vessel_resistivity_uohm_m"] = doc["pf_passive"]["vessel"]["resistivity_uohm_m"]
-    doc.update(east_hcd(load("lh_antennas"), load("ic_antennas"), load("ec_launchers"), rel,
+    doc.update(east_hcd(load("lh_antennas"), load("ic_antennas"),
+                        _ec_overlay(load("ec_launchers"), load("ec_launchers:overlay")), rel,
                         load("lh_antennas:binding"), load("ec_launchers:binding")))
     #: ★profile diagnostics, NBI source power, and the two global traces: node names an app
     #: resolves from the compiled facts instead of hard-coding (EAST_SIGNALS says where each
