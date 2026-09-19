@@ -175,7 +175,7 @@ title: 验证状态 (Verification status)
 | [`tr-paradigm-momentum-channel`](reports/tr-paradigm-momentum-channel.md) | tr-paradigm | 验证 | 成立 | 1.2 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
 | [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.18 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
-| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 未判（读数） | 1.19 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 未判（读数） | 1.20 | 2026-09-19 | 草稿 | `sha256:a7a86a75fc27…` | current |
 
 ## 接 CI/CD (wiring this into CI)
 

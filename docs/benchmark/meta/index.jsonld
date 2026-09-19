@@ -9,7 +9,7 @@
  "abstract": {
   "zh": "★生成件，勿手改：`python tools/benchmark-book.py`。"
  },
- "recorded": "2026-09-18",
+ "recorded": "2026-09-19",
  "statistics": {
   "groups": 3,
   "domains": 16,
@@ -738,7 +738,7 @@
    "requirement": [
     "FR-TR-014"
    ],
-   "record_version": "1.19",
+   "record_version": "1.20",
    "review_status": "draft",
    "freshness": "current"
   }
