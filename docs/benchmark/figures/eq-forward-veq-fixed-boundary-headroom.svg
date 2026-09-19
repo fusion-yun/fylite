@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 324" role="img" aria-label="eq-forward-veq-fixed-boundary: 每条判据离它的带还有多远">
+<title>eq-forward-veq-fixed-boundary - 判据余量</title>
+<desc>横轴为余量倍数（对数）。1 倍处是判据本身：右侧成立，左侧越界。恒等档没有余量可言，画成标记。</desc>
+<text x="8" y="22" font-size="14" font-weight="600" fill="#9a9a9a">判据余量 —— 离带还有多远（对数轴，1 倍即判据本身）</text>
+<line x1="380.0" y1="40" x2="380.0" y2="284" stroke="#8a8a8a" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.45"/>
+<text x="380.0" y="300" font-size="11" fill="#8a8a8a" text-anchor="middle">10⁻²x</text>
+<line x1="476.0" y1="40" x2="476.0" y2="284" stroke="#8a8a8a" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.45"/>
+<text x="476.0" y="300" font-size="11" fill="#8a8a8a" text-anchor="middle">10⁻¹x</text>
+<line x1="572.0" y1="40" x2="572.0" y2="284" stroke="#8a8a8a" stroke-width="1.4" opacity="0.9"/>
+<text x="572.0" y="300" font-size="11" fill="#8a8a8a" text-anchor="middle">1x</text>
+<line x1="668.0" y1="40" x2="668.0" y2="284" stroke="#8a8a8a" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.45"/>
+<text x="668.0" y="300" font-size="11" fill="#8a8a8a" text-anchor="middle">10¹x</text>
+<line x1="764.0" y1="40" x2="764.0" y2="284" stroke="#8a8a8a" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.45"/>
+<text x="764.0" y="300" font-size="11" fill="#8a8a8a" text-anchor="middle">10²x</text>
+<line x1="860.0" y1="40" x2="860.0" y2="284" stroke="#8a8a8a" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.45"/>
+<text x="860.0" y="300" font-size="11" fill="#8a8a8a" text-anchor="middle">10³x</text>
+<text x="572.0" y="34" font-size="11" fill="#8a8a8a" text-anchor="middle">judgement</text>
+<text x="370" y="72.0" font-size="12" fill="#9a9a9a" text-anchor="end">Solov&#x27;ev 深内点 psi_N 对闭式解（RMS，v…</text>
+<rect x="572.0" y="61.0" width="226.9" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
+<text x="804.9" y="72.0" font-size="11" fill="#2e9e4f" text-anchor="start">231x</text>
+<text x="370" y="100.0" font-size="12" fill="#9a9a9a" text-anchor="end">Solov&#x27;ev 整格节点上 psi_N 对闭式解（max…</text>
+<rect x="572.0" y="89.0" width="288.0" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
+<text x="866.0" y="100.0" font-size="11" fill="#2e9e4f" text-anchor="start">1.94e+03x</text>
+<text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">q0 对闭式解的相对偏差（veq 两档）</text>
+<rect x="572.0" y="117.0" width="288.0" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
+<text x="866.0" y="128.0" font-size="11" fill="#2e9e4f" text-anchor="start">9.72e+04x</text>
+<text x="370" y="156.0" font-size="12" fill="#9a9a9a" text-anchor="end">磁轴位置对闭式解 [mm] 与 Ip 相对偏差（veq 两…</text>
+<rect x="572.0" y="145.0" width="288.0" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
+<text x="866.0" y="156.0" font-size="11" fill="#2e9e4f" text-anchor="start">1.5e+03x</text>
+<text x="370" y="184.0" font-size="12" fill="#9a9a9a" text-anchor="end">求解器自证：收敛、可容许（Jacobian &gt; 0、psi…</text>
+<rect x="572.0" y="173.0" width="288.0" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
+<text x="866.0" y="184.0" font-size="11" fill="#2e9e4f" text-anchor="start">3.44e+03x</text>
+<text x="370" y="212.0" font-size="12" fill="#9a9a9a" text-anchor="end">EAST 面上 q 剖面 psi_N∈[0.1,0.9] …</text>
+<rect x="572.0" y="201.0" width="2.0" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
+<text x="578.8" y="212.0" font-size="11" fill="#e0a030" text-anchor="start">1.02x</text>
+<text x="370" y="240.0" font-size="12" fill="#9a9a9a" text-anchor="end">EAST 面上 psi_N 对 CHEASE NS=80（…</text>
+<rect x="542.5" y="229.0" width="29.5" height="14" rx="3" fill="#d64545" opacity="0.85"/>
+<text x="536.5" y="240.0" font-size="11" fill="#d64545" text-anchor="end">超出 2.03 倍</text>
+<text x="370" y="268.0" font-size="12" fill="#9a9a9a" text-anchor="end">墙钟：同一扇门、同一台机器（三次取最小，含 Python …</text>
+<circle cx="572.0" cy="264.0" r="4" fill="#8a8a8a"/>
+<text x="584.0" y="268.0" font-size="11" fill="#8a8a8a">读数：不判</text>
+<text x="8" y="316" font-size="10.5" fill="#8a8a8a">★绿而窄（&lt; 2 倍）另着色：它与余量一千倍的判据在表上长得一样，在这里不一样。　生成：tools/benchmark-figures.py</text>
+</svg>

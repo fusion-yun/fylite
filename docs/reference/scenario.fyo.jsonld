@@ -9,7 +9,7 @@
  "dcterms:description": "The documents a complete scenario comprises, with every declared path, unit and rank, which of them carry a fylite: term rather than a DD name, and what a CFEDR-class run needs that has no slot at all.",
  "dcterms:source": "python/fylite/_fyo_interface.py (generated from the kernel's tables)",
  "fylite:interface_revision": 5,
- "fylite:interface_digest": "1d476f986ceed425",
+ "fylite:interface_digest": "08676a216549fab8",
  "fylite:documents": [
   {
    "@id": "fylite:scenario/document/equilibrium",

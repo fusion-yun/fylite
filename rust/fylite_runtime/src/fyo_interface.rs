@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "1d476f986ceed425";
+pub const DIGEST: &str = "08676a216549fab8";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -327,7 +327,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "evolve_free_boundary", shape: "", units: "assembled", gloss: "PF channels (voltage or current drive) and the passive set marched by implicit Euler on M dI/dt + R I + d(psi_plasma)/dt = V, the free-boundary equilibrium re-solved on the currents each step and its plasma flux at every conductor fed back by Picard (reciprocal grid responses); no vertical dynamics beyond the solve's own position hold" },
         Row { key: "wall", shape: "", units: "assembled", gloss: "the conducting wall as a circuit: the device's passive set (the vessel units and pf_passive groups code/vstab reads) assembled into element mutuals and resistances, and the L/R eigenmodes of M dI/dt + R I = 0, every group also alone; no plasma" },
         Row { key: "forces", shape: "", units: "assembled", gloss: "the Lorentz force on each PF conductor and the peak field on its surface: F = I_a I_b grad M over filament pairs across elements, the hoop term as (I^2/2) dL/dR on the element's own self inductance, and |B| sampled at four corners and four face midpoints; no plasma" },
-        Row { key: "fixed_boundary", shape: "", units: "assembled", gloss: "the fixed-boundary equilibrium on a given outline: p'(psi_N) and FF'(psi_N) per full-turn Wb, psi = 0 held on the outline by exterior filaments fitted at collocation points (fixedbnd::solve), the plasma flux by the free-space Green's function on the box border; q, F and p on the solved map" },
+        Row { key: "fixed_boundary", shape: "", units: "assembled", gloss: "the fixed-boundary equilibrium on a given outline: p'(psi_N) and FF'(psi_N) per full-turn Wb, psi = 0 held on the outline by exterior filaments fitted at collocation points (fixedbnd::solve), the plasma flux by the free-space Green's function on the box border; q, F and p on the solved map; method = grid (default, that solve) | veq (the parametric MXH-Chebyshev solve of arXiv:2606.11821, veq::solve, on the outline's MXH fit — settings veq_radial · veq_harmonics · veq_nr · veq_ntheta · veq_tol · veq_max_nfev · veq_fit_tol; refused when the fit misses the outline by more than veq_fit_tol x a — resampled onto the same rectangle with the same fields and facts, plus veq_coefficients · veq_mxh · veq_rho · veq_psin · veq_q · veq_volume · veq_dvolume_drho and the facts method · veq_nfev · mxh_fit_rms)" },
         Row { key: "evolve", shape: "evolve_heat", units: "assembled", gloss: "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); the actuator waveform, the I_p controller and the neoclassical closure (第十六刀); the beam and the wave evaluated once on the equilibrium and remapped onto the ladder (第十七刀); marched by evolve_heat" },
         Row { key: "zerod", shape: "zerod", units: "assembled", gloss: "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod" },
         Row { key: "transport", shape: "transport", units: "operator", gloss: "the model page's fixed-geometry bar: one steady solve on the Miller flux weight" },
@@ -1060,25 +1060,33 @@ pub const CODES: &[Code] = &[
         Param { key: "tol", value_type: "float", default: "1e-9", required: false, via: "evolve_free_boundary_case" },
     ] },
     Code { name: "fixed_boundary", door: "fixed_boundary_case", krate: "fylite_kernel", params: &[
-        Param { key: "b0", value_type: "float", default: "", required: false, via: "fixed_boundary_case" },
+        Param { key: "b0", value_type: "float", default: "", required: false, via: "fb_vacuum" },
         Param { key: "hold_ip", value_type: "boolean", default: "false", required: false, via: "fixed_boundary_case" },
         Param { key: "ip", value_type: "float", default: "", required: false, via: "fixed_boundary_case" },
         Param { key: "margin", value_type: "float", default: "d.margin", required: false, via: "fixed_boundary_case" },
         Param { key: "max_iter", value_type: "float", default: "d.max_iter as f64", required: false, via: "fixed_boundary_case" },
+        Param { key: "method", value_type: "string", default: "", required: false, via: "fixed_boundary_case" },
         Param { key: "n_colloc", value_type: "float", default: "d.n_colloc as f64", required: false, via: "fixed_boundary_case" },
-        Param { key: "n_profile", value_type: "float", default: "201.0", required: false, via: "fixed_boundary_case" },
+        Param { key: "n_profile", value_type: "float", default: "201.0", required: false, via: "fb_profiles" },
         Param { key: "n_q", value_type: "float", default: "50.0", required: false, via: "fixed_boundary_case" },
         Param { key: "n_sources", value_type: "float", default: "d.n_sources as f64", required: false, via: "fixed_boundary_case" },
         Param { key: "n_theta", value_type: "float", default: "181.0", required: false, via: "fixed_boundary_case" },
         Param { key: "nr", value_type: "float", default: "d.nr as f64", required: false, via: "fixed_boundary_case" },
         Param { key: "nz", value_type: "float", default: "d.nz as f64", required: false, via: "fixed_boundary_case" },
         Param { key: "offset", value_type: "float", default: "d.offset", required: false, via: "fixed_boundary_case" },
-        Param { key: "p_edge", value_type: "float", default: "0.0", required: false, via: "fixed_boundary_case" },
-        Param { key: "r0", value_type: "float", default: "", required: false, via: "fixed_boundary_case" },
+        Param { key: "p_edge", value_type: "float", default: "0.0", required: false, via: "fb_profiles" },
+        Param { key: "r0", value_type: "float", default: "", required: false, via: "fb_vacuum" },
         Param { key: "rcond", value_type: "float", default: "d.rcond", required: false, via: "fixed_boundary_case" },
         Param { key: "relax", value_type: "float", default: "d.relax", required: false, via: "fixed_boundary_case" },
         Param { key: "subcell", value_type: "float", default: "d.subcell as f64", required: false, via: "fixed_boundary_case" },
         Param { key: "tol", value_type: "float", default: "d.tol", required: false, via: "fixed_boundary_case" },
+        Param { key: "veq_fit_tol", value_type: "float", default: "2e-3", required: false, via: "fixed_boundary_veq" },
+        Param { key: "veq_harmonics", value_type: "float", default: "8.0", required: false, via: "fixed_boundary_veq" },
+        Param { key: "veq_max_nfev", value_type: "float", default: "20000.0", required: false, via: "fixed_boundary_veq" },
+        Param { key: "veq_nr", value_type: "float", default: "32.0", required: false, via: "fixed_boundary_veq" },
+        Param { key: "veq_ntheta", value_type: "float", default: "32.0", required: false, via: "fixed_boundary_veq" },
+        Param { key: "veq_radial", value_type: "float", default: "8.0", required: false, via: "fixed_boundary_veq" },
+        Param { key: "veq_tol", value_type: "float", default: "1e-11", required: false, via: "fixed_boundary_veq" },
         Param { key: "x_hi", value_type: "float", default: "0.995", required: false, via: "fixed_boundary_case" },
         Param { key: "x_lo", value_type: "float", default: "0.02", required: false, via: "fixed_boundary_case" },
     ] },

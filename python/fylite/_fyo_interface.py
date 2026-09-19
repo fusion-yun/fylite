@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 5
-DIGEST = '1d476f986ceed425'
+DIGEST = '08676a216549fab8'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -371,7 +371,7 @@ BLOCKS = {
         {'key': 'evolve_free_boundary', 'shape': '', 'units': 'assembled', 'gloss': "PF channels (voltage or current drive) and the passive set marched by implicit Euler on M dI/dt + R I + d(psi_plasma)/dt = V, the free-boundary equilibrium re-solved on the currents each step and its plasma flux at every conductor fed back by Picard (reciprocal grid responses); no vertical dynamics beyond the solve's own position hold"},
         {'key': 'wall', 'shape': '', 'units': 'assembled', 'gloss': "the conducting wall as a circuit: the device's passive set (the vessel units and pf_passive groups code/vstab reads) assembled into element mutuals and resistances, and the L/R eigenmodes of M dI/dt + R I = 0, every group also alone; no plasma"},
         {'key': 'forces', 'shape': '', 'units': 'assembled', 'gloss': "the Lorentz force on each PF conductor and the peak field on its surface: F = I_a I_b grad M over filament pairs across elements, the hoop term as (I^2/2) dL/dR on the element's own self inductance, and |B| sampled at four corners and four face midpoints; no plasma"},
-        {'key': 'fixed_boundary', 'shape': '', 'units': 'assembled', 'gloss': "the fixed-boundary equilibrium on a given outline: p'(psi_N) and FF'(psi_N) per full-turn Wb, psi = 0 held on the outline by exterior filaments fitted at collocation points (fixedbnd::solve), the plasma flux by the free-space Green's function on the box border; q, F and p on the solved map"},
+        {'key': 'fixed_boundary', 'shape': '', 'units': 'assembled', 'gloss': "the fixed-boundary equilibrium on a given outline: p'(psi_N) and FF'(psi_N) per full-turn Wb, psi = 0 held on the outline by exterior filaments fitted at collocation points (fixedbnd::solve), the plasma flux by the free-space Green's function on the box border; q, F and p on the solved map; method = grid (default, that solve) | veq (the parametric MXH-Chebyshev solve of arXiv:2606.11821, veq::solve, on the outline's MXH fit — settings veq_radial · veq_harmonics · veq_nr · veq_ntheta · veq_tol · veq_max_nfev · veq_fit_tol; refused when the fit misses the outline by more than veq_fit_tol x a — resampled onto the same rectangle with the same fields and facts, plus veq_coefficients · veq_mxh · veq_rho · veq_psin · veq_q · veq_volume · veq_dvolume_drho and the facts method · veq_nfev · mxh_fit_rms)"},
         {'key': 'evolve', 'shape': 'evolve_heat', 'units': 'assembled', 'gloss': "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); the actuator waveform, the I_p controller and the neoclassical closure (第十六刀); the beam and the wave evaluated once on the equilibrium and remapped onto the ladder (第十七刀); marched by evolve_heat"},
         {'key': 'zerod', 'shape': 'zerod', 'units': 'assembled', 'gloss': "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod"},
         {'key': 'transport', 'shape': 'transport', 'units': 'operator', 'gloss': "the model page's fixed-geometry bar: one steady solve on the Miller flux weight"},
@@ -1103,25 +1103,33 @@ CODE_PARAMS = {
         'tol': {'key': 'tol', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '1e-9', 'required': False},
     }},
     'fixed_boundary': {"door": 'fixed_boundary_case', "crate": 'fylite_kernel', "parameters": {
-        'b0': {'key': 'b0', 'type': 'float', 'via': 'fixed_boundary_case'},
+        'b0': {'key': 'b0', 'type': 'float', 'via': 'fb_vacuum'},
         'hold_ip': {'key': 'hold_ip', 'type': 'boolean', 'via': 'fixed_boundary_case', 'default': 'false'},
         'ip': {'key': 'ip', 'type': 'float', 'via': 'fixed_boundary_case'},
         'margin': {'key': 'margin', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.margin', 'required': False},
         'max_iter': {'key': 'max_iter', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.max_iter as f64', 'required': False},
+        'method': {'key': 'method', 'type': 'string', 'via': 'fixed_boundary_case'},
         'n_colloc': {'key': 'n_colloc', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.n_colloc as f64', 'required': False},
-        'n_profile': {'key': 'n_profile', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '201.0', 'required': False},
+        'n_profile': {'key': 'n_profile', 'type': 'float', 'via': 'fb_profiles', 'default': '201.0', 'required': False},
         'n_q': {'key': 'n_q', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '50.0', 'required': False},
         'n_sources': {'key': 'n_sources', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.n_sources as f64', 'required': False},
         'n_theta': {'key': 'n_theta', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '181.0', 'required': False},
         'nr': {'key': 'nr', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.nr as f64', 'required': False},
         'nz': {'key': 'nz', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.nz as f64', 'required': False},
         'offset': {'key': 'offset', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.offset', 'required': False},
-        'p_edge': {'key': 'p_edge', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '0.0', 'required': False},
-        'r0': {'key': 'r0', 'type': 'float', 'via': 'fixed_boundary_case'},
+        'p_edge': {'key': 'p_edge', 'type': 'float', 'via': 'fb_profiles', 'default': '0.0', 'required': False},
+        'r0': {'key': 'r0', 'type': 'float', 'via': 'fb_vacuum'},
         'rcond': {'key': 'rcond', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.rcond', 'required': False},
         'relax': {'key': 'relax', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.relax', 'required': False},
         'subcell': {'key': 'subcell', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.subcell as f64', 'required': False},
         'tol': {'key': 'tol', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.tol', 'required': False},
+        'veq_fit_tol': {'key': 'veq_fit_tol', 'type': 'float', 'via': 'fixed_boundary_veq', 'default': '2e-3', 'required': False},
+        'veq_harmonics': {'key': 'veq_harmonics', 'type': 'float', 'via': 'fixed_boundary_veq', 'default': '8.0', 'required': False},
+        'veq_max_nfev': {'key': 'veq_max_nfev', 'type': 'float', 'via': 'fixed_boundary_veq', 'default': '20000.0', 'required': False},
+        'veq_nr': {'key': 'veq_nr', 'type': 'float', 'via': 'fixed_boundary_veq', 'default': '32.0', 'required': False},
+        'veq_ntheta': {'key': 'veq_ntheta', 'type': 'float', 'via': 'fixed_boundary_veq', 'default': '32.0', 'required': False},
+        'veq_radial': {'key': 'veq_radial', 'type': 'float', 'via': 'fixed_boundary_veq', 'default': '8.0', 'required': False},
+        'veq_tol': {'key': 'veq_tol', 'type': 'float', 'via': 'fixed_boundary_veq', 'default': '1e-11', 'required': False},
         'x_hi': {'key': 'x_hi', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '0.995', 'required': False},
         'x_lo': {'key': 'x_lo', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '0.02', 'required': False},
     }},

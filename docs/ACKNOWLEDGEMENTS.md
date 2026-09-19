@@ -49,6 +49,7 @@ fylite的开发是中国科学院等离子体物理研究所（ASIPP）**「集�
 | **GACODE — TGYRO / expro** | General Atomics 与 GACODE 贡献者 | Apache-2.0 | NEO / TGLF 输入映射、源项与辐射、体积分、`expro_compute_derived`、`input.gacode` 读写 | `rust/fylite/src/mapping.rs`、`sources.rs`、`bundle.rs`；`python/fylite/scenario/model/{mapping,sources}.py`；`python/fylite/io/gacode.py` |
 | **NCLASS**（随 GACODE 携带） | W. A. Houlberg | 随 NEO | 随 NEO 携带的新经典系数 | 经 NEO 移植线 |
 | **METIS** | J. F. Artaud et al.，CEA/IRFM | CeCILL-C | 快中性束模型：弦衰减、Janev 停止截面、Stix 临界能量与束驱电流（公式级转写，见「依公开文献转写的物理」） | `rust/fylite/src/heating.rs` |
+| **VEQ / VEQPy** | Zhang · Xie · Li · Meng · Wang · Wang；方法见 *VEQ: a fast parametric Grad–Shafranov solver for fixed-boundary tokamak equilibria with flexible source profiles*，arXiv:2606.11821；参考实现 VEQPy，`github.com/FusionAlpha/veqpy`（提交 `2b64c9a`） | **BSD-3-Clause** | 定边界 G-S 的参数化 MXH–Chebyshev 离散：映射、径向基、残差、投影、PF 闭合与 I_p 约束，连同 VEQPy 的轴处理——同一输入下系数与 VEQPy 一致到 1e-14。★**非线性求解器不是移植的**：VEQPy 调用的 SciPy `hybr`（MINPACK）及其 C++ 移植一行未读、一行未搬，内核里是依教科书自写的 Levenberg–Marquardt，故无 MINPACK 声明义务。BSD-3 许可全文与版权声明见内核 `NOTICE` 的「DERIVED WORK — VEQPy」一节 | `rust/fylite/src/veq.rs`；门 `code/fixed_boundary` 的 `method = veq` |
 | **FyTok — fytrans** | 中国科学院等离子体物理研究所（fylite 的上级项目） | Apache-2.0 | 通道声明语法（保持逐字一致，使声明可在上级项目与本项目之间往返）；1.5D 输运核以它为逐位对拍基准 | `python/fylite/scenario/`，见「上级项目：FyTok」 |
 
  

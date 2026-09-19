@@ -175,6 +175,7 @@ project:
             - file: benchmark/reports/eq-forward-chease-solovev.md
             - file: benchmark/reports/eq-forward-kefit-east137985.md
             - file: benchmark/reports/eq-forward-solovev-fixed-boundary.md
+            - file: benchmark/reports/eq-forward-veq-fixed-boundary.md
             - file: benchmark/reports/eq-forward-green-response-shared.md
             - file: benchmark/reports/eq-forward-self-contained-core.md
             - file: benchmark/reports/eq-surface-chease-fixed-boundary-east.md

@@ -25,10 +25,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**57** 条
-- 判决 (verdict)：成立 54 · 不成立 **0** · 未判 2 · 未评估 1
-- 新鲜度 (freshness)：当前 57 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 57 · 已被取代 0
+- 记录 (records)：**58** 条
+- 判决 (verdict)：成立 54 · 不成立 **1** · 未判 2 · 未评估 1
+- 新鲜度 (freshness)：当前 57 · **过期 1** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 58 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
@@ -92,7 +92,7 @@ title: 验证状态 (Verification status)
 
 | 组 | 域 | 需求 | 覆盖 | 记录 | 成立 | 不成立 | 过期 |
 | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](domains/eq/forward.md) | 4 | 4 | 6 | 5 | 0 | 0 |
+| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](domains/eq/forward.md) | 4 | 4 | 7 | 5 | 1 | 1 |
 | 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](domains/eq/surface.md) | 3 | 3 | 2 | 2 | 0 | 0 |
 | 平衡 (Equilibrium) | [演化自由边界与涡流电路](domains/eq/evolve.md) | 1 | 1 | 1 | 1 | 0 | 0 |
 | 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](domains/eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 0 |
@@ -122,6 +122,7 @@ title: 验证状态 (Verification status)
 | [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
 | [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | eq-forward | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
 | [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.23 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
+| [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md) | eq-forward | 验证 | 不成立 | 1.0 | 2026-09-19 | 草稿 | `fylite_kernel@57e763955e5e` | stale |
 | [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.22 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
 | [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.24 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |
 | [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md) | eq-reconstruct | 验证 | 成立 | 1.20 | 2026-09-19 | 草稿 | `fylite_kernel@0f7e5af3b3cf` | current |

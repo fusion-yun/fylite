@@ -16,9 +16,9 @@
   "requirements": 57,
   "covered": 56,
   "open_must": 0,
-  "records": 57,
-  "stale": 0,
-  "failing": 0
+  "records": 58,
+  "stale": 1,
+  "failing": 1
  },
  "record": [
   {
@@ -140,6 +140,22 @@
    "record_version": "1.23",
    "review_status": "draft",
    "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/eq-forward-veq-fixed-boundary",
+   "domain": "eq-forward",
+   "path": "records/eq-forward-veq-fixed-boundary.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "fail",
+   "requirement": [
+    "FR-EQ-001",
+    "NR-EQ-002",
+    "FR-EQ-012",
+    "FR-EQ-013"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/eq-inverse-freegsnke-east137985",

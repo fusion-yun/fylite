@@ -20,9 +20,9 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-001` | MUST | 自由边界前向 G-S 求解 | [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) · [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) · [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) · [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | 对拍 · 对拍 · 对拍 · 验证 | 未判（读数） · 成立 · 成立 · 成立 |
+| `FR-EQ-001` | MUST | 自由边界前向 G-S 求解 | [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) · [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) · [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) · [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) · [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md) | 对拍 · 对拍 · 对拍 · 验证 · 验证 | 未判（读数） · 成立 · 成立 · 成立 · 不成立 |
 | `FR-EQ-002` | MUST | Green 响应核为共享一等资产 | [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md) | 验证 | 成立 |
-| `NR-EQ-002` | MUST | 解析基准精度 | [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | 验证 | 成立 |
+| `NR-EQ-002` | MUST | 解析基准精度 | [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) · [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md) | 验证 · 验证 | 成立 · 不成立 |
 | `NR-EQ-005` | MUST | 自包含数值核（无后端依赖） | [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | 验证 | 成立 |
 
 ## 平衡 (Equilibrium) · 磁面几何、全局量与形状表示
@@ -32,8 +32,8 @@ title: 需求覆盖 (Requirement coverage)
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-EQ-003` | MUST | 磁面分析（0 维 / 1 维几何量与磁面积分） | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 |
-| `FR-EQ-012` | SHOULD | 固定边界高精度重解与磁面平均目录 | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 |
-| `FR-EQ-013` | SHOULD | MXH 磁面形状参数化与拟合 | [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | 验证 | 成立 |
+| `FR-EQ-012` | SHOULD | 固定边界高精度重解与磁面平均目录 | [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md) · [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | 验证 · 对拍 | 不成立 · 成立 |
+| `FR-EQ-013` | SHOULD | MXH 磁面形状参数化与拟合 | [`eq-forward-veq-fixed-boundary`](reports/eq-forward-veq-fixed-boundary.md) · [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | 验证 · 验证 | 不成立 · 成立 |
 
 ## 平衡 (Equilibrium) · 演化自由边界与涡流电路
 
