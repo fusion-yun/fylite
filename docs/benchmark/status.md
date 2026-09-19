@@ -152,7 +152,7 @@ title: 验证状态 (Verification status)
 | [`mhd-energy-conformal-map`](reports/mhd-energy-conformal-map.md) | mhd-energy | 验证 | 成立 | 1.8 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
 | [`mhd-energy-coupled-assembly`](reports/mhd-energy-coupled-assembly.md) | mhd-energy | 验证 | 成立 | 1.7 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
 | [`mhd-energy-fluid-high-beta`](reports/mhd-energy-fluid-high-beta.md) | mhd-energy | 验证 | 成立 | 1.7 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
-| [`mhd-energy-surface-current-beta-limit`](reports/mhd-energy-surface-current-beta-limit.md) | mhd-energy | 验证 | 成立 | 1.9 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
+| [`mhd-energy-surface-current-beta-limit`](reports/mhd-energy-surface-current-beta-limit.md) | mhd-energy | 验证 | 成立 | 1.10 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
 | [`mhd-energy-three-term-assembly`](reports/mhd-energy-three-term-assembly.md) | mhd-energy | 验证 | 成立 | 1.7 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
 | [`mhd-energy-vacuum-general-shape`](reports/mhd-energy-vacuum-general-shape.md) | mhd-energy | 验证 | 成立 | 1.7 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
 | [`mhd-energy-variational-cylinder`](reports/mhd-energy-variational-cylinder.md) | mhd-energy | 验证 | 成立 | 1.7 | 2026-09-19 | 草稿 | `sha256:6a3256a58b24…` | current |
