@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "2a4c23f7f678dbce";
+pub const DIGEST: &str = "6128e34a2aa7c2c3";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -327,7 +327,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "evolve_free_boundary", shape: "", units: "assembled", gloss: "PF channels (voltage or current drive) and the passive set marched by implicit Euler on M dI/dt + R I + d(psi_plasma)/dt = V, the free-boundary equilibrium re-solved on the currents each step and its plasma flux at every conductor fed back by Picard (reciprocal grid responses); no vertical dynamics beyond the solve's own position hold" },
         Row { key: "wall", shape: "", units: "assembled", gloss: "the conducting wall as a circuit: the device's passive set (the vessel units and pf_passive groups code/vstab reads) assembled into element mutuals and resistances, and the L/R eigenmodes of M dI/dt + R I = 0, every group also alone; no plasma" },
         Row { key: "forces", shape: "", units: "assembled", gloss: "the Lorentz force on each PF conductor and the peak field on its surface: F = I_a I_b grad M over filament pairs across elements, the hoop term as (I^2/2) dL/dR on the element's own self inductance, and |B| sampled at four corners and four face midpoints; no plasma" },
-        Row { key: "fixed_boundary", shape: "", units: "assembled", gloss: "the fixed-boundary equilibrium on a given outline: p'(psi_N) and FF'(psi_N) per full-turn Wb, psi = 0 held on the outline by exterior filaments fitted at collocation points (fixedbnd::solve), the plasma flux by the free-space Green's function on the box border; q, F and p on the solved map; method = grid (default, that solve) | veq (the parametric MXH-Chebyshev solve of arXiv:2606.11821, veq::solve, on the outline's MXH fit — settings veq_radial · veq_harmonics · veq_nr · veq_ntheta · veq_tol · veq_max_nfev · veq_fit_tol; refused when the fit misses the outline by more than veq_fit_tol x a — resampled onto the same rectangle with the same fields and facts, plus veq_coefficients · veq_mxh · veq_rho · veq_psin · veq_q · veq_volume · veq_dvolume_drho and the facts method · veq_nfev · mxh_fit_rms)" },
+        Row { key: "fixed_boundary", shape: "", units: "assembled", gloss: "the fixed-boundary equilibrium on a given outline: p'(psi_N) and FF'(psi_N) per full-turn Wb, psi = 0 held on the outline by exterior filaments fitted at collocation points (fixedbnd::solve), the plasma flux by the free-space Green's function on the box border; q, F and p on the solved map; method = grid (default, that solve) | veq (the parametric MXH-Chebyshev solve of arXiv:2606.11821, veq::solve, on the outline's MXH fit — settings veq_radial · veq_harmonics · veq_nr · veq_ntheta · veq_tol · veq_max_nfev · veq_fit_tol; refused when the fit misses the outline by more than veq_fit_tol x a — resampled onto the same rectangle with the same fields and facts, plus veq_coefficients · veq_mxh · veq_rho · veq_psin · veq_q · veq_volume · veq_dvolume_drho and the facts method · veq_nfev · mxh_fit_rms); under grid, coarse_start = N (default 0 = off, bit-identical; 17 <= N < nr, nz) first solves on an N x N grid of the same rectangle and starts the Picard from its psi_N, adding the fact coarse_iterations" },
         Row { key: "evolve", shape: "evolve_heat", units: "assembled", gloss: "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); the actuator waveform, the I_p controller and the neoclassical closure (第十六刀); the beam and the wave evaluated once on the equilibrium and remapped onto the ladder (第十七刀); marched by evolve_heat" },
         Row { key: "zerod", shape: "zerod", units: "assembled", gloss: "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod" },
         Row { key: "transport", shape: "transport", units: "operator", gloss: "the model page's fixed-geometry bar: one steady solve on the Miller flux weight" },
@@ -335,7 +335,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "breakdown", shape: "", units: "assembled", gloss: "the vacuum field null for breakdown: the device's coils, channel map and supply limits assembled into the judging-disc design (breakdown::design); no entry — a design, not a march" },
         Row { key: "discharge", shape: "", units: "assembled", gloss: "the shape anneal: the device's coils, box and limiter, a designed start (pulse::start_currents) and ridge passes over free-boundary solves (equilibrium::solve_free_boundary_from); no entry — a search, not a march" },
         Row { key: "pulse", shape: "", units: "assembled", gloss: "a feed-forward pulse: every waypoint's currents by the linear isoflux start, the conductor circuit (channel_matrices), the voltages by the exact inverse of the circuit integrator (pulse::feedforward_voltages) and free-boundary checks at chosen waypoints" },
-        Row { key: "reconstruction", shape: "", units: "assembled", gloss: "one equilibrium from magnetic measurements: the loop / coil / probe / kinetic / vessel rows off the device document and the readings, one inverse solve (inverse::solve_inverse_coils), F · q · l_i · the 1-D profiles · the boundary off the fit" },
+        Row { key: "reconstruction", shape: "", units: "assembled", gloss: "one equilibrium from magnetic measurements: the loop / coil / probe / kinetic / vessel rows off the device document and the readings, one inverse solve (inverse::solve_inverse_coils), F · q · l_i · the 1-D profiles · the boundary off the fit; coarse_start = N (default 0 = off, bit-identical) first solves on every s-th node (N x N, N - 1 dividing nw - 1 and nh - 1, e.g. 33 on 65) and starts the fine solve from that state (inverse::solve_inverse_coarse; a refused coarse pass falls back to the cold solve with a note), adding the facts coarse_start · coarse_iterations; anderson = m (default 0 = off, bit-identical; 0..=50) mixes the last m outer Picard steps once the fixed schedule is over (inverse::solve_inverse_accel; same stopping rule, same fixed point), adding the facts anderson · anderson_mixed · anderson_restarts; the fitted current, loop model, ip_fitted, li3_fitted and chi2 are post-processed on the solver's own last plasma mask" },
         Row { key: "interpretive", shape: "", units: "assembled", gloss: "the model page's interpretive bar: the metric (Miller · the equilibrium document's traced ladder · a bound ladder), the reference profiles on its radii, the sources (volume-normalised deposition, or given core_sources profiles with `sources = table` · alpha · ADAS radiation · Ohmic from a prescribed loop voltage · electron-ion exchange with `exchange = 1`), one power-balance inversion per channel (transport::interpretive_channel), the valid-only interior average and the energy account" },
         Row { key: "coupled", shape: "", units: "assembled", gloss: "Python's model.coupled: per outer round one free-boundary solve from the channel currents (equilibrium::solve_free_boundary_from), the metric traced on that field, one steady transport solve on it, the pressure amplitude moved toward the volume-averaged temperature" },
         Row { key: "beam", shape: "", units: "assembled", gloss: "neutral-beam deposition (Python's model.nbi.deposit, the page's evBeamDeposit): the shell table on the equilibrium document's psi map, per beam and energy component the kernel's deposition · first-orbit-loss mask · slowing-down · electron/ion split · fast-ion pressure · torque · driven current, summed over the nbi document's units" },
@@ -364,6 +364,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "xpoints", shape: "", units: "assembled", gloss: "the saddle points of a psi map (Python's plot.find_x_points, the summary's X-point block on its own): the map, psi_axis, psi_boundary and the magnetic axis — surfaces::x_points, nearest psi_N = 1 first, as the xpts field (n_x × 4)" },
         Row { key: "channels", shape: "", units: "assembled", gloss: "the device's BRSP channel map as the kernel folds it (Python's device.conductor_set): the deck's frozen pf_channel_elements rows, or one channel per coil weighted by its elements' turns — electromagnetics::channel_weights, the dense (n_ch × n_el) weights as a field" },
         Row { key: "rf_ray", shape: "", units: "assembled", gloss: "cold-plasma ray trajectories on an equilibrium document (rfray, the clean-room ray core): the psi map, F table, boundary and the profiles assembled into the tokamak medium (rfray::PsiMedium, C1-continued across the separatrix), one ray traced per `ec_launchers` beam from the kernel's own launcher convention (rfray::Launch::from_launcher) — by default the geometry: the trajectory, how deep in psi_N it reached, and why it stopped. `deposit` adds stage (2) of docs/note/ec-raytracing.md: the relativistic absorption along each ray, the power deposited on psi_N shells and its account (launched = absorbed + left the plasma + not traced); `current_drive` (on top of `deposit`) adds stage (3): the adjoint ECCD current density and the total driven current. Asking for the current without the deposition is a refusal, not a zero" },
+        Row { key: "icrh", shape: "", units: "assembled", gloss: "ion-cyclotron minority heating at one layer (heating::resonance_layer · icrh_minority · icrh_profile, judged against METIS): the machine as numbers, the plasma AT the layer and the antenna as settings — the layer and its harmonic, the minority tail (n_min, heated fraction, E_crit, tau_s, W_fast), the electron / ion split of the absorbed power and the deposited profile on a V' = 2 x V weight; c_min has no default, and a ripple, a missing layer and a non-plasma are named refusals" },
         Row { key: "cocos", shape: "", units: "assembled", gloss: "what a psi map's own numbers say about the flux convention it is in (Python's geqdsk.measure_cocos): Δ*ψ by the kernel's stencil against −μ0 R² p' − FF' on the file's own tables, the four candidate gauges (per radian / total flux, dψ / dψ̄) scored by their max residual on the interior (inside the boundary outline when one is given), the winner, the runner-up and the margin" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[
@@ -1063,6 +1064,7 @@ pub const CODES: &[Code] = &[
     ] },
     Code { name: "fixed_boundary", door: "fixed_boundary_case", krate: "fylite_kernel", params: &[
         Param { key: "b0", value_type: "float", default: "", required: false, via: "fb_vacuum" },
+        Param { key: "coarse_start", value_type: "float", default: "0.0", required: false, via: "fixed_boundary_case" },
         Param { key: "hold_ip", value_type: "boolean", default: "false", required: false, via: "fixed_boundary_case" },
         Param { key: "ip", value_type: "float", default: "", required: false, via: "fixed_boundary_case" },
         Param { key: "margin", value_type: "float", default: "d.margin", required: false, via: "fixed_boundary_case" },
@@ -1117,6 +1119,33 @@ pub const CODES: &[Code] = &[
         Param { key: "x_hi", value_type: "float", default: "0.995", required: false, via: "forward_case" },
         Param { key: "x_lo", value_type: "float", default: "0.06", required: false, via: "forward_case" },
         Param { key: "zc_anchor", value_type: "float", default: "", required: false, via: "forward_case" },
+    ] },
+    Code { name: "icrh", door: "icrh_case", krate: "fylite_kernel", params: &[
+        Param { key: "a", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "area_pol", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "b0", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "c_min", value_type: "float", default: "0.0", required: false, via: "icrh_case" },
+        Param { key: "fact", value_type: "float", default: "0.0", required: false, via: "icrh_case" },
+        Param { key: "frequency", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "iso", value_type: "float", default: "0.0", required: false, via: "icrh_case" },
+        Param { key: "kappa", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "loss_fraction", value_type: "float", default: "0.0", required: false, via: "icrh_case" },
+        Param { key: "n_background", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "n_helium", value_type: "float", default: "0.0", required: false, via: "icrh_case" },
+        Param { key: "n_phi", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "n_x", value_type: "float", default: "21.0", required: false, via: "icrh_case" },
+        Param { key: "ne", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "p_launched", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "q0", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "q_a", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "q_min", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "r0", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "ripple", value_type: "boolean", default: "false", required: false, via: "icrh_case" },
+        Param { key: "shift", value_type: "float", default: "0.0", required: false, via: "icrh_case" },
+        Param { key: "te", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "ti", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "volume", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "zeff", value_type: "float", default: "", required: true, via: "icrh_case" },
     ] },
     Code { name: "interpretive", door: "interpretive_case", krate: "fylite_kernel", params: &[
         Param { key: "a", value_type: "float", default: "", required: true, via: "interp_miller" },
@@ -1197,7 +1226,9 @@ pub const CODES: &[Code] = &[
         Param { key: "x_weight", value_type: "float", default: "0.0", required: false, via: "pulse_case" },
     ] },
     Code { name: "reconstruction", door: "reconstruction_case", krate: "fylite_kernel", params: &[
+        Param { key: "anderson", value_type: "float", default: "0.0", required: false, via: "reconstruction_case" },
         Param { key: "b_tor", value_type: "float", default: "0.0", required: false, via: "reconstruction_case" },
+        Param { key: "coarse_start", value_type: "float", default: "0.0", required: false, via: "reconstruction_case" },
         Param { key: "coil_fit_loop_sigma", value_type: "float", default: "", required: true, via: "reconstruction_case" },
         Param { key: "coil_fit_sigma", value_type: "float", default: "", required: false, via: "reconstruction_case" },
         Param { key: "curv_f", value_type: "float", default: "0.0", required: false, via: "reconstruction_case" },
