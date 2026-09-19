@@ -326,8 +326,10 @@ def magnetics_at(shot_data: dict, t: float) -> dict:
 # ================================================================================================ equilibrium
 
 
-def equilibrium(lib: K.Lib, shot_data: dict, t: float, warm: dict | None, reject_sigma: float = 4.0) -> dict:
-    """档 M（磁测量）：一段的第一片照本应用全扫；其后各片**继承**上一片的剔道与竖直设定点，只在它 ±8 mm 的 5 个设定点上解。"""
+def equilibrium(lib: K.Lib, shot_data: dict, t: float, warm: dict | None, reject_sigma: float = 4.0,
+                scan: dict | None = None) -> dict:
+    """档 M（磁测量）：一段的第一片照本应用全扫；其后各片**继承**上一片的剔道与竖直设定点，只在它 ±8 mm 的 5 个设定点上解。
+    ``scan``：竖直设定点扫描的做法（``K.SCAN_FULL`` / ``K.SCAN_COARSE``）；只省在冷启动的 16 点扫上，热启动的 5 点扫照全扫。"""
     meas = magnetics_at(shot_data, t)
     card, _ = lib.device("east", shot_data["shot"], shot_data["chain"])
     c = K.Case(lib, meas, card, "B+readmit")
@@ -344,19 +346,20 @@ def equilibrium(lib: K.Lib, shot_data: dict, t: float, warm: dict | None, reject
         saved = K.ZC_SCAN[:]
         K.ZC_SCAN[:] = [round(zc + d, 3) for d in (-0.008, -0.004, 0.0, 0.004, 0.008)]
         try:
-            view, base = K.tier_m(c, reject_sigma, 2, 3, settings, False)
+            view, base = K.tier_m(c, reject_sigma, 2, 3, settings, False, scan)
         finally:
             K.ZC_SCAN[:] = saved
         if base is None:                                 #: 继承的起点解不出：退回全扫
             c = K.Case(lib, meas, card, "B+readmit")
-            view, base = K.tier_m(c, reject_sigma, 4, 3, settings, True)
+            view, base = K.tier_m(c, reject_sigma, 4, 3, settings, True, scan)
     else:
-        view, base = K.tier_m(c, reject_sigma, 4, 3, settings, True)
+        view, base = K.tier_m(c, reject_sigma, 4, 3, settings, True, scan)
     if base is None:
         return {"status": "error", "why": view.get("error"), "meas": meas}
     fa, fi, zc = base
     rejected = list((warm or {}).get("rejected", [])) + [r for r in view["rejected"] if not r.get("reverted")]
     return {"status": "ok", "fa": fa, "fi": fi, "zc": zc, "meas": meas, "loop_start_rule": c.loop_start_rule,
+            "scan": view.get("scan"),
             "rejected": rejected, "readmitted": view.get("readmitted", []),
             "chi2_per_dof": fa.get("chi2_per_dof"), "b_tor": c.b_tor, "card": card}
 
@@ -643,27 +646,28 @@ def _init_worker(lib_path: str, shot_data: dict):
 
 
 def _run_chunk(args):
-    chunk, clean_opts = args
-    return chunk_job(_WORKER["lib"], _WORKER["shot"], chunk, clean_opts)
+    chunk, clean_opts, scan = args
+    return chunk_job(_WORKER["lib"], _WORKER["shot"], chunk, clean_opts, scan)
 
 
-def chunk_job(lib: K.Lib, sd: dict, chunk: list, clean_opts: dict | None) -> list:
+def chunk_job(lib: K.Lib, sd: dict, chunk: list, clean_opts: dict | None, scan: dict | None = None) -> list:
     """一段相邻的 TS 时刻，顺序做：第一片全扫，其后每片从**上一片**热启动（竖直位置随时间漂，#63948 从 −30 mm
     漂到 +18 mm——只从全炮第一片热启动时，后面的片几乎都退回全扫）。"""
     out, warm = [], None
     for it in chunk:
-        r = slice_job(lib, sd, it, warm, clean_opts)
+        r = slice_job(lib, sd, it, warm, clean_opts, scan)
         warm = r.get("_warm") or warm
         out.append(r)
     return out
 
 
-def slice_job(lib: K.Lib, sd: dict, it: int, warm: dict | None, clean_opts: dict | None) -> dict:
+def slice_job(lib: K.Lib, sd: dict, it: int, warm: dict | None, clean_opts: dict | None,
+              scan: dict | None = None) -> dict:
     th = sd["thomson"]
     t = th["times"][it]
     t0 = time.time()
     try:
-        eq = equilibrium(lib, sd, t, warm)
+        eq = equilibrium(lib, sd, t, warm, scan=scan)
         if eq["status"] != "ok":
             return {"time_s": t, "status": "error", "why": f"equilibrium: {eq['why']}"}
         t1 = time.time()
@@ -675,7 +679,8 @@ def slice_job(lib: K.Lib, sd: dict, it: int, warm: dict | None, clean_opts: dict
                         eq["meas"], eq["b_tor"], clean_opts, sd.get("ti0"), pt)
         res["equilibrium"] = {"zc": eq["zc"], "chi2_per_dof": K._r(eq["chi2_per_dof"], 4), "q0": K._r(eq["fa"]["q0"], 4),
                               "q95": K._r(eq["fa"]["q95"], 4), "rho_b": K._r(rm.rho_b, 5), "a": K._r(lad["facts"]["a_minor"], 4),
-                              "n_rejected": len(eq["rejected"]), "loop_start_rule": eq["loop_start_rule"], "warm": warm is not None}
+                              "n_rejected": len(eq["rejected"]), "loop_start_rule": eq["loop_start_rule"], "warm": warm is not None,
+                              "scan": eq.get("scan")}
         res["heating"] = {k: (K._r(v) if isinstance(v, float) else v) for k, v in heat.items()}
         res["seconds"] = {"equilibrium": round(t1 - t0, 2), "total": round(time.time() - t0, 2)}
         res["_warm"] = {"zc": eq["zc"], "rejected": eq["rejected"], "readmitted": eq["readmitted"]}
@@ -708,7 +713,8 @@ def cmd_profiles(a) -> int:
     nw = max(1, min(a.workers, len(idx)))
     chunks = [idx[k * len(idx) // nw:(k + 1) * len(idx) // nw] for k in range(nw)]
     chunks = [c for c in chunks if c]
-    jobs = [(c, clean_opts) for c in chunks]
+    scan = K.scan_from_args(a)
+    jobs = [(c, clean_opts, scan) for c in chunks]
     if nw > 1:
         ctx = mp.get_context("fork")
         with ctx.Pool(nw, initializer=_init_worker, initargs=(str(lib_path), sd)) as pool:
@@ -716,7 +722,7 @@ def cmd_profiles(a) -> int:
                 results.extend(part)
     else:
         for c in chunks:
-            results.extend(chunk_job(lib, sd, c, clean_opts))
+            results.extend(chunk_job(lib, sd, c, clean_opts, scan))
     results.sort(key=lambda r: r["time_s"])
     for r in results:
         log(f"  {r['time_s']:.3f} s: {r['status']} {r.get('why', '')[:80]} "
@@ -732,7 +738,7 @@ def cmd_profiles(a) -> int:
     out = {"@type": "fylite:Wei2026Profiles", "app": APP, "version": K.VERSION, "reference": REF,
            "created": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
            "shot": a.shot, "window_s": [a.t0, a.t1], "source": f"mdsplus:mds.invalid:{a.shot}",
-           "method": method_card(clean_opts),
+           "method": dict(method_card(clean_opts), scan=scan),
            "data": {"thomson_layout": th["layout"], "thomson_pulses": len(th["times"]),
                     "reflectometer": sd["reflect"] is not None, "xcs_profile": sd["xcs"] is not None,
                     "diamagnetic_energy": sd["w_dia"] is not None, "loop_voltage": sd["v_loop"] is not None,
@@ -809,7 +815,7 @@ def cmd_transport(a) -> int:
     it = min(range(len(th["times"])), key=lambda k: abs(th["times"][k] - a.time))
     t = th["times"][it]
     log(f"#{a.shot}: 要 {a.time} s，最近的 TS 脉冲 {t:.3f} s（本炮只存 {len(th['times'])} 幅）")
-    eq = equilibrium(lib, sd, t, None)
+    eq = equilibrium(lib, sd, t, None, scan=K.scan_from_args(a))
     if eq["status"] != "ok":
         log(f"平衡解不出：{eq['why']}")
         return 1
@@ -952,6 +958,7 @@ def main(argv=None) -> int:
         p.add_argument("--lib", help="另一份 libfylite.so（缺省本目录的）")
         p.add_argument("--signals", help="诊断绑定的覆盖 JSON（{ids: {量: {tree, node, scale, units}}}）；缺省只用库里的")
         p.add_argument("-o", "--out", required=True)
+        K.add_scan_args(p, "coarse")
     pp = sub.choices["profiles"]
     pp.add_argument("--t0", type=float, default=4.0)
     pp.add_argument("--t1", type=float, default=8.0)
