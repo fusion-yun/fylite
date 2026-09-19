@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "2a4c23f7f678dbce";
+pub const DIGEST: &str = "a481c5986df2c25f";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -364,6 +364,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "xpoints", shape: "", units: "assembled", gloss: "the saddle points of a psi map (Python's plot.find_x_points, the summary's X-point block on its own): the map, psi_axis, psi_boundary and the magnetic axis — surfaces::x_points, nearest psi_N = 1 first, as the xpts field (n_x × 4)" },
         Row { key: "channels", shape: "", units: "assembled", gloss: "the device's BRSP channel map as the kernel folds it (Python's device.conductor_set): the deck's frozen pf_channel_elements rows, or one channel per coil weighted by its elements' turns — electromagnetics::channel_weights, the dense (n_ch × n_el) weights as a field" },
         Row { key: "rf_ray", shape: "", units: "assembled", gloss: "cold-plasma ray trajectories on an equilibrium document (rfray, the clean-room ray core): the psi map, F table, boundary and the profiles assembled into the tokamak medium (rfray::PsiMedium, C1-continued across the separatrix), one ray traced per `ec_launchers` beam from the kernel's own launcher convention (rfray::Launch::from_launcher) — by default the geometry: the trajectory, how deep in psi_N it reached, and why it stopped. `deposit` adds stage (2) of docs/note/ec-raytracing.md: the relativistic absorption along each ray, the power deposited on psi_N shells and its account (launched = absorbed + left the plasma + not traced); `current_drive` (on top of `deposit`) adds stage (3): the adjoint ECCD current density and the total driven current. Asking for the current without the deposition is a refusal, not a zero" },
+        Row { key: "icrh", shape: "", units: "assembled", gloss: "ion-cyclotron minority heating at one layer (heating::resonance_layer · icrh_minority · icrh_profile, judged against METIS): the machine as numbers, the plasma AT the layer and the antenna as settings — the layer and its harmonic, the minority tail (n_min, heated fraction, E_crit, tau_s, W_fast), the electron / ion split of the absorbed power and the deposited profile on a V' = 2 x V weight; c_min has no default, and a ripple, a missing layer and a non-plasma are named refusals" },
         Row { key: "cocos", shape: "", units: "assembled", gloss: "what a psi map's own numbers say about the flux convention it is in (Python's geqdsk.measure_cocos): Δ*ψ by the kernel's stencil against −μ0 R² p' − FF' on the file's own tables, the four candidate gauges (per radian / total flux, dψ / dψ̄) scored by their max residual on the interior (inside the boundary outline when one is given), the winner, the runner-up and the margin" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[
@@ -1117,6 +1118,33 @@ pub const CODES: &[Code] = &[
         Param { key: "x_hi", value_type: "float", default: "0.995", required: false, via: "forward_case" },
         Param { key: "x_lo", value_type: "float", default: "0.06", required: false, via: "forward_case" },
         Param { key: "zc_anchor", value_type: "float", default: "", required: false, via: "forward_case" },
+    ] },
+    Code { name: "icrh", door: "icrh_case", krate: "fylite_kernel", params: &[
+        Param { key: "a", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "area_pol", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "b0", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "c_min", value_type: "float", default: "0.0", required: false, via: "icrh_case" },
+        Param { key: "fact", value_type: "float", default: "0.0", required: false, via: "icrh_case" },
+        Param { key: "frequency", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "iso", value_type: "float", default: "0.0", required: false, via: "icrh_case" },
+        Param { key: "kappa", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "loss_fraction", value_type: "float", default: "0.0", required: false, via: "icrh_case" },
+        Param { key: "n_background", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "n_helium", value_type: "float", default: "0.0", required: false, via: "icrh_case" },
+        Param { key: "n_phi", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "n_x", value_type: "float", default: "21.0", required: false, via: "icrh_case" },
+        Param { key: "ne", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "p_launched", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "q0", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "q_a", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "q_min", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "r0", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "ripple", value_type: "boolean", default: "false", required: false, via: "icrh_case" },
+        Param { key: "shift", value_type: "float", default: "0.0", required: false, via: "icrh_case" },
+        Param { key: "te", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "ti", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "volume", value_type: "float", default: "", required: true, via: "icrh_case" },
+        Param { key: "zeff", value_type: "float", default: "", required: true, via: "icrh_case" },
     ] },
     Code { name: "interpretive", door: "interpretive_case", krate: "fylite_kernel", params: &[
         Param { key: "a", value_type: "float", default: "", required: true, via: "interp_miller" },

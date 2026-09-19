@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 5
-DIGEST = '2a4c23f7f678dbce'
+DIGEST = 'a481c5986df2c25f'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -408,6 +408,7 @@ BLOCKS = {
         {'key': 'xpoints', 'shape': '', 'units': 'assembled', 'gloss': "the saddle points of a psi map (Python's plot.find_x_points, the summary's X-point block on its own): the map, psi_axis, psi_boundary and the magnetic axis — surfaces::x_points, nearest psi_N = 1 first, as the xpts field (n_x × 4)"},
         {'key': 'channels', 'shape': '', 'units': 'assembled', 'gloss': "the device's BRSP channel map as the kernel folds it (Python's device.conductor_set): the deck's frozen pf_channel_elements rows, or one channel per coil weighted by its elements' turns — electromagnetics::channel_weights, the dense (n_ch × n_el) weights as a field"},
         {'key': 'rf_ray', 'shape': '', 'units': 'assembled', 'gloss': "cold-plasma ray trajectories on an equilibrium document (rfray, the clean-room ray core): the psi map, F table, boundary and the profiles assembled into the tokamak medium (rfray::PsiMedium, C1-continued across the separatrix), one ray traced per `ec_launchers` beam from the kernel's own launcher convention (rfray::Launch::from_launcher) — by default the geometry: the trajectory, how deep in psi_N it reached, and why it stopped. `deposit` adds stage (2) of docs/note/ec-raytracing.md: the relativistic absorption along each ray, the power deposited on psi_N shells and its account (launched = absorbed + left the plasma + not traced); `current_drive` (on top of `deposit`) adds stage (3): the adjoint ECCD current density and the total driven current. Asking for the current without the deposition is a refusal, not a zero"},
+        {'key': 'icrh', 'shape': '', 'units': 'assembled', 'gloss': "ion-cyclotron minority heating at one layer (heating::resonance_layer · icrh_minority · icrh_profile, judged against METIS): the machine as numbers, the plasma AT the layer and the antenna as settings — the layer and its harmonic, the minority tail (n_min, heated fraction, E_crit, tau_s, W_fast), the electron / ion split of the absorbed power and the deposited profile on a V' = 2 x V weight; c_min has no default, and a ripple, a missing layer and a non-plasma are named refusals"},
         {'key': 'cocos', 'shape': '', 'units': 'assembled', 'gloss': "what a psi map's own numbers say about the flux convention it is in (Python's geqdsk.measure_cocos): Δ*ψ by the kernel's stencil against −μ0 R² p' − FF' on the file's own tables, the four candidate gauges (per radian / total flux, dψ / dψ̄) scored by their max residual on the interior (inside the boundary outline when one is given), the winner, the runner-up and the margin"},
     ],
     'ENTRY_OUT_KIND': [
@@ -1160,6 +1161,33 @@ CODE_PARAMS = {
         'x_hi': {'key': 'x_hi', 'type': 'float', 'via': 'forward_case', 'default': '0.995', 'required': False},
         'x_lo': {'key': 'x_lo', 'type': 'float', 'via': 'forward_case', 'default': '0.06', 'required': False},
         'zc_anchor': {'key': 'zc_anchor', 'type': 'float', 'via': 'forward_case'},
+    }},
+    'icrh': {"door": 'icrh_case', "crate": 'fylite_kernel', "parameters": {
+        'a': {'key': 'a', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'the minor radius [m]'},
+        'area_pol': {'key': 'area_pol', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'the poloidal cross-section [m^2]'},
+        'b0': {'key': 'b0', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'the toroidal field [T]'},
+        'c_min': {'key': 'c_min', 'type': 'float', 'via': 'icrh_case', 'default': '0.0', 'required': False},
+        'fact': {'key': 'fact', 'type': 'float', 'via': 'icrh_case', 'default': '0.0', 'required': False},
+        'frequency': {'key': 'frequency', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'the antenna frequency [Hz]'},
+        'iso': {'key': 'iso', 'type': 'float', 'via': 'icrh_case', 'default': '0.0', 'required': False},
+        'kappa': {'key': 'kappa', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'the elongation'},
+        'loss_fraction': {'key': 'loss_fraction', 'type': 'float', 'via': 'icrh_case', 'default': '0.0', 'required': False},
+        'n_background': {'key': 'n_background', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'the background ion density at the layer [m^-3]'},
+        'n_helium': {'key': 'n_helium', 'type': 'float', 'via': 'icrh_case', 'default': '0.0', 'required': False},
+        'n_phi': {'key': 'n_phi', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'the toroidal mode number'},
+        'n_x': {'key': 'n_x', 'type': 'float', 'via': 'icrh_case', 'default': '21.0', 'required': False},
+        'ne': {'key': 'ne', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'n_e at the layer [m^-3]'},
+        'p_launched': {'key': 'p_launched', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'the launched power [W]'},
+        'q0': {'key': 'q0', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'q on axis'},
+        'q_a': {'key': 'q_a', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'q at the edge'},
+        'q_min': {'key': 'q_min', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'the minimum q'},
+        'r0': {'key': 'r0', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'the major radius [m]'},
+        'ripple': {'key': 'ripple', 'type': 'boolean', 'via': 'icrh_case', 'default': 'false'},
+        'shift': {'key': 'shift', 'type': 'float', 'via': 'icrh_case', 'default': '0.0', 'required': False},
+        'te': {'key': 'te', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'T_e at the layer [eV]'},
+        'ti': {'key': 'ti', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'T_i at the layer [eV]'},
+        'volume': {'key': 'volume', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'the plasma volume [m^3]'},
+        'zeff': {'key': 'zeff', 'type': 'float', 'via': 'icrh_case', 'required': True, 'why': 'Z_eff at the layer'},
     }},
     'interpretive': {"door": 'interpretive_case', "crate": 'fylite_kernel', "parameters": {
         'a': {'key': 'a', 'type': 'float', 'via': 'interp_miller', 'required': True, 'why': 'the minor radius [m]'},

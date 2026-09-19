@@ -1,6 +1,6 @@
 {
  "name": "fylite_kernel",
- "commit": "e05a90fd06fe061fef60dc0501db1a8043e7735a",
+ "commit": "b27d7145ab3e68e5cb84914827a552e7a78537ea",
  "recorded": "2026-09-19",
  "comment": "★基准内核：本册以它为「当前」。内核一换就更新本文件——所有记在旧内核上的记录当场转 stale，CI 据此重跑。"
 }

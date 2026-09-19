@@ -76,8 +76,8 @@ MXH 的六阶谐波表达不了尖角，所以这不是这份实现的缺陷，�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-surface-chease-fixed-boundary-east`](../../reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 | CHEASE | 1.25 | 草稿 | [jsonld](../../records/eq-surface-chease-fixed-boundary-east.jsonld) |
-| [`eq-surface-mxh-gfile-fit`](../../reports/eq-surface-mxh-gfile-fit.md) | 验证 | 成立 | 闭式 —— 圆的精确退化与一个已知 MXH 形的原样回收 · 本机拿得到的 g-file 边界 | 1.19 | 草稿 | [jsonld](../../records/eq-surface-mxh-gfile-fit.jsonld) |
+| [`eq-surface-chease-fixed-boundary-east`](../../reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 | CHEASE | 1.26 | 草稿 | [jsonld](../../records/eq-surface-chease-fixed-boundary-east.jsonld) |
+| [`eq-surface-mxh-gfile-fit`](../../reports/eq-surface-mxh-gfile-fit.md) | 验证 | 成立 | 闭式 —— 圆的精确退化与一个已知 MXH 形的原样回收 · 本机拿得到的 g-file 边界 | 1.20 | 草稿 | [jsonld](../../records/eq-surface-mxh-gfile-fit.jsonld) |
 
 ### 覆盖它的记录在别的域
 

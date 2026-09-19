@@ -14,8 +14,8 @@ title: "eq-forward-free-boundary-convergence"
 - **量的是**：自由边界正解：缺省路径 Ip 约束收敛（残差 < 1e-9，Ip 到 2e-15），收敛设置逐项回显——EAST #137985 三个纯磁测切片
 - **参考**：抄录的判据：「自由边界 Ip 约束收敛 rel 1e-6；收敛参数显式回显」
 - **验的需求**：`FR-EQ-001`
-- **跑在内核**：`fylite_kernel@e05a90fd06fe`（新鲜度 **current**）
-- **记录版本**：1.1　**评审**：草稿　**日期**：2026-09-19
+- **跑在内核**：`fylite_kernel@b27d7145ab3e`（新鲜度 **current**）
+- **记录版本**：1.2　**评审**：草稿　**日期**：2026-09-19
 
 ## 问的是什么
 
@@ -65,7 +65,7 @@ title: "eq-forward-free-boundary-convergence"
 
 ## 追溯
 
-- 首次入册 2026-09-19　末次修订 2026-09-19　版本 1.1　评审 草稿
+- 首次入册 2026-09-19　末次修订 2026-09-19　版本 1.2　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -73,12 +73,13 @@ title: "eq-forward-free-boundary-convergence"
 | :--- | :--- | :--- | :--- |
 | 1.0 | 2026-09-19 | Claude Opus 5 | 新立（/goal「close FR-EQ-001/005」）：FR-EQ-001 抄录判据的自由边界一半——缺省路径（边规则，用户裁定）Ip 约束收敛、收敛设置回显。 |
 | 1.1 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`e05a90fd06fe`：`code/rf_ray` 的说明照实——吸收与伴随 ECCD 已实现；HCD 对 METIS 的测试打印登记读数（新域 `tr-sources`）；其间合入 VEQ 定边界求解（`code/fixed_boundary` 的 `method = veq`，缺省 `grid` 逐位不变）。内核侧：`fyo` 7 · `heating` 60 · `rfray` 61 全过。★没有一处缺省数值变动。 ★本条的判据与数值**未改口径**。 |
+| 1.2 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`b27d7145ab3e`：新门 `code/icrh`——ICRH 少数离子加热第一次经门可达，`CASE_CODES` 41 → 42，只加不改）。内核侧：`icrh_door` 2 · `fyo` 7 全过。★没有一处既有缺省数值变动。 ★本条的判据与数值**未改口径**。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `fylite_kernel@e05a90fd06fe`（库 `sha256:19f2501e8437587d71fc7642cbcfc9aa63c7ebf2a5d89e7a4b92dec2f788c223`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
+- 内核 `fylite_kernel@b27d7145ab3e`（库 `sha256:2851c58ae6777d4783fc0071cfc21526509617470a174159a38a47de0074f074`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

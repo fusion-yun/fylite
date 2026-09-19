@@ -1,13 +1,15 @@
 """Gates of the `tr-sources` records (heating & current drive, FR-TR-004 · NR-TR-001).
 
-Three readings, written by ``tools/benchmark-hcd.py``:
+The readings, written by ``tools/benchmark-hcd.py``:
 
 * ``hcd_power_closure.json`` — every family's power account through the tree doors (re-run here);
 * ``ec_toray_cfedr20ma.json`` — `code/rf_ray` against TORAY-GA's own answer on CFEDR 20 MA (re-run here; needs the
   kernel checkout, where the internal TORAY reference lives);
-* ``hcd_metis_kernel.json`` — the kernel's METIS comparisons (ICRH has no `code/` door), parsed from its
-  ``[register]`` lines: held here to the kernel tests' own bands, so a reading that drifts out of them goes red on
-  this side too.
+* ``icrh_metis_door.json`` — `code/icrh` re-run on METIS's certification rows (re-run here);
+* ``nbi_nubeam_d3d.json`` — `code/beam` against NUBEAM's DIII-D test (re-run here; needs third_party/transp_2201);
+* ``lh_genray_east71230.json`` — `code/wave` against GENRAY on EAST #71230 (re-run here; needs third_party/boray);
+* ``hcd_metis_kernel.json`` — the kernel's own METIS comparisons (ECCD, and the ICRH functions below the door),
+  parsed from its ``[register]`` lines: held here to the kernel tests' own bands.
 """
 from __future__ import annotations
 
@@ -147,8 +149,8 @@ def test_ec_the_comparison_reproduces_its_reading(toray):
 # ───────────────────────────────────────────────────────────── the kernel's METIS comparisons
 
 def test_hcd_the_kernel_metis_readings_sit_in_the_kernel_bands():
-    """★ICRH has no `code/` door, and the ECCD rows are judged inside the kernel: their gates are Rust tests the
-    public CI cannot run.  What this side CAN hold is the recorded reading — each number against the band the
+    """★The ECCD rows (and the ICRH functions below the door) are judged inside the kernel: their gates are Rust tests
+    the public CI cannot run.  What this side CAN hold is the recorded reading — each number against the band the
     kernel test asserts, so a reading that is re-recorded out of band goes red here too."""
     r = _want("hcd_metis_kernel.json")["readings"]
     lay, tail, split = r["icrh_layer"], r["icrh_tail"], r["icrh_split"]
@@ -169,3 +171,107 @@ def test_hcd_the_kernel_metis_readings_sit_in_the_kernel_bands():
     ad = r["eccd_adjoint"]
     assert ad["rows"] >= 25 and ad["ratio_min"] > 0.015 and ad["ratio_max"] < 1.0, ad
     assert 0.2 < ad["ratio_median"] < 0.6 and ad["loglog_corr_metis"] > 0.9 and ad["loglog_corr_fit"] > 0.9, ad
+
+
+# ───────────────────────────────────────────────────────────── ICRH through its door (METIS rows)
+
+def _third_party(rel: str) -> bool:
+    return (Path(os.environ.get("FYLITE_THIRD_PARTY", ROOT.parent / "third_party")) / rel).exists()
+
+
+@pytest.fixture(scope="module")
+def icrh() -> dict:
+    return _run(_tool().icrh)
+
+
+def test_icrh_the_door_places_the_layer_where_metis_does(icrh):
+    """★Row by row through `code/icrh`: the layer within 3 % in R (x_res within one of upstream's grid steps), the
+    harmonic CHOSEN the same by both, and the rippled machine refused by name rather than answered 33 % high."""
+    lay = icrh["layer"]
+    assert lay["rows"] >= 30 and lay["r_res_rel_max"] < 0.03 and lay["x_res_abs_max"] < 0.075, lay
+    assert lay["harmonic_mismatches"] == 0
+    ref = icrh["rows"]["refused"]
+    assert ref and all(r["ripple"] and "ripple" in r["refusal"] for r in ref), ref
+
+
+def test_icrh_the_tail_and_the_split_land_in_metis_band(icrh):
+    t, s = icrh["tail"], icrh["split"]
+    assert t["n_min_rel_max"] < 0.03 and t["fraction_rel_max"] < 0.05, t
+    assert t["e_crit_rel_max"] < 0.10 and t["tau_s_rel_max"] < 0.10, t
+    assert s["rows"] >= 15 and 0.85 < s["p_el_ratio_min"] and s["p_el_ratio_max"] < 1.15, s
+    assert 0.85 < s["w_fast_ratio_min"] and s["w_fast_ratio_max"] < 1.15, s
+    assert s["closure_rel_max"] < 1e-12
+    #: ★the unsettled rows stay EXCLUDED: they span orders of magnitude, and a selection rule that let them in would
+    #: fail the band above for reasons that are not the model's
+    u = icrh["unsettled"]
+    assert u["p_el_ratio_min"] < 0.5 and u["p_el_ratio_max"] > 5.0, u
+
+
+def test_icrh_the_profile_peaks_and_spreads_where_metis_wrote_it(icrh):
+    p = icrh["profile"]
+    assert p["rows"] >= 20 and p["peak_abs_max"] <= 0.05 + 1e-9 and p["width_rel_max"] < 0.05, p
+
+
+def test_icrh_reproduces_its_reading(icrh):
+    _walk(icrh, _want("icrh_metis_door.json"))
+
+
+# ───────────────────────────────────────────────────────────── NBI against NUBEAM
+
+@pytest.fixture(scope="module")
+def nbi() -> dict:
+    if not _third_party("transp_2201/codesys/source/nubeam_comp_exec/d3d_output_state.cdf"):
+        pytest.skip("no NUBEAM test data (third_party/transp_2201; set $FYLITE_THIRD_PARTY)")
+    return _run(_tool().nbi)
+
+
+def test_nbi_the_plasma_state_is_read_as_nubeam_read_it(nbi):
+    """The equilibrium and profiles are NUBEAM's own plasma state: the door's shells add up to its volume."""
+    assert abs(nbi["compare"]["volume_rel"]) < 5e-3, nbi["compare"]
+
+
+def test_nbi_the_beam_ions_are_born_where_and_as_fast_as_nubeam_births_them(nbi):
+    """★★The prompt quantities — how many beam ions are born per second, and where — are what a two-step NUBEAM
+    transient CAN judge: birth does not wait for slowing-down.  Rate within 5 % of NUBEAM's lower bound
+    (dN/dt + thermalisation), centroid within 0.07 in psi_N (NUBEAM's `sbedep` leaves out charge-exchange births,
+    which lie further out)."""
+    c = nbi["compare"]
+    assert abs(c["birth_rate_rel"]) < 0.05, c
+    assert abs(c["birth_centroid_dpsin"]) <= 0.07, c
+
+
+def test_nbi_reproduces_its_reading(nbi):
+    _walk(nbi, _want("nbi_nubeam_d3d.json"))
+
+
+# ───────────────────────────────────────────────────────────── LH against GENRAY
+
+@pytest.fixture(scope="module")
+def lh() -> dict:
+    if not _third_party("boray/eqdata/genray/EAST/lhw/east_lh_multiray.nc"):
+        pytest.skip("no GENRAY EAST data (third_party/boray; set $FYLITE_THIRD_PARTY)")
+    return _run(_tool().lh)
+
+
+def test_lh_the_deposition_sits_where_genray_absorbs_it(lh):
+    """★Location is the comparison this pair can make: the analytic model's Landau condition T_e = m_e c²/(2 ξ² N∥²)
+    against a ray tracer.  With the door's defaults (ξ = 3, no upshift) the centroid is 0.10 in psi_N INSIDE GENRAY's;
+    the band is 0.12.  ★Held together with its diagnosis: GENRAY's own rays upshift N∥ by 5–7 % before absorbing,
+    and feeding that upshift in closes the gap to under 0.05 — so the residual is the upshift the model does not
+    compute, not a misplaced resonance."""
+    d, u = lh["fylite"]["default"], lh["fylite"]["genray_upshift"]
+    assert abs(d["d_centroid_psin"]) <= 0.12, d
+    assert abs(u["d_centroid_psin"]) <= 0.05 and abs(u["d_centroid_psin"]) < abs(d["d_centroid_psin"]), u
+    #: and the door's default xi is what GENRAY's rays measure (power-weighted 10–90 %)
+    lo, _, hi = lh["genray"]["xi_eff_q10_q50_q90"]
+    assert lo < 3.0 < hi, lh["genray"]
+
+
+def test_lh_the_account_and_the_volume_agree(lh):
+    d = lh["fylite"]["default"]
+    assert d["deposited"] == 1.0 and d["deposited_rel"] < 1e-12
+    assert abs(d["volume_m3"] / lh["genray"]["volume_m3"] - 1.0) < 5e-3
+
+
+def test_lh_reproduces_its_reading(lh):
+    _walk(lh, _want("lh_genray_east71230.json"))

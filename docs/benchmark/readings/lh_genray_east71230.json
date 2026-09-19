@@ -1,0 +1,61 @@
+{
+ "what": "LH：code/wave 对 GENRAY v10.13（EAST #71230 4.8 s，2.45 GHz 四条射线；BORAY 仓的数据，BSD-3）",
+ "reference": {
+  "code": "GENRAY",
+  "nc": "boray/eqdata/genray/EAST/lhw/east_lh_multiray.nc",
+  "gfile": "boray/eqdata/genray/EAST/g071230.004800",
+  "n_parallel_launch": 16.510000000000005,
+  "frequency_Hz": 2450000000.0,
+  "psifactr": 0.9999,
+  "te0_eV": 200.0,
+  "ne0_m3": 9.999999827968e+18
+ },
+ "genray": {
+  "p_injected_W": 1000000.0,
+  "p_absorbed_W": 1000000.0000000001,
+  "i_par_A": -54228.438584526404,
+  "power_centroid_psin": 0.5040233903345367,
+  "power_std_psin": 0.053042177378197865,
+  "current_centroid_psin": 0.5069969102641502,
+  "upshift_q10_q50_q90": [
+   1.0462387621157645,
+   1.057991320584365,
+   1.0733941964401241
+  ],
+  "xi_eff_q10_q50_q90": [
+   2.9120445433655737,
+   3.095377818149589,
+   3.3677734280838973
+  ],
+  "volume_m3": 10.871897935109555
+ },
+ "fylite": {
+  "default": {
+   "deposited": 1.0,
+   "p_deposited_W": 999999.9999999997,
+   "i_lh_A": 1163225.0955913332,
+   "ne_bar": 4.646912594523003e+18,
+   "r0": 1.85000002,
+   "centroid_psin": 0.401590787038673,
+   "std_psin": 0.04999999999999947,
+   "d_centroid_psin": -0.10243260329586368,
+   "std_ratio": 0.9426460690610934,
+   "deposited_rel": 3.3306690738754696e-16,
+   "volume_m3": 10.870105475722365
+  },
+  "genray_upshift": {
+   "deposited": 1.0,
+   "p_deposited_W": 1000000.0000000001,
+   "i_lh_A": 1163225.0955913332,
+   "ne_bar": 4.646912594523003e+18,
+   "r0": 1.85000002,
+   "centroid_psin": 0.4664179223027604,
+   "std_psin": 0.05,
+   "d_centroid_psin": -0.03760546803177628,
+   "std_ratio": 0.9426460690611035,
+   "deposited_rel": 2.220446049250313e-16,
+   "volume_m3": 10.870105475722365
+  },
+  "eta_cd_implied_by_genray": 4.661904113834392e+17
+ }
+}

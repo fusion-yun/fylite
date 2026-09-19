@@ -1,0 +1,183 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-sources-nbi-nubeam",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "NBI 对 NUBEAM（DIII-D 测试例，7 束 8.5 MW）：束离子的出生率差 +2.4 %、出生形心差 +0.037（psi_N）；NUBEAM 的答案是 20 ms 的暂态，加热分配与电流只记读数",
+  "en": "NBI against NUBEAM (the DIII-D test, 7 beams, 8.5 MW): beam-ion birth rate +2.4 %, birth centroid +0.037 in psi_N; NUBEAM's answer is a 20 ms transient, so the heating split and the current are readings"
+ },
+ "domain": "tr-sources",
+ "requirement": [
+  "FR-TR-004"
+ ],
+ "comparison_kind": "benchmark",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · code/beam（沉积、阻止、Stix 慢化、驱动电流）",
+  "comment": "NUBEAM 自己的等离子体态原样喂门：psi(R,Z)、q、g、边界、限制器、ne / Te / Zeff；束几何由其源参数换算（见 validity_domain）"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:Code",
+   "name": "NUBEAM",
+   "version": "TRANSP 22.01 源码树 nubeam_comp_exec 的 DIII-D 测试（D3D 118419，t = 3.995 s）：d3d_input_state.cdf → d3d_output_state.cdf，运行日志 d3d_test.msgs",
+   "comment": "★**净室**：只读 NUBEAM 的数据文件（等离子体态、日志），从未读其源码。★★**它的答案是暂态**：日志为 INIT 后 2 × 10 ms，从零快离子起步，W_fast 仍以 6.2 MW 上升——束离子的**出生**（瞬时量）它判得了，出生以后的事（加热分配、电流、储能）它只答到 20 ms。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-sources-nbi-nubeam/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "束离子出生率对 NUBEAM 的下界（dN/dt + 热化率）",
+   "norm": "relative",
+   "tolerance_basis": "measured_band",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.05
+   },
+   "comment": "★出生是瞬时的，不等慢化——这是暂态参考判得了的量。NUBEAM 另有电荷交换再电离的出生，本码不建模。"
+  },
+  {
+   "id": "benchmark/records/tr-sources-nbi-nubeam/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "出生分布的功率形心（psi_N）",
+   "norm": "absolute",
+   "tolerance_basis": "measured_band",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.07
+   },
+   "comment": "★NUBEAM 的 `sbedep` 只含电离出生（占 64 %），电荷交换出生在更外面——所以两者之差有一个已知的方向。"
+  },
+  {
+   "id": "benchmark/records/tr-sources-nbi-nubeam/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "等离子体态读得对：门的壳体积和对 NUBEAM 的体积",
+   "norm": "relative",
+   "tolerance_basis": "measured_band",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.005
+   },
+   "comment": "防假通过：平衡换错了，下面两格会碰巧对上也说明不了什么。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "出生率 +2.4 %",
+   "criterion": "benchmark/records/tr-sources-nbi-nubeam/criterion/1",
+   "bound": "upper",
+   "verdict": "pass",
+   "deviation_literal": "本码 9.876e+20 /s、NUBEAM ≥ 9.645e+20 /s（dN/dt + 热化）；注入 8.54 MW（7 束，81 / 75 / 75 / 75 / 75 / 75 / 60 keV）",
+   "measured_deviation": 0.023995791736568295,
+   "caveat": [
+    "★NUBEAM 的 frac_full / frac_half 按**中性原子流份额**读（换成功率份额约 0.73 / 0.19 / 0.08）：粒子守恒支持这一读法（按功率份额读则注入原子率 1.21e21，高于 NUBEAM 的出生下界 25 %）。",
+    "★日志推得第一步的源权重只有 0.48（原因未明），读数把它照实用在暂态重建里。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "出生形心 0.349 对 0.312",
+   "criterion": "benchmark/records/tr-sources-nbi-nubeam/criterion/2",
+   "bound": "upper",
+   "verdict": "pass",
+   "deviation_literal": "形心 psi_N：本码 0.349、NUBEAM 0.312（差 +0.037）；半功率半径 0.270 对 0.199（读数）",
+   "measured_deviation": 0.03683762245373273,
+   "caveat": [
+    "★★**对杂质敏感，照记**：同一出生若按门的单一标量碳密度（体平均 1.52e+18 m⁻³）加 Janev 杂质阻止，形心外移到 0.499——常数杂质密度高估了低密度边缘的阻止。基线不加杂质；METIS 阻止本领给 0.333。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "体积 -0.08 %",
+   "criterion": "benchmark/records/tr-sources-nbi-nubeam/criterion/3",
+   "bound": "upper",
+   "verdict": "pass",
+   "deviation_literal": "门的壳体积和 19.550 m³、NUBEAM 19.564 m³",
+   "measured_deviation": 0.0007502782110189177
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "出生以后（读数，不判）：20 ms 的加热、储能与电流",
+   "bound": "reading",
+   "verdict": "inconclusive",
+   "deviation_literal": "损失份额：本码 0.0010（穿透 + 首轨）、NUBEAM 0.0313（含电荷交换与轨道，按 1 −（加热 + dW/dt）/ P 估）。以本码自己的沉积、E_c、tau_s 按 NUBEAM 的源历史重建 20 ms：W_fast 110 kJ 对 101（+9 %）、P_e 0.60 MW 对 0.65（-7 %）、P_i + P_th 0.69 对 1.40（-51 %）。本码定常：P_e 份额 0.30、I_NBI 212 kA、W_fast 331 kJ；NUBEAM 20 ms：P_e 份额 0.32、I_NBI 95.6 kA（未饱和）",
+   "caveat": [
+    "★★离子道差一倍、不判：NUBEAM 有有限轨道宽度、电荷交换与晕、反常快离子扩散（0.3 m²/s）、投掷角与能量散射，本码都没有；而 20 ms 的暂态里这些与「慢化还没到头」混在一起，分不开。要判定常的分配与电流，得有一个跑到稳态（≥ 200 ms）的 NUBEAM 答案——本机没有 NUBEAM 可执行件，造不出来。",
+    "★暂态重建是**读数用的**：它是本码的成分在 NUBEAM 的时间表上的 Stix 慢化积分（无输运、无投掷角散射），不是本码的一个模型。"
+   ]
+  }
+ ],
+ "validity_domain": "DIII-D 118419 t = 3.995 s，7 束全开（81 / 74.8 / 75 / 75 / 75.1 / 75.2 / 60 keV，共 8.54 MW，氘）。平衡：PsiRZ（109²）、psi_axis 0 / psi_bdy = psipol[-1]、Ip = kccw_Jphi × curt、边界取 rho = 1 面、限制器 rlim / zlim。剖面：ns / Ts / Zeff 于 40 个区中心、按 psipol(rho) 映到 psi_N。束几何：切向半径 |sRtcen|、高度 Zbsc、同向；切点处的 rms 宽度 = 源半宽 / √3 ⊕ Lbsctan × tan(发散角)/√2（竖直按 b_Vfocal_length 聚焦），铺在 5 个等权节点上；孔径截断忽略。阻止本领 Janev、无杂质（基线）。",
+ "caveat": [
+  "★★**对拍不是验证**：本码与 NUBEAM 在出生上一致，说明束在同一处以同一速率电离，不说明其后的物理对。",
+  "★参考侧不在本处重跑：NUBEAM 的两个态文件与日志即其全部答案。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-19",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/nbi_nubeam_d3d.json",
+    "comment": "比较量（tools/benchmark-hcd.py nbi）",
+    "checksum": "sha256:b2faa8a5153364e14446de35a184a1998adf3f337febf423f9bdc65080b1ce90"
+   },
+   {
+    "storage_uri": "tools/benchmark-hcd.py",
+    "comment": "读数生成器（closure · toray · kernel 三个子命令）",
+    "checksum": "sha256:9fbebb10c8e0d65fe11cb0e298b0ab1631996865a0d2979ddd1e39cf62d784eb"
+   },
+   {
+    "storage_uri": "third_party/transp_2201/codesys/source/nubeam_comp_exec/d3d_input_state.cdf",
+    "comment": "NUBEAM 的输入态，指针 + sha256",
+    "checksum": "sha256:b17bfb5b58c950704ea98c1994ecdc60d73eac6cff052c91874b64a00b7f0a94"
+   },
+   {
+    "storage_uri": "third_party/transp_2201/codesys/source/nubeam_comp_exec/d3d_output_state.cdf",
+    "comment": "NUBEAM 的输出态",
+    "checksum": "sha256:803da0c9acc6859794e00366c8f4c6f7c69f79580dad199808096d09b125bf8d"
+   },
+   {
+    "storage_uri": "third_party/transp_2201/codesys/source/nubeam_comp_exec/d3d_test.msgs",
+    "comment": "运行日志（步长、步数、各步快离子数与平均能）",
+    "checksum": "sha256:13bd17230598c5cea08c682f12d19cfccbaa2da1b0a5e77e38b892e2d4b00073"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "python/tests/test_benchmark_hcd.py::test_nbi_the_beam_ions_are_born_where_and_as_fast_as_nubeam_births_them",
+    "comment": "第一、二格"
+   },
+   {
+    "name": "python/tests/test_benchmark_hcd.py::test_nbi_the_plasma_state_is_read_as_nubeam_read_it",
+    "comment": "第三格"
+   },
+   {
+    "name": "python/tests/test_benchmark_hcd.py::test_nbi_reproduces_its_reading"
+   }
+  ],
+  "kernel": {
+   "name": "fylite_kernel",
+   "commit": "b27d7145ab3e68e5cb84914827a552e7a78537ea",
+   "library_sha256": "sha256:2851c58ae6777d4783fc0071cfc21526509617470a174159a38a47de0074f074",
+   "comment": "与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-19",
+  "revised": "2026-09-19",
+  "review_status": "draft",
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5",
+    "summary": "新立（用户「建 NBI and LH，icrf benchmark」）：NBI 对 NUBEAM 的出生——此前 NBI 的沉积与驱动没有任何外部参照。"
+   }
+  ],
+  "open_defect": "2026-09-19 ★参考是暂态（2 × 10 ms）：出生以后的加热分配、储能与电流只能记读数，要一个跑到稳态的 NUBEAM 答案才能判；本机无 NUBEAM 可执行件。"
+ }
+}

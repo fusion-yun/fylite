@@ -220,6 +220,8 @@ project:
             - file: benchmark/reports/tr-sources-ec-toray-cfedr.md
             - file: benchmark/reports/tr-sources-eccd-metis.md
             - file: benchmark/reports/tr-sources-icrh-metis.md
+            - file: benchmark/reports/tr-sources-nbi-nubeam.md
+            - file: benchmark/reports/tr-sources-lh-genray.md
             - file: benchmark/reports/tr-paradigm-pereverzev.md
             - file: benchmark/reports/tr-paradigm-flux-match-vs-pde.md
             - file: benchmark/reports/tr-paradigm-coupled-block-adr.md

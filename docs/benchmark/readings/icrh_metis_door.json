@@ -1,0 +1,65 @@
+{
+ "what": "ICRH：code/icrh 经门重跑 METIS 认证库的 ICRH 行（fydoc CASE-10），与内核测试同一读法、同一批行",
+ "reference": {
+  "code": "METIS",
+  "table": "FYDOC-CASE-10-metis/corpus/metis_cert_hcd.csv"
+ },
+ "rows": {
+  "icrh": 40,
+  "through_the_door": 36,
+  "refused": [
+   {
+    "case": "TS_SA_test",
+    "ripple": true,
+    "refusal": "the kernel refused (-33): ripple = 1: upstream subtracts a ripple loss computed from its previous step, which this model does not carry — refused, not approxima"
+   },
+   {
+    "case": "TS_SA_test",
+    "ripple": true,
+    "refusal": "the kernel refused (-33): ripple = 1: upstream subtracts a ripple loss computed from its previous step, which this model does not carry — refused, not approxima"
+   },
+   {
+    "case": "TS_SA_test",
+    "ripple": true,
+    "refusal": "the kernel refused (-33): ripple = 1: upstream subtracts a ripple loss computed from its previous step, which this model does not carry — refused, not approxima"
+   },
+   {
+    "case": "TS_SA_test",
+    "ripple": true,
+    "refusal": "the kernel refused (-33): ripple = 1: upstream subtracts a ripple loss computed from its previous step, which this model does not carry — refused, not approxima"
+   }
+  ]
+ },
+ "layer": {
+  "rows": 36,
+  "r_res_rel_max": 0.01918331556132058,
+  "r_res_rel_median": 0.001493353839151279,
+  "x_res_abs_max": 0.06703099999999995,
+  "harmonic_mismatches": 0
+ },
+ "tail": {
+  "rows": 36,
+  "n_min_rel_max": 0.0214514226898207,
+  "fraction_rel_max": 0.024622629243556737,
+  "e_crit_rel_max": 0.05063537321642042,
+  "tau_s_rel_max": 0.07843305621227248
+ },
+ "split": {
+  "rows": 16,
+  "p_el_ratio_min": 0.9552695885532504,
+  "p_el_ratio_max": 1.0791404328011884,
+  "w_fast_ratio_min": 0.9479715312122177,
+  "w_fast_ratio_max": 1.014516438768398,
+  "closure_rel_max": 0.0
+ },
+ "unsettled": {
+  "rows": 20,
+  "p_el_ratio_min": 0.01966501975765993,
+  "p_el_ratio_max": 38.853377080086624
+ },
+ "profile": {
+  "rows": 36,
+  "peak_abs_max": 0.050000000000000044,
+  "width_rel_max": 0.024074308991888338
+ }
+}

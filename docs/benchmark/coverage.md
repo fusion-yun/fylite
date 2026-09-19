@@ -145,7 +145,7 @@ NBI · EC · LH · IC 的功率落在哪、驱动多少电流——每一族的�
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-TR-004` | MUST | 源项插件族与 exp / imp 契约 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) · [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) · [`tr-sources-ec-toray-cfedr`](reports/tr-sources-ec-toray-cfedr.md) · [`tr-sources-eccd-metis`](reports/tr-sources-eccd-metis.md) · [`tr-sources-icrh-metis`](reports/tr-sources-icrh-metis.md) · [`tr-sources-power-closure`](reports/tr-sources-power-closure.md) | 验证 · 对拍 · 对拍 · 对拍 · 对拍 · 验证 | 成立 · 成立 · 成立 · 成立 · 成立 · 成立 |
+| `FR-TR-004` | MUST | 源项插件族与 exp / imp 契约 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) · [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) · [`tr-sources-ec-toray-cfedr`](reports/tr-sources-ec-toray-cfedr.md) · [`tr-sources-eccd-metis`](reports/tr-sources-eccd-metis.md) · [`tr-sources-icrh-metis`](reports/tr-sources-icrh-metis.md) · [`tr-sources-lh-genray`](reports/tr-sources-lh-genray.md) · [`tr-sources-nbi-nubeam`](reports/tr-sources-nbi-nubeam.md) · [`tr-sources-power-closure`](reports/tr-sources-power-closure.md) | 验证 · 对拍 · 对拍 · 对拍 · 对拍 · 对拍 · 对拍 · 验证 | 成立 · 成立 · 成立 · 成立 · 成立 · 成立 · 成立 · 成立 |
 
 ## 输运 (Transport) · 求解范式：刚性稳定化与稳态通量匹配
 
