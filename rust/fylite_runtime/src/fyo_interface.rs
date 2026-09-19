@@ -1247,6 +1247,7 @@ pub const CODES: &[Code] = &[
         Param { key: "deposit", value_type: "boolean", default: "false", required: false, via: "rf_ray_case" },
         Param { key: "divergence", value_type: "float", default: "", required: false, via: "rf_ray_case" },
         Param { key: "ds_max", value_type: "float", default: "1.0e-2", required: false, via: "rf_ray_case" },
+        Param { key: "dw_tol", value_type: "float", default: "rf::RayOptions::default(", required: false, via: "rf_ray_case" },
         Param { key: "eccd", value_type: "boolean", default: "false", required: false, via: "rf_ray_case" },
         Param { key: "h_max", value_type: "float", default: "1.0e-4", required: false, via: "rf_ray_case" },
         Param { key: "lh_band", value_type: "float", default: "0.4", required: false, via: "rf_ray_lh" },
