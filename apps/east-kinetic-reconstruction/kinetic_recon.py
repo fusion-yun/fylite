@@ -35,10 +35,14 @@ from __future__ import annotations
 
 import argparse
 import bisect
+import concurrent.futures
 import ctypes
 import datetime
+import itertools
 import json
 import math
+import multiprocessing
+import operator
 import os
 import re
 import sys
@@ -76,8 +80,21 @@ SCAN_COARSE = {"mode": "coarse", "grid": 33, "top": 4, "min_converged": 0.5}
 #: 档 M 反演外迭代的 Anderson 混合深度（``--anderson``；内核 ``code/reconstruction`` 的 ``anderson``，0 = 纯 Picard）。
 #: 只加速日程之后的 Picard 尾巴，终点是同一个不动点（内核 docs/note/gs-anderson.md）；粗扫的粗网格、65² 复核与全扫
 #: 三种调用都带它。只用在档 M——K / P 的反演照旧（没有在它们上面验过）。0 时不写这个键，与旧库逐位相同。
-#: ★缺省 10 是在 24 片上与 0 逐片比过之后定的（见 README〈Anderson 混合的验证〉）。
-ANDERSON = 10
+#: ★缺省曾是 10（24 片上与 0 逐片比过）；2026-09-19（晚）起缺省改走 Newton–Krylov（``NEWTON_KRYLOV``），这里缺省 0。
+#: 理由见 README〈加速器的复核：Newton–Krylov 对 Anderson〉。
+ANDERSON = 0
+#: 档 M 反演外迭代的 Newton–Krylov（JFNK）深度（``--nk``；内核 ``code/reconstruction`` 的 ``newton_krylov``，0 = 不用）。
+#: 同 Anderson 一样只在日程之后介入、失败即回卷成纯 Picard（不会多出拒绝）；但它能让纯 Picard 解不出（被拒 / 跑满
+#: max_iter）的设定点收敛——这些点会进入扫描比较，终点可能因此移动（内核 docs/note/gs-newton-krylov-von-hagenow.md）。
+#: 与 ``anderson`` 同时给时 Newton 先上，它连败 4 次才交给 Anderson。0 时不写这个键。
+#: ★缺省 10 是在同样 24 片 + #63948 全炮 35 片上与纯 Picard、``anderson 10`` 三方逐片比过之后定的：终点与纯 Picard
+#: 22 / 24 片、33 / 35 片相同（不同的片都是它救活了纯 Picard 解不出的设定点），三者里最快（README〈加速器的复核〉）。
+NEWTON_KRYLOV = 10
+#: 一轮里互相独立的反演调用（粗扫的全部粗网格点、65² 复核的前几名、邻点的两侧、热启动的 5 点扫、全扫的 16 点）
+#: 同时交给几个工作进程（``--jobs``；1 = 串行，与旧版逐位相同）。每个工作进程自己载一份 libfylite.so（ctypes 句柄
+#: 不能跨进程传）：传过去的是请求（code + settings + inputs），传回来的是门的记录（或拒绝）。门是确定的、单线程的，
+#: 结果按串行的次序归并——读数、选中的解、剔道与串行**逐位相同**（README〈并行〉有核对）。
+JOBS = max(1, min(16, os.cpu_count() or 1))
 
 
 def log(msg: str) -> None:
@@ -430,6 +447,23 @@ def device_names(doc: dict, resolution: dict) -> dict:
 
 # ================================================================================================ pull
 
+_MONOTONE: dict = {}
+
+
+def _window(tb, n: int, centre: float, half: float) -> range:
+    """``tb[:n]`` 里可能落在 ``|tb − centre| ≤ half`` 之内的下标（调用方再按原判据逐个筛，结果与全扫逐位相同）。
+    POINT 一条弦 425 万个采样、每片 22 条：时基单调（数字化器的时基总是）时用二分只看窗口附近，不单调才全扫。
+    单调与否按时基对象记一次（wei2026 各片共用同一份时序）。"""
+    got = _MONOTONE.get(id(tb))
+    if got is None or got[0] is not tb:
+        got = (tb, all(map(operator.le, tb, itertools.islice(tb, 1, None))))
+        _MONOTONE[id(tb)] = got
+    if not got[1]:
+        return range(n)
+    pad = abs(half) * 2.0 + 1e-6                         #: 二分只求一个超集：边界上的浮点毛刺由调用方的原判据定
+    return range(bisect.bisect_left(tb, centre - pad, 0, n), bisect.bisect_right(tb, centre + pad, 0, n))
+
+
 def fringe_gate(mags: list, gate: float) -> list:
     """保留 ``gate·median ≤ |n_e,line| ≤ median/gate`` 的 POINT 弦（条纹跳变两个方向都可能）。"""
     mag = [abs(v) if v is not None else 0.0 for v in mags]
@@ -454,17 +488,16 @@ def reduce_series(get, shot: int, t: float, names: dict, *, source: str) -> dict
             if required:
                 raise RuntimeError(f"raw reduce: required node {leaf} ({where}) absent")
             return None
-        s, tb = list(r[0]), list(r[1])
+        s, tb = r[0], r[1]
         n = min(len(s), len(tb))
-        s, tb = s[:n], tb[:n]
-        if drift:
-            base = [k for k in range(n) if b0 <= tb[k] <= b1]
-            if len(base) > 2:
-                a, b = linfit([tb[k] for k in base], [s[k] for k in base])
-                s = [s[k] - (a * tb[k] + b) for k in range(n)]
-        sel = [k for k in range(n) if abs(tb[k] - t) <= w]
+        sel = [k for k in _window(tb, n, t, w) if abs(tb[k] - t) <= w]
         if not sel:
             sel = [min(range(n), key=lambda k: abs(tb[k] - t))]
+        if drift:                                        #: 漂移只扣在要平均的那几个采样上（逐个与整条扣完再取相同）
+            base = [k for k in _window(tb, n, 0.5 * (b0 + b1), 0.5 * (b1 - b0)) if b0 <= tb[k] <= b1]
+            if len(base) > 2:
+                a, b = linfit([tb[k] for k in base], [s[k] for k in base])
+                return mean([s[k] - (a * tb[k] + b) for k in sel]) * scale
         return mean([s[k] for k in sel]) * scale
 
     coils = [avg(nd, tree, 1.0 / (2.0 * math.pi)) for nd in names["loops"]]
@@ -495,12 +528,11 @@ def reduce_series(get, shot: int, t: float, names: dict, *, source: str) -> dict
             r = get(node, tree)
             if r is None:
                 return None
-            s, tb = list(r[0]), list(r[1])
+            s, tb = r[0], r[1]
             n = min(len(s), len(tb))
-            s, tb = s[:n], tb[:n]
-            base = [s[k] for k in range(n) if abs(tb[k] - base_s) < base_tol]
+            base = [s[k] for k in _window(tb, n, base_s, base_tol) if abs(tb[k] - base_s) < base_tol]
             off = mean(base) if base else 0.0
-            sel = [k for k in range(n) if abs(tb[k] - t) <= pw]
+            sel = [k for k in _window(tb, n, t, pw) if abs(tb[k] - t) <= pw]
             if not sel:
                 sel = [min(range(n), key=lambda k: abs(tb[k] - t))]
             return mean([s[k] - off for k in sel])
@@ -717,6 +749,61 @@ def tier_view(fa: dict, fi: dict, zc: float, extra: dict | None = None) -> dict:
     return v
 
 
+# ================================================================================================ parallel doors
+
+_POOL: dict = {"jobs": 1, "ex": None, "pid": None, "lib": None}
+_WORKER_LIB: dict = {}
+
+
+def set_jobs(jobs: int) -> None:
+    """档 M 一轮里的独立反演调用最多同时跑几路（1 = 串行）。已开的工作进程池在路数变时关掉重开。"""
+    jobs = max(1, int(jobs))
+    if jobs != _POOL["jobs"]:
+        close_jobs()
+    _POOL["jobs"] = jobs
+
+
+def close_jobs() -> None:
+    ex = _POOL["ex"]
+    if ex is not None and _POOL["pid"] == os.getpid():
+        ex.shutdown(wait=True)
+    _POOL.update(ex=None, pid=None, lib=None)
+
+
+def _door_worker_init(path: str) -> None:
+    _WORKER_LIB["lib"] = Lib(Path(path))
+
+
+def _door_worker(req):
+    code, settings, inputs = req
+    try:
+        return _WORKER_LIB["lib"].door(code, settings, inputs)
+    except (Refused, KernelError) as e:              #: 拒绝是读数：当作值传回，由调用方照串行的次序处理
+        return e
+
+
+def run_doors(lib: Lib, code: str, reqs: list) -> list:
+    """一批互不依赖的门调用 [(settings, inputs), …] → 按原次序的 [(facts, fields, notes) 或 Refused/KernelError, …]。
+    ``set_jobs`` > 1 且不止一个请求时交给工作进程池（fork；每个进程自己载库），否则就在本进程里逐个调。"""
+    #: daemon 进程（mp.Pool 的工作进程）不许再开子进程：那里照串行
+    if _POOL["jobs"] <= 1 or len(reqs) <= 1 or multiprocessing.current_process().daemon:
+        out = []
+        for settings, inputs in reqs:
+            try:
+                out.append(lib.door(code, settings, inputs))
+            except (Refused, KernelError) as e:
+                out.append(e)
+        return out
+    #: 池是本进程开的、载的是同一份库才复用（wei2026 的切片工作进程由 fork 而来，不能用父进程的池）
+    if _POOL["ex"] is None or _POOL["pid"] != os.getpid() or _POOL["lib"] != str(lib.path):
+        if _POOL["pid"] == os.getpid():
+            close_jobs()
+        _POOL.update(ex=concurrent.futures.ProcessPoolExecutor(
+            _POOL["jobs"], mp_context=multiprocessing.get_context("fork"),
+            initializer=_door_worker_init, initargs=(str(lib.path),)), pid=os.getpid(), lib=str(lib.path))
+    return list(_POOL["ex"].map(_door_worker, [(code, s, i) for s, i in reqs]))
+
+
 # ================================================================================================ tiers
 
 class Case:
@@ -832,6 +919,10 @@ def tier_m(c: Case, reject_sigma: float, max_rounds: int, per_round: int, settin
     if settings.get("anderson") and "anderson" not in fa:  #: 2026-09-19 之前的内核不认这个键，也不报错：照实记
         summary["anderson_ignored"] = True
         log("this libfylite.so ignores `anderson` (kernel before 2026-09-19): tier M ran pure Picard")
+    if settings.get("newton_krylov") and "newton_krylov" not in fa:  #: 没有 JFNK 的内核同样不认、不报错：照实记
+        summary["newton_krylov_ignored"] = True
+        log("this libfylite.so ignores `newton_krylov` (kernel without feat/gs-newton-krylov): "
+            "tier M ran without the Newton–Krylov accelerator")
     view = tier_view(fa, fi, zc, {"label": "M · 磁测量", "scan": summary,
                                   "rounds": rounds, "rejected": rejected,
                                   "readmitted": readmitted, "channels": c.channel_table(fi), "notes": notes,
@@ -841,13 +932,13 @@ def tier_m(c: Case, reject_sigma: float, max_rounds: int, per_round: int, settin
 
 def _fine_scan(c: Case, settings: dict, zcs: list, scan: list, best):
     """在 65²（``settings`` 本身的网格）上逐个设定点冷启动反演；读数记进 ``scan``，返回收敛者中 chi2 最小的。"""
-    for zc in zcs:
-        try:
-            fa, fi, notes = c.lib.door("code/reconstruction", dict(settings, zc_anchor=zc),
-                                       {"device": c.card, "discharge": c.full_disc()})
-        except (Refused, KernelError) as e:              #: 一个解不出的设定点也是读数
-            scan.append({"zc": zc, "error": str(e)[-60:]})
+    inputs = {"device": c.card, "discharge": c.full_disc()}
+    got = run_doors(c.lib, "code/reconstruction", [(dict(settings, zc_anchor=zc), inputs) for zc in zcs])
+    for zc, rec in zip(zcs, got):                        #: 各点互不依赖：可并行解，按原次序归并（与串行逐位相同）
+        if isinstance(rec, Exception):                   #: 一个解不出的设定点也是读数
+            scan.append({"zc": zc, "error": str(rec)[-60:]})
             continue
+        fa, fi, notes = rec
         rl, rp = c.residuals(fi)
         chi2 = sum(v * v for v in rl) + sum(v * v for v in rp)
         scan.append({"zc": zc, "chi2": _r(chi2, 5), "q0": _r(fa["q0"], 4), "converged": bool(fa["converged"])})
@@ -860,13 +951,13 @@ def _coarse_scan(c: Case, settings: dict, how: dict):
     """粗扫一轮（做法见 ``SCAN_COARSE`` 的注释）。返回 (粗网格读数, 65² 读数, 是否退回全扫, 最好的 65² 解)。"""
     n = int(how["grid"])
     coarse, ranked = [], []
-    for zc in ZC_SCAN:
-        try:
-            fa, fi, _ = c.lib.door("code/reconstruction", dict(settings, zc_anchor=zc, nw=n, nh=n),
-                                   {"device": c.card, "discharge": c.full_disc()})
-        except (Refused, KernelError) as e:
-            coarse.append({"zc": zc, "error": str(e)[-60:]})
+    inputs = {"device": c.card, "discharge": c.full_disc()}
+    got = run_doors(c.lib, "code/reconstruction", [(dict(settings, zc_anchor=zc, nw=n, nh=n), inputs) for zc in ZC_SCAN])
+    for zc, rec in zip(ZC_SCAN, got):
+        if isinstance(rec, Exception):
+            coarse.append({"zc": zc, "error": str(rec)[-60:]})
             continue
+        fa, fi, _ = rec
         rl, rp = c.residuals(fi)
         chi2 = sum(v * v for v in rl) + sum(v * v for v in rp)
         coarse.append({"zc": zc, "chi2": _r(chi2, 5), "q0": _r(fa["q0"], 4), "converged": bool(fa["converged"])})
@@ -892,8 +983,9 @@ def _coarse_scan(c: Case, settings: dict, how: dict):
 
 
 def _scan_summary(scan: dict, rounds: list, settings: dict) -> dict:
-    """结果 JSON 里记下跑的是哪种扫法、Anderson 深度，以及 65² / 粗网格各解了几次。"""
-    out = dict(scan, anderson=int(settings.get("anderson", 0)), solves_fine=sum(len(r.get("scan", [])) for r in rounds))
+    """结果 JSON 里记下跑的是哪种扫法、加速器深度、并行路数，以及 65² / 粗网格各解了几次。"""
+    out = dict(scan, anderson=int(settings.get("anderson", 0)), newton_krylov=int(settings.get("newton_krylov", 0)),
+               jobs=_POOL["jobs"], solves_fine=sum(len(r.get("scan", [])) for r in rounds))
     if scan.get("mode") == "coarse":
         out.update(solves_coarse=sum(len(r.get("coarse", [])) for r in rounds),
                    fallback_rounds=[r["round"] for r in rounds if r.get("fallback")])
@@ -1195,9 +1287,15 @@ def scan_from_args(a) -> dict:
     return dict(SCAN_FULL)
 
 
-def m_settings(settings: dict, anderson: int) -> dict:
-    """档 M 的反演设定：``anderson`` > 0 时加上内核的 ``anderson``；0 时不写这个键（与旧库逐位相同，旧库也认）。"""
-    return dict(settings, anderson=int(anderson)) if anderson else dict(settings)
+def m_settings(settings: dict, anderson: int, nk: int = 0) -> dict:
+    """档 M 的反演设定：``anderson`` / ``nk`` > 0 时加上内核的 ``anderson`` / ``newton_krylov``；
+    0 时不写这个键（与旧库逐位相同，旧库也认）。"""
+    out = dict(settings)
+    if anderson:
+        out["anderson"] = int(anderson)
+    if nk:
+        out["newton_krylov"] = int(nk)
+    return out
 
 
 def add_scan_args(p, default: str) -> None:
@@ -1207,11 +1305,15 @@ def add_scan_args(p, default: str) -> None:
     p.add_argument("--scan-grid", type=int, default=SCAN_COARSE["grid"], help="coarse 的粗网格边长（缺省 33）")
     p.add_argument("--scan-top", type=int, default=SCAN_COARSE["top"], help="coarse 在 65² 上复核几个设定点（缺省 4）")
     p.add_argument("--anderson", type=int, default=ANDERSON, metavar="M",
-                   help=f"档 M 反演外迭代的 Anderson 混合深度（0 = 纯 Picard；缺省 {ANDERSON}）")
+                   help=f"档 M 反演外迭代的 Anderson 混合深度（0 = 不用；缺省 {ANDERSON}）")
+    p.add_argument("--nk", type=int, default=NEWTON_KRYLOV, metavar="M",
+                   help=f"档 M 反演外迭代的 Newton–Krylov（JFNK）深度（0 = 不用；缺省 {NEWTON_KRYLOV}）；"
+                        "要带 newton_krylov 的内核，旧库会忽略它（结果里记 newton_krylov_ignored）")
 
 
 def cmd_run(a) -> int:
     lib = Lib(Path(a.lib) if a.lib else DEFAULT_LIB)
+    set_jobs(a.jobs)
     meas, th, origin = load_input(a.input, a.time, a.thomson)
     shot, t = int(meas["shot"]), float(meas["time_s"])
     chain = meas.get("measurement_chain", "east")
@@ -1228,7 +1330,8 @@ def cmd_run(a) -> int:
                       "library": lib.path.name, "kernel_built": k.get("built"), "kernel_sha256": k.get("sha256"),
                       "rustc": (k.get("toolchain") or {}).get("rustc")},
            "settings": {"npp": a.npp, "nff": a.nff, "loops": a.loops, "loop_start_rule": c.loop_start_rule,
-                        "reject_sigma": a.reject_sigma, "scan": scan_from_args(a), "anderson": a.anderson,
+                        "reject_sigma": a.reject_sigma, "scan": scan_from_args(a), "anderson": a.anderson, "nk": a.nk,
+                        "jobs": a.jobs,
                         "point_off": a.point_off, "p_on": a.p_on, "dead_sigma": a.dead_sigma,
                         "kinetic_passes": a.kinetic_passes, "kinetic_tol": a.kinetic_tol, "thomson_clip": a.thomson_clip,
                         "sigma_scales": a.sigma_scales, "curv": a.curv, "p_fast_frac": a.p_fast_frac,
@@ -1244,8 +1347,9 @@ def cmd_run(a) -> int:
                       "chords": [{"name": _name(ch), "los": ch.get("line_of_sight")} for ch in _aos(card.get("polarimeter"))]},
            "tiers": {}}
     tiers = set(a.tiers.upper())
-    m_view, base_m = tier_m(c, a.reject_sigma, a.max_rounds, a.per_round, m_settings(settings, a.anderson),
+    m_view, base_m = tier_m(c, a.reject_sigma, a.max_rounds, a.per_round, m_settings(settings, a.anderson, a.nk),
                             a.loops == "B+readmit", scan_from_args(a))
+    close_jobs()                                         #: 并行只用在档 M 的扫描上；K / P 照旧串行
     out["tiers"]["M"] = m_view
     if base_m is not None:
         out["device"]["limiter"] = {"r": _r(base_m[1]["limiter_r"], 5), "z": _r(base_m[1]["limiter_z"], 5)}
@@ -1291,6 +1395,8 @@ def main(argv=None) -> int:
     r.add_argument("--max-rounds", type=int, default=6)
     r.add_argument("--per-round", type=int, default=4)
     add_scan_args(r, "coarse")
+    r.add_argument("--jobs", type=int, default=JOBS, metavar="N",
+                   help=f"档 M 一轮里的独立反演同时跑几路（工作进程；1 = 串行；缺省 min(16, CPU 数) = {JOBS}）")
     r.add_argument("--point-off", type=lambda s: [int(x) for x in s.split(",") if x], default=[],
                    help="手动关掉的 POINT 弦（1 起，逗号分隔；B-06 主集为 4,7,8,11）")
     r.add_argument("--dead-sigma", type=float, default=8.0, help="零假设残差超过它的 POINT 行判为死道")

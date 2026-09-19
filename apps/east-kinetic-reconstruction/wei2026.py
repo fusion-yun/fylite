@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import bisect
+import concurrent.futures
 import datetime
 import json
 import math
@@ -327,14 +328,15 @@ def magnetics_at(shot_data: dict, t: float) -> dict:
 
 
 def equilibrium(lib: K.Lib, shot_data: dict, t: float, warm: dict | None, reject_sigma: float = 4.0,
-                scan: dict | None = None, anderson: int = K.ANDERSON) -> dict:
+                scan: dict | None = None, anderson: int = K.ANDERSON, nk: int = K.NEWTON_KRYLOV) -> dict:
     """档 M（磁测量）：一段的第一片照本应用全扫；其后各片**继承**上一片的剔道与竖直设定点，只在它 ±8 mm 的 5 个设定点上解。
     ``scan``：竖直设定点扫描的做法（``K.SCAN_FULL`` / ``K.SCAN_COARSE``）；只省在冷启动的 16 点扫上，热启动的 5 点扫照全扫。
-    ``anderson``：档 M 反演的 Anderson 混合深度（``K.ANDERSON``；0 = 纯 Picard），冷热两种扫都带。"""
+    ``anderson`` / ``nk``：档 M 反演的 Anderson / Newton–Krylov 深度（``K.ANDERSON`` / ``K.NEWTON_KRYLOV``；0 = 不用），
+    冷热两种扫都带。两种扫的各设定点按 ``K.set_jobs`` 的路数并行（热启动的 5 点一轮就是 5 个独立调用）。"""
     meas = magnetics_at(shot_data, t)
     card, _ = lib.device("east", shot_data["shot"], shot_data["chain"])
     c = K.Case(lib, meas, card, "B+readmit")
-    settings = K.m_settings(K.SETTINGS, anderson)
+    settings = K.m_settings(K.SETTINGS, anderson, nk)
     if warm:
         for r in warm["rejected"]:
             names = c.loop_names if r["kind"] == "loop" else c.probe_names
@@ -641,35 +643,47 @@ def _pts(xs, ys, c):
 _WORKER: dict = {}
 
 
-def _init_worker(lib_path: str, shot_data: dict):
+def _init_worker(lib_path: str, shot_data: dict, jobs: int):
     _WORKER["lib"] = K.Lib(Path(lib_path))
     _WORKER["shot"] = shot_data
+    K.set_jobs(jobs)                                     #: 每个切片工作进程自己的设定点池（嵌套；见 slice_jobs）
 
 
 def _run_chunk(args):
-    chunk, clean_opts, scan, anderson = args
-    return chunk_job(_WORKER["lib"], _WORKER["shot"], chunk, clean_opts, scan, anderson)
+    chunk, clean_opts, scan, anderson, nk = args
+    try:
+        return chunk_job(_WORKER["lib"], _WORKER["shot"], chunk, clean_opts, scan, anderson, nk)
+    finally:                                             #: 工作进程退出时不跑 atexit：自己的设定点池要当场关掉
+        K.close_jobs()
+
+
+def slice_jobs(jobs: int | None, workers: int) -> int:
+    """每个切片工作进程里档 M 设定点并行几路：缺省 max(1, CPU 数 // 切片进程数)，上限 ``K.JOBS``——
+    两层加起来不超过 CPU 数（64 核、12 个切片进程 → 每进程 5 路 = 60 个求解进程）。给了 ``--jobs`` 就照给的。"""
+    if jobs is not None:
+        return max(1, jobs)
+    return max(1, min(K.JOBS, (mp.cpu_count() or 1) // max(1, workers)))
 
 
 def chunk_job(lib: K.Lib, sd: dict, chunk: list, clean_opts: dict | None, scan: dict | None = None,
-              anderson: int = K.ANDERSON) -> list:
+              anderson: int = K.ANDERSON, nk: int = K.NEWTON_KRYLOV) -> list:
     """一段相邻的 TS 时刻，顺序做：第一片全扫，其后每片从**上一片**热启动（竖直位置随时间漂，#63948 从 −30 mm
     漂到 +18 mm——只从全炮第一片热启动时，后面的片几乎都退回全扫）。"""
     out, warm = [], None
     for it in chunk:
-        r = slice_job(lib, sd, it, warm, clean_opts, scan, anderson)
+        r = slice_job(lib, sd, it, warm, clean_opts, scan, anderson, nk)
         warm = r.get("_warm") or warm
         out.append(r)
     return out
 
 
 def slice_job(lib: K.Lib, sd: dict, it: int, warm: dict | None, clean_opts: dict | None,
-              scan: dict | None = None, anderson: int = K.ANDERSON) -> dict:
+              scan: dict | None = None, anderson: int = K.ANDERSON, nk: int = K.NEWTON_KRYLOV) -> dict:
     th = sd["thomson"]
     t = th["times"][it]
     t0 = time.time()
     try:
-        eq = equilibrium(lib, sd, t, warm, scan=scan, anderson=anderson)
+        eq = equilibrium(lib, sd, t, warm, scan=scan, anderson=anderson, nk=nk)
         if eq["status"] != "ok":
             return {"time_s": t, "status": "error", "why": f"equilibrium: {eq['why']}"}
         t1 = time.time()
@@ -716,15 +730,20 @@ def cmd_profiles(a) -> int:
     chunks = [idx[k * len(idx) // nw:(k + 1) * len(idx) // nw] for k in range(nw)]
     chunks = [c for c in chunks if c]
     scan = K.scan_from_args(a)
-    jobs = [(c, clean_opts, scan, a.anderson) for c in chunks]
+    per_slice = slice_jobs(a.jobs, nw)
+    log(f"{nw} 个切片进程 × 每进程 {per_slice} 路设定点并行")
+    jobs = [(c, clean_opts, scan, a.anderson, a.nk) for c in chunks]
     if nw > 1:
-        ctx = mp.get_context("fork")
-        with ctx.Pool(nw, initializer=_init_worker, initargs=(str(lib_path), sd)) as pool:
-            for part in pool.imap(_run_chunk, jobs):
+        #: 切片工作进程要能再开自己的设定点池：concurrent.futures 的工作进程不是 daemon（mp.Pool 的是，不许有子进程）
+        with concurrent.futures.ProcessPoolExecutor(nw, mp_context=mp.get_context("fork"), initializer=_init_worker,
+                                                    initargs=(str(lib_path), sd, per_slice)) as pool:
+            for part in pool.map(_run_chunk, jobs):
                 results.extend(part)
     else:
+        K.set_jobs(per_slice)
         for c in chunks:
-            results.extend(chunk_job(lib, sd, c, clean_opts, scan, a.anderson))
+            results.extend(chunk_job(lib, sd, c, clean_opts, scan, a.anderson, a.nk))
+        K.close_jobs()
     results.sort(key=lambda r: r["time_s"])
     for r in results:
         log(f"  {r['time_s']:.3f} s: {r['status']} {r.get('why', '')[:80]} "
@@ -740,7 +759,7 @@ def cmd_profiles(a) -> int:
     out = {"@type": "fylite:Wei2026Profiles", "app": APP, "version": K.VERSION, "reference": REF,
            "created": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
            "shot": a.shot, "window_s": [a.t0, a.t1], "source": f"mdsplus:mds.invalid:{a.shot}",
-           "method": dict(method_card(clean_opts), scan=scan, anderson=a.anderson),
+           "method": dict(method_card(clean_opts), scan=scan, anderson=a.anderson, nk=a.nk),
            "data": {"thomson_layout": th["layout"], "thomson_pulses": len(th["times"]),
                     "reflectometer": sd["reflect"] is not None, "xcs_profile": sd["xcs"] is not None,
                     "diamagnetic_energy": sd["w_dia"] is not None, "loop_voltage": sd["v_loop"] is not None,
@@ -748,7 +767,8 @@ def cmd_profiles(a) -> int:
            "summary": {"slices": len(results), "ok": len(ok), "nrmse_te": stats("te"), "nrmse_ne": stats("ne"),
                        "nrmse_ti": stats("ti"), "modes": {m: sum(1 for r in ok if r["mode"] == m) for m in ("L", "H")},
                        "seconds": {"fetch": sd["seconds"], "slices_wall": round(time.time() - t_fetch, 1),
-                                   "total": round(time.time() - t_start, 1), "workers": a.workers}},
+                                   "total": round(time.time() - t_start, 1), "workers": a.workers,
+                                   "jobs_per_worker": per_slice}},
            "slices": results}
     Path(a.out).write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
     s = out["summary"]
@@ -817,7 +837,9 @@ def cmd_transport(a) -> int:
     it = min(range(len(th["times"])), key=lambda k: abs(th["times"][k] - a.time))
     t = th["times"][it]
     log(f"#{a.shot}: 要 {a.time} s，最近的 TS 脉冲 {t:.3f} s（本炮只存 {len(th['times'])} 幅）")
-    eq = equilibrium(lib, sd, t, None, scan=K.scan_from_args(a), anderson=a.anderson)
+    K.set_jobs(K.JOBS if a.jobs is None else a.jobs)
+    eq = equilibrium(lib, sd, t, None, scan=K.scan_from_args(a), anderson=a.anderson, nk=a.nk)
+    K.close_jobs()
     if eq["status"] != "ok":
         log(f"平衡解不出：{eq['why']}")
         return 1
@@ -961,6 +983,9 @@ def main(argv=None) -> int:
         p.add_argument("--signals", help="诊断绑定的覆盖 JSON（{ids: {量: {tree, node, scale, units}}}）；缺省只用库里的")
         p.add_argument("-o", "--out", required=True)
         K.add_scan_args(p, "coarse")
+        p.add_argument("--jobs", type=int, default=None, metavar="N",
+                       help="档 M 设定点并行几路（1 = 串行）；profiles 缺省 max(1, CPU 数 // --workers)（上限 16），"
+                            "transport 缺省 min(16, CPU 数)")
     pp = sub.choices["profiles"]
     pp.add_argument("--t0", type=float, default=4.0)
     pp.add_argument("--t1", type=float, default=8.0)
