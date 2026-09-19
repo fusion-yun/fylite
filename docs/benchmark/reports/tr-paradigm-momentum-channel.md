@@ -14,8 +14,8 @@ title: "tr-paradigm-momentum-channel"
 - **量的是**：环向动量通道：**闭合补齐了三处——pinch、TGLF 的动量通量、DD 4 的名字**；pinch 对闭式二阶收敛
 - **参考**：FYTOK-SRS-04 `FR-TR-008` 判据「动量通道设计成文」与 pinch 方程的闭式解
 - **验的需求**：`FR-TR-008`
-- **跑在内核**：`sha256:a7a86a75fc27ac15…`（新鲜度 **current**）
-- **记录版本**：1.2　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`sha256:3250d2a411eae26a…`（新鲜度 **current**）
+- **记录版本**：1.3　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -57,7 +57,7 @@ title: "tr-paradigm-momentum-channel"
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.2　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.3　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -66,12 +66,13 @@ title: "tr-paradigm-momentum-channel"
 | 1.0 | 2026-09-18 | Claude Opus 5 (1M context) | 首次入册：`FR-TR-008` 判**成立**。补齐三处缺口：`solve_momentum` 加 pinch（对闭式二阶）；`code/evolve` 收 `chi_turb_phi` · `v_phi`，扩展门 `code/turbulence` 按 `momentum_flux`（缺省关）把 TGLF 的离子环向应力换成 χ_φ（Prandtl 数中位 0.415）；输出挂 DD 4 的 `momentum_phi/{d,v}`。 |
 | 1.1 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（表面电流模型有壁不稳带 `FR-EQ-021(g)` 与共形基解析导数链 `FR-EQ-025(e)` 入内核，另摘掉六处重复的 `#[test]`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **792 项全通过**（去重后既有 782 + 新锚 10）。★纯增量（没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.2 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。 |
+| 1.3 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:a7a86a75fc27ac155dcfb3ed1c1d752729aef8fea9573a9218444ae2c442b4a0`
+- 内核 `libfylite` `sha256:3250d2a411eae26a58930a6c611468d94724d3610dcef2da735a6c6ab3418338`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

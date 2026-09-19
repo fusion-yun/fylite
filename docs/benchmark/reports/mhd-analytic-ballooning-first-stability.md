@@ -14,8 +14,8 @@ title: "mhd-analytic-ballooning-first-stability"
 - **量的是**：气球模第一稳定边界：**截断误差严格按 1/N 走，于是它能被外推掉**
 - **参考**：s-α 模型的教科书性质（Connor · Hastie · Taylor 1978）
 - **验的需求**：`FR-EQ-018`
-- **跑在内核**：`sha256:a7a86a75fc27ac15…`（新鲜度 **current**）
-- **记录版本**：1.7　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`sha256:3250d2a411eae26a…`（新鲜度 **current**）
+- **记录版本**：1.8　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -78,7 +78,7 @@ title: "mhd-analytic-ballooning-first-stability"
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.7　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-19　版本 1.8　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -92,12 +92,13 @@ title: "mhd-analytic-ballooning-first-stability"
 | 1.5 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（动量通道闭合补三处：`solve_momentum` 加 pinch、`code/evolve` 收 `chi_turb_phi` · `v_phi`、扩展门 `code/turbulence` 按 `momentum_flux` 出 χ_φ、`core_transport` 挂 `momentum_phi/{d,v}`；`FR-TR-008`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过。★只加槽（接口摘要 `80f1dacaccb1d6db` → `1ee10b0ae6f30088`，修订号不动）：新输入都是可选的、`momentum_flux` 缺省关，既有调用逐位不变。 |
 | 1.6 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（表面电流模型有壁不稳带 `FR-EQ-021(g)` 与共形基解析导数链 `FR-EQ-025(e)` 入内核，另摘掉六处重复的 `#[test]`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **792 项全通过**（去重后既有 782 + 新锚 10）。★纯增量（没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.7 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。 |
+| 1.8 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:a7a86a75fc27ac155dcfb3ed1c1d752729aef8fea9573a9218444ae2c442b4a0`
+- 内核 `libfylite` `sha256:3250d2a411eae26a58930a6c611468d94724d3610dcef2da735a6c6ab3418338`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

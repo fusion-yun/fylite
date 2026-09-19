@@ -172,14 +172,14 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:a7a86a75fc27ac155dcfb3ed1c1d752729aef8fea9573a9218444ae2c442b4a0",
+   "checksum": "sha256:3250d2a411eae26a58930a6c611468d94724d3610dcef2da735a6c6ab3418338",
    "comment": "须设 $FYLITE_KERNEL_LIB 指向带该门的构建，并设 $FYLITE_DEVICE_DIR 指向 ITER 牌所在目录"
   }
  },
  "provenance": {
-  "record_version": "1.17",
+  "record_version": "1.18",
   "recorded": "2026-09-16",
-  "revised": "2026-09-18",
+  "revised": "2026-09-19",
   "review_status": "draft",
   "open_defect": "2026-09-17 仍记名保留（用户裁定「保留负面结果」）：达成 kappa 1.7941 比目标低 2.98 %、delta_lower 低 10.21 %，判据 1 %——**这一条是真结论**，不是判法问题：把 kappa 顶上去的设置（enp 0.5）要 37.5 MA·t 且永不收敛。所需 30.6 MA·t 仍无额定可比（牌上缺 pf_active/supply）。★收敛那一条已于 1.1 版改为读数——原判 fail 是我自立的标准，不是缺陷。",
   "change": [
@@ -284,6 +284,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。"
+   },
+   {
+    "record_version": "1.18",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。"
    }
   ]
  }

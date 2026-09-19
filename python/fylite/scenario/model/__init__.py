@@ -102,6 +102,13 @@ class Scenario:
     #: METIS integrates its own boundary, and on ITER that is 2.7 % below the ellipse.
     delta: float = 0.0
     zeff: float = 1.8
+    #: ★The impurity mix the thermal energy's ion density follows from (`FR-TR-014`, 2026-09-19):
+    #: ``z_imp`` the main impurity's charge, ``z_imp2`` / ``r_imp2`` an optional second one at
+    #: ``n_2 = r_imp2 * n_1``.  ``None`` keeps ``n_i = n_e`` to the bit.  The fusion power keeps
+    #: ``dt_fraction`` — which ions fuse and which carry heat are separate statements.
+    z_imp: float | None = None
+    z_imp2: float | None = None
+    r_imp2: float | None = None
     dt_fraction: float = 0.5
     #: The auxiliary heating actuators, one per SYSTEM.
     #:
@@ -141,6 +148,9 @@ def _zerod_plan(scn: Scenario, t, n_rho: int, *, extra: dict | None = None) -> d
                 "r0": float(scn.r0), "a": float(scn.a), "kappa": float(scn.kappa),
                 "delta": float(scn.delta),
                 "zeff": float(scn.zeff), "li": float(scn.li), "dtf": float(scn.dt_fraction)}
+    for k in ("z_imp", "z_imp2", "r_imp2"):
+        if getattr(scn, k) is not None:
+            settings[k] = float(getattr(scn, k))
     settings.update(extra or {})
     return {"settings": settings,
             "inputs": {"summary": {"time": np.asarray(t, float),

@@ -155,13 +155,13 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:a7a86a75fc27ac155dcfb3ed1c1d752729aef8fea9573a9218444ae2c442b4a0"
+   "checksum": "sha256:3250d2a411eae26a58930a6c611468d94724d3610dcef2da735a6c6ab3418338"
   }
  },
  "provenance": {
-  "record_version": "1.16",
+  "record_version": "1.17",
   "recorded": "2026-09-17",
-  "revised": "2026-09-18",
+  "revised": "2026-09-19",
   "review_status": "draft",
   "open_defect": "2026-09-17 ★**那三道探针的成因仍未定**（0.30 / 0.33 / 0.53 sigma，而环一族中位 0.031）。★★**一个假说已经实测否掉**：不是 p' / FF' 基张不出真值。真值用 emp = enp = 1（两者随 psi_N 线性），重构只拟合 2 个系数，看着像基不够；但把阶数抬上去**反而更坏**——(npp, nff) 从 (1,1) 到 (2,2)，chi2 0.8514 → 4.599、q0 偏差 -1.19e-03 → -3.15e-01（读数 `twin_basis_order.json`）。★这是经典的病态：磁测量管不住多出来的自由度，多给就往数据管不着的方向跑。★**因此剩下的候选是探针一侧的建模或几何**，未查。",
   "change": [
@@ -266,6 +266,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。"
+   },
+   {
+    "record_version": "1.17",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。"
    }
   ]
  }

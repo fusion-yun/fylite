@@ -353,3 +353,29 @@ def test_like_for_like_w_agrees_only_by_cancellation():
         #: 相消：总差远小于任一分项
         assert abs(p["w_rel_total"]) < 0.25 * min(dec["no_dilution_ni_eq_ne"], dec["rho_weight_vs_metis_vpr_te_avg"])
         assert dec["no_dilution_ni_eq_ne"] > 0.02 and dec["rho_weight_vs_metis_vpr_te_avg"] > 0.05
+
+
+def test_with_dilution_the_like_for_like_w_is_left_with_the_weighting_alone():
+    """★稀释补上之后（`z_imp` 喂 METIS 自己的 C + Ar），W 的剩余偏差不再相消：−2.4…−3.4 %，
+    方向与大小就是 0D 的椭圆加权（把 T 的体平均抬高、换成轴值就压低 W）。门从公开入口当场重算。"""
+    M = _model()
+    from fylite.scenario.model import Phases, Scenario, _zerod_plan
+    from fylite.io import fydoc
+    pts = _read("zerod_metis_attribution.json")["w_th_like_for_like"]["points"]
+    over = {(p["case"], round(p["t_s"], 4)): p for p in _read("zerod_metis_metrics.json")["points"]}
+    assert M is not None
+    wth = {(r["case"], round(float(r["t_s"]), 4)): float(r["wth_J"]) for r in _metis_csv()}
+    for p in pts:
+        o = dict(over[(p["case"], round(p["t_s"], 4))]["overrides"])
+        o.update(ne_flattop=p["fed"]["ne_axis"], te_flattop=p["fed"]["te_axis_keV"], peaking_n=p["fit"]["peaking_n"],
+                 peaking_t=p["fit"]["peaking_t"], edge_frac=p["fit"]["edge_frac"], ti_over_te=p["fit"]["ti_over_te"],
+                 zeff=p["diluted"]["zeff"], z_imp=6.0, z_imp2=18.0, r_imp2=0.06)
+        ts = p["t_s"]
+        ph = Phases(t_breakdown=0.0, t_rampup_end=1.0, t_flattop_end=ts + 10.0, t_end=ts + 20.0)
+        rec = fydoc.complete("code/zerod", _zerod_plan(Scenario(**o, phases=ph), np.array([0.0, ts]), 41))
+        w = _last(rec["fields"]["summary"]["global_quantities"]["energy_thermal"]["value"]["data"])
+        wm = wth[(p["case"], round(ts, 4))]
+        assert (w - wm) / wm == pytest.approx(p["diluted"]["w_rel"], rel=1e-9)
+        assert -0.036 < p["diluted"]["w_rel"] < -0.022, p
+        #: 稀释那一项正好是之前被相消掉的那一块
+        assert p["diluted"]["w_rel"] < p["diluted"]["w_rel_undiluted"] - 0.02

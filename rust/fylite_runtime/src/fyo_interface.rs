@@ -1524,6 +1524,7 @@ pub const CODES: &[Code] = &[
         Param { key: "predict", value_type: "boolean", default: "false", required: false, via: "zerod_case" },
         Param { key: "pt", value_type: "float", default: "1.5", required: false, via: "zerod_case" },
         Param { key: "r0", value_type: "float", default: "", required: true, via: "zerod_case" },
+        Param { key: "r_imp2", value_type: "float", default: "", required: false, via: "zerod_case" },
         Param { key: "s_fuel", value_type: "float", default: "0.0", required: false, via: "zerod_case" },
         Param { key: "slice", value_type: "float", default: "0.0", required: false, via: "zerod_case" },
         Param { key: "stage", value_type: "string", default: "", required: false, via: "zerod_case" },
@@ -1538,6 +1539,8 @@ pub const CODES: &[Code] = &[
         Param { key: "tite", value_type: "float", default: "1.0", required: false, via: "zerod_case" },
         Param { key: "uqon", value_type: "boolean", default: "false", required: false, via: "zerod_case" },
         Param { key: "w0", value_type: "float", default: "0.0", required: false, via: "zerod_case" },
+        Param { key: "z_imp", value_type: "float", default: "", required: false, via: "zerod_case" },
+        Param { key: "z_imp2", value_type: "float", default: "", required: false, via: "zerod_case" },
         Param { key: "zeff", value_type: "float", default: "1.5", required: false, via: "zerod_case" },
     ] },
 ];

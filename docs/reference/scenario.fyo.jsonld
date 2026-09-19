@@ -833,7 +833,65 @@
   "@id": "fylite:scenario/FYDOC-CASE-20",
   "dcterms:description": "CFEDR conventional H-mode 15 MA, integrated modelling V1 (ONETWO V5.8.2, t = 12 s). Restricted: the values live in fydoc under its release gate and are reached by path and sha256, never copied here.",
   "fylite:case": "FYDOC-CASE-20",
-  "fylite:sources": [],
-  "fylite:sources_read": false
+  "fylite:sources": [
+   {
+    "@id": "fylite:corpus/FYDOC-CASE-20/H model 15MA 20240522/statefile_1.200000E+01.nc",
+    "fylite:path": "cases/FYDOC-CASE-20-cfedr-hmode-15ma/corpus/H model 15MA 20240522/statefile_1.200000E+01.nc",
+    "fylite:sha256": "9b21cf4de68921930c12e195f2ecb8bef8c4e555d682b915226404aee9f154a2",
+    "fylite:feeds": [
+     "fyo:equilibrium",
+     "fyo:core_profiles",
+     "fyo:core_sources",
+     "fyo:summary"
+    ],
+    "fylite:registered": true
+   },
+   {
+    "@id": "fylite:corpus/FYDOC-CASE-20/H model 15MA 20240522/HCD_profiles_from_statefile.nml",
+    "fylite:path": "cases/FYDOC-CASE-20-cfedr-hmode-15ma/corpus/H model 15MA 20240522/HCD_profiles_from_statefile.nml",
+    "fylite:sha256": "a76b129a94509f8a1399163b019abd8b5ff0fadfb0d15f464bf84d5d1e0719c4",
+    "fylite:feeds": [
+     "fyo:core_sources"
+    ],
+    "fylite:registered": true
+   },
+   {
+    "@id": "fylite:corpus/FYDOC-CASE-20/H model 15MA 20240522/toray_inputs/echin",
+    "fylite:path": "cases/FYDOC-CASE-20-cfedr-hmode-15ma/corpus/H model 15MA 20240522/toray_inputs/echin",
+    "fylite:sha256": "6f649d50951a76f663e1f6da7618f52036b7d42fe1f766f7284c96dfca7bca88",
+    "fylite:feeds": [
+     "fyo:ec_launchers"
+    ],
+    "fylite:registered": true
+   },
+   {
+    "@id": "fylite:corpus/FYDOC-CASE-20/H model 15MA 20240522/toray_inputs/psiin",
+    "fylite:path": "cases/FYDOC-CASE-20-cfedr-hmode-15ma/corpus/H model 15MA 20240522/toray_inputs/psiin",
+    "fylite:sha256": "8a810a2fdf9a936bfd8555ef56b8cd92a63b3db641e87e5be6063b9f99d27c55",
+    "fylite:feeds": [
+     "fyo:equilibrium"
+    ],
+    "fylite:registered": true
+   },
+   {
+    "@id": "fylite:corpus/FYDOC-CASE-20/H model 15MA 20240522/gfile_efit",
+    "fylite:path": "cases/FYDOC-CASE-20-cfedr-hmode-15ma/corpus/H model 15MA 20240522/gfile_efit",
+    "fylite:sha256": "5d665395c664fcf0ecfed62acd17912a47fcb5bf452ab91d72c9022dc81f139b",
+    "fylite:feeds": [
+     "fyo:equilibrium"
+    ],
+    "fylite:registered": true
+   },
+   {
+    "@id": "fylite:corpus/FYDOC-CASE-20/H model 15MA 20240522/EPED/peddata",
+    "fylite:path": "cases/FYDOC-CASE-20-cfedr-hmode-15ma/corpus/H model 15MA 20240522/EPED/peddata",
+    "fylite:sha256": "8469320f3a7129ac01e60b510308c618faa9af37a0e4dbe5be64d8e25e677385",
+    "fylite:feeds": [
+     "fylite:pedestal"
+    ],
+    "fylite:registered": true
+   }
+  ],
+  "fylite:sources_read": true
  }
 }

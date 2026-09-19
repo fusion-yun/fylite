@@ -154,14 +154,14 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:a7a86a75fc27ac155dcfb3ed1c1d752729aef8fea9573a9218444ae2c442b4a0",
+   "checksum": "sha256:3250d2a411eae26a58930a6c611468d94724d3610dcef2da735a6c6ab3418338",
    "comment": "★本条**尚无门**：`docs/benchmark/readings/` 里有读数，但还没有一道 pytest 守它。这是记名的下一步，见 open_defect。"
   }
  },
  "provenance": {
-  "record_version": "1.18",
+  "record_version": "1.19",
   "recorded": "2026-09-16",
-  "revised": "2026-09-18",
+  "revised": "2026-09-19",
   "review_status": "draft",
   "open_defect": "2026-09-17 记名保留两处（用户裁定「不改内核，保留负面结果」）：〔一〕α 份额偏 +1.23 %——★2026-09-18 **成因已查明**：`zerod.rs` 写死 `E_ALPHA_FRACTION = 0.2013`，与它自己的注释 `3.52/17.59` 差 +0.59 %（对本册参照 `3.5/17.6` 即 +1.23 %）；三个差得很远的工作点上份额都**恰好** 0.2013，与等离子体状态无关。既有内核测试特意把带放宽到 1 % 来容纳它。按裁定常数不动；〔二〕★**2026-09-17 更新**：α 的电子/离子分配内核**已补上**（Stix 慢化），但在 ASTRA 的轴上温度处电子份额偏高 8.6 %（0.635 对 0.585）。已排除成分差；候选是 E_crit 的系数或 ASTRA 用的是分布而非解析式，**未查**。★2026-09-18 门已补上（两道：三个工作点上份额恒为 0.2013 · 两个偏差由同一常数算出）——**常数一动门就红**，本条得跟着改。",
   "change": [
@@ -278,6 +278,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。"
+   },
+   {
+    "record_version": "1.19",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（0D 热能计稀释入内核：`zerod::ion_fraction`，`code/zerod` 收可选设定 `z_imp` / `z_imp2` / `r_imp2`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **805 项全通过**（新锚 4 条）。★不给 `z_imp` 时 n_i = n_e，逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。"
    }
   ]
  }

@@ -1567,6 +1567,7 @@ CODE_PARAMS = {
         'predict': {'key': 'predict', 'type': 'boolean', 'via': 'zerod_case', 'default': 'false'},
         'pt': {'key': 'pt', 'type': 'float', 'via': 'zerod_case', 'default': '1.5', 'required': False},
         'r0': {'key': 'r0', 'type': 'float', 'via': 'zerod_case', 'required': True, 'why': 'major radius [m]'},
+        'r_imp2': {'key': 'r_imp2', 'type': 'float', 'via': 'zerod_case'},
         's_fuel': {'key': 's_fuel', 'type': 'float', 'via': 'zerod_case', 'default': '0.0', 'required': False},
         'slice': {'key': 'slice', 'type': 'float', 'via': 'zerod_case', 'default': '0.0', 'required': False},
         'stage': {'key': 'stage', 'type': 'string', 'via': 'zerod_case'},
@@ -1581,6 +1582,8 @@ CODE_PARAMS = {
         'tite': {'key': 'tite', 'type': 'float', 'via': 'zerod_case', 'default': '1.0', 'required': False},
         'uqon': {'key': 'uqon', 'type': 'boolean', 'via': 'zerod_case', 'default': 'false'},
         'w0': {'key': 'w0', 'type': 'float', 'via': 'zerod_case', 'default': '0.0', 'required': False},
+        'z_imp': {'key': 'z_imp', 'type': 'float', 'via': 'zerod_case'},
+        'z_imp2': {'key': 'z_imp2', 'type': 'float', 'via': 'zerod_case'},
         'zeff': {'key': 'zeff', 'type': 'float', 'via': 'zerod_case', 'default': '1.5', 'required': False},
     }},
 }
