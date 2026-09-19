@@ -14,8 +14,8 @@ title: "mhd-vertical-coil-forces-analytic"
 - **量的是**：线圈受力：**四条锚全钉牢了，而没有第二套实现说过话**
 - **参考**：闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列）
 - **验的需求**：`FR-EQ-014`
-- **跑在内核**：`sha256:e4040bbf79e390d9…`（新鲜度 **current**）
-- **记录版本**：1.15　**评审**：草稿　**日期**：2026-09-17
+- **跑在内核**：`fylite_kernel@51d34102a406`（新鲜度 **current**）
+- **记录版本**：1.17　**评审**：草稿　**日期**：2026-09-17
 
 ## 问的是什么
 
@@ -94,7 +94,7 @@ title: "mhd-vertical-coil-forces-analytic"
 
 **★★外部对拍：DINA 无语料，由**第二套实现 FreeGS4E** 代行——14 件线圈 F_r / F_z 对到 7e-12，净向内的外侧线圈两边一致**
 
-- ★★**这是一个替代，照实标明**（2026-09-19，按用户可推翻的缺省决定）：判据点名的是 DINA PF scenario database；third_party 的 DINA-IMAS 里没有那份库（只有 ITER 输入，`f_cs` 被注释掉）。这一格要答的是「约定对不对」——四条解析锚共享同一套代数、答不了这一层——而一套**不共享代码**的实现正能答：FreeGS4E 用场与叉乘，本仓用互感梯度，符号、因子、每匝 / 每线圈的口径都得各自对才能对到 1e-11。**若用户坚持要 DINA 的数，这一格回到「未评」。**
+- ★★**这是一个替代，用户 2026-09-19 裁定同意**（「同意 FreeGS4E may stand in for DINA」）：判据点名的是 DINA PF scenario database；third_party 的 DINA-IMAS 里没有那份库（只有 ITER 输入，`f_cs` 被注释掉）。这一格要答的是「约定对不对」——四条解析锚共享同一套代数、答不了这一层——而一套**不共享代码**的实现正能答：FreeGS4E 用场与叉乘，本仓用互感梯度，符号、因子、每匝 / 每线圈的口径都得各自对才能对到 1e-11。
 - ★两边的环向自力在单丝上是同一个式子（$\mu_0I^2/2\,(\ln 8R/a-3/4)$），所以 F_r 那一半不独立验环向项的模型，只验接线；F_z 全是互作用，是纯的独立对拍。
 - ★FreeGS4E 在 uv 临时环境里跑（`tools/freegs4e/coil_forces.py`），不进本仓依赖；门只重算本仓那一侧。
 - ★★**2026-09-19 查过 third_party 里的 DINA-IMAS**（ITER Organization，LGPL-3.0）：只有 ITER 场景的**输入**，没有 PF 受力 / 表面场的输出；`src/scenario/forces_for_control.f` 的 `f_cs` 只算 Fr / Fz（无环向项、无表面场），唯一的调用在 `n_matlab_kav2.f:1416` 被注释掉，要的 `koor_pf` 不在仓里，运行还要 IMAS Access Layer。**这一格仍缺语料**。
@@ -103,13 +103,13 @@ title: "mhd-vertical-coil-forces-analytic"
 
 ## 不可比的部分
 
-- ★★**判成立**（2026-09-19）：解析锚全过、表面场收敛（散布 4e-4）、外部对拍由第二套实现 FreeGS4E 代行（7e-12）。★判据点名的 DINA 没有语料——这一格用 FreeGS4E 代替是**可推翻的缺省决定**，已在那一格写明；用户若要 DINA 的数，整条回到 inconclusive。
+- ★★**判成立**（2026-09-19）：解析锚全过、表面场收敛（散布 4e-4）、外部对拍由第二套实现 FreeGS4E 代行（7e-12）。★判据点名的 DINA 没有语料——用 FreeGS4E 代替**经用户 2026-09-19 裁定同意**。
 - ★2026-09-17 之前**内核里受力计算一处都没有**（全仓搜 `coil_force` / `hoop` 零命中）。本条同时是这项能力的入册与它的第一次检验。
 - ★同域的 `FR-EQ-015`（装置电磁线性模型导出）仍空，且判据原文写着「**待落**（`FYTOK-ADR-119` OI-2）」——那一条等的是上游，不是这里。
 
 ## 追溯
 
-- 首次入册 2026-09-17　末次修订 2026-09-19　版本 1.15　评审 草稿
+- 首次入册 2026-09-17　末次修订 2026-09-19　版本 1.17　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -131,12 +131,14 @@ title: "mhd-vertical-coil-forces-analytic"
 | 1.13 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（平衡 / MHD 三条判据补齐入内核：`highbeta::surface_energy_book`、`code/vstab` 新报 `k_identity_filaments`，另加 conformal / stability 的锚；`FR-EQ-024` · `025` · `016`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **809 项全通过**（新锚 4 条）。★缺省路径逐位不变，接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.14 | 2026-09-19 | Claude Opus 5 (1M context) | 表面场一格转成立：内核 `surface_field_converged`——导体自场改为极坐标 Gauss 面积分（环场用椭圆积分闭式），4 / 8 / 16 档峰值 2.8070 / 2.8079 / 2.8081 T，散布 4e-4（此前 7.1 %，旧值低 7–10 %）。受力逐位不变。DINA 一格查过 third_party 仍无受力输出，未评；整体仍 inconclusive，只剩这一个原因。 |
 | 1.15 | 2026-09-19 | Claude Opus 5 (1M context) | 外部对拍一格由未评转成立：DINA 仍无语料，按可推翻的缺省决定由第二套实现 FreeGS4E（`Coil.getForces`：I×B + Garren–Chen）代行——EAST 14 件线圈 F_r / F_z 对到 7e-12，外侧线圈净向内两边一致。整体 inconclusive → pass；用户若要 DINA 的数，回到 inconclusive。 |
+| 1.16 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
+| 1.17 | 2026-09-19 | Claude Opus 5 | 用户裁定同意 FreeGS4E 代替 DINA 作外部对拍——把「可推翻的缺省决定」改记为裁定。判决不变（成立）。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6`
+- 内核 `fylite_kernel@51d34102a406`（库 `sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

@@ -14,8 +14,8 @@ title: "eq-inverse-iter-reference-separatrix"
 - **量的是**：ITER 参考分离面上的静态逆解：设计自身的闭合，以及它买不起的那部分形状
 - **参考**：ITER 参考分离面（装置牌上的数字化曲线）
 - **验的需求**：`FR-EQ-005`
-- **跑在内核**：`sha256:e4040bbf79e390d9…`（新鲜度 **current**）
-- **记录版本**：1.21　**评审**：草稿　**日期**：2026-09-17
+- **跑在内核**：`fylite_kernel@51d34102a406`（新鲜度 **current**）
+- **记录版本**：1.22　**评审**：草稿　**日期**：2026-09-17
 
 :::{warning} 这是一条**已裁定保留**的缺口
 
@@ -95,7 +95,7 @@ title: "eq-inverse-iter-reference-separatrix"
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.21　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.22　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -122,12 +122,13 @@ title: "eq-inverse-iter-reference-separatrix"
 | 1.19 | 2026-09-19 | Claude Opus 5 (1M context) | 线圈电流一格由未判转不成立：ITER 额定取自 DINA-IMAS（每匝上限 × 本卡片匝数，同一套线圈）。无界设计 PF1 1.14 倍、PF6 1.28 倍额定；有界再解守住额定（PF6 顶格）、分离面 11.8 mm，但不再收敛（残差 0.072）。整体仍 inconclusive（收敛一格只记不判）。 |
 | 1.20 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（线圈表面场收敛入内核：`electromagnetics::surface_field_converged`、`loop_field`，`code/forces` 的 `b_surface` 改用面积分；`FR-EQ-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **812 项全通过**。★只动了 `b_surface`，受力与其余门逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.21 | 2026-09-19 | Claude Opus 5 (1M context) | 把用户「不改内核，保留负面结果」的裁定（ITER 一例点名在内）写进 open_defect：两格不成立是这台机器在额定内买不到这条分离面的物理结论，保留。判决不变（inconclusive）。 |
+| 1.22 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6`　—— 须设 `$FYLITE_KERNEL_LIB` 指向带该门的构建，并设 `$FYLITE_DEVICE_DIR` 指向 ITER 牌所在目录
+- 内核 `fylite_kernel@51d34102a406`（库 `sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

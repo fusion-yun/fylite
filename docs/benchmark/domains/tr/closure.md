@@ -52,10 +52,10 @@ $\chi$ 与 $D$ 从哪来、源项怎么沉积。这一章是本册**记录密度
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-closure-15d-source-switches`](../../reports/tr-closure-15d-source-switches.md) | 验证 | 未判（读数） | 基线自身（同一算例、只改一个开关） | 1.20 | 草稿 | [jsonld](../../records/tr-closure-15d-source-switches.jsonld) |
-| [`tr-closure-dt-burn-astra`](../../reports/tr-closure-dt-burn-astra.md) | 对拍 | 未判（读数） | DT 分支比 3.5 / 17.6 · ASTRA | 1.21 | 草稿 | [jsonld](../../records/tr-closure-dt-burn-astra.jsonld) |
-| [`tr-closure-lazy-plugin-resolution`](../../reports/tr-closure-lazy-plugin-resolution.md) | 验证 | 成立 | 导入后 `sys.modules` 的增量本身 | 1.17 | 草稿 | [jsonld](../../records/tr-closure-lazy-plugin-resolution.jsonld) |
-| [`tr-closure-plugin-dispatch`](../../reports/tr-closure-plugin-dispatch.md) | 验证 | 成立 | 彼此 | 1.18 | 草稿 | [jsonld](../../records/tr-closure-plugin-dispatch.jsonld) |
+| [`tr-closure-15d-source-switches`](../../reports/tr-closure-15d-source-switches.md) | 验证 | 未判（读数） | 基线自身（同一算例、只改一个开关） | 1.21 | 草稿 | [jsonld](../../records/tr-closure-15d-source-switches.jsonld) |
+| [`tr-closure-dt-burn-astra`](../../reports/tr-closure-dt-burn-astra.md) | 对拍 | 未判（读数） | DT 分支比 3.5 / 17.6 · ASTRA | 1.22 | 草稿 | [jsonld](../../records/tr-closure-dt-burn-astra.jsonld) |
+| [`tr-closure-lazy-plugin-resolution`](../../reports/tr-closure-lazy-plugin-resolution.md) | 验证 | 成立 | 导入后 `sys.modules` 的增量本身 | 1.18 | 草稿 | [jsonld](../../records/tr-closure-lazy-plugin-resolution.jsonld) |
+| [`tr-closure-plugin-dispatch`](../../reports/tr-closure-plugin-dispatch.md) | 验证 | 成立 | 彼此 | 1.19 | 草稿 | [jsonld](../../records/tr-closure-plugin-dispatch.jsonld) |
 
 ### 缺口
 

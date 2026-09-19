@@ -23,7 +23,7 @@
     python tools/benchmark-book.py                 # 写全部生成件
     python tools/benchmark-book.py --check         # 只核对是否最新（门 / CI 用），不写盘
     python tools/benchmark-book.py --ci            # 列出过期与不成立的记录；有则退 1
-    python tools/benchmark-book.py --bump-kernel   # 把基准内核指纹更新为本机当前的
+    python tools/benchmark-book.py --bump-kernel   # 把基准内核指纹更新为内核仓当前的 git 提交
 """
 from __future__ import annotations
 
@@ -34,6 +34,7 @@ import json
 import os
 import pathlib
 import re
+import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -91,19 +92,40 @@ def kernel_reference() -> dict:
     return json.loads(p.read_text(encoding="utf-8")) if p.is_file() else {}
 
 
-def local_kernel() -> dict | None:
-    """本机当前的内核指纹。★取不到是正常的——分发件里不一定带内核。"""
-    lib = os.environ.get("FYLITE_KERNEL_LIB")
-    cands = [pathlib.Path(lib)] if lib else []
-    #: ★2026-09-16 起内核装在 `libfylite.so` 里（内核 + 中间层一个库）；
-    #: `libfylite_kernel.so` 是上一代的名字，留着让没重建过的检出仍答得出指纹。
-    for name in ("libfylite.so", "libfylite_kernel.so"):
-        cands.append(ROOT / "python" / "fylite" / "_lib" / name)
-    for p in cands:
-        if p.is_file():
-            return {"name": "libfylite", "path": str(p),
-                    "checksum": "sha256:" + hashlib.sha256(p.read_bytes()).hexdigest()}
+def kernel_checkout() -> pathlib.Path | None:
+    """内核仓的检出：`$FYLITE_KERNEL`，否则公开仓旁边的 `fylite_kernel/`。"""
+    env = os.environ.get("FYLITE_KERNEL")
+    for cand in ([pathlib.Path(env)] if env else []) + [ROOT.parent / "fylite_kernel"]:
+        if (cand / ".git").exists():
+            return cand
     return None
+
+
+def local_kernel() -> dict | None:
+    """本机当前的内核指纹 = 内核仓的 **git 提交**（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）。
+
+    ★★此前锁在 `libfylite.so` 的 sha256 上，而构建不是逐字节可复现的（2026-09-16 实测：源码一字未改，
+    重建出的库指纹就变了，答案逐位相同）——于是「过期」会在什么都没变的重建后整批误报。提交号锁的是**源码**。
+    ★内核仓 `rust/` 下有未提交的改动时拒绝：那时提交号说的不是正在跑的代码。
+    ★取不到是正常的——分发件里不一定带内核仓。"""
+    ko = kernel_checkout()
+    if ko is None:
+        return None
+    head = subprocess.run(["git", "-C", str(ko), "rev-parse", "HEAD"], capture_output=True, text=True)
+    if head.returncode != 0:
+        return None
+    dirty = subprocess.run(["git", "-C", str(ko), "status", "--porcelain", "--", "rust"],
+                           capture_output=True, text=True).stdout.strip()
+    if dirty:
+        raise SystemExit(f"内核仓 {ko} 的 rust/ 有未提交的改动——先提交，提交号才说得清跑的是哪份代码：\n{dirty}")
+    return {"name": "fylite_kernel", "commit": head.stdout.strip()}
+
+
+def kernel_label(k: dict) -> str:
+    """呈现用：`fylite_kernel@<提交前 12 位>`；旧式（库 sha256）照旧显示。"""
+    if k.get("commit"):
+        return f"{k.get('name', 'fylite_kernel')}@{k['commit'][:12]}"
+    return f"{k.get('name', 'libfylite')} {k.get('checksum', '—')[:23]}…"
 
 
 # ───────────────────────────────────────────────────────── 呈现层的脱敏
@@ -300,7 +322,7 @@ def report_md(rec: dict, reqs: dict, where: dict, ref: dict) -> str:
           f"- **量的是**：{cell(rec['title']['zh'])}",
           f"- **参考**：{cell(refs)}",
           f"- **验的需求**：" + " · ".join(f"`{r}`" for r in rec.get("requirement") or []),
-          f"- **跑在内核**：`{k.get('checksum', '—')[:23]}…`（新鲜度 **{fr}**）",
+          f"- **跑在内核**：`{kernel_label(k)}`（新鲜度 **{fr}**）",
           f"- **记录版本**：{p.get('record_version', '—')}　**评审**：{REVIEW_ZH.get(p.get('review_status'), '—')}"
           f"　**日期**：{run.get('performed', p.get('recorded', '—'))}", ""]
     if p.get("open_defect"):
@@ -409,7 +431,7 @@ def report_md(rec: dict, reqs: dict, where: dict, ref: dict) -> str:
 
     # 六 · 复算
     L += [f"## {REPORT_SECTIONS[5]}", "", "**这次跑在**：", "",
-          f"- 内核 `{k.get('name', 'libfylite')}` `{k.get('checksum', '—')}`"
+          f"- 内核 `{kernel_label(k)}`" + (f"（库 `{k['library_sha256']}`）" if k.get("library_sha256") else "")
           + (f"　—— {defang(k['comment'])}" if k.get("comment") else ""), ""]
     if run.get("has_input"):
         L += ["**输入（每一项都带 sha256，否则指针指不住任何东西）**：", ""]
@@ -530,9 +552,9 @@ def coverage_md(reqs: dict[str, dict], recs: list[dict], doms: list[tuple[dict, 
 def freshness(rec: dict, ref: dict) -> str:
     """`current` / `stale` / `unknown`——记录跑在哪个内核上，与基准内核比。"""
     got = (rec.get("run") or {}).get("kernel") or {}
-    if not got.get("checksum") or not ref.get("checksum"):
+    if not got.get("commit") or not ref.get("commit"):
         return "unknown"
-    return "current" if got["checksum"] == ref["checksum"] else "stale"
+    return "current" if got["commit"] == ref["commit"] else "stale"
 
 
 def status_md(reqs: dict[str, dict], recs: list[dict], doms: list[tuple[dict, dict]]) -> str:
@@ -552,21 +574,20 @@ def status_md(reqs: dict[str, dict], recs: list[dict], doms: list[tuple[dict, di
          "★所以每条记录记着它**跑在哪个内核上**，这一页拿它与基准内核比：不一致即 `stale`，等着重跑。", "",
          "## 基准内核 (reference kernel)", ""]
 
-    if ref.get("checksum"):
-        L += [f"- `{ref.get('name', 'libfylite')}` **{ref['checksum'][:23]}…**",
+    if ref.get("commit"):
+        L += [f"- **`{kernel_label(ref)}`**（内核仓的 git 提交）",
               f"- 声明于 (recorded)：{ref.get('recorded', '—')}"]
     else:
         L += ["- ★**尚未声明。** 没有基准就判不了新鲜度，所有记录一律记 `unknown`。",
               "  用 `python tools/benchmark-book.py --bump-kernel` 声明本机当前的内核指纹。"]
     L += ["",
-          ":::{warning} ★★指纹锁在**字节**上，而内核的构建不是逐字节可复现的",
-          "2026-09-16 实测：源码与上一次提交**完全相同**，重建出的 `libfylite.so` 指纹却从"
-          "`9c8e319b…` 变成 `301a962b…`——内嵌的路径 / 时间戳之类在动。"
-          "**而它的答案逐位相同**（同一道 Solov'ev 三档 q0 完全一致）。",
+          ":::{note} ★指纹锁在**内核仓的 git 提交**上（用户 2026-09-19 裁定），不再锁在库的字节上",
+          "此前锁在 `libfylite.so` 的 sha256 上，而构建不是逐字节可复现的——2026-09-16 实测源码一字未改、"
+          "重建出的库指纹就变了（答案逐位相同），「过期」会在什么都没变的重建后整批误报。"
+          "提交号锁的是**源码**：`--bump-kernel` 读内核仓的 HEAD，`rust/` 下有未提交改动时拒绝。",
           "",
-          "★于是「过期」会在**什么都没变**的重建后整批误报。这是本册当前最该修的一处机制问题："
-          "钥匙该锁在**行为**上（例如一组判据算例的答案摘要），不是锁在字节上。"
-          "在那之前，读 `stale` 时要记得它可能只是重建过。",
+          "★它不锁中间层：`libfylite.so` 里还有公开仓的 `fylite_runtime`，那一层的改动随公开仓自己的提交走。"
+          "每条记录另把当时的库 sha256 留作参考（`library_sha256`），只记不判。",
           ":::", "",
           ":::{note} 为什么基准是一份**声明件**，不是本机当场算的指纹",
           "本页入库并受 `--check` 守。它若嵌入跑命令那台机器的内核指纹，换一台机器门就红——"
@@ -623,7 +644,7 @@ def status_md(reqs: dict[str, dict], recs: list[dict], doms: list[tuple[dict, di
                      f"| {VERDICT_ZH.get(r.get('overall_verdict'), '?')} "
                      f"| {p.get('record_version', '—')} | {p.get('revised', p.get('recorded', '—'))} "
                      f"| {REVIEW_ZH.get(p.get('review_status'), '—')} "
-                     f"| `{k.get('checksum', '—')[:19]}…` | {fr[r['id']]} |")
+                     f"| `{kernel_label(k)}` | {fr[r['id']]} |")
     else:
         L.append("（尚无记录）")
     L.append("")
@@ -731,14 +752,13 @@ def main() -> int:
     if a.bump_kernel:
         k = local_kernel()
         if k is None:
-            print("本机取不到内核（设 $FYLITE_KERNEL_LIB 指向 libfylite.so）", file=sys.stderr)
+            print("本机取不到内核仓（设 $FYLITE_KERNEL 指向 fylite_kernel 检出）", file=sys.stderr)
             return 2
         k["recorded"] = datetime.date.today().isoformat()
         k["comment"] = ("★基准内核：本册以它为「当前」。内核一换就更新本文件——"
                         "所有记在旧内核上的记录当场转 stale，CI 据此重跑。")
-        k.pop("path", None)
         (META / "kernel.json").write_text(json.dumps(k, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-        print(f"kernel.json → {k['checksum'][:23]}…")
+        print(f"kernel.json → {kernel_label(k)}")
         return 0
 
     if a.ci:

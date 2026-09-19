@@ -6,12 +6,12 @@
   "zh": "一句话说清：拿什么，对着谁，量什么",
   "en": "One line: what was run, against which reference, measuring what"
  },
-
  "domain": "<域id>",
- "requirement": ["FR-EQ-000"],
+ "requirement": [
+  "FR-EQ-000"
+ ],
  "comparison_kind": "verification | benchmark | validation",
  "overall_verdict": "pass | fail | inconclusive | unevaluated",
-
  "compared_subject": {
   "type": "spo:Code",
   "name": "fylite",
@@ -26,14 +26,16 @@
    "comment": "参考是**另一个实现**、**解析解**还是**实验/权威算例**——这一栏决定 comparison_kind"
   }
  ],
-
  "criteria": [
   {
    "id": "benchmark/records/<域id>-<短名>/criterion/1",
    "type": "fyo:AcceptanceCriterion",
    "quantity_label": "量的是哪个量（带单位与坐标标签）",
    "norm": "relative | absolute",
-   "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1e-6},
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-06
+   },
    "tolerance_basis": "machine_precision | measured_band | reference_self_reported"
   }
  ],
@@ -46,15 +48,15 @@
    "measured_deviation": 0.0,
    "bound": "upper | lower | identity | reading",
    "verdict": "pass | fail | inconclusive",
-   "caveat": ["这一条哪里不可比 / 改判过没有"]
+   "caveat": [
+    "这一条哪里不可比 / 改判过没有"
+   ]
   }
  ],
-
  "validity_domain": "口径：单位、坐标标签、符号约定（COCOS）、径向标签（rho 还是 Miller r）、适用的参数范围",
  "caveat": [
   "★不可比的部分：参考解了哪几道方程、哪些量是**喂进去的**而不是算出来的、哪一档超出参考自报精度"
  ],
-
  "run": {
   "type": "spo:ComputationProcess",
   "performed": "YYYY-MM-DD",
@@ -66,25 +68,38 @@
    }
   ],
   "realizes": [
-   {"name": "python/tests/test_x.py::test_y", "comment": "守这条判据的门；★门必须真的在，闸子会验"}
+   {
+    "name": "python/tests/test_x.py::test_y",
+    "comment": "守这条判据的门；★门必须真的在，闸子会验"
+   }
   ],
   "kernel": {
-   "name": "libfylite",
-   "checksum": "sha256:…",
-   "comment": "★这次验证跑在哪个内核上。状态页拿它与当前内核比——不一致即**过期**，等着重跑。"
+   "name": "fylite_kernel",
+   "commit": "<内核仓的 git 提交，40 位>",
+   "library_sha256": "sha256:…（可选，只记不判）",
+   "comment": "★这次验证跑在哪个内核提交上。状态页拿它与 `meta/kernel.json` 的基准提交比——不一致即**过期**，等着重跑。"
   }
  },
-
  "provenance": {
   "record_version": "1.0",
   "recorded": "YYYY-MM-DD",
   "revised": "YYYY-MM-DD",
   "review_status": "draft | reviewed | superseded",
   "reviewer": [
-   {"name": "评审人", "role": "physics | numerics | record", "date": "YYYY-MM-DD", "verdict": "accept | reject"}
+   {
+    "name": "评审人",
+    "role": "physics | numerics | record",
+    "date": "YYYY-MM-DD",
+    "verdict": "accept | reject"
+   }
   ],
   "change": [
-   {"record_version": "1.0", "date": "YYYY-MM-DD", "by": "谁", "summary": "首次入册"}
+   {
+    "record_version": "1.0",
+    "date": "YYYY-MM-DD",
+    "by": "谁",
+    "summary": "首次入册"
+   }
   ]
  }
 }

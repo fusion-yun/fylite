@@ -213,9 +213,10 @@ def test_a_record_carries_its_provenance(name, rec):
             assert x.get("name") and x.get("date") and x.get("verdict"), f"{name}: 评审条目不全 {x}"
 
     #: ★这次验证跑在哪个内核上——状态页据此判新鲜度。没有它，一条记录永远显示 unknown
+    #: ★★2026-09-19 起指纹是内核仓的 git 提交（用户裁定「kernel fingerprint 按 git 走」），不再是库的 sha256
     k = (rec.get("run") or {}).get("kernel") or {}
-    assert k.get("checksum", "").startswith("sha256:"), \
-        f"{name}: `run.kernel.checksum` 缺失——没有它就判不了这条记录过没过期"
+    assert re.fullmatch(r"[0-9a-f]{40}", k.get("commit", "")), \
+        f"{name}: `run.kernel.commit` 缺失或不是 40 位提交号——没有它就判不了这条记录过没过期"
 
 
 @pytest.mark.parametrize("name,rec", records() or [pytest.param("<none>", None, marks=pytest.mark.skip(
@@ -275,7 +276,7 @@ def test_the_reference_kernel_is_declared():
     旧内核上的记录当场转 `stale`，CI 据此重跑。这就是「随内核变更自动验证」的接口。
     """
     k = json.loads((META / "kernel.json").read_text(encoding="utf-8"))
-    assert k.get("checksum", "").startswith("sha256:"), k
+    assert re.fullmatch(r"[0-9a-f]{40}", k.get("commit", "")), k
     assert k.get("recorded"), k
 
 

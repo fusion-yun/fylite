@@ -82,12 +82,14 @@
    }
   ],
   "kernel": {
-   "name": "libfylite",
-   "checksum": "sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6"
+   "name": "fylite_kernel",
+   "commit": "51d34102a40619a45c8d5d15e74d49bf8a293c28",
+   "library_sha256": "sha256:e4040bbf79e390d949739fc5023d63e8ba5759242ad7ca52839becab115ba3f6",
+   "comment": "与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-19",
   "revised": "2026-09-19",
   "review_status": "draft",
@@ -98,6 +100,12 @@
     "date": "2026-09-19",
     "by": "Claude Opus 5 (1M context)",
     "summary": "首次入册：把用户「搁置 MSE」的裁定落成记录（判 unevaluated，open_defect 写明谁、何时、为什么），并以一道门钉住它的前提——内核里没有 MSE 响应行。"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5",
+    "summary": "内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。"
    }
   ]
  }
