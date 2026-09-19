@@ -73,6 +73,11 @@ ZC_SCAN = [round(-0.030 + 0.004 * k, 3) for k in range(16)]
 #: ★门槛与 top=4 是在 12 片上量出来的：top=3、不走邻点、不设门槛时 12 片里 3 片的答案与全扫不同（见 README）。
 SCAN_FULL = {"mode": "full"}
 SCAN_COARSE = {"mode": "coarse", "grid": 33, "top": 4, "min_converged": 0.5}
+#: 档 M 反演外迭代的 Anderson 混合深度（``--anderson``；内核 ``code/reconstruction`` 的 ``anderson``，0 = 纯 Picard）。
+#: 只加速日程之后的 Picard 尾巴，终点是同一个不动点（内核 docs/note/gs-anderson.md）；粗扫的粗网格、65² 复核与全扫
+#: 三种调用都带它。只用在档 M——K / P 的反演照旧（没有在它们上面验过）。0 时不写这个键，与旧库逐位相同。
+#: ★缺省 10 是在 24 片上与 0 逐片比过之后定的（见 README〈Anderson 混合的验证〉）。
+ANDERSON = 10
 
 
 def log(msg: str) -> None:
@@ -823,7 +828,11 @@ def tier_m(c: Case, reject_sigma: float, max_rounds: int, per_round: int, settin
         return {"status": "error", "error": "没有一个竖直设定点收敛", "rounds": rounds, "rejected": rejected,
                 "scan": scan}, None
     chi2, zc, fa, fi, notes = best
-    view = tier_view(fa, fi, zc, {"label": "M · 磁测量", "scan": _scan_summary(scan, rounds),
+    summary = _scan_summary(scan, rounds, settings)
+    if settings.get("anderson") and "anderson" not in fa:  #: 2026-09-19 之前的内核不认这个键，也不报错：照实记
+        summary["anderson_ignored"] = True
+        log("this libfylite.so ignores `anderson` (kernel before 2026-09-19): tier M ran pure Picard")
+    view = tier_view(fa, fi, zc, {"label": "M · 磁测量", "scan": summary,
                                   "rounds": rounds, "rejected": rejected,
                                   "readmitted": readmitted, "channels": c.channel_table(fi), "notes": notes,
                                   "constraints": ["磁通环", "磁探针", "Ip", "实测 PF 电流（固定）"]})
@@ -882,9 +891,9 @@ def _coarse_scan(c: Case, settings: dict, how: dict):
     return coarse, fine, False, best
 
 
-def _scan_summary(scan: dict, rounds: list) -> dict:
-    """结果 JSON 里记下跑的是哪种扫法，以及 65² / 粗网格各解了几次。"""
-    out = dict(scan, solves_fine=sum(len(r.get("scan", [])) for r in rounds))
+def _scan_summary(scan: dict, rounds: list, settings: dict) -> dict:
+    """结果 JSON 里记下跑的是哪种扫法、Anderson 深度，以及 65² / 粗网格各解了几次。"""
+    out = dict(scan, anderson=int(settings.get("anderson", 0)), solves_fine=sum(len(r.get("scan", [])) for r in rounds))
     if scan.get("mode") == "coarse":
         out.update(solves_coarse=sum(len(r.get("coarse", [])) for r in rounds),
                    fallback_rounds=[r["round"] for r in rounds if r.get("fallback")])
@@ -1186,12 +1195,19 @@ def scan_from_args(a) -> dict:
     return dict(SCAN_FULL)
 
 
+def m_settings(settings: dict, anderson: int) -> dict:
+    """档 M 的反演设定：``anderson`` > 0 时加上内核的 ``anderson``；0 时不写这个键（与旧库逐位相同，旧库也认）。"""
+    return dict(settings, anderson=int(anderson)) if anderson else dict(settings)
+
+
 def add_scan_args(p, default: str) -> None:
     p.add_argument("--scan", choices=("full", "coarse"), default=default,
                    help="档 M 竖直设定点扫描：full 全部在 65² 上解；coarse 先在粗网格上扫、只把最好的几个在 65² 上复核"
                         f"（缺省 {default}）")
     p.add_argument("--scan-grid", type=int, default=SCAN_COARSE["grid"], help="coarse 的粗网格边长（缺省 33）")
     p.add_argument("--scan-top", type=int, default=SCAN_COARSE["top"], help="coarse 在 65² 上复核几个设定点（缺省 4）")
+    p.add_argument("--anderson", type=int, default=ANDERSON, metavar="M",
+                   help=f"档 M 反演外迭代的 Anderson 混合深度（0 = 纯 Picard；缺省 {ANDERSON}）")
 
 
 def cmd_run(a) -> int:
@@ -1212,7 +1228,7 @@ def cmd_run(a) -> int:
                       "library": lib.path.name, "kernel_built": k.get("built"), "kernel_sha256": k.get("sha256"),
                       "rustc": (k.get("toolchain") or {}).get("rustc")},
            "settings": {"npp": a.npp, "nff": a.nff, "loops": a.loops, "loop_start_rule": c.loop_start_rule,
-                        "reject_sigma": a.reject_sigma, "scan": scan_from_args(a),
+                        "reject_sigma": a.reject_sigma, "scan": scan_from_args(a), "anderson": a.anderson,
                         "point_off": a.point_off, "p_on": a.p_on, "dead_sigma": a.dead_sigma,
                         "kinetic_passes": a.kinetic_passes, "kinetic_tol": a.kinetic_tol, "thomson_clip": a.thomson_clip,
                         "sigma_scales": a.sigma_scales, "curv": a.curv, "p_fast_frac": a.p_fast_frac,
@@ -1228,8 +1244,8 @@ def cmd_run(a) -> int:
                       "chords": [{"name": _name(ch), "los": ch.get("line_of_sight")} for ch in _aos(card.get("polarimeter"))]},
            "tiers": {}}
     tiers = set(a.tiers.upper())
-    m_view, base_m = tier_m(c, a.reject_sigma, a.max_rounds, a.per_round, settings, a.loops == "B+readmit",
-                            scan_from_args(a))
+    m_view, base_m = tier_m(c, a.reject_sigma, a.max_rounds, a.per_round, m_settings(settings, a.anderson),
+                            a.loops == "B+readmit", scan_from_args(a))
     out["tiers"]["M"] = m_view
     if base_m is not None:
         out["device"]["limiter"] = {"r": _r(base_m[1]["limiter_r"], 5), "z": _r(base_m[1]["limiter_z"], 5)}

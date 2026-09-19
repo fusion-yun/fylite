@@ -327,13 +327,14 @@ def magnetics_at(shot_data: dict, t: float) -> dict:
 
 
 def equilibrium(lib: K.Lib, shot_data: dict, t: float, warm: dict | None, reject_sigma: float = 4.0,
-                scan: dict | None = None) -> dict:
+                scan: dict | None = None, anderson: int = K.ANDERSON) -> dict:
     """档 M（磁测量）：一段的第一片照本应用全扫；其后各片**继承**上一片的剔道与竖直设定点，只在它 ±8 mm 的 5 个设定点上解。
-    ``scan``：竖直设定点扫描的做法（``K.SCAN_FULL`` / ``K.SCAN_COARSE``）；只省在冷启动的 16 点扫上，热启动的 5 点扫照全扫。"""
+    ``scan``：竖直设定点扫描的做法（``K.SCAN_FULL`` / ``K.SCAN_COARSE``）；只省在冷启动的 16 点扫上，热启动的 5 点扫照全扫。
+    ``anderson``：档 M 反演的 Anderson 混合深度（``K.ANDERSON``；0 = 纯 Picard），冷热两种扫都带。"""
     meas = magnetics_at(shot_data, t)
     card, _ = lib.device("east", shot_data["shot"], shot_data["chain"])
     c = K.Case(lib, meas, card, "B+readmit")
-    settings = dict(K.SETTINGS)
+    settings = K.m_settings(K.SETTINGS, anderson)
     if warm:
         for r in warm["rejected"]:
             names = c.loop_names if r["kind"] == "loop" else c.probe_names
@@ -646,28 +647,29 @@ def _init_worker(lib_path: str, shot_data: dict):
 
 
 def _run_chunk(args):
-    chunk, clean_opts, scan = args
-    return chunk_job(_WORKER["lib"], _WORKER["shot"], chunk, clean_opts, scan)
+    chunk, clean_opts, scan, anderson = args
+    return chunk_job(_WORKER["lib"], _WORKER["shot"], chunk, clean_opts, scan, anderson)
 
 
-def chunk_job(lib: K.Lib, sd: dict, chunk: list, clean_opts: dict | None, scan: dict | None = None) -> list:
+def chunk_job(lib: K.Lib, sd: dict, chunk: list, clean_opts: dict | None, scan: dict | None = None,
+              anderson: int = K.ANDERSON) -> list:
     """一段相邻的 TS 时刻，顺序做：第一片全扫，其后每片从**上一片**热启动（竖直位置随时间漂，#63948 从 −30 mm
     漂到 +18 mm——只从全炮第一片热启动时，后面的片几乎都退回全扫）。"""
     out, warm = [], None
     for it in chunk:
-        r = slice_job(lib, sd, it, warm, clean_opts, scan)
+        r = slice_job(lib, sd, it, warm, clean_opts, scan, anderson)
         warm = r.get("_warm") or warm
         out.append(r)
     return out
 
 
 def slice_job(lib: K.Lib, sd: dict, it: int, warm: dict | None, clean_opts: dict | None,
-              scan: dict | None = None) -> dict:
+              scan: dict | None = None, anderson: int = K.ANDERSON) -> dict:
     th = sd["thomson"]
     t = th["times"][it]
     t0 = time.time()
     try:
-        eq = equilibrium(lib, sd, t, warm, scan=scan)
+        eq = equilibrium(lib, sd, t, warm, scan=scan, anderson=anderson)
         if eq["status"] != "ok":
             return {"time_s": t, "status": "error", "why": f"equilibrium: {eq['why']}"}
         t1 = time.time()
@@ -714,7 +716,7 @@ def cmd_profiles(a) -> int:
     chunks = [idx[k * len(idx) // nw:(k + 1) * len(idx) // nw] for k in range(nw)]
     chunks = [c for c in chunks if c]
     scan = K.scan_from_args(a)
-    jobs = [(c, clean_opts, scan) for c in chunks]
+    jobs = [(c, clean_opts, scan, a.anderson) for c in chunks]
     if nw > 1:
         ctx = mp.get_context("fork")
         with ctx.Pool(nw, initializer=_init_worker, initargs=(str(lib_path), sd)) as pool:
@@ -722,7 +724,7 @@ def cmd_profiles(a) -> int:
                 results.extend(part)
     else:
         for c in chunks:
-            results.extend(chunk_job(lib, sd, c, clean_opts, scan))
+            results.extend(chunk_job(lib, sd, c, clean_opts, scan, a.anderson))
     results.sort(key=lambda r: r["time_s"])
     for r in results:
         log(f"  {r['time_s']:.3f} s: {r['status']} {r.get('why', '')[:80]} "
@@ -738,7 +740,7 @@ def cmd_profiles(a) -> int:
     out = {"@type": "fylite:Wei2026Profiles", "app": APP, "version": K.VERSION, "reference": REF,
            "created": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
            "shot": a.shot, "window_s": [a.t0, a.t1], "source": f"mdsplus:mds.invalid:{a.shot}",
-           "method": dict(method_card(clean_opts), scan=scan),
+           "method": dict(method_card(clean_opts), scan=scan, anderson=a.anderson),
            "data": {"thomson_layout": th["layout"], "thomson_pulses": len(th["times"]),
                     "reflectometer": sd["reflect"] is not None, "xcs_profile": sd["xcs"] is not None,
                     "diamagnetic_energy": sd["w_dia"] is not None, "loop_voltage": sd["v_loop"] is not None,
@@ -815,7 +817,7 @@ def cmd_transport(a) -> int:
     it = min(range(len(th["times"])), key=lambda k: abs(th["times"][k] - a.time))
     t = th["times"][it]
     log(f"#{a.shot}: 要 {a.time} s，最近的 TS 脉冲 {t:.3f} s（本炮只存 {len(th['times'])} 幅）")
-    eq = equilibrium(lib, sd, t, None, scan=K.scan_from_args(a))
+    eq = equilibrium(lib, sd, t, None, scan=K.scan_from_args(a), anderson=a.anderson)
     if eq["status"] != "ok":
         log(f"平衡解不出：{eq['why']}")
         return 1
