@@ -1,0 +1,29 @@
+version: 1
+project:
+  id: fylite-guide
+  title: fylite 用户指南 (User Guide)
+  authors:
+    - name: FuYun / fylite maintainers
+  license:
+    content: CC-BY-4.0
+  numbering:
+    headings: true
+  toc:
+    - file: index.md
+    - file: install.md
+    - file: quickstart.md
+    - file: cli.md
+    - file: python.md
+    - file: browser.md
+    - file: browser-app.md
+    - file: reading-results.md
+    - file: limits.md
+    - file: input-modes.md
+    - file: constraints.md
+    - file: forward-and-evolution.md
+    - file: reconstruction.md
+    - file: stability-and-control.md
+site:
+  title: fylite User Guide
+  options:
+    logo: figures/fylite_logo.svg

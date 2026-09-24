@@ -1,0 +1,83 @@
+name: 缺陷报告 · Bug report
+description: 结果不对、崩溃、挂死 · Wrong result, crash, or hang
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **fylite 的源码不公开，所以复现完全靠你把「跑的是哪一份二进制」说准。**
+        下面三格不是形式：没有它们，一份缺陷报告在这边落不到任何一行代码上。
+
+        The source is not published, so reproducing your report depends entirely
+        on knowing **which binary** you ran. The identification fields below are
+        what make a report actionable.
+
+  - type: dropdown
+    id: artifact
+    attributes:
+      label: 哪一份制品 · Which artifact
+      options:
+        - 浏览器演示页 · the browser demo (fusion-yun.github.io/fylite/)
+        - WebAssembly 模块（自己装载）· a .wasm module I load myself
+        - Python wheel（libfylite.so）
+        - 单文件桌面版 · the single-file desktop viewer
+        - 其它 · other (say so below)
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 版本行 · Version line
+      description: |
+        演示页**页脚**整行照抄，例如 `内核 0.0.1 · 接口 123 · 前端 0.0.1-alpha`
+        （英文页为 `kernel … · interface … · app …`）。命令行用 `fylite --version`。
+        Copy the whole footer line from the demo page, or run `fylite --version`.
+      placeholder: 内核 0.0.1 · 接口 123 · 前端 0.0.1-alpha
+    validations:
+      required: true
+
+  - type: input
+    id: sha256
+    attributes:
+      label: 内核 sha256 · Kernel sha256
+      description: |
+        演示页的**「版权 / 致谢」页**上有当前内核的 sha256；自己装载的制品用
+        `sha256sum <文件>` 算。它说明的是「哪一份二进制回答了你」——版本号说不了这件事。
+        The credits page of the demo shows it; otherwise `sha256sum <file>`.
+      placeholder: bb62cc62d210b90b0…
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤 · Steps to reproduce
+      description: 尽量给出能照做一遍的输入——装置、剖面、滑块取值，或一份 g 文件 / 会话文件。
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望与实际 · Expected vs actual
+      description: |
+        物理量请带**数值与单位**。若与另一个程序对比，请说明是哪一个、哪一版、
+        以及两边的输入是否真的同一套（口径不同比数值不同常见得多）。
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: 运行环境 · Environment
+      placeholder: Chrome 141 / Windows 11 · 或 Python 3.12 / Ubuntu 24.04
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: 控制台输出 · Console output
+      description: 浏览器按 F12 看 Console；命令行请贴完整报错。可留空。
+      render: text

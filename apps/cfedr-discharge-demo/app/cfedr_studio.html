@@ -1,0 +1,1441 @@
+<meta charset="utf-8">
+<title>CFEDR 波形工作台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+:root {
+  --paper: #F3F4EF; --sheet: #FBFBF8; --ink: #17212B; --ink2: #475463; --muted: #7A8592;
+  --rule: #DADDD4; --hair: rgba(23, 33, 43, 0.08); --accent: #0E6E68; --accent-soft: #D7EAE7;
+  --wall: #5B6570; --copper: #A86B32; --bnd: #0E6E68; --grab: #B45309;
+  --ip: #3A4654; --ec: #2F6DB5; --ic: #C45A1E; --ne: #1F7A3A; --te: #2F6DB5; --ti: #C45A1E; --nel: #1F7A3A;
+  --warn: #A33A2E; --pos: #C0522B; --neg: #2C6BA8;
+  --flux-1: #CFE6E2; --flux-2: #B3D8D2; --flux-3: #96C9C2; --flux-4: #78B9B1; --flux-5: #5AA89F;
+  --flux-6: #3E968C; --flux-7: #26837A; --flux-8: #147068; --flux-9: #0A5C55;
+  /* 表格斑马行与卡片的浅浮起——两者都只敢要一点点：这是工具页，不是海报 */
+  --zebra: rgba(23, 33, 43, 0.028); --lift: 0 1px 2px rgba(23, 33, 43, 0.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #11171D; --sheet: #172028; --ink: #E6EAEE; --ink2: #B3BDC7; --muted: #7F8B97;
+    --rule: #2A3540; --hair: rgba(230, 234, 238, 0.08); --accent: #4FB8AE; --accent-soft: #1C3634;
+    --wall: #9AA5B0; --copper: #D19A62; --bnd: #4FB8AE; --grab: #E0A956;
+    --ip: #C5CED6; --ec: #7DB3F0; --ic: #F0995C; --ne: #6BCB85; --te: #7DB3F0; --ti: #F0995C; --nel: #6BCB85;
+    --warn: #EE8A7E; --pos: #F08A5B; --neg: #6FA8E0;
+    --flux-1: #1D3634; --flux-2: #22443F; --flux-3: #28534C; --flux-4: #2F645B; --flux-5: #38766B;
+    --flux-6: #45897D; --flux-7: #569C90; --flux-8: #6BB1A4; --flux-9: #86C7BA;
+    --zebra: rgba(230, 234, 238, 0.03); --lift: 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #11171D; --sheet: #172028; --ink: #E6EAEE; --ink2: #B3BDC7; --muted: #7F8B97;
+  --rule: #2A3540; --hair: rgba(230, 234, 238, 0.08); --accent: #4FB8AE; --accent-soft: #1C3634;
+  --wall: #9AA5B0; --copper: #D19A62; --bnd: #4FB8AE; --grab: #E0A956;
+  --ip: #C5CED6; --ec: #7DB3F0; --ic: #F0995C; --ne: #6BCB85; --te: #7DB3F0; --ti: #F0995C; --nel: #6BCB85;
+  --warn: #EE8A7E; --pos: #F08A5B; --neg: #6FA8E0;
+  --flux-1: #1D3634; --flux-2: #22443F; --flux-3: #28534C; --flux-4: #2F645B; --flux-5: #38766B;
+  --flux-6: #45897D; --flux-7: #569C90; --flux-8: #6BB1A4; --flux-9: #86C7BA;
+  --zebra: rgba(230, 234, 238, 0.03); --lift: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 14px/1.6 "Noto Sans SC", "PingFang SC", system-ui, sans-serif; }
+.wrap { max-width: 1440px; margin: 0 auto; padding-inline: 18px; padding-block: 20px 56px; }
+header { display: grid; gap: 6px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
+.eyebrow { font: 500 12px/1.3 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 600 clamp(22px, 3vw, 30px)/1.2 "IBM Plex Sans Condensed", "Noto Sans SC", sans-serif; margin: 0; }
+p.lede { color: var(--ink2); margin: 0; max-width: 78ch; }
+.tabs { display: flex; gap: 6px; margin: 14px 0 12px; }
+.tabs button { font: inherit; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink2); border-radius: 999px; padding: 5px 18px; cursor: pointer; transition: background .12s, color .12s; }
+.tabs button:hover { border-color: var(--accent); color: var(--ink); }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.tabs button:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.panel { display: grid; gap: 16px; }
+.panel[hidden] { display: none; }
+.cols { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 14px; }
+@media (max-width: 900px) { .cols { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; box-shadow: var(--lift); }
+/* 卡片标题下一条发丝线：把"标题"与"内容"分开，读起来有层次，又不至于像海报 */
+.card h2 { font: 600 16px/1.3 "IBM Plex Sans Condensed", "Noto Sans SC", sans-serif; margin: 0 0 10px;
+  padding-bottom: 6px; border-bottom: 1px solid var(--hair);
+  display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.card h2 small { font-weight: 400; font-size: 12.5px; color: var(--muted); }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+/* 页顶那条工具栏：托在一块浅底上，与卡片里的按钮条分开 */
+.bar.tools { background: var(--paper); border: 1px solid var(--hair); border-radius: 6px; padding: 8px 10px; margin-bottom: 10px; }
+button, select, input { font: inherit; }
+/* ★选择器从 `button.act` 放宽到 `.act`——导入那两个「按钮」其实是 <label>
+   （里面藏着 file input），旧选择器压根没管它们，于是它们在页面上是**没有样式的一行字**。 */
+.act { display: inline-block; border: 1px solid var(--rule); background: var(--paper); color: var(--ink);
+  border-radius: 5px; padding: 4px 12px; cursor: pointer; font: inherit; line-height: 1.55;
+  transition: border-color .12s, background .12s, transform .06s; }
+.act:hover { border-color: var(--accent); background: var(--accent-soft); }
+.act:active { transform: translateY(1px); }
+.act[disabled] { opacity: .4; cursor: not-allowed; background: var(--paper); border-color: var(--rule); transform: none; }
+.act.primary { background: var(--accent); border-color: var(--accent); color: var(--sheet); }
+.act.primary:hover { filter: brightness(1.08); }
+input[type="number"], input[type="text"] { border: 1px solid var(--rule); background: var(--paper); color: var(--ink); border-radius: 4px; padding: 2px 6px; width: 100%; font-variant-numeric: tabular-nums; }
+.tblwrap { overflow: auto; max-height: 340px; border: 1px solid var(--hair); border-radius: 4px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 4px 7px; border-bottom: 1px solid var(--hair); white-space: nowrap; font-variant-numeric: tabular-nums; }
+th { position: sticky; top: 0; background: var(--sheet); color: var(--ink2); font-weight: 500; text-align: left;
+  box-shadow: inset 0 -1px 0 var(--rule); }
+tbody tr:nth-child(even) td { background: var(--zebra); }
+tbody tr:hover td { background: var(--accent-soft); }
+tr[aria-selected="true"] td { background: var(--accent-soft); }
+td.n input { text-align: right; }
+svg { display: block; width: 100%; height: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--ink2); }
+.legend i { display: inline-block; width: 16px; border-top: 2px solid currentColor; vertical-align: middle; margin-right: 4px; }
+textarea { width: 100%; min-height: 120px; font: 12px/1.5 "IBM Plex Mono", ui-monospace, monospace; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); padding: 8px; }
+.note { font-size: 12.5px; color: var(--muted); }
+/* 命令行那一块：等宽、可选中、可横向滚，不换行成一团 */
+.cmd { font: 12px/1.55 "IBM Plex Mono", ui-monospace, monospace; color: var(--ink2); background: var(--paper);
+  border: 1px solid var(--hair); border-radius: 6px; padding: 8px 10px; margin: 0 0 8px; overflow-x: auto; white-space: pre; }
+.warn { color: var(--warn); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px; }
+.stat { border: 1px solid var(--hair); border-radius: 6px; padding: 5px 9px; background: var(--sheet); }
+.stat .k { display: block; font-size: 11.5px; color: var(--muted); }
+.stat .v { font: 500 15px/1.3 "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 10px; }
+    /* ★★输出侧的看图区：左小截面、右读数与
+       温度 / 密度剖面并排，时序信号整排放在下面——与报告页 `reports/cfedr-report.html`
+       的看图区同一副骨架，读的人在两处看到的是同一种排布。 */
+    .vgrid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 12px; align-items: start; }
+    /* 输入侧的磁面：左截面（窄而高）· 右 Miller 波形（宽而矮） */
+    .mgrid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 12px; align-items: start; }
+    .vside { display: grid; gap: 10px; align-content: start; }
+    .xsbox { margin: 0; border: 1px solid var(--hair); border-radius: 4px; padding: 6px; }
+    .xsbox svg { display: block; width: 100%; height: auto; }
+    .xsbox figcaption { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+    /* 相位芯片：点一下跳到那个时刻（芯片本身就是这一炮的时序梗概） */
+    .pchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 2px; }
+    .pchips button { font: inherit; font-size: 12.5px; border: 1px solid var(--rule); background: var(--sheet);
+      color: var(--ink2); border-radius: 999px; padding: 2px 10px; cursor: pointer; }
+    .pchips button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+    .vhead { font: 600 14px/1.3 "IBM Plex Sans Condensed", "Noto Sans SC", sans-serif; margin: 12px 0 6px; }
+    .mgrid .vhead { margin-top: 0; display: flex; gap: 8px; align-items: baseline; }
+    .mgrid svg#xs { width: 100%; height: auto; }
+    @media (max-width: 900px) { .vgrid, .mgrid { grid-template-columns: minmax(0, 1fr); } }
+.panel > .card + .card { margin-top: 0; }
+.card h2 small code { font-size: 12px; }
+.bar + .bar { margin-top: -2px; }
+.stats { gap: 8px; }
+.chart { border: 1px solid var(--hair); border-radius: 6px; padding: 8px 10px; background: var(--sheet); }
+.chart .ct { font-size: 12.5px; color: var(--ink2); display: flex; justify-content: space-between; gap: 8px;
+  align-items: baseline; margin-bottom: 4px; }
+.chart .ct b { font-weight: 500; color: var(--ink); }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.drop { border: 1px dashed var(--rule); border-radius: 6px; padding: 18px; text-align: center; color: var(--muted); }
+/* 主题开关 · 通道芯片 · 线圈色条 · 顶栏 */
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.theme { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; overflow: hidden; }
+.theme button { font: inherit; border: 0; background: var(--sheet); color: var(--ink2); padding: 3px 11px; cursor: pointer; }
+.theme button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chips label { border: 1px solid var(--rule); border-radius: 999px; padding: 2px 10px; font-size: 12.5px; color: var(--ink2); cursor: pointer; background: var(--sheet); }
+.chips label:has(input:checked) { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.chips input { position: absolute; opacity: 0; width: 0; height: 0; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; }
+.seg button { font: inherit; border: 0; background: var(--sheet); color: var(--ink2); padding: 3px 10px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--sheet); }
+.cbar { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); }
+.cbar .ramp { flex: 1 1 90px; height: 8px; border-radius: 2px; border: 1px solid var(--hair);
+  background: linear-gradient(90deg, var(--neg) 0%, var(--sheet) 50%, var(--pos) 100%); }
+.wide { grid-column: 1 / -1; }
+/* 左栏里上下叠的两张卡（波形在上、节点表在下）——同宽，*/
+.stack { display: grid; gap: 14px; align-content: start; min-width: 0; }
+/* 页首常驻警示——这页是演示，不是设计依据 */
+.alarm { display: flex; gap: 8px; align-items: baseline; border: 1px solid var(--warn); border-left-width: 4px;
+  border-radius: 4px; padding: 6px 10px; color: var(--warn); background: color-mix(in srgb, var(--warn) 8%, var(--sheet)); }
+.alarm b { font-weight: 600; }
+.alarm span { color: var(--ink2); font-size: 12.5px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <div class="eyebrow">CFEDR 堆芯模型 · 输入设计与输出查看</div>
+      <div class="theme" role="group" aria-label="明暗风格">
+        <button id="th-auto" aria-pressed="true" title="跟随系统">自动</button>
+        <button id="th-light" aria-pressed="false" title="浅色">☀ 浅</button>
+        <button id="th-dark" aria-pressed="false" title="深色">☾ 深</button>
+      </div>
+    </div>
+    <h1>CFEDR 波形工作台</h1>
+    <p class="lede">左边编放电控制量与磁面（Miller 参数 → isoflux 控制点，点数可改）随时间的演化，右边出 <code>cfedr_core_model.py</code> 吃的输入 JSON；另一页读模型输出 JSON，逐时刻看 0-D 时序、PF 线圈波形、二维位形与一维剖面，并可导出单个时间片的 JSON 或 g-file。</p>
+    <p class="alarm"><b>⚠ 仅为 demo 演示，不可做设计参考</b>
+      <span>页面里的波形、磁面与读数只用来演示这套工具怎么用；模型的近似与限制见 <code>README.md</code>。</span></p>
+    <p class="note" id="case-note"></p>
+    <p class="note" id="kernel-note" hidden></p>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button id="tab-in" role="tab" aria-selected="true" aria-controls="panel-in">设计输入</button>
+    <button id="tab-out" role="tab" aria-selected="false" aria-controls="panel-out">查看输出</button>
+  </div>
+
+  <section class="panel" id="panel-in" role="tabpanel" aria-labelledby="tab-in">
+    <!-- ★工具栏在上（导入 · 导出 · 采样），与输出页同一副样子；
+         波形 / 节点表 / 磁面三块**竖排**，不再与磁面并排 -->
+    <div class="card">
+      <div class="bar tools">
+        <label class="act" style="cursor:pointer">导入 JSON<input type="file" id="load-any" accept=".json,application/json" hidden></label>
+        <button class="act primary" id="save-in">导出控制波形</button>
+        <button class="act" id="copy">复制到剪贴板</button>
+        <!-- ★撤销 / 重做是整页的动作（波形 · 节点表 · 磁面都进同一条历史），所以归工具栏 -->
+        <button class="act" id="undo" disabled title="撤销（Ctrl/⌘+Z）">↶ 撤销</button>
+        <button class="act" id="redo" disabled title="重做（Ctrl/⌘+Shift+Z）">↷ 重做</button>
+        <span style="flex:1 1 10px"></span>
+        <label class="note">dt [s] <input type="number" id="dt" value="0.5" step="0.1" style="width:72px"></label>
+        <label class="note">平顶 [s] <input type="number" id="dtflat" value="50" step="1" style="width:72px"></label>
+        <label class="note">起 <input type="number" id="t0" value="40" step="1" style="width:72px"></label>
+        <label class="note">止 <input type="number" id="t1" value="6209" step="1" style="width:84px"></label>
+      </div>
+      <p class="note" id="gen-note"></p>
+      <!-- ★★页面出的是**控制波形**那一类；跑一炮还要另外两样：装置描述与起步状态。
+           所以这里把整条命令写出来——导出之后照着贴，不必回去翻 README。 -->
+      <p class="note">这一页出的是四类 JSON 里的**控制波形**。跑整炮还要<b>装置描述</b>与<b>起步状态</b>：</p>
+      <pre id="run-cmd" class="cmd"></pre>
+      <p class="note">导入一个文件即可：**控制波形**（每个节点一行）与**完整时序**（模型 <code>--series</code> 的产物）自动分辨。
+        四类 JSON 的判据与扁平 dict 的键见 <code>README.md</code>。</p>
+    </div>
+
+      <div class="card">
+      <h2>控制波形 <small>拖圆点改值与时刻 · 空白处双击加节点 · 双击圆点删节点</small></h2>
+      <div class="bar">
+       <button class="act" id="add-node">加一个节点</button>
+       <button class="act" id="del-node">删除选中</button>
+       <button class="act" id="reset-nodes">恢复本算例波形</button>
+       <span class="legend" style="margin-left:auto"><span style="color:var(--ip)"><i></i>I_p [MA]</span><span style="color:var(--ec)"><i></i>ECRH [MW]</span><span style="color:var(--ic)"><i></i>ICRF [MW]</span><span style="color:var(--ne)"><i></i>n̄_e [10¹⁹ m⁻³]</span></span>
+      </div>
+      <svg id="wave" viewBox="0 0 1040 230" role="img" aria-label="控制量波形"></svg>
+      <p class="note">时间轴按节点自动折断（最大的一段空窗就是平顶）。点竖线或表格行选中一个节点。</p>
+      </div>
+
+
+      <div class="card">
+       <h2>控制量节点 <small id="node-count"></small></h2>
+       <p class="note" style="margin:0 0 6px">节点之间：I_p 与 n̄_e 线性 · 功率零阶保持 · 磁面按 Miller 参数插值后重采点。</p>
+       <div class="tblwrap"><table id="nodes"><thead><tr>
+         <th>t [s]</th><th>I_p [MA]</th><th>ECRH [MW]</th><th>ICRF [MW]</th><th>NBI [MW]</th><th>LHW [MW]</th><th>n̄_e [10¹⁹]</th><th>相位</th>
+       </tr></thead><tbody></tbody></table></div>
+      </div>
+
+
+      <div class="card">
+       <h2>磁面 <small id="bnd-t"></small></h2>
+       <div class="bar">
+         <button class="act" id="bnd-prev">上一节点</button>
+         <button class="act" id="bnd-next">下一节点</button>
+         <button class="act" id="bnd-copy">复制上一节点</button>
+         <label class="note">控制点数 <input type="number" id="npts" value="8" min="3" max="24" step="1" style="width:62px"></label>
+         <button class="act" id="bnd-resample" title="按当前拟合的 Miller 曲线把这一节点的点重采一遍">按曲线重采样</button>
+         <button class="act" id="bnd-straight" title="把每条轨迹拉成直线：中间各节点 = 起止两端按节点序线性插值">轨迹拉直</button>
+       </div>
+       <!-- ★★左看右编：截面（isoflux 控制点的轨迹，只读）与 Miller 参数波形（唯一的编辑入口）
+            并排——改右边一个点，左边那条轨迹当场跟着变，不必上下翻。 -->
+       <div class="mgrid">
+         <div>
+           <h3 class="vhead">isoflux 控制点 <small class="note">只看不编</small></h3>
+           <div class="bar">
+             <label class="note"><input type="checkbox" id="bnd-show-all"> 叠显所有节点</label>
+             <label class="note"><input type="checkbox" id="bnd-track" checked> 显示轨迹</label>
+           </div>
+           <svg id="xs" viewBox="0.6 -11.4 15.8 22.8" role="img" aria-label="极向截面：第一壁、磁面、磁轴与控制点轨迹"></svg>
+         </div>
+         <div>
+           <h3 class="vhead">Miller 参数波形 <small class="note">拖圆点改形状 · 点竖线选时刻</small></h3>
+           <div class="chart">
+             <div class="ct"><b>R₀ · a · κ · δ</b><span class="legend"><span style="color:var(--ip)"><i></i>R₀</span><span style="color:var(--ec)"><i></i>a</span><span style="color:var(--ic)"><i></i>κ</span><span style="color:var(--ne)"><i></i>δ</span></span></div>
+             <svg id="millwave" viewBox="0 0 520 150" role="img" aria-label="Miller 参数随时间"></svg>
+           </div>
+           <p class="note" style="margin-top:6px">四条曲线就是磁面演化：拖圆点改那一时刻的参数，改完立刻按参数采出这一时刻的 isoflux 点，左边那张截面同步变。</p>
+           <p class="note" id="bnd-note"></p>
+         </div>
+       </div>
+      </div>
+
+
+  </section>
+
+  <section class="panel" id="panel-out" role="tabpanel" aria-labelledby="tab-out" hidden>
+    <div class="card">
+      <h2>输出：导入 · 查看 · 导出 <small>模型 <code>--out 文件.json</code> 的产物</small></h2>
+      <!-- ★导入 · 导出 · 播放 收成**一条工具栏**，与输入页同一副样子 -->
+      <div class="bar tools">
+        <label class="act" style="cursor:pointer">导入输出 JSON<input type="file" id="load-out" accept=".json,application/json" hidden></label>
+        <button class="act" id="save-out" disabled>导出整份</button>
+        <button class="act" id="save-slice" disabled>导出当前片 JSON</button>
+        <button class="act" id="save-gfile" disabled>导出当前片 g-file</button>
+        <button class="act primary" id="play" disabled>▶ 播放</button>
+        <input type="range" id="scrub" min="0" max="0" step="1" value="0" style="flex:1 1 220px" disabled>
+        <span class="v" id="clock" style="font:500 15px 'IBM Plex Mono', monospace"></span>
+      </div>
+      <p class="note" id="out-note">还没读入文件。</p>
+      <div id="viewer" hidden>
+        <!-- ★排版照报告页的看图区：相位芯片 → 截面 ∥ 读数 + 温度 / 密度剖面
+             → 时序信号 → PF 波形 → 其余一维通道。 -->
+        <div class="pchips" id="out-chips"></div>
+        <div class="vgrid">
+          <figure class="xsbox">
+            <svg id="eqxs" viewBox="0.6 -11.4 15.8 22.8" role="img" aria-label="极向截面：ψ 等值线、LCFS、O 点、X 点与按电流着色的 PF 线圈"></svg>
+            <div class="cbar"><span id="cbar-neg">−</span><span class="ramp"></span><span id="cbar-pos">+</span><span>MA·turns</span></div>
+            <figcaption>细线 ψ_N 等值线（0.1–0.9 实线 · 1.05 / 1.2 / 1.4 虚线）· 粗线 LCFS · ＋ O 点 · × X 点；线圈按<b>本时刻电流</b>着色（红正 / 蓝负，满额定描红边）。<span id="eq-note"></span></figcaption>
+          </figure>
+          <div class="vside">
+            <div class="stats" id="stats"></div>
+            <div class="chart">
+              <div class="ct"><b>温度剖面 T_e · T_i</b><span class="legend"><span style="color:var(--te)"><i></i>T_e</span><span style="color:var(--ti)"><i></i>T_i</span><span>keV</span></span></div>
+              <div id="prof-t"></div><div id="prof-t-prov"></div>
+            </div>
+            <div class="chart">
+              <div class="ct"><b>电子密度剖面 n_e</b><span class="legend"><span style="color:var(--nel)"><i></i>n_e</span><span>10¹⁹ m⁻³</span></span></div>
+              <div id="prof-n"></div><div id="prof-n-prov"></div>
+            </div>
+          </div>
+        </div>
+        <h3 class="vhead">时序信号</h3>
+        <div class="charts" id="traces"></div>
+        <div class="chart" style="margin-top:10px">
+          <div class="ct"><b>PF 线圈电流波形 I_coil(t)</b><span class="note" id="pfwave-note">所有线圈一张图</span></div>
+          <svg id="pfwave" viewBox="0 0 1040 260" role="img" aria-label="PF 线圈电流随时间"></svg>
+          <div class="legend" id="pfwave-legend" style="margin-top:4px"></div>
+        </div>
+        <div class="card" style="margin-top:10px; background:transparent; border-style:dashed">
+          <h2>其余一维剖面 <small>温度与密度已在上方常驻；这里勾哪条画哪条（通道表来自 <code>meta.profiles</code>）</small></h2>
+          <p class="note" id="prof-warn" hidden></p>
+          <div class="chips" id="prof-chips"></div>
+          <div class="charts" style="margin-top:8px" id="profs"></div>
+        </div>
+      </div>
+      <div class="drop" id="drop">把输出 JSON 拖进来，或用上面的「选文件」。</div>
+    </div>
+  </section>
+</div>
+
+<script>
+//: ★★★**一个文件，没有构建步骤**：默认算例（下面这份 12 KB）内置，**放电数据用工具栏的
+//: 「导入」读**（模型 `--out` 写出来的那份）。要看别的炮，也是同一个按钮。
+//: ★这里**不做「模板 + 构建脚本注入一份演示输出」**：那种装法要两个文件加一次注入，换来的
+//: 只是「打开就有演示数据」，而代价实测过两次——占位符没被替换、或注入替进了注释，两次都是
+//: 「页面打得开、一个按钮都不响应」的死页，且不报错。
+const D_FALLBACK = {"case":{"name":"CFEDR d2025 · 15 MA 常规 H 模","source":"fylite_kernel docs/cases/pcs/cfedr-d2025-replay.json（DRAFT v0.1；下降段节点为合成） + reports/cfedr-report.html 的逐时刻平衡序列（29 个 asked 形状，Miller 参数原样取用）","plan":"state_init.json","t0":40.0,"t1":6209.0,"dt":0.5,"dt_flat":50.0},"limiter":{"r":[4.767,5.238,5.769,6.085,6.456,6.637,7.087,7.258,7.486,7.805,9.26,10.53,10.53,9.604,8.186,5.789,5.126,5.126,5.092,4.815],"z":[-4.891,-4.806,-4.571,-4.608,-4.88,-5.49,-5.893,-4.85,-4.199,-3.811,-2.44,-0.3489,1.757,3.718,4.944,6.149,5.775,-3.712,-4.176,-4.855]},"nodes":[{"t":0.0,"Ip":500000.0,"ECRH":0.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":1e+18,"phase":"breakdown（回放无 LCFS，取 1 s 形状）","miller":{"R0":7.02,"Z0":0.0,"a":1.9,"kappa":1.1,"delta":0.1,"zeta":0.0},"boundary":[[8.92,0.0],[8.2651,1.4779],[6.83,2.09],[5.5848,1.4779],[5.12,0.0],[5.5848,-1.4779],[6.83,-2.09],[8.2651,-1.4779]]},{"t":1.0,"Ip":250000.0,"ECRH":0.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":8e+18,"phase":"ramp_up_limiter","miller":{"R0":7.02,"Z0":0.0,"a":1.9,"kappa":1.1,"delta":0.1,"zeta":0.0},"boundary":[[8.92,0.0],[8.2651,1.4779],[6.83,2.09],[5.5848,1.4779],[5.12,0.0],[5.5848,-1.4779],[6.83,-2.09],[8.2651,-1.4779]]},{"t":3.0,"Ip":750000.0,"ECRH":0.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":9.51e+18,"phase":"ramp_up_limiter","miller":{"R0":7.045,"Z0":0.0,"a":1.925,"kappa":1.1,"delta":0.1,"zeta":0.0},"boundary":[[8.97,0.0],[8.3064,1.4973],[6.8525,2.1175],[5.5909,1.4973],[5.12,0.0],[5.5909,-1.4973],[6.8525,-2.1175],[8.3064,-1.4973]]},{"t":5.0,"Ip":1250000.0,"ECRH":0.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":1.102e+19,"phase":"ramp_up_limiter","miller":{"R0":7.07,"Z0":0.0,"a":1.95,"kappa":1.1,"delta":0.1,"zeta":0.0},"boundary":[[9.02,0.0],[8.3478,1.5167],[6.875,2.145],[5.597,1.5167],[5.12,0.0],[5.597,-1.5167],[6.875,-2.145],[8.3478,-1.5167]]},{"t":7.5,"Ip":1875000.0,"ECRH":0.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":1.291e+19,"phase":"ramp_up_limiter","miller":{"R0":7.1013,"Z0":0.0,"a":1.9813,"kappa":1.1364,"delta":0.1212,"zeta":0.0},"boundary":[[9.0826,0.0],[8.3769,1.5921],[6.8612,2.2515],[5.5853,1.5921],[5.12,0.0],[5.5853,-1.5921],[6.8612,-2.2515],[8.3769,-1.5921]]},{"t":10.0,"Ip":2500000.0,"ECRH":5000000.0,"ICRF":10000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":1.48e+19,"phase":"ramp_up_limiter","miller":{"R0":7.1325,"Z0":0.0,"a":2.0125,"kappa":1.1727,"delta":0.1425,"zeta":0.0},"boundary":[[9.145,0.0],[8.4046,1.6688],[6.8457,2.3601],[5.5731,1.6688],[5.12,0.0],[5.5731,-1.6688],[6.8457,-2.3601],[8.4046,-1.6688]]},{"t":13.0,"Ip":3250000.0,"ECRH":5000000.0,"ICRF":10000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":1.706e+19,"phase":"ramp_up_limiter","miller":{"R0":7.17,"Z0":0.0,"a":2.05,"kappa":1.2163,"delta":0.168,"zeta":0.0},"boundary":[[9.22,0.0],[8.4366,1.7631],[6.8256,2.4934],[5.5581,1.7631],[5.12,0.0],[5.5581,-1.7631],[6.8256,-2.4934],[8.4366,-1.7631]]},{"t":17.0,"Ip":4250000.0,"ECRH":5000000.0,"ICRF":10000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":2.008e+19,"phase":"ramp_up_diverted","miller":{"R0":7.22,"Z0":0.0,"a":2.1,"kappa":1.2745,"delta":0.2019,"zeta":0.0},"boundary":[[9.32,0.0],[8.4769,1.8925],[6.796,2.6764],[5.5377,1.8925],[5.12,0.0],[5.5377,-1.8925],[6.796,-2.6764],[8.4769,-1.8925]]},{"t":20.0,"Ip":5000000.0,"ECRH":5000000.0,"ICRF":10000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":2.235e+19,"phase":"ramp_up_diverted","miller":{"R0":7.2653,"Z0":0.0,"a":2.1244,"kappa":1.3181,"delta":0.2274,"zeta":0.0},"boundary":[[9.3897,0.0],[8.5051,1.98],[6.7822,2.8002],[5.5402,1.98],[5.1409,0.0],[5.5402,-1.98],[6.7822,-2.8002],[8.5051,-1.98]]},{"t":25.0,"Ip":6250000.0,"ECRH":5000000.0,"ICRF":10000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":2.612e+19,"phase":"ramp_up_diverted","miller":{"R0":7.3409,"Z0":0.0,"a":2.1651,"kappa":1.3909,"delta":0.2698,"zeta":0.0},"boundary":[[9.506,0.0],[8.5495,2.1294],[6.7568,3.0114],[5.5445,2.1294],[5.1758,0.0],[5.5445,-2.1294],[6.7568,-3.0114],[8.5495,-2.1294]]},{"t":30.0,"Ip":7500000.0,"ECRH":10000000.0,"ICRF":10000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":2.99e+19,"phase":"ramp_up_diverted","miller":{"R0":7.4165,"Z0":0.0,"a":2.2058,"kappa":1.4636,"delta":0.3123,"zeta":0.0},"boundary":[[9.6223,0.0],[8.5897,2.2828],[6.7276,3.2284],[5.5486,2.2828],[5.2107,0.0],[5.5486,-2.2828],[6.7276,-3.2284],[8.5897,-2.2828]]},{"t":35.0,"Ip":8750000.0,"ECRH":10000000.0,"ICRF":10000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":3.368e+19,"phase":"ramp_up_diverted","miller":{"R0":7.4921,"Z0":0.0,"a":2.2465,"kappa":1.5363,"delta":0.3548,"zeta":0.0},"boundary":[[9.7386,0.0],[8.6257,2.4404],[6.695,3.4513],[5.5526,2.4404],[5.2456,0.0],[5.5526,-2.4404],[6.695,-3.4513],[8.6257,-2.4404]]},{"t":40.0,"Ip":10000000.0,"ECRH":10000000.0,"ICRF":10000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":3.745e+19,"phase":"ramp_up_diverted","miller":{"R0":7.5677,"Z0":0.0,"a":2.2872,"kappa":1.609,"delta":0.3972,"zeta":0.0},"boundary":[[9.8549,0.0],[8.6574,2.6022],[6.6592,3.6801],[5.5567,2.6022],[5.2805,0.0],[5.5567,-2.6022],[6.6592,-3.6801],[8.6574,-2.6022]]},{"t":45.0,"Ip":11250000.0,"ECRH":10000000.0,"ICRF":10000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":4.122e+19,"phase":"ramp_up_diverted","miller":{"R0":7.6432,"Z0":0.0,"a":2.3279,"kappa":1.6818,"delta":0.4396,"zeta":0.0},"boundary":[[9.9711,0.0],[8.6841,2.7684],[6.6199,3.9151],[5.561,2.7684],[5.3153,0.0],[5.561,-2.7684],[6.6199,-3.9151],[8.6841,-2.7684]]},{"t":50.0,"Ip":12500000.0,"ECRH":10000000.0,"ICRF":10000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":4.5e+19,"phase":"ramp_up_diverted","miller":{"R0":7.7188,"Z0":0.0,"a":2.3686,"kappa":1.7545,"delta":0.4821,"zeta":0.0},"boundary":[[10.0874,0.0],[8.7055,2.9385],[6.5769,4.1557],[5.5655,2.9385],[5.3502,0.0],[5.5655,-2.9385],[6.5769,-4.1557],[8.7055,-2.9385]]},{"t":55.0,"Ip":13750000.0,"ECRH":10000000.0,"ICRF":10000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":7.95e+19,"phase":"ramp_up_diverted","miller":{"R0":7.7944,"Z0":0.0,"a":2.4093,"kappa":1.8272,"delta":0.5245,"zeta":0.0},"boundary":[[10.2037,0.0],[8.7215,3.1129],[6.5307,4.4023],[5.5706,3.1129],[5.3851,0.0],[5.5706,-3.1129],[6.5307,-4.4023],[8.7215,-3.1129]]},{"t":60.0,"Ip":15000000.0,"ECRH":10000000.0,"ICRF":10000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":1.14e+20,"phase":"flat_top_current","miller":{"R0":7.87,"Z0":0.0,"a":2.45,"kappa":1.9,"delta":0.567,"zeta":0.0},"boundary":[[10.32,0.0],[8.731,3.2916],[6.4809,4.655],[5.5763,3.2916],[5.42,0.0],[5.5763,-3.2916],[6.4808,-4.655],[8.731,-3.2916]]},{"t":65.0,"Ip":15000000.0,"ECRH":82000000.0,"ICRF":20000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":1.139e+20,"phase":"flat_top_current","miller":{"R0":7.87,"Z0":0.0,"a":2.45,"kappa":1.9,"delta":0.567,"zeta":0.0},"boundary":[[10.32,0.0],[8.731,3.2916],[6.4809,4.655],[5.5763,3.2916],[5.42,0.0],[5.5763,-3.2916],[6.4808,-4.655],[8.731,-3.2916]]},{"t":100.0,"Ip":15000000.0,"ECRH":82000000.0,"ICRF":20000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":1.131e+20,"phase":"flat_top_current","miller":{"R0":7.87,"Z0":0.0,"a":2.45,"kappa":1.9,"delta":0.567,"zeta":0.0},"boundary":[[10.32,0.0],[8.731,3.2916],[6.4809,4.655],[5.5763,3.2916],[5.42,0.0],[5.5763,-3.2916],[6.4808,-4.655],[8.731,-3.2916]]},{"t":150.0,"Ip":15000000.0,"ECRH":82000000.0,"ICRF":20000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":1.12e+20,"phase":"burn","miller":{"R0":7.87,"Z0":0.0,"a":2.45,"kappa":1.9,"delta":0.567,"zeta":0.0},"boundary":[[10.32,0.0],[8.731,3.2916],[6.4809,4.655],[5.5763,3.2916],[5.42,0.0],[5.5763,-3.2916],[6.4808,-4.655],[8.731,-3.2916]]},{"t":6150.0,"Ip":15000000.0,"ECRH":82000000.0,"ICRF":20000000.0,"NBI":0.0,"LHW":0.0,"ne_bar":1.12e+20,"phase":"burn_end","miller":{"R0":7.87,"Z0":0.0,"a":2.45,"kappa":1.9,"delta":0.567,"zeta":0.0},"boundary":[[10.32,0.0],[8.731,3.2916],[6.4809,4.655],[5.5763,3.2916],[5.42,0.0],[5.5763,-3.2916],[6.4808,-4.655],[8.731,-3.2916]]},{"t":6155.0,"Ip":13750000.0,"ECRH":82000000.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":1.062e+20,"phase":"ramp_down（下降段为合成节点）","miller":{"R0":7.7944,"Z0":0.0,"a":2.4093,"kappa":1.8273,"delta":0.5245,"zeta":0.0},"boundary":[[10.2037,0.0],[8.7215,3.113],[6.5307,4.4025],[5.5706,3.113],[5.3851,0.0],[5.5706,-3.113],[6.5307,-4.4025],[8.7215,-3.113]]},{"t":6160.0,"Ip":12500000.0,"ECRH":82000000.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":9.936e+19,"phase":"ramp_down（下降段为合成节点）","miller":{"R0":7.7188,"Z0":0.0,"a":2.3686,"kappa":1.7546,"delta":0.4821,"zeta":0.0},"boundary":[[10.0874,0.0],[8.7055,2.9387],[6.5769,4.1559],[5.5655,2.9387],[5.3502,0.0],[5.5655,-2.9387],[6.5769,-4.1559],[8.7055,-2.9387]]},{"t":6165.0,"Ip":11250000.0,"ECRH":82000000.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":9.251e+19,"phase":"ramp_down（下降段为合成节点）","miller":{"R0":7.6433,"Z0":0.0,"a":2.3279,"kappa":1.6818,"delta":0.4396,"zeta":0.0},"boundary":[[9.9712,0.0],[8.6842,2.7684],[6.62,3.9151],[5.5611,2.7684],[5.3154,0.0],[5.5611,-2.7684],[6.62,-3.9151],[8.6842,-2.7684]]},{"t":6170.0,"Ip":10000000.0,"ECRH":10000000.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":8.567e+19,"phase":"ramp_down（下降段为合成节点）","miller":{"R0":7.5677,"Z0":0.0,"a":2.2872,"kappa":1.6091,"delta":0.3972,"zeta":0.0},"boundary":[[9.8549,0.0],[8.6574,2.6024],[6.6592,3.6803],[5.5567,2.6024],[5.2805,0.0],[5.5567,-2.6024],[6.6592,-3.6803],[8.6574,-2.6024]]},{"t":6180.0,"Ip":7500000.0,"ECRH":10000000.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":6.72e+19,"phase":"ramp_down（下降段为合成节点）","miller":{"R0":7.4165,"Z0":0.0,"a":2.2058,"kappa":1.4636,"delta":0.3123,"zeta":0.0},"boundary":[[9.6223,0.0],[8.5897,2.2828],[6.7276,3.2284],[5.5486,2.2828],[5.2107,0.0],[5.5486,-2.2828],[6.7276,-3.2284],[8.5897,-2.2828]]},{"t":6193.0,"Ip":4250000.0,"ECRH":10000000.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":4.319e+19,"phase":"ramp_down（下降段为合成节点）","miller":{"R0":7.22,"Z0":0.0,"a":2.1,"kappa":1.2745,"delta":0.2019,"zeta":0.0},"boundary":[[9.32,0.0],[8.4769,1.8925],[6.796,2.6764],[5.5377,1.8925],[5.12,0.0],[5.5377,-1.8925],[6.796,-2.6764],[8.4769,-1.8925]]},{"t":6200.0,"Ip":2500000.0,"ECRH":0.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":2.766e+19,"phase":"ramp_down（下降段为合成节点）","miller":{"R0":7.1325,"Z0":0.0,"a":2.0125,"kappa":1.1727,"delta":0.1425,"zeta":0.0},"boundary":[[9.145,0.0],[8.4046,1.6688],[6.8457,2.3601],[5.5731,1.6688],[5.12,0.0],[5.5731,-1.6688],[6.8457,-2.3601],[8.4046,-1.6688]]},{"t":6205.0,"Ip":1250000.0,"ECRH":0.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":1.402e+19,"phase":"ramp_down（下降段为合成节点）","miller":{"R0":7.07,"Z0":0.0,"a":1.95,"kappa":1.1323,"delta":0.1189,"zeta":0.0},"boundary":[[9.02,0.0],[8.3279,1.5613],[6.8381,2.208],[5.58,1.5613],[5.12,0.0],[5.58,-1.5613],[6.8381,-2.208],[8.3279,-1.5613]]},{"t":6209.0,"Ip":250000.0,"ECRH":0.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":3.104e+18,"phase":"ramp_down（下降段为合成节点）","miller":{"R0":7.02,"Z0":0.0,"a":1.9,"kappa":1.1,"delta":0.1,"zeta":0.0},"boundary":[[8.92,0.0],[8.2651,1.4779],[6.83,2.09],[5.5848,1.4779],[5.12,0.0],[5.5848,-1.4779],[6.83,-2.09],[8.2651,-1.4779]]},{"t":6210.0,"Ip":0.0,"ECRH":0.0,"ICRF":0.0,"NBI":0.0,"LHW":0.0,"ne_bar":0.0,"phase":"ramp_down（回放无 LCFS，取 6209 s 形状）","miller":{"R0":7.02,"Z0":0.0,"a":1.9,"kappa":1.1,"delta":0.1,"zeta":0.0},"boundary":[[8.92,0.0],[8.2651,1.4779],[6.83,2.09],[5.5848,1.4779],[5.12,0.0],[5.5848,-1.4779],[6.83,-2.09],[8.2651,-1.4779]]}],"coils":[{"name":"CS1U","i_max":44280000.0,"rects":[{"r":1.62,"z":1.025,"w":1.0,"h":2.05}]},{"name":"CS2U","i_max":44280000.0,"rects":[{"r":1.62,"z":3.075,"w":1.0,"h":2.05}]},{"name":"CS3U","i_max":44280000.0,"rects":[{"r":1.62,"z":5.125,"w":1.0,"h":2.05}]},{"name":"CS4U","i_max":44280000.0,"rects":[{"r":1.62,"z":7.175,"w":1.0,"h":2.05}]},{"name":"CS4L","i_max":44280000.0,"rects":[{"r":1.62,"z":-7.15,"w":1.0,"h":2.05}]},{"name":"CS3L","i_max":44280000.0,"rects":[{"r":1.62,"z":-5.125,"w":1.0,"h":2.05}]},{"name":"CS2L","i_max":44280000.0,"rects":[{"r":1.62,"z":-3.075,"w":1.0,"h":2.05}]},{"name":"CS1L","i_max":44280000.0,"rects":[{"r":1.62,"z":-1.025,"w":1.0,"h":2.05}]},{"name":"PF1U","i_max":25740000.0,"rects":[{"r":4.6,"z":9.83,"w":1.036,"h":1.512}]},{"name":"PF2U","i_max":13200000.0,"rects":[{"r":13.03,"z":6.653,"w":0.697,"h":1.167}]},{"name":"PF3U","i_max":13200000.0,"rects":[{"r":15.3,"z":3.3,"w":0.697,"h":1.167}]},{"name":"PF3L","i_max":13200000.0,"rects":[{"r":15.3,"z":-3.15,"w":0.697,"h":1.167}]},{"name":"PF2L","i_max":13200000.0,"rects":[{"r":14.9,"z":-6.25,"w":0.697,"h":1.167}]},{"name":"PF1L","i_max":25740000.0,"rects":[{"r":4.6,"z":-9.83,"w":1.036,"h":1.512}]},{"name":"DC1","i_max":13200000.0,"rects":[{"r":7.13,"z":-10.0,"w":0.697,"h":1.167}]}]};
+//: ★★预设波形取**报告页那份算例**（`reports/cfedr-report.html`
+//: 的逐时刻平衡序列）：31 个节点，上升 0–60 s（1 · 3 · 5 · 7.5 · 10 · 13 · 17 · 20 · 25 ·
+//: 30 · 35 · 40 · 45 · 50 · 55 s）· 平顶 60–6150 s（65 · 100 · 150 s）· 下降 6150–6210 s，
+//: 两处交接在 40 s 与 6170 s。每个节点自带 Miller 参数（R₀ · a · κ · δ 取该算例解出来时
+//: **要的那组形状**，δ 取上三角形变，ζ 与 Z₀ 为 0），控制点即由这组参数采出，于是
+//: 「Miller 参数演化」那条时序一打开就是这一炮真正走过的位形。
+const D = D_FALLBACK;
+const $ = id => document.getElementById(id);
+const fmt = (v, d = 2) => !Number.isFinite(v) ? "—" : (Math.abs(v) >= 1000 ? v.toFixed(0) : v.toFixed(d));
+//: 文件里非有限值写成 null（JSON 不收 NaN）：读回来当「没有」
+const num = v => (v == null ? NaN : +v);
+const clone = x => JSON.parse(JSON.stringify(x));
+
+//: ★★页面状态**一处声明、且在最前**：`let` 有暂时性死区，声明之前碰它
+//: 就是 ReferenceError，而 `node --check` 只看语法看不出来——主题开关（在顶上）要读 `OUT`，
+//: 起手那几行要读 `NPTS`，两者原先都声明在后面。
+let OUT = null, OUT_TEXT = "", OUT_NAME = "run.json", cur = 0, playing = false;
+let PROFS = [], PROF_ON = new Set(), PROF_RANGE = {};
+//: 每个量的来路（内核 / 自由边界解 / 几何比对 / 回显）与口径——由输出文件的 `meta.provenance*` 给
+let PROV = {}, PROV_NOTE = {};
+//: 磁面：控制点数（缺省 8，可改）与两种描述方式（Miller 参数 / 直接拖点）
+//: ★★★磁面**只有一种编法**：拖轨迹上的顶点。Miller 参数不再是可编的一格——它由点拟合
+//: 而来（`fitMiller`），用在三处：截面上那条拟合曲线、磁轴 (R₀, Z₀) 的位置、还有下面那张
+//: 「Miller 参数演化」的只读时序。改点数时按这条拟合曲线重采点（`applyMiller`）。
+let NPTS = 8;
+
+// ---------------- theme ----------------
+//: 三态：自动（不写 data-theme，跟 prefers-color-scheme）· 浅 · 深。选择记在 localStorage，
+//: 而读写都包在 try 里——隐私窗口 / 禁了站点数据时它会抛，而那不该让整页白屏。
+function setTheme(mode) {
+  const root = document.documentElement;
+  if (mode === "auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", mode);
+  for (const m of ["auto", "light", "dark"]) $("th-" + m).setAttribute("aria-pressed", String(m === mode));
+  try { localStorage.setItem("fy-studio-theme", mode); } catch {}
+  if (OUT) { buildTraces(); setFrame(cur); }
+}
+for (const m of ["auto", "light", "dark"]) $("th-" + m).addEventListener("click", () => setTheme(m));
+try { setTheme(localStorage.getItem("fy-studio-theme") || "auto"); } catch { setTheme("auto"); }
+
+// ---------------- 小工具：下载 · 插值 · Miller ----------------
+function download(name, text, type = "application/json") {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = document.createElement("a");
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+//: 单调 xs 上的线性插值（两端取端值）——g-file 的均匀 ψ 网格与沉积表都要它
+function interp1(x, xs, ys) {
+  if (!xs || !xs.length) return NaN;
+  if (x <= xs[0]) return ys[0];
+  if (x >= xs[xs.length - 1]) return ys[ys.length - 1];
+  let lo = 0, hi = xs.length - 1;
+  while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (xs[mid] <= x) lo = mid; else hi = mid; }
+  const u = (x - xs[lo]) / ((xs[hi] - xs[lo]) || 1);
+  return ys[lo] + (ys[hi] - ys[lo]) * u;
+}
+
+//: ★★Miller 参数化：磁轴 R₀ / Z₀ · 小半径 a · 拉长 κ · 三角形变 δ ·
+//: 方形度 ζ。控制点就是这条曲线上**等 θ** 的 n 个点，于是「编参数」与「编点」是同一件事的
+//: 两种写法：参数这边改的是形状族，点那边改的是单个点。
+function millerPoint(m, th) {
+  const d = Math.max(-0.95, Math.min(0.95, +m.delta || 0));
+  const R = (+m.R0) + (+m.a) * Math.cos(th + Math.asin(d) * Math.sin(th));
+  const Z = (+m.Z0) + (+m.kappa) * (+m.a) * Math.sin(th + (+m.zeta || 0) * Math.sin(2 * th));
+  return [+R.toFixed(4), +Z.toFixed(4)];
+}
+function millerPoints(m, n) {
+  const out = [];
+  for (let k = 0; k < n; k++) out.push(millerPoint(m, 2 * Math.PI * k / n));
+  return out;
+}
+//: 从一圈点**反推**一组 Miller 参数：外形的四个极值点定 R₀ · a · κ，上下顶点的水平偏移定 δ。
+//: ★八个点定不出方形度，所以 ζ 留 0——它是给人手调的那一格，不是拟合出来的。
+function fitMiller(pts) {
+  if (!pts || pts.length < 3) return { R0: 7.8, Z0: 0, a: 2.4, kappa: 1.9, delta: 0.45, zeta: 0 };
+  const r = pts.map(p => +p[0]), z = pts.map(p => +p[1]);
+  const rmax = Math.max(...r), rmin = Math.min(...r), zmax = Math.max(...z), zmin = Math.min(...z);
+  const R0 = (rmax + rmin) / 2, a = (rmax - rmin) / 2, Z0 = (zmax + zmin) / 2;
+  const kappa = a > 0 ? (zmax - zmin) / (2 * a) : 1;
+  const du = a > 0 ? (R0 - r[z.indexOf(zmax)]) / a : 0, dl = a > 0 ? (R0 - r[z.indexOf(zmin)]) / a : 0;
+  const rnd = (x, n = 4) => +(+x).toFixed(n);
+  return { R0: rnd(R0), Z0: rnd(Z0), a: rnd(a), kappa: rnd(kappa), delta: rnd((du + dl) / 2), zeta: 0 };
+}
+
+// ---------------- tabs ----------------
+for (const [btn, panel] of [["tab-in", "panel-in"], ["tab-out", "panel-out"]]) {
+  $(btn).addEventListener("click", () => {
+    for (const [b, p] of [["tab-in", "panel-in"], ["tab-out", "panel-out"]]) {
+      const on = b === btn;
+      $(b).setAttribute("aria-selected", String(on));
+      $(p).hidden = !on;
+    }
+  });
+}
+
+// ---------------- input designer ----------------
+let nodes = clone(D.nodes);
+let sel = 0;
+//: 缺省波形就是之前那个 CFEDR 15 MA 算例（回放节点原值）；采样窗与节拍也取那次跑的
+const CASE = D.case || {};
+$("case-note").innerHTML = `缺省波形：<b>${CASE.name || "CFEDR 15 MA"}</b> —— ${CASE.source || ""}；起步工况 <code>${CASE.plan || ""}</code>。`
+  + ` 放电结果用工具栏的「导入输出 JSON」读——模型 <code>--out</code> 写出来的那份。`;
+["t0", "t1", "dt", "dtflat"].forEach(k => { if (CASE[k === "dtflat" ? "dt_flat" : k] != null) $(k).value = CASE[k === "dtflat" ? "dt_flat" : k]; });
+//: 线圈只在**输出页**用（位形图按本时刻电流着色、PF 波形图的图例）；输入页不画也不编它们。
+const COILS = D.coils;
+//: 起手：点数取算例自带的那个（CFEDR 是 8），每个节点先反推一组 Miller 参数——
+//: ★**不动点本身**：算例的八点来自真实 LCFS，参数只是它的描述；点要回到曲线上，
+//: 按「按参数重采样」或切一次模式即可。
+NPTS = Math.max(3, Math.min(24, (clone(D.nodes)[0].boundary || []).length || 8));
+$("npts").value = NPTS;
+nodes.forEach(mill);
+
+function renderTable() {
+  const tb = $("nodes").querySelector("tbody");
+  tb.innerHTML = nodes.map((n, i) => `<tr data-i="${i}" aria-selected="${i === sel}">
+    <td class="n"><input type="number" step="0.1" value="${n.t}" data-k="t"></td>
+    <td class="n"><input type="number" step="0.05" value="${(n.Ip / 1e6).toFixed(3)}" data-k="Ip"></td>
+    <td class="n"><input type="number" step="1" value="${(n.ECRH / 1e6).toFixed(1)}" data-k="ECRH"></td>
+    <td class="n"><input type="number" step="1" value="${(n.ICRF / 1e6).toFixed(1)}" data-k="ICRF"></td>
+    <td class="n"><input type="number" step="1" value="${(n.NBI / 1e6).toFixed(1)}" data-k="NBI"></td>
+    <td class="n"><input type="number" step="1" value="${(n.LHW / 1e6).toFixed(1)}" data-k="LHW"></td>
+    <td class="n"><input type="number" step="0.1" value="${(n.ne_bar / 1e19).toFixed(2)}" data-k="ne_bar"></td>
+    <td>${n.phase || ""}</td></tr>`).join("");
+  $("node-count").textContent = `${nodes.length} 个节点`;
+  tb.querySelectorAll("tr").forEach(tr => {
+    tr.addEventListener("click", ev => { if (ev.target.tagName !== "INPUT") { sel = +tr.dataset.i; refresh(); } });
+    tr.querySelectorAll("input").forEach(inp => inp.addEventListener("change", () => {
+      const i = +tr.dataset.i, k = inp.dataset.k, v = parseFloat(inp.value);
+      if (!isFinite(v)) return;
+      pushHist();
+      nodes[i][k] = k === "t" ? v : (k === "ne_bar" ? v * 1e19 : v * 1e6);
+      if (k === "t") nodes.sort((a, b) => a.t - b.t);
+      refresh();
+    }));
+  });
+}
+
+//: ★★折断时间轴**从节点自己算**，不写死段界：写死的段界（0–62 / 62–152 / 6146–6210）
+//: 一载入别的波形就把点画到框外去，而画不出来不报错。规则：找最大的一段空窗（平顶），
+//: 在那里折断；空窗不到全程四分之一就不折。
+let SEG = [];
+//: ★两张时序图各有各的宽度，
+//: 所以布局是**按宽度算出来的一份数据**，不再是几个全局量。
+const WH = 230, WL = 46, WR = 10, WT = 10, WB = 24, WG = 10;
+const WAVE_W = 1040, MILL_W = 520, MILL_H = 150;
+function computeSegments() {
+  const ts = nodes.map(n => +n.t).slice().sort((a, b) => a - b);
+  const t0 = ts[0], t1 = ts[ts.length - 1];
+  SEG = [[t0, t1]];
+  if (t1 > t0) {
+    let gi = -1, gap = 0;
+    for (let i = 1; i < ts.length; i++) if (ts[i] - ts[i - 1] > gap) { gap = ts[i] - ts[i - 1]; gi = i; }
+    if (gi > 0 && gap > (t1 - t0) * 0.25) SEG = [[t0, ts[gi - 1]], [ts[gi], t1]];
+  }
+}
+//: 段宽按跨度的**平方根**分——线性分会让 64 s 的下降段细成一条缝
+function layoutFor(W) {
+  const room = W - WL - WR - WG * (SEG.length - 1);
+  const w = SEG.map(([a, b]) => Math.sqrt(Math.max(b - a, 1e-6)));
+  const sum = w.reduce((x, y) => x + y, 0) || 1;
+  const wid = w.map(x => room * x / sum);
+  const wx0 = wid.map((_, k) => WL + wid.slice(0, k).reduce((x, y) => x + y, 0) + WG * k);
+  return { W, wid, wx0 };
+}
+const xOfT = (t, L) => {
+  for (let s = 0; s < SEG.length; s++) { const [a, b] = SEG[s]; if (t >= a && t <= b) return L.wx0[s] + (b > a ? (t - a) / (b - a) * L.wid[s] : 0); }
+  return null;
+};
+const tOfX = (x, L) => {
+  for (let s = 0; s < SEG.length; s++) {
+    const [a, b] = SEG[s];
+    if (x >= L.wx0[s] - 6 && x <= L.wx0[s] + L.wid[s] + 6) return a + Math.min(Math.max((x - L.wx0[s]) / (L.wid[s] || 1), 0), 1) * (b - a);
+  }
+  return null;
+};
+
+const WSERIES = [["Ip", 1e6, "var(--ip)", "MA"], ["ECRH", 1e6, "var(--ec)", "MW"],
+                 ["ICRF", 1e6, "var(--ic)", "MW"], ["ne_bar", 1e19, "var(--ne)", "10¹⁹ m⁻³"]];
+
+function renderWave() {
+  computeSegments();
+  const L = layoutFor(WAVE_W);
+  let top = 0;
+  for (const [k, sc] of WSERIES) for (const n of nodes) top = Math.max(top, (+n[k] || 0) / sc);
+  top = Math.ceil(top * 1.1) || 1;
+  const yOf = v => WT + (1 - v / top) * (WH - WT - WB);
+  const vOfY = y => top * (1 - (y - WT) / (WH - WT - WB));
+  let g = "";
+  for (let q = 0; q <= 4; q++) { const y = yOf(top * q / 4); g += `<line x1="${WL}" x2="${WAVE_W - WR}" y1="${y}" y2="${y}" stroke="var(--hair)"/><text x="${WL - 5}" y="${y + 3.5}" font-size="10" text-anchor="end" fill="var(--muted)">${+(top * q / 4).toPrecision(3)}</text>`; }
+  SEG.forEach(([a, b], s) => {
+    g += `<rect class="bg" x="${L.wx0[s]}" y="${WT}" width="${L.wid[s]}" height="${WH - WT - WB}" fill="transparent" stroke="var(--rule)"/>`;
+    [a, (a + b) / 2, b].forEach(tk => { const x = xOfT(tk, L); if (x != null) g += `<text x="${x}" y="${WH - 7}" font-size="9.5" text-anchor="middle" fill="var(--muted)">${Math.round(tk)}</text>`; });
+  });
+  for (const [k, sc, col] of WSERIES) {
+    let d = "", pen = false, last = -1;
+    nodes.forEach(n => {
+      const x = xOfT(+n.t, L); if (x == null) { pen = false; return; }
+      const seg = SEG.findIndex(([a, b]) => n.t >= a && n.t <= b);
+      d += (pen && seg === last ? "L" : "M") + x.toFixed(1) + "," + yOf((+n[k] || 0) / sc).toFixed(1); pen = true; last = seg;
+    });
+    g += `<path d="${d}" fill="none" stroke="${col}" stroke-width="1.8"/>`;
+  }
+  //: 选中节点的竖线（点它选中）
+  nodes.forEach((n, i) => {
+    const x = xOfT(+n.t, L); if (x == null) return;
+    g += `<line class="pick" data-i="${i}" x1="${x}" x2="${x}" y1="${WT}" y2="${WH - WB}" stroke="${i === sel ? "var(--accent)" : "var(--hair)"}" stroke-width="${i === sel ? 1.6 : 1}" style="cursor:pointer"/>`;
+  });
+  //: ★★可拖的控制点：竖向改值、横向改时刻，双击删掉这个节点；
+  //: 在空白处双击**加**一个节点（值按两侧线性插出来）。
+  nodes.forEach((n, i) => {
+    const x = xOfT(+n.t, L); if (x == null) return;
+    for (const [k, sc, col] of WSERIES) {
+      const y = yOf((+n[k] || 0) / sc);
+      g += `<circle class="h" data-i="${i}" data-k="${k}" data-s="${sc}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${i === sel ? 3.4 : 2.6}" fill="${col}" stroke="var(--sheet)" stroke-width="1" style="cursor:grab"><title>${k} @ ${n.t} s</title></circle>`;
+    }
+  });
+  const svg = $("wave");
+  svg.innerHTML = g;
+  svg.querySelectorAll(".pick").forEach(el => el.addEventListener("click", () => { sel = +el.dataset.i; refresh(); }));
+  const local = ev => { const b = svg.getBoundingClientRect(); return [(ev.clientX - b.left) / b.width * WAVE_W, (ev.clientY - b.top) / b.height * WH]; };
+  svg.querySelectorAll(".h").forEach(el => {
+    el.addEventListener("dblclick", ev => { ev.stopPropagation(); delNode(+el.dataset.i); });
+    el.addEventListener("pointerdown", ev => {
+      ev.preventDefault(); el.setPointerCapture(ev.pointerId);
+      pushHist();
+      const i = +el.dataset.i, k = el.dataset.k, sc = +el.dataset.s;
+      sel = i;
+      const move = e2 => {
+        const [x, y] = local(e2);
+        const v = Math.max(0, vOfY(y)) * sc;
+        nodes[i][k] = k === "Ip" ? v : v;
+        const t = tOfX(x, L);
+        if (t != null) {
+          const lo = i > 0 ? nodes[i - 1].t + 1e-3 : -Infinity, hi = i < nodes.length - 1 ? nodes[i + 1].t - 1e-3 : Infinity;
+          nodes[i].t = +Math.min(Math.max(t, lo), hi).toFixed(3);
+        }
+        renderWave(); renderTable();
+      };
+      const up = e2 => { try { el.releasePointerCapture(e2.pointerId); } catch {} svg.removeEventListener("pointermove", move); svg.removeEventListener("pointerup", up); refresh(); };
+      svg.addEventListener("pointermove", move); svg.addEventListener("pointerup", up);
+    });
+  });
+  svg.addEventListener("dblclick", ev => {
+    if (ev.target.classList.contains("h")) return;
+    const [x] = local(ev); const t = tOfX(x, L);
+    if (t != null) addNodeAt(t);
+  });
+}
+
+//: 两个节点之间线性插出一个新节点（功率是零阶保持，与采样那边同一条规矩）
+function interpNode(t) {
+  let k = 0; nodes.forEach((n, i) => { if (n.t <= t + 1e-9) k = i; });
+  const a = nodes[k], b = nodes[Math.min(k + 1, nodes.length - 1)];
+  const u = b.t > a.t ? Math.min(Math.max((t - a.t) / (b.t - a.t), 0), 1) : 0;
+  const lin = (x, y) => x + (y - x) * u;
+  const n = { t: +t.toFixed(3), Ip: lin(a.Ip, b.Ip), ECRH: a.ECRH, ICRF: a.ICRF, NBI: a.NBI, LHW: a.LHW,
+              ne_bar: lin(a.ne_bar, b.ne_bar), phase: a.phase || "" };
+  n.miller = { R0: lin(mill(a).R0, mill(b).R0), Z0: lin(mill(a).Z0, mill(b).Z0), a: lin(mill(a).a, mill(b).a),
+               kappa: lin(mill(a).kappa, mill(b).kappa), delta: lin(mill(a).delta, mill(b).delta), zeta: lin(mill(a).zeta || 0, mill(b).zeta || 0) };
+  n.boundary = millerPoints(n.miller, NPTS);
+  if (a.pf_current) n.pf_current = a.pf_current.slice();
+  return n;
+}
+function addNodeAt(t) {
+  pushHist();
+  const n = interpNode(t);
+  nodes.push(n); nodes.sort((a, b) => a.t - b.t); sel = nodes.indexOf(n); refresh();
+}
+function delNode(i) {
+  if (nodes.length <= 2) return;
+  pushHist();
+  nodes.splice(i, 1); sel = Math.max(0, Math.min(sel, nodes.length - 1)); refresh();
+}
+
+//: ★★★**小截面按内容定框**：从前写死 `0.6 −11.4 15.8 22.8`（够装下最外那圈线圈），
+//: 而输入页这张不画线圈，画的只有第一壁 · 磁面 · 控制点轨迹——R 4.7–10.6、Z ±6.2，
+//: 于是一半以上的画面是空的，等离子体缩成中间一小团。现在按真正画出来的东西算包围盒，
+//: 留一成余白，`viewBox` 每次渲染时更新：同样的高度，位形大了近一倍。
+function fitView(pts, pad = 0.11, maxAr = 1.5) {
+  const xs = pts.map(p => p[0]).filter(Number.isFinite), ys = pts.map(p => p[1]).filter(Number.isFinite);
+  if (!xs.length) return { r0: 0.6, z0: -11.4, w: 15.8, h: 22.8 };
+  let r0 = Math.min(...xs), r1 = Math.max(...xs), z0 = Math.min(...ys), z1 = Math.max(...ys);
+  const mr = Math.max((r1 - r0) * pad, 0.2), mz = Math.max((z1 - z0) * pad, 0.2);
+  r0 -= mr; r1 += mr; z0 -= mz; z1 += mz;
+  let w = r1 - r0, h = z1 - z0;
+  //: ★**长宽比封顶**：SVG 按容器宽度缩放、高度自适应，所以一个 1 : 2.1 的框会在半栏宽里拉出
+  //: 一米多高的图，读者得滚动才看得全。托卡马克的截面本来就瘦高，这里把框**横向补宽**到
+  //: 至多 1 : `maxAr`（内容仍居中，不拉伸、不裁切），于是一屏之内看得完整张位形。
+  if (h / w > maxAr) { const want = h / maxAr; r0 -= (want - w) / 2; w = want; }
+  return { r0, z0, w, h };
+}
+let XS_VIEW = { r0: 0.6, z0: -11.4, w: 15.8, h: 22.8 };
+//: ★★★磁面这一段：控制点数可改（缺省 8）· 控制点随时间连成线 ·
+//: 磁面用 Miller 参数描述与编辑，再按点数采成 isoflux 点列。两种模式：
+//:   miller —— 编参数（R₀ · Z₀ · a · κ · δ · ζ），点由曲线采样得到；
+//:   free   —— 直接拖点，参数随即反推出来（曲线成了「拟合」，画成虚线）。
+function mill(n) {
+  if (!n.miller) n.miller = fitMiller(n.boundary || []);
+  return n.miller;
+}
+function applyMiller(n) { n.boundary = millerPoints(mill(n), NPTS); }
+
+//: 节点在整条轨迹上的位置（0 → 1），按**节点序**而不是按时刻——这一炮 97 % 的时间在平顶，
+//: 按时刻算会把 31 个节点挤成两堆（0–150 s 一堆、6150 s 之后一堆），而屏幕上的时间轴本来
+//: 就是折断的（上升 · 平顶 · 下降各占一块），看到的间距就是节点序。
+const trackU = i => (nodes.length > 1 ? i / (nodes.length - 1) : (i ? 1 : 0));
+//: 把每条轨迹拉成直线：中间各节点 = 起止两端按节点序线性插值。这是**数据操作**，不是拖动——
+//: 截面只读之后，它与「按曲线重采样」一样是按钮。
+function straightenTracks() {
+  const first = nodes[0], last = nodes[nodes.length - 1];
+  const cnt = Math.min(...nodes.map(o => (o.boundary || []).length));
+  nodes.forEach((o, i) => {
+    const u = trackU(i);
+    o.boundary = Array.from({ length: cnt }, (_, k) => {
+      const a = first.boundary[k], b = last.boundary[k];
+      return [+(a[0] + (b[0] - a[0]) * u).toFixed(4), +(a[1] + (b[1] - a[1]) * u).toFixed(4)];
+    });
+    o.miller = fitMiller(o.boundary);
+  });
+}
+
+function renderBoundary() {
+  const n = nodes[sel];
+  $("bnd-t").textContent = `节点 ${sel + 1} / ${nodes.length} · t = ${n.t} s · ${(n.boundary || []).length} 点`;
+  const m = mill(n);
+  const poly = (r, z) => r.map((v, i) => `${v},${-z[i]}`).join(" ");
+  //: ★输入侧这张截面**不画 PF 线圈**：这里看的是磁面怎么随时间走，线圈框只是背景噪声；
+  //: 要看线圈，去输出页那张位形图——那里按本时刻电流着色，才有信息。
+  //: 画什么就框什么：第一壁 + 所有节点的控制点（轨迹全在里面）+ 磁轴
+  const seen = D.limiter.r.map((r, i) => [r, D.limiter.z[i]]);
+  nodes.forEach(o => { (o.boundary || []).forEach(q => seen.push(q)); const mm = mill(o); seen.push([+mm.R0, +mm.Z0]); });
+  XS_VIEW = fitView(seen);
+  $("xs").setAttribute("viewBox", `${XS_VIEW.r0.toFixed(2)} ${(-(XS_VIEW.z0 + XS_VIEW.h)).toFixed(2)} ${XS_VIEW.w.toFixed(2)} ${XS_VIEW.h.toFixed(2)}`);
+  //: ★线宽与点径按**框宽的千分之一**算（`uw`），倍数就是从前那套绝对尺寸 × 100：
+  //: 换框时按比例缩放，既不会在大框里细成一根头发，也不会在小框里胀成一团。
+  const uw = XS_VIEW.w / 900;
+  let g = `<polygon points="${poly(D.limiter.r, D.limiter.z)}" fill="none" stroke="var(--wall)" stroke-width="${(uw * 5.5).toFixed(3)}" stroke-linejoin="round" stroke-opacity="0.75"/>`;
+  if ($("bnd-show-all").checked) {
+    nodes.forEach((o, i) => { if (i !== sel && o.boundary?.length) g += `<polygon points="${o.boundary.map(([r, z]) => `${r},${-z}`).join(" ")}" fill="none" stroke="var(--muted)" stroke-width="${(uw * 2.7).toFixed(3)}" stroke-opacity="0.6" stroke-dasharray="${(uw * 13).toFixed(3)} ${(uw * 11).toFixed(3)}"/>`; });
+  }
+  //: ★★★**编的是轨迹，不是某一时刻的点**：同一个序号的控制点在各节点之间连成一条折线，
+  //: 折线的每个顶点就是「这个点在那个时刻在哪」——直接拖顶点，改的是那个节点的那个点。
+  //: 于是「磁面怎么随时间走」是一幅图上的一条线，而不是逐个时间片切过去拖。
+  //: 磁轴同理：它自己那条折线（R₀ · Z₀ 随时间）也逐顶点可拖。
+  const TRACK = $("bnd-track").checked;
+  if (TRACK) {
+    const cnt = Math.min(...nodes.map(o => (o.boundary || []).length));
+    for (let k = 0; k < cnt; k++) {
+      const pts = nodes.map(o => o.boundary[k]).filter(Boolean);
+      if (pts.length < 2) continue;
+      const hue = Math.round(360 * k / cnt);
+      g += `<polyline points="${pts.map(([r, z]) => `${r},${-z}`).join(" ")}" fill="none" stroke="hsl(${hue} 55% 50%)" stroke-opacity="0.5" stroke-width="${(uw * 3.2).toFixed(3)}" stroke-linejoin="round"/>`;
+    }
+    //: 磁轴的轨迹
+    const ax = nodes.map(o => { const mm = mill(o); return [+mm.R0, +mm.Z0]; });
+    if (ax.length > 1) {
+      g += `<polyline points="${ax.map(([r, z]) => `${r},${-z}`).join(" ")}" fill="none" stroke="var(--ink)" stroke-opacity="0.4" stroke-width="${(uw * 3.5).toFixed(3)}" stroke-dasharray="${(uw * 11).toFixed(3)} ${(uw * 9).toFixed(3)}"/>`;
+    }
+  }
+  //: Miller 曲线：miller 档是**定义**（实线），free 档只是反推出来的拟合（虚线）
+  const curve = [];
+  for (let k = 0; k <= 180; k++) curve.push(millerPoint(m, 2 * Math.PI * k / 180));
+  g += `<polyline points="${curve.map(([r, z]) => `${r},${-z}`).join(" ")}" fill="none" stroke="var(--bnd)" stroke-width="${(uw * 4).toFixed(3)}" stroke-dasharray="${(uw * 16).toFixed(3)} ${(uw * 13).toFixed(3)}" stroke-opacity="0.75"/>`;
+  if (n.boundary?.length) {
+    g += `<polygon points="${n.boundary.map(([r, z]) => `${r},${-z}`).join(" ")}" fill="var(--accent)" fill-opacity="0.09" stroke="var(--bnd)" stroke-width="${(uw * 4.5).toFixed(3)}" stroke-opacity="0.75" stroke-linejoin="round"/>`;
+  }
+  //: ★★★截面是**只读视图**：控制点的轨迹画成线段，当前时刻那一组点画出来作定位——**没有手柄，
+  //: 拖不动**。编磁面统一走右边那张「Miller 参数波形」（与控制波形同一套手势），时刻在波形或
+  //: 节点表上选。一处编、一处看，省掉"同一份数据两种拖法"带来的歧义：这一炮的轨迹是去程 +
+  //: 回程、首尾还重合，在截面上拖点从来不好指认。
+  (nodes[sel].boundary || []).forEach(([r, z], k) => {
+    const hue = Math.round(360 * k / (nodes[sel].boundary.length || 1));
+    g += `<circle class="pt" data-n="${sel}" data-k="${k}" cx="${r}" cy="${-z}" r="${(uw * 13).toFixed(3)}"`
+      + ` fill="hsl(${hue} 60% 45%)" stroke="var(--sheet)" stroke-width="${(uw * 3).toFixed(3)}" pointer-events="none">`
+      + `<title>t = ${nodes[sel].t} s · 点 ${k + 1}: R ${r} m · Z ${z} m</title></circle>`;
+  });
+  //: 磁轴：当前时刻画十字，位置随 Miller 的 (R₀, Z₀)
+  const ac = uw * 20;
+  g += `<path d="M${m.R0 - ac},${-m.Z0}H${m.R0 + ac}M${m.R0},${-m.Z0 - ac}V${-m.Z0 + ac}" stroke="var(--ink)" stroke-width="${(uw * 4).toFixed(3)}" opacity="0.7"/>`;
+  g += `<circle class="axis" data-n="${sel}" cx="${m.R0}" cy="${-m.Z0}" r="${(uw * 16).toFixed(3)}" fill="var(--ink)" fill-opacity="0.05"`
+    + ` stroke="var(--ink)" stroke-width="${(uw * 2.6).toFixed(3)}" pointer-events="none">`
+    + `<title>t = ${nodes[sel].t} s · 磁轴 (R₀ ${(+m.R0).toFixed(3)}, Z₀ ${(+m.Z0).toFixed(3)}) m</title></circle>`;
+  $("xs").innerHTML = g;
+  //: ★点**在不在曲线上**要说清楚：算例自带的八点来自真实 LCFS，参数只是对它的拟合，
+  //: 两者能差几厘米。含糊其辞会让人以为屏幕上的点就是参数生成的。
+  let dev = 0;
+  (n.boundary || []).forEach(([r, z], k) => {
+    const [cr, cz] = millerPoint(m, 2 * Math.PI * k / (n.boundary.length || 1));
+    dev = Math.max(dev, Math.hypot(r - cr, z - cz));
+  });
+  const onCurve = dev < 0.01;
+  {
+    //: ★首尾重合的轨迹（这一炮就是：上升段张开、下降段收回，两端都是那张小圆截面）要说出来，
+    //: 否则图上"两支几乎平行的线"会被当成画错了。
+    const b0 = nodes[0].boundary || [], bN = nodes[nodes.length - 1].boundary || [];
+    const closed = b0.length && bN.length && b0.every((p, k) => bN[k] && Math.hypot(p[0] - bN[k][0], p[1] - bN[k][1]) < 0.02);
+    $("bnd-note").innerHTML = "这张图<b>只看不编</b>：细线是每个控制点的轨迹（同一序号的点在各时刻之间连成的线段），"
+      + "大圆点与十字是<b>当前时刻</b>那一组点与磁轴。要改磁面，用右边那张「Miller 参数波形」；"
+      + "要换时刻，点波形或节点表。"
+      + (closed ? "★这一炮的轨迹是<b>去程 + 回程</b>（上升段张开、下降段收回），首尾落在同一点上——"
+                + "所以每个控制点看起来有两支几乎平行的线，那是同一条轨迹的来与回。" : "")
+      + "这些点同时作目标曲线与 isoflux 控制点。"
+      + `虚线是由点拟合出的 Miller 曲线，当前最大差 <b>${(dev * 100).toFixed(1)} cm</b>`
+      + `${onCurve ? "（点就在曲线上）" : "——按「按曲线重采样」可让点回到曲线上"}。`;
+  }
+}
+
+//: Miller 参数的**时序**：这四条就是磁面演化的写法
+//: ★★★磁面的**第二种编法**：把 Miller 参数当波形编（与 I_p / 加热同一套手势）。
+//: 参数是因、点是果——拖这里的控制点即改那一时刻的形状，随即按参数重采出八个 isoflux 点；
+//: 截面上那张图则回答另一个问题（离壁多远、X 点在哪），两处编的是同一份数据。
+const MSERIES = [["R0", 1, "var(--ip)"], ["a", 1, "var(--ec)"], ["kappa", 1, "var(--ic)"], ["delta", 1, "var(--ne)"]];
+const MLABEL = { R0: "R₀ [m]", a: "a [m]", kappa: "κ", delta: "δ" };
+function renderMillWave() {
+  const L = layoutFor(MILL_W), H = MILL_H, T = 10, B = 22;
+  let top = 0, lo = 0;
+  nodes.forEach(n => MSERIES.forEach(([k]) => { const v = +mill(n)[k] || 0; top = Math.max(top, v); lo = Math.min(lo, v); }));
+  top = Math.ceil((top || 1) * 1.15); lo = Math.min(0, Math.floor(lo * 1.15));
+  const yOf = v => T + (1 - (v - lo) / ((top - lo) || 1)) * (H - T - B);
+  let g = "";
+  for (let q = 0; q <= 3; q++) { const v = lo + (top - lo) * q / 3, y = yOf(v); g += `<line x1="${WL}" x2="${MILL_W - WR}" y1="${y}" y2="${y}" stroke="var(--hair)"/><text x="${WL - 5}" y="${y + 3.5}" font-size="10" text-anchor="end" fill="var(--muted)">${+v.toPrecision(3)}</text>`; }
+  SEG.forEach(([a, b], s) => {
+    g += `<rect x="${L.wx0[s]}" y="${T}" width="${L.wid[s]}" height="${H - T - B}" fill="none" stroke="var(--rule)"/>`;
+    [a, b].forEach(tk => { const x = xOfT(tk, L); if (x != null) g += `<text x="${x}" y="${H - 6}" font-size="9.5" text-anchor="middle" fill="var(--muted)">${Math.round(tk)}</text>`; });
+  });
+  for (const [k, , col] of MSERIES) {
+    let d = "", pen = false, last = -1;
+    nodes.forEach(n => {
+      const x = xOfT(+n.t, L); if (x == null) { pen = false; return; }
+      const seg = SEG.findIndex(([a, b]) => n.t >= a && n.t <= b);
+      d += (pen && seg === last ? "L" : "M") + x.toFixed(1) + "," + yOf(+mill(n)[k] || 0).toFixed(1); pen = true; last = seg;
+    });
+    g += `<path d="${d}" fill="none" stroke="${col}" stroke-width="1.6"/>`;
+    //: ★★可拖的控制点：竖向改这一节点的那个参数（改完立刻按参数重采点），横向改时刻——
+    //: 与上面那张控制波形**同一套手势**，于是「几何怎么随时间走」与「I_p 怎么走」编法一致。
+    nodes.forEach((n, i) => {
+      const x = xOfT(+n.t, L); if (x == null) return;
+      g += `<circle class="mh" data-i="${i}" data-k="${k}" cx="${x.toFixed(1)}" cy="${yOf(+mill(n)[k] || 0).toFixed(1)}"`
+        + ` r="${i === sel ? 3.4 : 2.4}" fill="${col}" stroke="var(--sheet)" stroke-width="0.9" style="cursor:grab">`
+        + `<title>${MLABEL[k]} @ ${n.t} s = ${(+mill(n)[k] || 0).toFixed(4)}（拖它改这一时刻的形状）</title></circle>`;
+    });
+  }
+  //: 节点竖线：点它选中那一时刻（与控制波形同）
+  nodes.forEach((n, i) => {
+    const x = xOfT(+n.t, L); if (x == null) return;
+    g += `<line class="mpick" data-i="${i}" x1="${x}" x2="${x}" y1="${T}" y2="${H - B}" stroke="${i === sel ? "var(--accent)" : "var(--hair)"}" stroke-width="${i === sel ? 1.4 : 0.8}" style="cursor:pointer"/>`;
+  });
+  const svg = $("millwave");
+  svg.innerHTML = g;
+  svg.querySelectorAll(".mpick").forEach(el => el.addEventListener("click", () => { sel = +el.dataset.i; refresh(); }));
+  const local = ev => { const b = svg.getBoundingClientRect(); return [(ev.clientX - b.left) / b.width * MILL_W, (ev.clientY - b.top) / b.height * H]; };
+  const vOfY = y => lo + (1 - (y - T) / (H - T - B)) * ((top - lo) || 1);
+  svg.querySelectorAll(".mh").forEach(el => {
+    el.addEventListener("pointerdown", ev => {
+      ev.preventDefault(); el.setPointerCapture(ev.pointerId);
+      pushHist();
+      const i = +el.dataset.i, k = el.dataset.k;
+      sel = i;
+      const move = e2 => {
+        const [x, y] = local(e2);
+        //: 各参数的合理带：a / κ 为正，δ 在 ±0.95（`millerPoint` 自己也会夹），R₀ 大于 0.5
+        const raw = vOfY(y);
+        const v = k === "delta" ? Math.min(Math.max(raw, -0.95), 0.95)
+                : k === "kappa" ? Math.max(raw, 0.2)
+                : k === "a" ? Math.max(raw, 0.05) : Math.max(raw, 0.5);
+        mill(nodes[i])[k] = +v.toFixed(4);
+        applyMiller(nodes[i]);                //: 参数是因，点是果——改完立刻重采这一节点的八点
+        const t = tOfX(x, L);
+        if (t != null) {
+          const a2 = i > 0 ? nodes[i - 1].t + 1e-3 : -Infinity, b2 = i < nodes.length - 1 ? nodes[i + 1].t - 1e-3 : Infinity;
+          nodes[i].t = +Math.min(Math.max(t, a2), b2).toFixed(3);
+        }
+        renderMillWave(); renderBoundary(); renderTable();
+      };
+      const up = e2 => {
+        try { el.releasePointerCapture(e2.pointerId); } catch {}
+        svg.removeEventListener("pointermove", move); svg.removeEventListener("pointerup", up);
+        refresh(); regen();
+      };
+      svg.addEventListener("pointermove", move); svg.addEventListener("pointerup", up);
+    });
+  });
+}
+
+
+//: ★设计侧**不编 PF 线圈电流**：这一档的线圈电流是模型解出来的（固定位形档给了装置卡就解一组，
+//: isoflux 档每步解），在输出页按本时刻电流着色看。手填一组安匝只能当"通道起始值"，既不是指令
+//: 也不是结果，留在这里只会让人以为它是前者。★读进来的波形若自带 `pf_current`，仍原样带着走
+//: （`flatInput` 照写），页面只是不提供那一格编辑。
+function refresh() { renderTable(); renderWave(); renderBoundary(); renderMillWave(); }
+
+$("add-node").addEventListener("click", () => {
+  pushHist();
+  const n = clone(nodes[sel]); n.t = +(n.t + 1).toFixed(3); n.phase = n.phase || "";
+  nodes.splice(sel + 1, 0, n); nodes.sort((a, b) => a.t - b.t); sel = nodes.findIndex(x => x === n); refresh();
+});
+$("del-node").addEventListener("click", () => delNode(sel));
+$("reset-nodes").addEventListener("click", () => { pushHist(); nodes = clone(D.nodes); nodes.forEach(mill); sel = 0; refresh(); regen(); });
+$("bnd-prev").addEventListener("click", () => { sel = Math.max(0, sel - 1); refresh(); });
+$("bnd-next").addEventListener("click", () => { sel = Math.min(nodes.length - 1, sel + 1); refresh(); });
+$("bnd-copy").addEventListener("click", () => {
+  if (sel > 0) { pushHist(); nodes[sel].boundary = clone(nodes[sel - 1].boundary); nodes[sel].miller = clone(mill(nodes[sel - 1])); refresh(); regen(); }
+});
+$("bnd-show-all").addEventListener("change", renderBoundary);
+$("bnd-track").addEventListener("change", renderBoundary);
+//: ★点数改了就**整炮重采样**：一炮里的控制点数是一个数，不能一节点一个数。
+$("npts").addEventListener("change", () => {
+  pushHist();
+  const v = Math.round(+$("npts").value);
+  NPTS = Math.min(24, Math.max(3, isFinite(v) ? v : 8));
+  $("npts").value = NPTS;
+  nodes.forEach(applyMiller);
+  refresh();
+});
+//: ★「按曲线重采样」：把这一节点的点放回它自己那条拟合曲线上（等 θ）。算例自带的八点来自
+//: 真实 LCFS，与拟合曲线能差几厘米——要一组严格的 Miller 点时按这个。
+$("bnd-resample").addEventListener("click", () => {
+  pushHist(); applyMiller(nodes[sel]); renderBoundary(); renderMillWave(); regen();
+});
+//: ★「轨迹拉直」：把每条轨迹（含磁轴）变成真正的直线——中间各时刻就是两端按时间的线性插值。
+//: 载进来的算例带着自己的形状演化（爬升段 κ/δ 一路长大），拉直会把那段历史抹平，所以这是**一个
+//: 按钮**，不是默认动作；而新拉出来的一条轨迹本来就是直的。
+$("bnd-straight").addEventListener("click", () => {
+  pushHist(); straightenTracks(); renderBoundary(); renderMillWave(); regen();
+});
+//: ★★★撤销 / 重做。快照取的是**设计侧的全部状态**——节点（含磁面与
+//: PF 电流）、控制点数、描述方式——一份 JSON 串。改动前调一次 `pushHist()`，于是「撤销」就是
+//: 把上一份串装回来。★为什么整份而不是记差分：设计状态就几十 KB，整份快照没有「差分漏记一格」
+//: 那类错；上限 60 步，够一次编辑会话，也不至于把内存吃掉。
+let HIST = [], FUT = [];
+const snapState = () => JSON.stringify({ nodes, NPTS, sel });
+function pushHist() {
+  HIST.push(snapState());
+  if (HIST.length > 60) HIST.shift();
+  FUT.length = 0;
+  histButtons();
+}
+function histButtons() {
+  $("undo").disabled = !HIST.length;
+  $("redo").disabled = !FUT.length;
+}
+function restoreState(str) {
+  const o = JSON.parse(str);
+  nodes = o.nodes; NPTS = o.NPTS;
+  sel = Math.min(o.sel ?? 0, nodes.length - 1);
+  $("npts").value = NPTS;
+  refresh();
+  if (typeof regen === "function") regen();
+}
+function undo() { if (!HIST.length) return; FUT.push(snapState()); restoreState(HIST.pop()); histButtons(); }
+function redo() { if (!FUT.length) return; HIST.push(snapState()); restoreState(FUT.pop()); histButtons(); }
+$("undo").addEventListener("click", undo);
+$("redo").addEventListener("click", redo);
+document.addEventListener("keydown", ev => {
+  const k = (ev.key || "").toLowerCase();
+  if (!(ev.ctrlKey || ev.metaKey) || (ev.target && ev.target.tagName === "INPUT" && k !== "z" && k !== "y")) return;
+  if (k === "z" && !ev.shiftKey) { ev.preventDefault(); undo(); }
+  else if ((k === "z" && ev.shiftKey) || k === "y") { ev.preventDefault(); redo(); }
+});
+
+// ---- 节点表 → 输入文件（扁平 dict） ----
+//: ★★**导出的就是节点，不是逐步采样**：一炮的波形本来是几十个顶点的折线，模型读到
+//: `meta.interp = "linear"` 之后在节点之间线性展开（`controls_at`）——于是页面上画的那条折线
+//: 与模型真正跑的那条是同一条，而文件从几百行缩成几十行。
+//: 采样节拍（`t0` / `t1` / `dt` / 平顶节拍）不再决定文件内容，只作为建议写进 `meta.*`，
+//: 命令行上仍由 `--t0 / --t1 / --dt / --dt-flat` 说了算。
+function flatInput(ns) {
+  const nb = Math.max(...ns.map(n => (n.boundary || []).length), 0);
+  const flat = { time: ns.map(n => +(+n.t).toFixed(4)) };
+  for (const k of ["Ip", "NBI", "ECRH", "ICRF", "LHW", "ne_bar"]) flat[k] = ns.map(n => +(n[k] ?? 0));
+  flat.n_roh = ns.map(n => +(n.n_roh ?? 0));
+  flat.boundary_r = ns.map(n => (n.boundary || []).map(p => +(+p[0]).toFixed(4)));
+  flat.boundary_z = ns.map(n => (n.boundary || []).map(p => +(+p[1]).toFixed(4)));
+  flat.pf_current = ns.map(n => (n.pf_current || []).slice());
+  flat.phase = ns.map(n => String(n.phase || ""));
+  flat["meta.units"] = JSON.stringify({ time: "s", Ip: "A", NBI: "W", ECRH: "W", ICRF: "W", LHW: "W",
+                                        ne_bar: "m^-3", n_roh: "1", boundary: "m", pf_current: "A.turns" });
+  //: ★名表与模型的 `INPUT_NAMELIST` 一字不差：`time` 是第一项，密度与 I_p、四路加热并列
+  //: （0 = 不控密度），点数不单列——`boundary_r` 每行多长就是多少个点。
+  flat["meta.namelist"] = JSON.stringify(["time", "Ip", "NBI", "ECRH", "ICRF", "LHW", "ne_bar", "n_roh"]);
+  flat["meta.form"] = "nodes";
+  flat["meta.interp"] = "linear";
+  flat["meta.source"] = "cfedr 波形工作台";
+  flat["meta.boundary_points"] = String(nb);
+  flat["meta.t0"] = String(+$("t0").value);
+  flat["meta.t1"] = String(+$("t1").value);
+  flat["meta.dt"] = String(+$("dt").value);
+  flat["meta.dt_flat"] = String(+$("dtflat").value || 0);
+  return flat;
+}
+
+//: ★★**页面上不堆 JSON 文本**，按钮也收敛。于是「生成」不再是一个按钮，
+//: 而是导出 / 复制之前顺手做的一步；生成的串只留在内存里，页面上只报「多少个时刻、多大」。
+let GEN_JSON = "";
+function regen() {
+  const flat = flatInput(nodes);
+  GEN_JSON = JSON.stringify(flat);
+  $("gen-note").textContent = `已就绪：${nodes.length} 个节点 · ${(GEN_JSON.length / 1024).toFixed(1)} KB · `
+    + `每个节点 ${(nodes[0]?.boundary || []).length} 个控制点 · 节点之间线性展开`;
+  //: ★把整条命令写出来：导出的波形 + 装置描述 + 起步状态 → 平顶段状态 + 完整时序。
+  //: 起止时刻取页面上那两格，于是"页面上编的"与"命令行上跑的"是同一段。
+  const t0 = +$("t0").value, t1 = +$("t1").value, dtf = +$("dtflat").value || 0;
+  $("run-cmd").textContent =
+    `python cfedr_core_model.py \\\n`
+    + `    --device device_cfedr.json --state state_init.json \\\n`
+    + `    --waveform cfedr_waveform.json \\\n`
+    + `    --t0 ${t0} --t1 ${t1}${dtf ? ` --dt-flat ${dtf}` : ""} \\\n`
+    + `    --out state_end.json --series run.json`;
+  return GEN_JSON;
+}
+for (const id of ["t0", "t1", "dt", "dtflat"]) $(id).addEventListener("change", regen);
+$("copy").addEventListener("click", async () => {
+  regen();
+  try { await navigator.clipboard.writeText(GEN_JSON); $("gen-note").textContent = `已复制到剪贴板（${(GEN_JSON.length / 1024).toFixed(0)} KB）`; }
+  catch { $("gen-note").innerHTML = `<span class="warn">剪贴板不可用——用「导出控制波形」存文件。</span>`; }
+});
+$("save-in").addEventListener("click", () => download("cfedr_waveform.json", regen()));
+
+//: ★**一个导入口，自动分辨**（同一次收敛）：带 `boundary_r` 的是输入波形，每个时刻成一个节点；
+//: 带 `Te` / `bnd_r` 的是模型输出，按最近时刻取 LCFS、反推 Miller 参数再重采点。
+$("load-any").addEventListener("change", ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const o = JSON.parse(rd.result);
+      pushHist();
+      if (o.boundary_r || (o.time && o.Ip)) importInput(o);
+      else if (o.bnd_r && o.time) importShape(o);
+      else throw new Error("既不像输入（缺 boundary_r / Ip）也不像输出（缺 bnd_r）");
+      regen();
+    } catch (e) { $("gen-note").innerHTML = `<span class="warn">读不进来：${e.message}</span>`; }
+  };
+  rd.readAsText(f);
+});
+function importInput(flat) {
+  const t = flat.time || [];
+  nodes = t.map((ti, i) => ({ t: ti, Ip: flat.Ip?.[i] ?? 0, ECRH: flat.ECRH?.[i] ?? 0, ICRF: flat.ICRF?.[i] ?? 0,
+    NBI: flat.NBI?.[i] ?? 0, LHW: flat.LHW?.[i] ?? 0, ne_bar: flat.ne_bar?.[i] ?? 0,
+    phase: String(flat.phase?.[i] || ""),
+    boundary: (flat.boundary_r?.[i] || []).map((r, k) => [r, flat.boundary_z[i][k]]),
+    ...(flat.pf_current?.[i]?.length ? { pf_current: flat.pf_current[i] } : {}) }));
+  nodes.forEach(n => { n.miller = fitMiller(n.boundary || []); });
+  NPTS = Math.max(3, Math.min(24, (nodes[0]?.boundary || []).length || NPTS));
+  $("npts").value = NPTS;
+  sel = 0; refresh();
+  $("gen-note").textContent = `读入输入波形：${nodes.length} 个节点`;
+}
+function importShape(o) {
+  const ts = o.time || [];
+  let n = 0;
+  nodes.forEach(nd => {
+    let k = 0; ts.forEach((x, idx) => { if (Math.abs(x - nd.t) < Math.abs(ts[k] - nd.t)) k = idx; });
+    const br = o.bnd_r[k] || [], bz = (o.bnd_z || [])[k] || [];
+    if (br.length < 3) return;
+    nd.miller = fitMiller(br.map((x, idx) => [x, bz[idx]]));
+    applyMiller(nd); n++;
+  });
+  refresh();
+  $("gen-note").textContent = `从输出里取了 ${n} 个节点的磁面（Miller 反推 + ${NPTS} 点重采样）`;
+}
+refresh();
+regen();
+
+// ---------------- output viewer ----------------
+// 第五项给「同一格里的对照曲线」——密度那一路要**设定值与实现值并列**：
+// 实线是模型算出来的 n̄_e，虚线是名表里的指令；两条贴不贴，一眼就看得出反馈跟没跟上。
+const TRACES = [["P_fusion", "聚变功率 P_fus", 1e6, "MW"], ["wmhd", "储能 W_MHD", 1e6, "MJ"],
+                ["betan", "归一比压 β_N", 1, ""], ["betat", "环向比压 β_t", 1, "%"],
+                ["betap", "极向比压 β_p", 1, ""], ["li", "内感 l_i(3)", 1, ""],
+                ["vloop", "环电压 V_loop", 1, "V"], ["dfsdev", "边界偏差 dfsdev", 1, "m"],
+                ["ne_bar", "线平均密度 n̄_e（实现/指令）", 1e19, "10¹⁹ m⁻³", "ne_bar_cmd"],
+                ["fuel_rate", "加料率 Γ_fuel", 1e20, "10²⁰ s⁻¹"]];
+
+function loadOutput(text, name) {
+  try { OUT = JSON.parse(text); } catch (e) { $("out-note").innerHTML = `<span class="warn">解析失败：${e.message}</span>`; return; }
+  if (!OUT.time || !OUT.Te) { $("out-note").innerHTML = `<span class="warn">这不像模型的输出文件（缺 time / Te）</span>`; OUT = null; return; }
+  OUT_TEXT = text; OUT_NAME = name || OUT_NAME;
+  for (const id of ["save-out", "save-slice", "save-gfile", "play", "scrub"]) $(id).disabled = false;
+  //: 一维通道表由**文件自己**带（`meta.profiles`）：模型加一条，这里不用改代码
+  try { PROFS = JSON.parse(OUT["meta.profiles"] || "[]").filter(([k]) => Array.isArray(OUT[k])); } catch { PROFS = []; }
+  try { PROV = JSON.parse(OUT["meta.provenance"] || "{}"); } catch { PROV = {}; }
+  //: ★★算这份结果的内核是哪一份：
+  //: 版本 · ABI · 构建时刻 · 归档 sha256 由模型写进 `meta.kernel_*`，这里原样显示，不猜。
+  {
+    const kv = OUT["meta.kernel_version"], abi = OUT["meta.kernel_abi"];
+    const el = $("kernel-note");
+    if (kv || abi) {
+      const built = OUT["meta.kernel_built"], sha = OUT["meta.kernel_sha256"];
+      el.hidden = false;
+      el.innerHTML = `算这份结果的内核：<b>fylite kernel ${kv || "?"}</b> · ABI <b>${abi || "?"}</b>`
+        + (built ? ` · 构建于 ${built}` : "")
+        + (sha ? ` · 归档 <code>${String(sha).slice(0, 12)}…</code>` : "");
+    } else { el.hidden = true; el.textContent = ""; }
+  }
+  try { PROV_NOTE = JSON.parse(OUT["meta.provenance_note"] || "{}"); } catch { PROV_NOTE = {}; }
+  PROF_ON = new Set(PROFS.map(([k]) => k).filter(k => ["q", "p_fus"].includes(k)));
+  PROF_RANGE = {};
+  for (const [k] of PROFS) {
+    let lo = Infinity, hi = -Infinity;
+    for (const row of OUT[k]) for (const v of row) { const x = num(v); if (Number.isFinite(x)) { if (x < lo) lo = x; if (x > hi) hi = x; } }
+    PROF_RANGE[k] = [Math.min(0, lo), hi > lo ? hi : lo + 1];
+  }
+  buildChips();
+  //: ★★一条**读数体检**：轴上 q 超出常识带就直说。isoflux 档每步重解位形，而 q / f 仍是
+  //: 工况那份、并不随新位形自洽（`README.md` 的 isoflux 一节记着这条）——实测同一
+  //: 时刻 check 档 q₀ ≈ 2.2、isoflux 档 ≈ 11.4。不拦着画，但要让读的人知道这数不能当平衡解读。
+  const q0 = num(((OUT.q || [])[0] || [])[0]);
+  const warn = $("prof-warn");
+  if (Number.isFinite(q0) && (q0 > 4 || q0 < 0.5)) {
+    warn.hidden = false;
+    warn.innerHTML = `<span class="warn">轴上 q = ${fmt(q0, 2)}</span>——不在常识带（0.5–4）。`
+      + `这多半是 isoflux 档：位形每步重解，而 q / f 不随新位形自洽（见 <code>README.md</code> 的 isoflux 一节）。`
+      + `图照画，但这条 q 不能当平衡解读。`;
+  } else { warn.hidden = true; warn.textContent = ""; }
+  $("viewer").hidden = false; $("drop").hidden = true;
+  $("out-note").textContent = `${OUT.time.length} 个时刻 · ${OUT.time[0].toFixed(2)} → ${OUT.time[OUT.time.length - 1].toFixed(2)} s · 剖面 ${OUT.Te[0].length} 点 · PF ${(OUT.pf_current?.[0] || []).length} 路`;
+  $("scrub").max = OUT.time.length - 1;
+  buildOutChips();
+  buildTraces();
+  drawPFWave();
+  setFrame(OUT.time.length - 1);
+}
+
+//: ★★相位芯片：一炮的时序梗概排成一行，点一下跳到那个时刻。
+//: 相位**取自输入侧算例的节点**（`nodes[].phase`）——输出文件里没有这一格，所以这里不猜：
+//: 时间段落在节点之外就直说没有。相邻节点相位相同的只留第一个。
+function outChipMarks() {
+  if (!OUT || !OUT.time.length) return [];
+  const t0 = OUT.time[0], t1 = OUT.time[OUT.time.length - 1], out = [];
+  (nodes || []).forEach(n => {
+    const t = +n.t;
+    if (!(t >= t0 - 1e-9 && t <= t1 + 1e-9)) return;
+    const ph = String(n.phase || "").split("（")[0].trim();
+    if (!ph) return;
+    if (!out.length || out[out.length - 1].ph !== ph) out.push({ t, ph });
+  });
+  return out;
+}
+function frameOfTime(t) {
+  let best = 0, gap = Infinity;
+  OUT.time.forEach((v, i) => { const d = Math.abs(v - t); if (d < gap) { gap = d; best = i; } });
+  return best;
+}
+function buildOutChips() {
+  const marks = outChipMarks();
+  const el = $("out-chips");
+  el.innerHTML = marks.length
+    ? marks.map(m => `<button type="button" data-t="${m.t}" aria-pressed="false">${m.ph} · ${m.t} s</button>`).join("")
+      + `<span class="note" style="align-self:center">相位来自输入侧算例节点</span>`
+    : `<span class="note">这一段时间在输入侧算例的节点之外，没有相位可标。</span>`;
+  el.querySelectorAll("button").forEach(b => b.addEventListener("click", () => setFrame(frameOfTime(+b.dataset.t))));
+}
+function markOutChips() {
+  const marks = outChipMarks();
+  if (!marks.length) return;
+  const t = OUT.time[cur];
+  let hit = -1;
+  marks.forEach((m, i) => { if (t >= m.t - 1e-9) hit = i; });
+  $("out-chips").querySelectorAll("button").forEach((b, i) => b.setAttribute("aria-pressed", String(i === hit)));
+}
+
+function buildTraces() {
+  $("traces").innerHTML = TRACES.map(([k, lab, s, u, cmp]) => {
+    const ys = (OUT[k] || []).map(v => num(v) / s);
+    if (!ys.length) return "";
+    //: 对照曲线（有才画）：与主曲线**共用一套刻度**，否则「贴不贴」是看不出来的
+    const zs = cmp ? (OUT[cmp] || []).map(v => num(v) / s) : [];
+    const all = [...ys, ...zs].filter(Number.isFinite);
+    const lo = Math.min(0, ...all), hi = Math.max(...all, lo + 1e-9);
+    const W = 300, H = 90, L = 34, R = 6, T = 6, B = 16;
+    const xo = i => L + (W - L - R) * (i / Math.max(1, ys.length - 1));
+    const yo = v => T + (H - T - B) * (1 - (v - lo) / (hi - lo));
+    const d = ys.map((v, i) => (Number.isFinite(v) ? (i ? "L" : "M") + xo(i).toFixed(1) + "," + yo(v).toFixed(1) : "")).join("");
+    return `<div class="chart"><div class="ct"><b>${lab}</b><span>${u}</span></div>
+      <svg viewBox="0 0 ${W} ${H}" data-k="${k}"><line x1="${L}" x2="${W - R}" y1="${yo(lo)}" y2="${yo(lo)}" stroke="var(--hair)"/>
+      <text x="${L - 4}" y="${yo(hi) + 4}" font-size="9" text-anchor="end" fill="var(--muted)">${fmt(hi)}</text>
+      <text x="${L - 4}" y="${yo(lo) + 4}" font-size="9" text-anchor="end" fill="var(--muted)">${fmt(lo)}</text>
+      <path d="${d}" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
+      ${zs.length ? `<path d="${zs.map((v, i) => (Number.isFinite(v) ? (i ? "L" : "M") + xo(i).toFixed(1) + "," + yo(v).toFixed(1) : "")).join("")}" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 3"/>` : ""}
+      <line class="cur" x1="0" x2="0" y1="${T}" y2="${H - B}" stroke="var(--ink)" stroke-width="1"/></svg>${provMark(k)}</div>`;
+  }).join("");
+  $("traces").querySelectorAll("svg").forEach(svg => svg.addEventListener("click", ev => {
+    const b = svg.getBoundingClientRect(), x = (ev.clientX - b.left) / b.width * 300;
+    setFrame(Math.round((x - 34) / (300 - 40) * (OUT.time.length - 1)));
+  }));
+}
+
+function setFrame(i) {
+  if (!OUT) return;
+  cur = Math.max(0, Math.min(OUT.time.length - 1, i));
+  $("scrub").value = cur;
+  $("clock").textContent = `t = ${OUT.time[cur].toFixed(2)} s`;
+  $("stats").innerHTML = TRACES.map(([k, lab, s, u, cmp]) => `<div class="stat"><span class="k">${lab}${u ? ` [${u}]` : ""}</span><span class="v">${fmt(num((OUT[k] || [])[cur]) / s)}${cmp && (OUT[cmp] || []).length ? ` / ${fmt(num(OUT[cmp][cur]) / s)}` : ""}</span></div>`).join("")
+    //: 剖面点数不再是输出的一格（它是**请求**，在输入名表里）——这里按剖面自己的长度报
+    + `<div class="stat"><span class="k">剖面点数 n_roh</span><span class="v">${(OUT.Te?.[cur] || []).length || "—"}</span></div>`;
+  $("traces").querySelectorAll("svg").forEach(svg => {
+    const x = 34 + (300 - 40) * (cur / Math.max(1, OUT.time.length - 1));
+    const l = svg.querySelector(".cur"); l.setAttribute("x1", x); l.setAttribute("x2", x);
+  });
+  drawCrossSection(); drawProfs(); markPFWave(); markOutChips();
+}
+
+// ---------------- 一维通道：芯片选择 + 小多图 ----------------
+function buildChips() {
+  //: ★温度与密度不在这一栏了：那两张图在上面的看图区常驻，
+  //: 这里只列 `meta.profiles` 给的其余通道。
+  $("prof-chips").innerHTML = PROFS.map(([k, lab, u]) =>
+    `<label><input type="checkbox" data-k="${k}" ${PROF_ON.has(k) ? "checked" : ""}> ${lab}<span class="note"> ${u}</span></label>`).join("");
+  $("prof-chips").querySelectorAll("input").forEach(inp => inp.addEventListener("change", () => {
+    if (inp.checked) PROF_ON.add(inp.dataset.k); else PROF_ON.delete(inp.dataset.k);
+    drawProfs();
+  }));
+}
+
+function drawProfs() {
+  const rho = (OUT.rho_tor_norm || [])[cur] || [];
+  //: ★温度与密度**常驻看图区**：各一格，温度那格两条（T_e · T_i），
+  //: 密度那格一条（n_e）；下面那一栏只画 `meta.profiles` 勾中的通道。
+  $("prof-t").innerHTML = tnChart("__t__");
+  $("prof-n").innerHTML = tnChart("__n__");
+  $("prof-t-prov").innerHTML = provMark("Te");
+  $("prof-n-prov").innerHTML = provMark("Ne");
+  const on = PROFS.filter(([k]) => PROF_ON.has(k));
+  $("profs").innerHTML = on.map(([k, lab, u]) => {
+    const ys = (OUT[k] || [])[cur] || [];
+    if (!ys.length) return "";
+    //: ★纵轴用**整炮**的范围，不是这一帧的——逐帧自适应会让播放时曲线原地跳动
+    const [lo, hi] = PROF_RANGE[k] || [0, 1];
+    const W = 340, H = 160, L = 52, R = 8, T = 10, B = 24;
+    const xo = r => L + (W - L - R) * r, yo = v => T + (H - T - B) * (1 - (v - lo) / ((hi - lo) || 1));
+    let g = "";
+    [0, 0.5, 1].forEach(f => { const v = lo + (hi - lo) * f, y = yo(v); g += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="var(--hair)"/><text x="${L - 5}" y="${y + 3.5}" font-size="10" text-anchor="end" fill="var(--muted)">${+v.toPrecision(3)}</text>`; });
+    [0, 0.5, 1].forEach(r => g += `<text x="${xo(r)}" y="${H - 7}" font-size="10" text-anchor="middle" fill="var(--muted)">${r}</text>`);
+    g += `<text x="${W - R}" y="${T + 9}" font-size="10" text-anchor="end" fill="var(--muted)">ρ_tor,N</text>`;
+    g += `<path d="${ys.map((v, i) => (i ? "L" : "M") + xo(rho[i] ?? i / (ys.length - 1)).toFixed(1) + "," + yo(num(v)).toFixed(1)).join("")}" fill="none" stroke="var(--accent)" stroke-width="2"/>`;
+    return `<div class="chart"><div class="ct"><b>${lab}</b><span>${u}</span></div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${lab}">${g}</svg>${provMark(k)}</div>`;
+  }).join("");
+}
+
+// ---------------- PF 线圈波形（所有线圈一张图） ----------------
+function pfColour(i, n) { return `hsl(${Math.round(360 * i / Math.max(1, n))} 55% 48%)`; }
+function drawPFWave() {
+  const rows = OUT.pf_current || [];
+  const m = Math.max(...rows.map(r => (r || []).length), 0);
+  const names = OUT.coil_names || COILS.map(c => c.name);
+  const W = 1040, H = 260, L = 56, R = 10, T = 10, B = 26;
+  if (!m) { $("pfwave").innerHTML = `<text x="${W / 2}" y="${H / 2}" font-size="13" text-anchor="middle" fill="var(--muted)">这份输出没有 PF 电流（check 档且输入未给）</text>`; $("pfwave-legend").innerHTML = ""; return; }
+  let top = 0;
+  rows.forEach(r => (r || []).forEach(v => { const x = Math.abs(num(v)) / 1e6; if (Number.isFinite(x)) top = Math.max(top, x); }));
+  top = top * 1.1 || 1;
+  const n = rows.length;
+  const xo = i => L + (W - L - R) * (i / Math.max(1, n - 1));
+  const yo = v => T + (H - T - B) * (1 - (v + top) / (2 * top));
+  let g = `<line x1="${L}" x2="${W - R}" y1="${yo(0)}" y2="${yo(0)}" stroke="var(--rule)"/>`;
+  [top, top / 2, 0, -top / 2, -top].forEach(v => g += `<text x="${L - 6}" y="${yo(v) + 3.5}" font-size="10" text-anchor="end" fill="var(--muted)">${fmt(v, 1)}</text>`);
+  [0, 0.25, 0.5, 0.75, 1].forEach(f => { const i = Math.round(f * (n - 1)); g += `<text x="${xo(i)}" y="${H - 8}" font-size="10" text-anchor="middle" fill="var(--muted)">${OUT.time[i].toFixed(0)} s</text>`; });
+  for (let c = 0; c < m; c++) {
+    let d = "";
+    rows.forEach((r, i) => { const v = num((r || [])[c]) / 1e6; if (Number.isFinite(v)) d += (d ? "L" : "M") + xo(i).toFixed(1) + "," + yo(v).toFixed(1); });
+    if (d) g += `<path d="${d}" fill="none" stroke="${pfColour(c, m)}" stroke-width="1.4" stroke-opacity="0.9"><title>${names[c] || c}</title></path>`;
+  }
+  g += `<line class="cur" x1="${L}" x2="${L}" y1="${T}" y2="${H - B}" stroke="var(--ink)" stroke-width="1"/>`;
+  $("pfwave").innerHTML = g;
+  $("pfwave-legend").innerHTML = Array.from({ length: m }, (_, c) => `<span style="color:${pfColour(c, m)}"><i></i>${names[c] || c}</span>`).join("");
+  $("pfwave-note").textContent = `${m} 路 · 纵轴 MA·turns · 横轴按时间片`;
+}
+function markPFWave() {
+  const svg = $("pfwave"), l = svg.querySelector(".cur");
+  if (!l || !OUT.time.length) return;
+  const W = 1040, L = 56, R = 10;
+  const x = L + (W - L - R) * (cur / Math.max(1, OUT.time.length - 1));
+  l.setAttribute("x1", x); l.setAttribute("x2", x);
+}
+
+//: marching squares：从 ψ_N 网格上取一条等值线，返回若干线段（不连接成环，画线即可）
+function isoSegments(psi, r, z, level) {
+  const segs = [];
+  const at = (i, j) => psi[i][j];
+  const ip = (a, b, va, vb) => a + (b - a) * ((level - va) / (vb - va || 1e-12));
+  for (let i = 0; i < psi.length - 1; i++) {
+    for (let j = 0; j < psi[0].length - 1; j++) {
+      const v = [at(i, j), at(i + 1, j), at(i + 1, j + 1), at(i, j + 1)];
+      if (!v.every(x => Number.isFinite(x))) continue;
+      let idx = 0;
+      v.forEach((x, k) => { if (x > level) idx |= (1 << k); });
+      if (idx === 0 || idx === 15) continue;
+      const R = [r[i], r[i + 1]], Z = [z[j], z[j + 1]];
+      const edge = k => {
+        if (k === 0) return [ip(R[0], R[1], v[0], v[1]), Z[0]];
+        if (k === 1) return [R[1], ip(Z[0], Z[1], v[1], v[2])];
+        if (k === 2) return [ip(R[0], R[1], v[3], v[2]), Z[1]];
+        return [R[0], ip(Z[0], Z[1], v[0], v[3])];
+      };
+      const table = [[], [[3, 0]], [[0, 1]], [[3, 1]], [[1, 2]], [[3, 0], [1, 2]], [[0, 2]], [[3, 2]],
+                     [[2, 3]], [[2, 0]], [[0, 1], [2, 3]], [[2, 1]], [[1, 3]], [[1, 0]], [[0, 3]], []];
+      for (const [a, b] of table[idx]) segs.push([edge(a), edge(b)]);
+    }
+  }
+  return segs;
+}
+
+function drawCrossSection() {
+  const svg = $("eqxs");
+  const i = cur;
+  //: 这张画线圈，所以框要把线圈也装进去——同样按内容算，别让四周空着
+  {
+    const seen = [];
+    (OUT["meta.limiter_r"] || D.limiter.r).forEach((r, k) => seen.push([r, (OUT["meta.limiter_z"] || D.limiter.z)[k]]));
+    COILS.forEach(c => c.rects.forEach(rc => { seen.push([rc.r - rc.w / 2, rc.z - rc.h / 2]); seen.push([rc.r + rc.w / 2, rc.z + rc.h / 2]); }));
+    const v = fitView(seen, 0.04);
+    svg.setAttribute("viewBox", `${v.r0.toFixed(2)} ${(-(v.z0 + v.h)).toFixed(2)} ${v.w.toFixed(2)} ${v.h.toFixed(2)}`);
+  }
+  const pidx = (OUT.psi_index || [])[i];
+  const poly = (r, z) => r.map((v, k) => `${v},${-z[k]}`).join(" ");
+  const lim = (OUT["meta.limiter_r"] && OUT["meta.limiter_r"].length)
+    ? { r: OUT["meta.limiter_r"], z: OUT["meta.limiter_z"] } : D.limiter;
+  let g = `<polygon points="${poly(lim.r, lim.z)}" fill="none" stroke="var(--wall)" stroke-width="0.06"/>`;
+  //: ★★线圈按**本时刻电流**着色：红正 / 蓝负，深浅按 |I| 与全炮最大值
+  //: 之比；到额定的描红边。没有电流列时退回原来的铜色轮廓——「没有数」与「电流为零」不同。
+  const pfNow = (OUT.pf_current || [])[i] || [];
+  let pfMax = 0;
+  (OUT.pf_current || []).forEach(r => (r || []).forEach(v => { const x = Math.abs(num(v)); if (Number.isFinite(x)) pfMax = Math.max(pfMax, x); }));
+  //: ★按**名字**对位，不靠下标：文件里的线圈顺序未必与页面自带的装置卡一致，
+  //: 而错位的后果是「颜色是别的线圈的」——一眼看不出来的那种错。
+  const colIdx = {};
+  (OUT.coil_names || []).forEach((n2, k) => { colIdx[n2] = k; });
+  COILS.forEach((c, ci) => {
+    const k = (OUT.coil_names && c.name in colIdx) ? colIdx[c.name] : ci;
+    const v = num(pfNow[k]);
+    const has = Number.isFinite(v) && pfMax > 0;
+    const frac = has ? Math.min(1, Math.abs(v) / pfMax) : 0;
+    const fill = has ? (v >= 0 ? "var(--pos)" : "var(--neg)") : "var(--copper)";
+    const atLimit = has && c.i_max ? Math.abs(v) / c.i_max > 0.98 : false;
+    c.rects.forEach(rc => {
+      g += `<rect x="${rc.r - rc.w / 2}" y="${-(rc.z + rc.h / 2)}" width="${rc.w}" height="${rc.h}" fill="${fill}" fill-opacity="${has ? (0.12 + 0.75 * frac).toFixed(2) : 0.16}" stroke="${atLimit ? "var(--warn)" : fill}" stroke-width="${atLimit ? 0.07 : 0.04}"><title>${c.name}: ${has ? (v / 1e6).toFixed(2) + " MA·turns" : "无电流数据"}</title></rect>`;
+    });
+  });
+  $("cbar-neg").textContent = pfMax ? `−${fmt(pfMax / 1e6, 1)}` : "−";
+  $("cbar-pos").textContent = pfMax ? `+${fmt(pfMax / 1e6, 1)}` : "+";
+  if (OUT.psi && pidx != null && pidx >= 0) {
+    const psi = OUT.psi[pidx], r = OUT.psi_r, z = OUT.psi_z;
+    const a = num((OUT.psi_axis || [])[i]), b = num((OUT.psi_bnd || [])[i]);
+    const span = (b - a) || 1;
+      const psin = psi.map(row => row.map(v => (num(v) - a) / span));
+    const draw = (lv, col, dash) => {
+      let d = "";
+      for (const [p1, p2] of isoSegments(psin, r, z, lv)) d += `M${p1[0].toFixed(3)},${(-p1[1]).toFixed(3)}L${p2[0].toFixed(3)},${(-p2[1]).toFixed(3)}`;
+      if (d) g += `<path d="${d}" fill="none" stroke="${col}" stroke-width="0.035"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`;
+    };
+    [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9].forEach((lv, k) => draw(lv, `var(--flux-${k + 1}, var(--accent))`, ""));
+    [1.05, 1.2, 1.4].forEach(lv => draw(lv, "var(--muted)", "0.12 0.1"));
+  }
+  const br = (OUT.bnd_r || [])[i], bz = (OUT.bnd_z || [])[i];
+  if (br && br.length) g += `<polygon points="${poly(br, bz)}" fill="none" stroke="var(--ink)" stroke-width="0.08"/>`;
+  const ar = num((OUT.axis_r || [])[i]), az = num((OUT.axis_z || [])[i]);
+  if (Number.isFinite(ar)) g += `<path d="M${ar - 0.3},${-az}H${ar + 0.3}M${ar},${-az - 0.3}V${-az + 0.3}" stroke="var(--ink)" stroke-width="0.07"/>`;
+  const xr = num((OUT.xpt_r || [])[i]), xz = num((OUT.xpt_z || [])[i]);
+  if (Number.isFinite(xr)) g += `<path d="M${xr - 0.25},${-xz - 0.25}L${xr + 0.25},${-xz + 0.25}M${xr - 0.25},${-xz + 0.25}L${xr + 0.25},${-xz - 0.25}" stroke="var(--ink)" stroke-width="0.08"/>`;
+  svg.innerHTML = g;
+  const div = num((OUT.diverted || [])[i]);
+  $("eq-note").textContent = (OUT.psi && pidx >= 0 ? `ψ 帧 ${pidx + 1}/${OUT.psi.length}` : "无 ψ") +
+    (Number.isFinite(div) ? (div >= 0.5 ? " · 偏滤器" : " · 限制器") : "");
+}
+
+//: 温度那格（T_e · T_i，keV）与密度那格（n_e，10¹⁹ m⁻³）分开画，
+//: 各用自己的纵轴，纵轴范围取**整炮**的最大值（逐帧自适应会让播放时曲线原地跳）。
+function tnChart(kind) {
+  const te = OUT.Te[cur], ti = OUT.Ti[cur], ne = OUT.Ne[cur];
+  const rho = (OUT.rho_tor_norm || [])[cur] || te.map((_, i) => i / (te.length - 1));
+  const W = 340, H = 160, L = 46, R = 8, T = 10, B = 24;
+  const isT = kind !== "__n__";
+  const top = isT ? Math.max(...OUT.Te.flat(), ...OUT.Ti.flat()) / 1e3 * 1.05
+                  : Math.max(...OUT.Ne.flat()) / 1e19 * 1.05;
+  const col = isT ? "var(--te)" : "var(--nel)";
+  const xo = r => L + (W - L - R) * r, yo = v => T + (H - T - B) * (1 - v / (top || 1));
+  let g = "";
+  [0, 0.5, 1].forEach(f => { const y = yo(top * f); g += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="var(--hair)"/>`
+    + `<text x="${L - 5}" y="${y + 3.5}" font-size="10" text-anchor="end" fill="var(--muted)">${fmt(top * f, 1)}</text>`; });
+  [0, 0.5, 1].forEach(r => g += `<text x="${xo(r)}" y="${H - 7}" font-size="10" text-anchor="middle" fill="var(--muted)">${r}</text>`);
+  g += `<text x="${W - R}" y="${T + 9}" font-size="10" text-anchor="end" fill="var(--muted)">ρ_tor,N</text>`;
+  const path = (ys, c) => `<path d="${ys.map((v, i) => (i ? "L" : "M") + xo(rho[i] ?? i / (ys.length - 1)).toFixed(1) + "," + yo(num(v)).toFixed(1)).join("")}" fill="none" stroke="${c}" stroke-width="2"/>`;
+  g += isT ? path(te.map(v => num(v) / 1e3), "var(--te)") + path(ti.map(v => num(v) / 1e3), "var(--ti)")
+           : path(ne.map(v => num(v) / 1e19), col);
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${isT ? "温度剖面" : "密度剖面"}">${g}</svg>`;
+}
+
+//: ★★**每张图标出这个量是谁算的**。
+//: 来路由输出文件的 `meta.provenance` 给（模型写的，不在页面里猜）；各条的口径挂在
+//: title 上，鼠标一停就看得见。
+const PROV_LABEL = { kernel: "内核", solver: "自由边界解", check: "几何比对", echo: "回显指令" };
+function provMark(key) {
+  const p = (PROV || {})[key];
+  if (!p) return "";
+  const note = (PROV_NOTE || {})[key];
+  return `<div class="note" style="margin-top:2px">来路：<b>${PROV_LABEL[p] || p}</b>`
+    + (note ? `<span title="${String(note).replace(/"/g, "&quot;")}"> · ${note.length > 46 ? note.slice(0, 46) + "…" : note}</span>` : "")
+    + `</div>`;
+}
+
+//: ★**撤掉「本时刻 PF 柱状图」**——线圈电流在截面上按颜色看（`drawCrossSection`），
+//: 随时间看那张「PF 线圈电流波形」（`drawPFWave`）。三处画同一件事，留两处就够。
+$("scrub").addEventListener("input", () => setFrame(+$("scrub").value));
+$("play").addEventListener("click", () => {
+  playing = !playing;
+  $("play").textContent = playing ? "❚❚ 暂停" : "▶ 播放";
+  const tick = () => { if (!playing || !OUT) return; setFrame(cur + 1 >= OUT.time.length ? 0 : cur + 1); setTimeout(tick, 80); };
+  if (playing) tick();
+});
+$("load-out").addEventListener("change", ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  const rd = new FileReader(); rd.onload = () => loadOutput(rd.result, f.name); rd.readAsText(f);
+});
+["dragover", "drop"].forEach(k => $("drop").addEventListener(k, ev => {
+  ev.preventDefault();
+  if (k === "drop" && ev.dataTransfer.files[0]) { const f = ev.dataTransfer.files[0]; const rd = new FileReader(); rd.onload = () => loadOutput(rd.result, f.name); rd.readAsText(f); }
+}));
+// ---------------- 导出 ----------------
+$("save-out").addEventListener("click", () => {
+  if (OUT_TEXT) download(OUT_NAME.replace(/\.json$/i, "") + ".json", OUT_TEXT);
+});
+
+//: 一个时间片 = 这一刻的全部量。按**列的形状**切：长度等于时刻数的列取第 i 项，
+//: 其余（`psi_r` · `coil_names` · `meta.*`）整份带上——切出来的文件仍然自洽。
+function sliceAt(i) {
+  const nt = OUT.time.length, o = { time: OUT.time[i] };
+  for (const [k, v] of Object.entries(OUT)) {
+    if (k === "time" || k === "psi" || k === "psi_index") continue;
+    if (k.startsWith("meta.")) { o[k] = v; continue; }
+    o[k] = (Array.isArray(v) && v.length === nt) ? v[i] : v;
+  }
+  const pi = (OUT.psi_index || [])[i];
+  if (OUT.psi && pi != null && pi >= 0) o.psi = OUT.psi[pi];
+  o["meta.slice"] = `第 ${i + 1} / ${nt} 个时刻 · t = ${OUT.time[i]} s`;
+  return o;
+}
+$("save-slice").addEventListener("click", () => {
+  if (!OUT) return;
+  download(`slice_t${OUT.time[cur].toFixed(2)}.json`, JSON.stringify(sliceAt(cur)));
+});
+
+//: ★★g-file（EFIT geqdsk）：**能从这份输出文件独立写出来**，因为模型把 R₀ / B₀ / 第一壁
+//: 写进了 `meta.*`，把 F(ψ) · 压强 · q · ψ_N 写成了逐片剖面，把指令电流回显在 `extra.ip_cmd`。
+//: 唯二是这里**算**出来的：p′ 与 FF′——对均匀 ψ 网格上的插值做中心差分（g-file 的定义），
+//: 不是另一份物理。★ψ 由输出文件的整匝 Wb（COCOS 17）换成 GEQDSK 的每弧度，见 `gfileText`。
+function fort(v) {
+  const x = Number.isFinite(v) ? v : 0;
+  let t = x.toExponential(9).toUpperCase();
+  t = t.replace(/E([+-])(\d)$/, "E$10$2");
+  if (x >= 0) t = " " + t;
+  return t.padStart(16);
+}
+function fortLines(arr) {
+  let out = "";
+  for (let i = 0; i < arr.length; i += 5) out += arr.slice(i, i + 5).map(fort).join("") + "\n";
+  return out;
+}
+function gfileText(i) {
+  const pi = (OUT.psi_index || [])[i];
+  if (!OUT.psi || pi == null || pi < 0) return null;
+  const psi = OUT.psi[pi], r = OUT.psi_r || [], z = OUT.psi_z || [];
+  const nw = r.length, nh = z.length;
+  if (!nw || !nh) return null;
+  //: ★★**GEQDSK 的 ψ 是每弧度**（Wb/rad），而本文件里的 ψ 是整匝 Wb（COCOS 17，见
+  //: `meta.psi_convention`）——两者差 2π。整匝的数写进 g-file，任何 EFIT 侧的读者算
+  //: B_p 与 q 都会差这个 2π，而文件格式里没有一格说得出自己在哪个规范，所以这里换。
+  //: 换的是**大小**：ψ 图与 simag / sibry 一并除以 2π，于是下面由它们差分出来的
+  //: p′ 与 FF′ 自动落在 Pa/(Wb/rad) 与 T²m²/(Wb/rad) 上；F · p · q 与规范无关，不动。
+  //: ★符号照原样：本文件的 ψ 向外增（simag < sibry），g-file 两种符号都在野外见得到，
+  //: 而 simag / sibry 就写在文件里，读者据此自己判——替读者猜一个符号不是换算。
+  const PER_RAD = 2 * Math.PI;
+  const simag = num((OUT.psi_axis || [])[i]) / PER_RAD, sibry = num((OUT.psi_bnd || [])[i]) / PER_RAD;
+  const rmaxis = num((OUT.axis_r || [])[i]), zmaxis = num((OUT.axis_z || [])[i]);
+  const rcentr = +OUT["meta.r0"] || rmaxis, bcentr = +OUT["meta.b0"] || 0;
+  const cur_ip = num((OUT["extra.ip_cmd"] || [])[i]);
+  const pn = (OUT.psi_norm || [])[i] || [];
+  const grid = Array.from({ length: nw }, (_, k) => k / (nw - 1));
+  const chan = (key, fallback = 0) => {
+    const row = (OUT[key] || [])[i];
+    return grid.map(x => (row && pn.length ? interp1(x, pn, row.map(num)) : fallback));
+  };
+  const fpol = chan("fpol", rcentr * bcentr), pres = chan("pressure"), qpsi = chan("q", 1);
+  const dpsi = (sibry - simag) / (nw - 1) || 1;
+  const d1 = ys => ys.map((_, k) => {
+    if (k === 0) return (ys[1] - ys[0]) / dpsi;
+    if (k === ys.length - 1) return (ys[k] - ys[k - 1]) / dpsi;
+    return (ys[k + 1] - ys[k - 1]) / (2 * dpsi);
+  });
+  const pprime = d1(pres), fprime = d1(fpol), ffprim = fpol.map((f, k) => f * fprime[k]);
+  //: psirz 按 g-file 的次序：nh 行，每行 nw 个（R 变得快）；本文件里 psi[ri][zi]
+  const psirz = [];
+  for (let j = 0; j < nh; j++) for (let k = 0; k < nw; k++) psirz.push(num(psi[k]?.[j]) / PER_RAD);
+  const br = (OUT.bnd_r || [])[i] || [], bz = (OUT.bnd_z || [])[i] || [];
+  const lr = (OUT["meta.limiter_r"] && OUT["meta.limiter_r"].length) ? OUT["meta.limiter_r"] : D.limiter.r;
+  const lz = (OUT["meta.limiter_z"] && OUT["meta.limiter_z"].length) ? OUT["meta.limiter_z"] : D.limiter.z;
+  const i4 = n => String(n).padStart(4);
+  let out = `  fylite studio  t=${OUT.time[i].toFixed(2)}s`.padEnd(48) + i4(3) + i4(nw) + i4(nh) + "\n";
+  out += fortLines([r[nw - 1] - r[0], z[nh - 1] - z[0], rcentr, r[0], (z[0] + z[nh - 1]) / 2]);
+  out += fortLines([rmaxis, zmaxis, simag, sibry, bcentr]);
+  out += fortLines([cur_ip, simag, 0, rmaxis, 0]);
+  out += fortLines([zmaxis, 0, sibry, 0, 0]);
+  out += fortLines(fpol) + fortLines(pres) + fortLines(ffprim) + fortLines(pprime);
+  out += fortLines(psirz) + fortLines(qpsi);
+  out += i4(br.length) + i4(lr.length) + "\n";
+  const pairs = a => { const v = []; a.forEach(([x, y]) => { v.push(x, y); }); return v; };
+  out += fortLines(pairs(br.map((x, k) => [x, bz[k]])));
+  out += fortLines(pairs(lr.map((x, k) => [x, lz[k]])));
+  return out;
+}
+$("save-gfile").addEventListener("click", () => {
+  if (!OUT) return;
+  const t = gfileText(cur);
+  if (!t) { $("out-note").innerHTML = `<span class="warn">这一片没有二维 ψ，写不出 g-file（跑模型时别关 ψ）。</span>`; return; }
+  download(`g_fylite_t${OUT.time[cur].toFixed(2)}.geqdsk`, t, "text/plain");
+});
+
+//: ★没有内置演示输出（见文件抬头）：输出页开着投放区，等一份 JSON 拖进来或选进来。
+</script>

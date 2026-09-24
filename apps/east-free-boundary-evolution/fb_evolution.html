@@ -1,0 +1,1410 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EAST 自由边界演化</title>
+<meta name="description" content="读 fb_evolution.py 的结果 JSON：逐步的自由边界平衡、被动丝电流与磁通、各次 run 的叠加与比较、t0 的初始平衡校验。">
+<style>
+:root {
+  --paper: #F3F4EF; --sheet: #FBFBF8; --ink: #17212B; --ink2: #475463; --muted: #7A8592;
+  --rule: #DADDD4; --hair: rgba(23, 33, 43, 0.08); --accent: #0E6E68; --accent-soft: #D7EAE7;
+  --wall: #5B6570; --warn: #A33A2E; --pos: #C0522B; --neg: #2C6BA8; --ok: #2F7D4A;
+  --tM: #3A4654; --tK: #2F6DB5; --tP: #C0522B; --gold: #A07A12;
+  --rA: #0E6E68; --rB: #8A4FB0;
+  --flux: #78B9B1; --zebra: rgba(23, 33, 43, 0.028); --lift: 0 1px 2px rgba(23, 33, 43, 0.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #11171D; --sheet: #172028; --ink: #E6EAEE; --ink2: #B3BDC7; --muted: #7F8B97;
+    --rule: #2A3540; --hair: rgba(230, 234, 238, 0.08); --accent: #4FB8AE; --accent-soft: #1C3634;
+    --wall: #9AA5B0; --warn: #EE8A7E; --pos: #F08A5B; --neg: #6FA8E0; --ok: #6BCB85;
+    --tM: #C5CED6; --tK: #7DB3F0; --tP: #F08A5B; --gold: #D8B24A;
+    --rA: #4FB8AE; --rB: #C39BE0;
+    --flux: #38766B; --zebra: rgba(230, 234, 238, 0.03); --lift: 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #11171D; --sheet: #172028; --ink: #E6EAEE; --ink2: #B3BDC7; --muted: #7F8B97;
+  --rule: #2A3540; --hair: rgba(230, 234, 238, 0.08); --accent: #4FB8AE; --accent-soft: #1C3634;
+  --wall: #9AA5B0; --warn: #EE8A7E; --pos: #F08A5B; --neg: #6FA8E0; --ok: #6BCB85;
+  --tM: #C5CED6; --tK: #7DB3F0; --tP: #F08A5B; --gold: #D8B24A;
+  --rA: #4FB8AE; --rB: #C39BE0;
+  --flux: #38766B; --zebra: rgba(230, 234, 238, 0.03); --lift: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink);
+  font: 14px/1.6 "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 20px 16px 56px; }
+header { display: grid; gap: 6px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
+.eyebrow { font: 500 12px/1.3 ui-monospace, "SFMono-Regular", Menlo, monospace; letter-spacing: .08em; color: var(--accent); }
+h1 { font-size: clamp(20px, 3vw, 28px); line-height: 1.2; margin: 0; font-weight: 600; }
+p.lede { color: var(--ink2); margin: 0; max-width: 80ch; }
+.banner { border-left: 3px solid var(--warn); background: var(--sheet); padding: 6px 12px; color: var(--ink2); font-size: 13px; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
+button, .file { font: inherit; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink);
+  border-radius: 999px; padding: 4px 14px; cursor: pointer; }
+button:hover, .file:hover { border-color: var(--accent); }
+button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+button:disabled { opacity: .45; cursor: default; }
+button:focus-visible, .file:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.sm { padding: 1px 10px; font-size: 12px; }
+.file input { display: none; }
+.spacer { flex: 1; }
+.grid { display: grid; gap: 14px; }
+.cols { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 14px; }
+.cols2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.cols3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 14px; }
+@media (max-width: 900px) { .cols, .cols2, .cols3 { grid-template-columns: minmax(0, 1fr); } }
+input[type="range"] { flex: 1; min-width: 160px; accent-color: var(--accent); }
+.card { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; box-shadow: var(--lift); min-width: 0; }
+.card h2 { font-size: 16px; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--hair);
+  display: flex; justify-content: space-between; gap: 8px; align-items: baseline; font-weight: 600; }
+.card h2 small { font-weight: 400; color: var(--muted); font-size: 12px; }
+.card h3 { font-size: 13px; margin: 12px 0 4px; color: var(--ink2); font-weight: 600; }
+.cols3 h3 { margin-top: 4px; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 4px 8px; text-align: right; border-bottom: 1px solid var(--hair); white-space: nowrap; }
+th:first-child, td:first-child, td.l, th.l { text-align: left; }
+th { color: var(--muted); font-weight: 500; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+.num { font-variant-numeric: tabular-nums; font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; margin-right: 6px; }
+.tag { display: inline-block; border: 1px solid var(--rule); border-radius: 4px; padding: 0 6px; font-size: 12px; color: var(--ink2); margin: 1px 2px; }
+.warn { color: var(--warn); }
+.muted { color: var(--muted); }
+.note { color: var(--ink2); font-size: 13px; margin: 6px 0 0; }
+svg { width: 100%; height: auto; display: block; }
+svg text { fill: var(--ink2); font: 11px ui-monospace, "SFMono-Regular", Menlo, monospace; }
+svg .ax { stroke: var(--rule); stroke-width: 1; fill: none; }
+svg .grid { stroke: var(--hair); stroke-width: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--ink2); margin-top: 4px; align-items: center; }
+.legend .ln { display: inline-block; width: 22px; height: 0; border-top: 2px solid; vertical-align: 3px; margin-right: 5px; }
+.legend .ln.d { border-top-style: dashed; }
+.empty { border: 2px dashed var(--rule); border-radius: 10px; padding: 28px; text-align: center; color: var(--ink2); }
+.empty code, .card code { font-size: 12px; background: var(--zebra); padding: 1px 4px; border-radius: 3px; }
+ul.plain { margin: 4px 0; padding-left: 18px; color: var(--ink2); font-size: 13px; }
+footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
+/* 光标叠层：曲线画一次，换步只重画这一根竖线 */
+.plot { position: relative; }
+.plot > .cur { position: absolute; left: 0; top: 0; width: 100%; pointer-events: none; }
+.xs { max-width: 440px; margin: 0 auto; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 12px; }
+.runs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0; }
+.runs .lab { color: var(--muted); font-size: 12px; min-width: 3em; }
+/* ---- 两个页签：原理与过程 · 结果 ---- */
+.tabs { display: flex; gap: 6px; margin: 14px 0 0; }
+.tabs button { padding: 5px 18px; }
+[hidden] { display: none !important; }
+/* ---- 原理页 ---- */
+.doc { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 24px; margin-top: 16px; }
+@media (max-width: 900px) { .doc { grid-template-columns: minmax(0, 1fr); } .doc nav { position: static; } }
+.doc nav { position: sticky; top: 12px; align-self: start; font-size: 13px; }
+.doc nav a { display: block; color: var(--ink2); text-decoration: none; padding: 3px 0 3px 10px; border-left: 2px solid var(--rule); }
+.doc nav a:hover { color: var(--accent); border-left-color: var(--accent); }
+.doc article { max-width: 78ch; font-size: 15px; line-height: 1.8; min-width: 0; }
+.doc h2 { font-size: 20px; margin: 30px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); font-weight: 600; }
+.doc h2:first-child { margin-top: 0; }
+.doc h3 { font-size: 16px; margin: 20px 0 4px; font-weight: 600; }
+.doc p { margin: 8px 0; }
+.doc .eq { font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", "Times New Roman", serif; font-size: 17px;
+  text-align: center; margin: 12px 0; padding: 8px 12px; background: var(--sheet); border: 1px solid var(--hair); border-radius: 6px; overflow-x: auto; }
+.doc .eq .n { float: right; color: var(--muted); font-size: 13px; font-family: ui-monospace, monospace; }
+.doc var { font-family: "Cambria Math", "STIX Two Math", "Times New Roman", serif; font-style: italic; }
+.doc .key { border-left: 3px solid var(--accent); background: var(--sheet); padding: 8px 14px; margin: 12px 0; }
+.doc .caveat { border-left: 3px solid var(--warn); background: var(--sheet); padding: 8px 14px; margin: 12px 0; }
+.doc ol, .doc ul { padding-left: 22px; margin: 6px 0; }
+.doc li { margin: 3px 0; }
+.doc table { font-size: 13px; margin: 8px 0; }
+.doc td, .doc th { white-space: normal; text-align: left; vertical-align: top; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">EAST · 自由边界平衡演化 · PF / IC 电流给定 · 被动结构电流给定或感应自洽</div>
+  <h1 id="title">自由边界演化结果</h1>
+  <p class="lede" id="lede">导入 <code>fb_evolution.py</code> 的输出——<code>run</code> 的逐步演化（可以一次拖进几份，两份叠加对比）、<code>initial</code> 的 t<sub>0</sub> 初始平衡校验、<code>compare</code> 的各次 run 之差。另收三份辅助文件：<code>geometry</code> 写的 <code>geometry.json</code>（装置事实里的 PF / IC 线圈与限制器）、<code>prepare</code> 写的 <code>case.json</code>（g-file 边界）、<code>wall</code> 写的 <code>wall.json</code>（丝回路的 L/R 时间与轮廓）。</p>
+  <div class="banner" id="banner">这是模型的演化，不是测量。线圈电流是实测回放，竖直位置由一对虚拟线圈钉住——它的电流是模型与实际之间的缺口，不是控制量。</div>
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="tab-doc" aria-pressed="true">原理与过程</button>
+    <button type="button" role="tab" id="tab-res" aria-pressed="false">结果</button>
+  </div>
+</header>
+
+<div id="docview">
+<div class="doc">
+<nav aria-label="目录">
+  <a href="#d-case">一 · 算例与要回答的问题</a>
+  <a href="#d-gs">二 · 自由边界平衡</a>
+  <a href="#d-circuit">三 · 被动丝的回路方程</a>
+  <a href="#d-pair">四 · 竖直位置：虚拟线圈对</a>
+  <a href="#d-profile">五 · 剖面随时间怎么变</a>
+  <a href="#d-ruler">六 · 同一把尺</a>
+  <a href="#d-map">七 · 线圈与被动丝的映射</a>
+  <a href="#d-page">八 · 本页怎么读</a>
+  <a href="#d-limits">九 · 局限 · 本页画不出的东西</a>
+</nav>
+<article>
+
+<h2 id="d-case">一 · 算例与要回答的问题</h2>
+<p>给一份 t<sub>0</sub> 时刻的初始平衡（G-EQDSK，附 A-EQDSK 更好）、此后各时刻的等离子体电流 <var>I</var><sub>p</sub>(<var>t</var>) 与 14 个 PF 线圈、2 个快控线圈（IC1、IC2）的实测单匝电流，
+按时间推进<b>自由边界平衡</b>；再把一组点状电流源（真空室、被动板等被动结构，只给了坐标与电阻）当成环向电流丝放进来，算它们对位形演化的影响，并报告<b>每根丝处的极向磁通</b>。</p>
+<p>数据说明里说被动结构电流是「给定」的输入，但数据里<b>没有</b>被动电流的时间序列——只有位置与电阻。所以应用三种都做（<code>--passive</code>）：</p>
+<table>
+<thead><tr><th>模式</th><th>被动丝电流</th><th>用途</th></tr></thead>
+<tbody>
+<tr><td><code>zero</code></td><td>恒为零（给定）</td><td>「没有被动电流」的基准；丝仍在，报告各丝处的磁通</td></tr>
+<tr><td><code>prescribed</code></td><td>由 <code>--passive-file</code> 给定的时间序列</td><td>调用方有被动电流时用；把 <code>induced</code> 的丝电流当给定回放，应逐步复现 <code>induced</code></td></tr>
+<tr><td><code>induced</code></td><td>回路方程自洽算出</td><td>数据里有电阻、没有电流时唯一有物理依据的做法</td></tr>
+</tbody></table>
+<p>一次 <code>run</code> 的输出里每一步都有：解出的 <var>I</var><sub>p</sub>、磁轴、电流中心 <var>Z</var><sub>c</sub>、ψ<sub>axis</sub> 与 ψ<sub>bnd</sub>、边界（最外闭合磁面）与它是限制器还是 X 点定的、<var>q</var>、<var>l</var><sub>i</sub>、β<sub>p</sub>、
+虚拟线圈对的电流，以及每根丝的电流与三种磁通。ψ(<var>R</var>, <var>Z</var>) 的图只留了<b>最后一步</b>（<code>psi_last_Wb</code>；逐步的图由 <code>--gfile-dir</code> 写成 G-EQDSK，不在 JSON 里）。</p>
+
+<h2 id="d-gs">二 · 自由边界平衡</h2>
+<p>每个时刻解 Grad–Shafranov 方程</p>
+<div class="eq">Δ<sup>*</sup>ψ = −μ<sub>0</sub> <var>R</var> <var>j</var><sub>φ</sub> ，　<var>j</var><sub>φ</sub> = λ ( <var>R</var> <var>p</var>′(ψ<sub>N</sub>) + <var>FF</var>′(ψ<sub>N</sub>) / (μ<sub>0</sub> <var>R</var>) ) <span class="n">(1)</span></div>
+<p>λ 每一轮由 ∫ <var>j</var><sub>φ</sub> d<var>A</var> = <var>I</var><sub>p</sub>(<var>t</var>) 定。ψ 在计算盒上 = 等离子体电流的磁通（盒边界由自由空间格林函数给）+ 外部导体的磁通</p>
+<div class="eq">ψ<sub>ext</sub>(<var>R</var>, <var>Z</var>) = Σ<sub><var>c</var></sub> <var>G</var><sub><var>c</var></sub>(<var>R</var>, <var>Z</var>) <var>I</var><sub><var>c</var></sub> + Σ<sub><var>k</var></sub> <var>G</var><sub><var>k</var></sub>(<var>R</var>, <var>Z</var>) <var>I</var><sub><var>k</var></sub> <span class="n">(2)</span></div>
+<p><var>c</var> 走线圈通道（安匝，按通道的元素权重摊到各线圈元素，元素再分成 4×4 根细丝取格林函数平均），<var>k</var> 走被动丝。边界格子按磁通所占份额带电流（内核的「边规则」），
+于是逐步差分的等离子体磁通没有网格量化的抖动。每一步的解有三种状态（<code>gs_state</code>）：2 = 收敛；1 = <b>定住</b>（残差停在一个由掩膜量化抖动定的地板上，是稳态读数，不是达到了 tol）；0 = 都不是。</p>
+
+<h2 id="d-circuit">三 · 被动丝的回路方程（<code>induced</code>）</h2>
+<p>每根丝是一个独立的环向回路：</p>
+<div class="eq"><var>R</var><sub><var>k</var></sub> <var>I</var><sub><var>k</var></sub> + dΨ<sub><var>k</var></sub>/d<var>t</var> = 0 ，
+Ψ<sub><var>k</var></sub> = Σ<sub><var>j</var>∈丝</sub> <var>M</var><sub><var>kj</var></sub> <var>I</var><sub><var>j</var></sub> + Σ<sub><var>c</var>∈线圈</sub> <var>M</var><sub><var>kc</var></sub> <var>I</var><sub><var>c</var></sub> + Ψ<sup>p</sup><sub><var>k</var></sub> <span class="n">(3)</span></div>
+<p><var>M</var> 是丝与丝、丝与线圈元素之间的互感（各自截面分成 8×8 根细丝平均；对角是自感），Ψ<sup>p</sup><sub><var>k</var></sub> 是等离子体电流在丝 <var>k</var> 处的磁通——
+与构造 ψ<sub>ext</sub> 的<b>同一套</b>格林响应反过来读（互易）。时间上用隐式欧拉：</p>
+<div class="eq">( <var>M</var><sub>vv</sub>/Δ<var>t</var> + <var>R</var> ) <var>I</var><sup><var>n</var>+1</sup> = (<var>M</var><sub>vv</sub>/Δ<var>t</var>) <var>I</var><sup><var>n</var></sup>
+ − <var>M</var><sub>vc</sub> (<var>I</var><sub><var>c</var></sub><sup><var>n</var>+1</sup> − <var>I</var><sub><var>c</var></sub><sup><var>n</var></sup>)/Δ<var>t</var> − (Ψ<sup>p,<var>n</var>+1</sup> − Ψ<sup>p,<var>n</var></sup>)/Δ<var>t</var> <span class="n">(4)</span></div>
+<p>Ψ<sup>p,<var>n</var>+1</sup> 取决于这一步的平衡，而平衡又取决于丝电流：内核在<b>同一次</b>自由边界迭代里每一轮都重算一次回路（「内耦合」），所以壁在等离子体找平衡的过程中就回应它的移动。
+线圈通道是电流驱动（给定），它们的电阻不进方程。t<sub>0</sub> 的丝电流（<code>--passive-init</code>）要么取零，要么取 <code>ramp</code>：匀速变化下的稳态解 <var>I</var><sub><var>k</var></sub> = −Ψ̇<sub><var>k</var></sub>/<var>R</var><sub><var>k</var></sub>；从零起步会多出一段约 3τ<sub>1</sub> 的暂态。</p>
+<p>结果里每根丝报三种磁通（本页「被动丝」卡）：</p>
+<div class="eq">Ψ<sup>tot</sup><sub><var>k</var></sub> = Σ<sub><var>j</var></sub> <var>M</var><sub><var>kj</var></sub> <var>I</var><sub><var>j</var></sub> + Ψ<sup>p</sup><sub><var>k</var></sub> ，
+Ψ<sup>ext</sup><sub><var>k</var></sub> = Ψ<sup>tot</sup><sub><var>k</var></sub> − <var>M</var><sub><var>kk</var></sub> <var>I</var><sub><var>k</var></sub> ，　Ψ<sup>p</sup><sub><var>k</var></sub> <span class="n">(5)</span></div>
+<p>Σ 里的 <var>j</var> 走全部导体（线圈通道与丝）；单位 Wb（丝截面平均的磁链）。<code>psi_gfile_Wb_per_rad</code> = σ Ψ<sup>tot</sup><sub><var>k</var></sub>/2π，σ = ±1 取成与输入 g-file 同一符号约定——同一条量换尺，本页不另画。</p>
+
+<h2 id="d-pair">四 · 竖直位置：虚拟线圈对</h2>
+<p>实测线圈电流的<b>回放</b>没有竖直控制：真实的竖直控制就在实测的快控线圈电流里，但它是对真实等离子体调的，对模型里的等离子体只是一个固定的外场。于是不钉位置时，
+自由边界迭代在这组电流自己的（竖直不稳定的）平衡附近上下跳、不收敛；多个壁时间之后等离子体会在模型里漂向真空室。</p>
+<p>应用用内核的<b>虚拟竖直线圈对</b>（盒外一对反向圆环）把电流中心 <var>Z</var><sub>c</sub> 钉在 <var>Z</var><sub>anchor</sub>（比例保持）：</p>
+<div class="eq"><var>I</var><sub>fb</sub> = −<var>g</var> |<var>I</var><sub>p</sub>| (<var>Z</var><sub>c</sub> − <var>Z</var><sub>anchor</sub>) ，　<var>g</var> = 8 <span class="n">(6)</span></div>
+<p>缺省的 <var>Z</var><sub>anchor</sub> 是 t<sub>0</sub> 处<b>线圈对不出力</b>的高度（对 <var>Z</var><sub>anchor</sub> 二分 <var>I</var><sub>fb</sub> = 0），即 t<sub>0</sub> 的平衡是这组电流自己的平衡；
+之后线圈对的电流就是「给定电流在这个高度留下的竖直力缺口」。结果里报成两样：<var>I</var><sub>fb</sub>/<var>I</var><sub>p</sub>（<code>fb_amp / ip</code>），与线圈对在磁轴处补的径向场 <var>B</var><sub><var>R</var>,fb</sub>（<code>pair_br_at_axis_T</code>）。</p>
+<div class="caveat">线圈对的电流<b>是结果的一部分</b>：读作「给定电流与模型之间的竖直力缺口」。它大（门的说明里写着有多少步超过 <var>I</var><sub>p</sub> 的 1 %），那些步是「电流 + 线圈对」的平衡，
+不是这组电流单独的平衡——线圈电流测量、线圈与壁的几何、剖面假设、t<sub>0</sub> 的被动电流都可能是原因。</div>
+
+<h2 id="d-profile">五 · 剖面随时间怎么变（假设）</h2>
+<p><code>--profile fixed</code>（缺省）：<var>p</var>′(ψ<sub>N</sub>) 与 <var>FF</var>′(ψ<sub>N</sub>) 的<b>形状</b>取初始 g-file、整段不变，幅度每步按 <var>I</var><sub>p</sub>(<var>t</var>) 重定——数据里没有剖面演化的任何信息，
+这是唯一不引入额外输入的做法；β<sub>p</sub>、<var>l</var><sub>i</sub> 于是只随几何变。</p>
+<p><code>--profile efit-trend</code>：每 <code>--segment</code> 秒一段，段首重定形状</p>
+<div class="eq"><var>p</var>′ → <var>h</var> <var>p</var>′<sub>g</sub> ，　<var>FF</var>′ → κ <var>h</var> <var>FF</var>′<sub>g</sub> ，　<var>h</var> = <var>e</var><sup>γ(1 − ψ<sub>N</sub>)</sup> <span class="n">(7)</span></div>
+<p>使同尺 β<sub>p</sub>、<var>l</var><sub>i</sub>(1) 等于 t<sub>0</sub> 的 g-file 值加上 magdata 的 EFIT 迹相对 t<sub>0</sub> 的<b>变化量</b>。EFIT 迹是 EFIT 的结果，不是测量；段首形状跳变产生的感应电动势不进回路方程。
+本页在 <var>l</var><sub>i</sub>、β<sub>p</sub> 图上用竖虚线标出各段的起点。</p>
+
+<h2 id="d-ruler">六 · 同一把尺</h2>
+<p>β<sub>p</sub>、<var>l</var><sub>i</sub>、<var>W</var>、<var>V</var> 对任何一份平衡（本应用的、输入 g-file 的）都用同一段积分量：</p>
+<div class="eq">β<sub>p</sub> = 2μ<sub>0</sub>⟨<var>p</var>⟩<sub><var>V</var></sub> / <var>B̄</var><sub>pa</sub><sup>2</sup> ，　<var>l</var><sub>i</sub>(1) = ⟨<var>B</var><sub>p</sub><sup>2</sup>⟩<sub><var>V</var></sub> / <var>B̄</var><sub>pa</sub><sup>2</sup> ，
+<var>l</var><sub>i</sub>(3) = 2∫<var>B</var><sub>p</sub><sup>2</sup>d<var>V</var> / (μ<sub>0</sub><sup>2</sup> <var>I</var><sub>p</sub><sup>2</sup> <var>R</var><sub>geo</sub>) ，　<var>B̄</var><sub>pa</sub> = ∮<var>B</var><sub>p</sub>d<var>l</var> / ∮d<var>l</var> <span class="n">(8)</span></div>
+<p><var>B</var><sub>p</sub> = |∇ψ|/<var>R</var>。<var>q</var>、边界、形状取自内核 <code>code/summary</code>（<var>F</var> 的边值取输入 g-file 的 <code>bcentr·rcentr</code>，即假定环向场线圈电流不变）。
+magdata 的 <code>li</code>、<code>betap</code> 是 EFIT 迹（参考），<code>compare</code> 拿 <code>li</code> 对 <var>l</var><sub>i</sub>(1)——本页照这个配对画。</p>
+
+<h2 id="d-map">七 · 线圈与被动丝的映射</h2>
+<p><b>PF</b>：装置事实里的 12 个 PF 通道（PF7+9、PF8+10 各是一对串联线圈）。通道的安匝</p>
+<div class="eq"><var>A</var><sub><var>c</var></sub> = Σ<sub><var>j</var>∈<var>c</var></sub> <var>N</var><sub><var>j</var></sub> <var>I</var><sub>coil(<var>j</var>)</sub> <span class="n">(9)</span></div>
+<p><var>N</var><sub><var>j</var></sub> 是元素匝数，<var>I</var> 是 magdata 该线圈那一列的单匝电流。<b>IC</b>：IC1 / IC2 各接成一个单元素通道（安匝 = 匝数 × 单匝电流），几何取装置事实，<code>--ic-rz</code> 可改。
+本页「线圈通道」卡画的就是这 14 个通道的安匝。<b>线圈与限制器的几何取装置事实</b>（这一炮、这条测量链解析出的装置文档，与交给内核的是同一份）：run / initial / case 的输出里是 <code>geometry</code> 块；更早的输出没有这一块，用 <code>fb_evolution.py geometry</code> 单独写一份 <code>geometry.json</code> 一起拖入。截面上 PF 线圈画成 <var>dR</var> × <var>dZ</var> 的矩形（按这一步所属通道的安匝着色），IC 线圈另画，位置取<b>这一次实际用的</b>（装置事实或 <code>--ic-rz</code>）。</p>
+<p><b>被动丝</b>：按文件次序把点串成轮廓（相邻间距大于 <code>--contour-gap</code> 就断开，首尾够近的轮廓闭合）。每根丝是一条沿壁的平行四边形截面，厚</p>
+<div class="eq"><var>t</var><sub><var>k</var></sub> = 2π<var>R</var><sub><var>k</var></sub> ρ / (𝓡<sub><var>k</var></sub> ℓ<sub><var>k</var></sub>) <span class="n">(10)</span></div>
+<p>𝓡<sub><var>k</var></sub> 是 <code>VVres</code> 的第 <var>k</var> 个值，ℓ<sub><var>k</var></sub> 是到前后两丝距离之半的和；于是内核的元件电阻<b>逐丝恰好等于</b> 𝓡<sub><var>k</var></sub>（<code>wall</code> 命令复核这一条），
+ρ 只决定截面的形状、进自感的对数项。本页按轮廓把丝连起来画，并在被动丝的图上标出轮廓的分界。</p>
+
+<h2 id="d-page">八 · 本页怎么读</h2>
+<h3>文件</h3>
+<ul>
+  <li>点「导入结果 JSON」（可多选）或把几份文件一起拖进页面。按 <code>@type</code> 分：<code>fylite:EastFreeBoundaryEvolution</code>（<code>run</code>）→ 演化页；<code>fylite:EastFreeBoundaryInitial</code>（<code>initial</code>）→ 初始态页；
+    <code>fylite:EastFreeBoundaryComparison</code>（<code>compare</code>）→ 比较页。辅助：<code>fylite:EastFreeBoundaryGeometry</code>（<code>geometry.json</code>，装置事实里的 PF / IC 线圈与限制器）；<code>fylite:EastFreeBoundaryCase</code>（<code>in/case.json</code>）只取限制器、g-file 边界与轮廓断开距离；
+    <code>wall.json</code> 没有 <code>@type</code>，按形状认（有 <code>tau_s</code> 与 <code>contours</code>）。别的一律按名拒收。</li>
+  <li>文件只在你的浏览器里读，不上传。一份 run 约 8 MB：只解析一次，逐步要用的量在载入时算好。</li>
+</ul>
+<h3>演化页</h3>
+<ul>
+  <li><b>步</b>：滑条、◀ ▶、键盘 ← →（Shift 一次 10 步，Home / End 到两端），或点任一张时间迹跳到那一时刻；「播放」按步走。换步只重画截面、被动丝两张图与各图的时间光标，曲线本身不重画。</li>
+  <li><b>截面</b>（等比例，量程含线圈）：PF 线圈（按所属通道这一步的安匝着色）、IC 线圈、限制器（装置事实；旧文件从 <code>geometry.json</code> 或 <code>case.json</code> 取）、计算盒（虚线框）、158 根被动丝按轮廓连起来、每根按这一步的电流着色（发散色标，零 = 底色，量程是整段的最大 |<var>I</var>|，
+    所以颜色在各步之间可比）、这一步的边界与之前的边界淡迹、磁轴与它整段的轨迹、X 点。ψ 等值线<b>只在最后一步</b>画（结果只留了最后一步的 ψ 图）。</li>
+  <li><b>时间迹</b>：<var>I</var><sub>p</sub> 对目标、磁轴 <var>R</var> 与 <var>Z</var>、<var>Z</var><sub>c</sub> 对 <var>Z</var><sub>anchor</sub>、<var>I</var><sub>fb</sub>/<var>I</var><sub>p</sub> 与 <var>B</var><sub><var>R</var>,fb</sub>（建模缺口）、丝电流之和与最大 |<var>I</var><sub><var>k</var></sub>|、
+    GS 残差与迭代数、<var>l</var><sub>i</sub>(1)、β<sub>p</sub> 对 EFIT 迹、<var>q</var><sub>95</sub> 与 <var>q</var><sub>0</sub>；限制器位形的时段涂浅灰。</li>
+  <li><b>被动丝</b>：这一步每根丝的电流与三种磁通（横轴 = 丝序号，轮廓分界标出）；时间 × 丝的电流热图（按时间降采样到至多 160 列、颜色分 6 档）。</li>
+  <li><b>叠加</b>：载入两份以上 run 时，「主」与「叠加」各选一份。叠加的那份用第二种颜色画进截面与各时间迹，另出一张卡：两份逐步之差（磁轴移动、边界距离、丝处磁通之差、丝电流之和之差）。
+    两份按<b>时刻</b>对齐——时间网格不同（如 1 ms 与 2 ms 步长）时只比对得上的时刻。</li>
+</ul>
+<h3>初始态页 · 比较页</h3>
+<ul>
+  <li>初始态：t<sub>0</sub> 的各个解（用 magdata 实测线圈电流的、用 a-file 里 EFIT 拟合线圈电流的）与参考（输入 g-file 同尺）的边界叠画，外加逐项对照表与 <var>Z</var><sub>anchor</sub> 的二分扫描。</li>
+  <li>比较：<code>compare</code> 给的每一对 run 的最大差与每份 run 的摘要。<code>compare</code> 只留最大值；要看差随时间怎么走，把那两份 run 也拖进来，点这一对的「看差」。</li>
+</ul>
+
+<h2 id="d-limits">九 · 局限 · 本页画不出的东西</h2>
+<ul>
+  <li><b>竖直控制是虚拟的</b>（§四）；<b>剖面是假设</b>（§五），<code>fixed</code> 下 β<sub>p</sub>、<var>l</var><sub>i</sub> 不跟实验走，与 EFIT 迹的一致只是自洽性检查。</li>
+  <li><b>t<sub>0</sub> 的被动电流</b>不知道：<code>zero</code> 与 <code>ramp</code> 是两种假设。</li>
+  <li><b>ψ 图只有最后一步</b>：中间各步的 ψ 等值线画不出（要看就用 <code>--gfile-dir</code> 写出的 G-EQDSK）。</li>
+  <li><b>线圈与限制器</b>取装置事实（<code>geometry</code> 块）；较早的 run 文件没有这一块，要一起拖入 <code>geometry.json</code>（限制器也可以从 <code>case.json</code> 的 g-file 取）；都没有就不画，并写明缺什么。</li>
+  <li><b>IC 位置</b>：装置事实与数据附图不完全一致；截面画这一次实际用的那个，<code>geometry --ic-figure-rz</code> 记下的附图位置画成虚线框（未用）。</li>
+  <li>没有做：被动电流作为未知量拟合（需要磁测量）；非轴对称涡流；环向场线圈电流的变化；等离子体电阻与环电压（<var>I</var><sub>p</sub> 是给定的）。</li>
+</ul>
+</article>
+</div>
+</div>
+
+<div id="resview" hidden>
+<div class="bar">
+  <label class="file" title="fb_evolution.py 的 run / initial / compare 输出，或 case.json、wall.json；可多选">导入结果 JSON<input type="file" id="file" multiple accept=".json,application/json"></label>
+  <span class="muted" id="fname">或把文件（可以几份一起）拖进页面</span>
+  <span class="spacer"></span>
+  <span id="viewbtns"></span>
+  <button id="theme" type="button" title="配色：跟随系统 · 浅 · 深">配色：自动</button>
+</div>
+<div class="chips" id="loaded"></div>
+
+<div id="empty" class="empty">
+  <p>还没有结果。这一页收三种结果文件，按 <code>@type</code> 分：</p>
+  <p><code>python fb_evolution.py run in/case.json --passive induced -o out/run_induced.json</code> → <code>fylite:EastFreeBoundaryEvolution</code>（逐步演化；可几份叠加）</p>
+  <p><code>python fb_evolution.py initial in/case.json -o out/initial.json</code> → <code>fylite:EastFreeBoundaryInitial</code>（t<sub>0</sub> 的初始平衡校验）</p>
+  <p><code>python fb_evolution.py compare out/run_*.json -o out/compare.json</code> → <code>fylite:EastFreeBoundaryComparison</code>（各次 run 之差）</p>
+  <p>辅助：<code>out/geometry.json</code>（<code>fb_evolution.py geometry</code>：线圈与限制器，取装置事实）· <code>in/case.json</code>（g-file 边界）· <code>out/wall.json</code>（丝回路的 L/R 时间与轮廓）。</p>
+  <p id="emptynote" class="note"></p>
+  <p>结果留在你的机器上——这一页不上传任何东西。</p>
+</div>
+
+<!-- ====== run：逐步演化 ====== -->
+<main id="evmain" class="grid" hidden>
+  <section class="card"><h2>步 <small id="evpos"></small></h2>
+    <div class="runs"><span class="lab">主</span><span id="runA"></span></div>
+    <div class="runs"><span class="lab">叠加</span><span id="runB"></span></div>
+    <div class="bar">
+      <button id="evprev" type="button" title="上一步（← 键；Shift ← 退 10 步）">◀ 上一步</button>
+      <input id="evslider" type="range" min="0" max="0" step="1" value="0" aria-label="时间步">
+      <button id="evnext" type="button" title="下一步（→ 键；Shift → 进 10 步）">下一步 ▶</button>
+      <button id="evplay" type="button" title="按步播放">播放</button>
+    </div>
+    <div id="evstate"></div></section>
+  <div class="cols">
+    <section class="card"><h2>极向截面 <small id="xsnote"></small></h2>
+      <div class="xs" id="xs"></div><div class="legend" id="xslegend"></div>
+      <p class="note" id="xscoil"></p></section>
+    <section class="card"><h2>时间迹 <small>竖线 = 当前步 · 点图跳到那一时刻</small></h2>
+      <div class="cols3">
+        <div><h3>I_p [kA]（虚线 = 目标）</h3><div class="plot"><div id="t-ip"></div><div class="cur" id="t-ip-c"></div></div></div>
+        <div><h3>磁轴 R [m]</h3><div class="plot"><div id="t-ar"></div><div class="cur" id="t-ar-c"></div></div></div>
+        <div><h3>磁轴 Z · Z_c [m]（点线 = Z_anchor）</h3><div class="plot"><div id="t-az"></div><div class="cur" id="t-az-c"></div></div></div>
+        <div><h3>I_fb / I_p [%]（虚拟线圈对 = 建模缺口）</h3><div class="plot"><div id="t-fb"></div><div class="cur" id="t-fb-c"></div></div></div>
+        <div><h3>线圈对在磁轴补的 B_R [mT]</h3><div class="plot"><div id="t-br"></div><div class="cur" id="t-br-c"></div></div></div>
+        <div><h3>被动丝电流之和 Σ I_k [kA]</h3><div class="plot"><div id="t-pas"></div><div class="cur" id="t-pas-c"></div></div></div>
+        <div><h3>max_k |I_k| [A]</h3><div class="plot"><div id="t-pmax"></div><div class="cur" id="t-pmax-c"></div></div></div>
+        <div><h3>GS 残差（对数；点 = 没收敛的步）</h3><div class="plot"><div id="t-gs"></div><div class="cur" id="t-gs-c"></div></div></div>
+        <div><h3>迭代数（第 0 步不记）</h3><div class="plot"><div id="t-pit"></div><div class="cur" id="t-pit-c"></div></div></div>
+        <div><h3>l_i(1)（虚线 = EFIT 迹）</h3><div class="plot"><div id="t-li"></div><div class="cur" id="t-li-c"></div></div></div>
+        <div><h3>β_p（虚线 = EFIT 迹）</h3><div class="plot"><div id="t-bp"></div><div class="cur" id="t-bp-c"></div></div></div>
+        <div><h3>q_95 · q_0（虚线）</h3><div class="plot"><div id="t-q"></div><div class="cur" id="t-q-c"></div></div></div>
+      </div>
+      <div class="legend" id="tlegend"></div></section>
+  </div>
+  <section class="card"><h2>被动丝 <small id="srcnote"></small></h2>
+    <div class="cols2">
+      <div><h3>这一步每根丝的电流 [A]</h3><div id="src-i"></div></div>
+      <div><h3>这一步每根丝处的磁通 [Wb]：Ψ_tot · Ψ_ext · Ψ_p</h3><div id="src-psi"></div></div>
+    </div>
+    <div class="legend" id="srclegend"></div>
+    <h3>电流热图：横轴 t − t₀ [s]，纵轴丝序号（横线 = 轮廓分界）</h3>
+    <div class="plot"><div id="hmap"></div><div class="cur" id="hmap-c"></div></div>
+    <p class="note" id="hmapnote"></p></section>
+  <section class="card" id="evdiffcard" hidden><h2>主 − 叠加 <small id="evdiffnote"></small></h2>
+    <div class="cols2">
+      <div><h3>磁轴移动 [cm]：|Δ|（实线）· ΔR · ΔZ</h3><div class="plot"><div id="d-ax"></div><div class="cur" id="d-ax-c"></div></div></div>
+      <div><h3>边界距离 [cm]：max（实线）· mean</h3><div class="plot"><div id="d-bd"></div><div class="cur" id="d-bd-c"></div></div></div>
+      <div><h3>丝处磁通之差 max_k |ΔΨ_tot| [Wb]</h3><div class="plot"><div id="d-psi"></div><div class="cur" id="d-psi-c"></div></div></div>
+      <div><h3>丝电流之和之差 Δ Σ I_k [kA]</h3><div class="plot"><div id="d-sum"></div><div class="cur" id="d-sum-c"></div></div></div>
+    </div></section>
+  <div class="cols2">
+    <section class="card"><h2>线圈通道 <small>安匝 [kA·匝]，输入（实测回放）</small></h2>
+      <div class="plot"><div id="t-ch"></div><div class="cur" id="t-ch-c"></div></div><div class="legend" id="chlegend"></div></section>
+    <section class="card"><h2>被动丝回路 <small id="wallnote"></small></h2><div id="evwall"></div></section>
+  </div>
+  <div class="cols2">
+    <section class="card"><h2>这次 run 的设定 <small>结果里 <code>options</code> · <code>kernel</code> · <code>door</code> 原样</small></h2><div class="scroll" id="evopts"></div></section>
+    <section class="card"><h2>门的说明 <small><code>door.notes</code> 原样</small></h2><div id="evnotes"></div><div class="scroll" id="evfacts"></div></section>
+  </div>
+  <section class="card"><h2>怎么读 · 边界</h2>
+    <ul class="plain">
+      <li><b>I_fb 是建模缺口，不是控制量。</b>虚拟线圈对把电流中心钉在 Z_anchor；它的电流 = 给定的线圈电流在这个高度留下的竖直力缺口。门的说明里数着有多少步超过 I_p 的 1 %——那些步是「电流 + 线圈对」的平衡。</li>
+      <li><b>ψ 等值线只有最后一步。</b>结果只留了最后一步的 ψ 图；中间各步看边界与磁轴，要 ψ 就用 <code>--gfile-dir</code> 写出的 G-EQDSK。</li>
+      <li><b>丝的颜色量程是整段的最大 |I|</b>，各步可比；零 = 底色。电流的正负与 <code>sources.current_A</code> 同号。</li>
+      <li><b>EFIT 迹是参考，不是测量</b>；<code>fixed</code> 剖面下 l_i、β_p 只随几何变，离开 EFIT 迹是预期的。</li>
+      <li><b>线圈与限制器取装置事实</b>（结果里的 <code>geometry</code> 块，旧文件拖入 <code>geometry.json</code>）；线圈颜色是它所属通道这一步的安匝，与丝的色标分开。都没有就不画，并写明缺什么。</li>
+    </ul></section>
+  <footer id="evfoot"></footer>
+</main>
+
+<!-- ====== initial：t0 的初始平衡 ====== -->
+<main id="inmain" class="grid" hidden>
+  <div class="cols">
+    <section class="card"><h2>t₀ 的边界 <small id="inxsnote"></small></h2><div class="xs" id="inxs"></div><div class="legend" id="inlegend"></div></section>
+    <section class="card"><h2>逐项对照 <small>「同尺」= 两份平衡用同一段积分量</small></h2><div class="scroll" id="intable"></div>
+      <h3>Z_anchor 的二分：线圈对电流 I_fb [kA] 对 Z_anchor [mm]（竖线 = 不出力的高度）</h3><div id="inscan"></div>
+      <div class="legend" id="inscanlegend"></div></section>
+  </div>
+  <section class="card"><h2>各解的说明 <small>门给的 notes 原样</small></h2><div id="innotes"></div></section>
+  <footer id="infoot"></footer>
+</main>
+
+<!-- ====== compare：各次 run 之间 ====== -->
+<main id="cmmain" class="grid" hidden>
+  <section class="card"><h2>成对的差 <small id="cmnote"></small></h2><div class="scroll" id="cmpairs"></div>
+    <h3>磁轴移动 max · 边界距离 max [cm]</h3><div id="cmbars"></div><div class="legend" id="cmbarslegend"></div></section>
+  <section class="card"><h2>差随时间 <small id="cmdiffnote"></small></h2>
+    <div class="cols2">
+      <div><h3>磁轴移动 [cm]：|Δ|（实线）· ΔR · ΔZ</h3><div id="c-ax"></div></div>
+      <div><h3>边界距离 [cm]：max（实线）· mean</h3><div id="c-bd"></div></div>
+      <div><h3>丝处磁通之差 max_k |ΔΨ_tot| [Wb]</h3><div id="c-psi"></div></div>
+      <div><h3>丝电流之和之差 Δ Σ I_k [kA]</h3><div id="c-sum"></div></div>
+    </div></section>
+  <section class="card"><h2>各次 run 的摘要 <small><code>runs</code> 原样</small></h2><div class="scroll" id="cmruns"></div></section>
+  <footer id="cmfoot"></footer>
+</main>
+</div>
+</div>
+
+<script>
+"use strict";
+(function () {
+const $ = (id) => document.getElementById(id);
+const RA = "var(--rA)", RB = "var(--rB)";
+//: runs = 载入的 run（每份带预算好的逐步量）；a / b = 主 / 叠加的下标（b = −1 不叠加）；k = 当前步（主那份的下标）
+const S = { runs: [], a: -1, b: -1, init: null, initName: "", cmp: null, cmpName: "", kase: null, kaseName: "", wall: null, wallName: "",
+  geom: null, geomName: "", view: null, k: 0, tab: "doc", pair: null, geo: {}, dc: {}, playing: null };
+
+// ---------------------------------------------------------------------------------------------- formatting
+const fin = (v) => typeof v === "number" && isFinite(v);
+function f(v, d) { return fin(v) ? v.toFixed(d) : "—"; }
+function g(v, d) { if (!fin(v)) return "—"; const a = Math.abs(v); return (a !== 0 && (a < 1e-3 || a >= 1e5)) ? v.toExponential(d - 1) : v.toPrecision(d); }
+function sgn(v, d) { return fin(v) ? (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(d) : "—"; }
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+/** A value out of the result, printed as-is; 缺的一律写「—」，不补默认值。 */
+function val(v) {
+  if (v == null) return '<span class="muted">—</span>';
+  if (typeof v === "boolean") return v ? "是" : "否";
+  if (typeof v === "number") {
+    if (!isFinite(v)) return '<span class="muted">—</span>';
+    const a = Math.abs(v);
+    if (Number.isInteger(v) && a < 1e7) return String(v);
+    return (a !== 0 && (a < 1e-4 || a >= 1e7)) ? v.toExponential(4) : String(+v.toPrecision(6));
+  }
+  if (Array.isArray(v)) return v.length ? v.map((x) => val(x)).join(" · ") : '<span class="muted">空</span>';
+  if (typeof v === "object") return esc(JSON.stringify(v));
+  return esc(v);
+}
+function kvt(rows) { return "<table><tbody>" + rows.map(([k, v]) => `<tr><td class="l">${k}</td><td class="l num">${v}</td></tr>`).join("") + "</tbody></table>"; }
+const PASSIVE = { zero: "zero · 恒零", prescribed: "prescribed · 给定", induced: "induced · 回路方程自洽" };
+const stem = (name) => String(name || "").replace(/^.*[\\/]/, "").replace(/\.json$/i, "");
+
+// ---------------------------------------------------------------------------------------------- tiny charts（与 kinetic_recon.html 同一套）
+function scale(d0, d1, r0, r1) { const k = (r1 - r0) / ((d1 - d0) || 1); return (v) => r0 + (v - d0) * k; }
+function nice(lo, hi, n) {
+  if (!(hi > lo)) { hi = lo + 1; }
+  const step0 = (hi - lo) / n, p = Math.pow(10, Math.floor(Math.log10(step0))), m = step0 / p;
+  const step = (m < 1.5 ? 1 : m < 3 ? 2 : m < 7 ? 5 : 10) * p, out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) out.push(Math.abs(v) < step * 1e-9 ? 0 : +v.toPrecision(12));
+  return out;
+}
+let CID = 0;
+/** A line chart: series [{x:[], y:[], color, dash, width, points:[{x,y,fill,stroke,title,mark}]}].
+ *  o.xbands / o.ybands 涂一段横 / 纵区间（带标签），o.vlines 画竖虚线，o.hlines 横虚线；曲线一律裁在画框里。
+ *  o.geo（一个对象）拿回画框的几何——时间光标画在叠层里，换步不重画曲线。 */
+function chart(series, o) {
+  o = Object.assign({ w: 420, h: 220, xlab: "", ylab: "", xlim: null, ylim: null, log: false,
+    hlines: [], vlines: [], xbands: [], ybands: [] }, o || {});
+  const L = 46, R = 10, T = 10, B = 30, W = o.w, H = o.h;
+  let xs = [], ys = [];
+  for (const s of series) {
+    (s.x || []).forEach((x, i) => { const y = s.y[i]; if (fin(x) && fin(y) && (!o.log || y > 0)) { xs.push(x); ys.push(y); } });
+    (s.points || []).forEach((p) => { if (fin(p.x) && fin(p.y) && (!o.log || p.y > 0)) { xs.push(p.x); ys.push(p.y); } });
+  }
+  o.hlines.forEach((h) => { if (fin(h.y)) ys.push(h.y); });
+  if (!xs.length) return '<p class="muted">没有数据</p>';
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const v of xs) { if (v < x0) x0 = v; if (v > x1) x1 = v; }
+  for (const v of ys) { if (v < y0) y0 = v; if (v > y1) y1 = v; }
+  if (o.xlim) [x0, x1] = o.xlim;
+  if (o.ylim) [y0, y1] = o.ylim;
+  if (o.log) { y0 = Math.log10(y0); y1 = Math.log10(y1); if (y1 - y0 < 1) { y0 -= 0.5; y1 += 0.5; } }
+  else { const pad = (y1 - y0) * 0.06 || Math.abs(y0) * 0.1 || 1; y0 -= pad; y1 += pad; }
+  const X = scale(x0, x1, L, W - R), Y = scale(y0, y1, H - B, T), YV = (v) => Y(o.log ? Math.log10(v) : v);
+  if (o.geo) Object.assign(o.geo, { x0, x1, L, R, T, B, W, H });
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.ylab)}">`;
+  const yt = o.log ? nice(Math.ceil(y0), Math.floor(y1), 4).filter(Number.isInteger) : nice(y0, y1, 4);
+  for (const t of yt) { const y = Y(t); if (y < T - 1 || y > H - B + 1) continue;
+    s += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y}" y2="${y}"/><text x="${L - 4}" y="${y + 4}" text-anchor="end">${o.log ? "1e" + t : g(t, 3)}</text>`; }
+  for (const t of nice(x0, x1, 5)) { const x = X(t); if (x < L - 1 || x > W - R + 1) continue;
+    s += `<text x="${x}" y="${H - B + 14}" text-anchor="middle">${o.xint ? String(Math.round(t)) : g(t, 3)}</text>`; }
+  s += `<rect class="ax" x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="none" stroke="var(--rule)"/>`;
+  if (o.xlab) s += `<text x="${(L + W - R) / 2}" y="${H - 4}" text-anchor="middle">${esc(o.xlab)}</text>`;
+  const cid = "fc" + (++CID);
+  s += `<defs><clipPath id="${cid}"><rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}"/></clipPath></defs><g clip-path="url(#${cid})">`;
+  for (const b of o.xbands || []) {
+    const xa = X(Math.max(b.x0, Math.min(x0, x1))), xb = X(Math.min(b.x1, Math.max(x0, x1)));
+    if (!(fin(xa) && fin(xb)) || xb <= xa) continue;
+    s += `<rect x="${xa.toFixed(1)}" y="${T}" width="${(xb - xa).toFixed(1)}" height="${H - T - B}" fill="${b.color || "var(--warn)"}" opacity="${b.opacity || 0.1}"><title>${esc(b.title || b.label || "")}</title></rect>`;
+    if (b.label) s += `<text x="${(xa + 3).toFixed(1)}" y="${T + 11}">${esc(b.label)}</text>`;
+  }
+  for (const h of o.hlines) { if (!fin(h.y)) continue; const y = YV(h.y); s += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="${h.color || "var(--muted)"}" stroke-dasharray="${h.dash || "4 3"}"><title>${esc(h.title || "")}</title></line>`; }
+  for (const v of o.vlines || []) {
+    if (!fin(v.x)) continue;
+    const x = X(v.x);
+    s += `<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${T}" y2="${H - B}" stroke="${v.color || "var(--muted)"}" stroke-dasharray="${v.dash || "4 3"}"><title>${esc(v.title || v.label || "")}</title></line>`;
+    if (v.label) s += `<text x="${(x + 3).toFixed(1)}" y="${H - B - 4}">${esc(v.label)}</text>`;
+  }
+  for (const se of series) {
+    if (se.x && se.y) {
+      let d = "", pen = false;
+      se.x.forEach((x, i) => { const y = se.y[i]; if (fin(x) && fin(y) && (!o.log || y > 0)) { d += (pen ? "L" : "M") + X(x).toFixed(1) + "," + YV(y).toFixed(1); pen = true; } else pen = false; });
+      if (d) s += `<path d="${d}" fill="none" stroke="${se.color}" stroke-width="${se.width || 1.6}"${se.dash ? ` stroke-dasharray="${se.dash}"` : ""}><title>${esc(se.label || "")}</title></path>`;
+    }
+    for (const p of se.points || []) {
+      if (!fin(p.x) || !fin(p.y) || (o.log && p.y <= 0)) continue;
+      const cx = X(p.x), cy = YV(p.y);
+      if (p.mark === "x") {
+        const a = p.r || 3.4;
+        s += `<path d="M${(cx - a).toFixed(1)},${(cy - a).toFixed(1)}L${(cx + a).toFixed(1)},${(cy + a).toFixed(1)}M${(cx - a).toFixed(1)},${(cy + a).toFixed(1)}L${(cx + a).toFixed(1)},${(cy - a).toFixed(1)}" fill="none" stroke="${p.stroke || se.color}" stroke-width="1.4"><title>${esc(p.title || "")}</title></path>`;
+        continue;
+      }
+      s += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${p.r || 3}" fill="${p.fill || se.color}" stroke="${p.stroke || se.color}"><title>${esc(p.title || "")}</title></circle>`;
+    }
+  }
+  return s + "</g></svg>";
+}
+/** 时间光标：画在与图同一 viewBox 的叠层里（.plot > .cur），换步只换这一根线。 */
+function cursorSvg(geo, x) {
+  if (!geo || !fin(geo.W) || !fin(x)) return "";
+  const X = scale(geo.x0, geo.x1, geo.L, geo.W - geo.R), px = X(x);
+  if (px < geo.L - 0.5 || px > geo.W - geo.R + 0.5) return "";
+  return `<svg viewBox="0 0 ${geo.W} ${geo.H}" aria-hidden="true"><line x1="${px.toFixed(1)}" x2="${px.toFixed(1)}" y1="${geo.T}" y2="${geo.H - geo.B}" stroke="var(--ink)" stroke-width="1.3" opacity="0.6"/></svg>`;
+}
+
+// ---------------------------------------------------------------------------------------------- 几何
+/** Marching squares on F[i][j] (i = R, j = Z) for one level → segments [[r,z],[r,z]]. */
+function contour(gr, gz, F, lev) {
+  const segs = [], nr = gr.length, nz = gz.length;
+  const lerp = (a, b, fa, fb) => a + (b - a) * ((lev - fa) / ((fb - fa) || 1e-30));
+  for (let i = 0; i < nr - 1; i++) for (let j = 0; j < nz - 1; j++) {
+    const f00 = F[i][j], f10 = F[i + 1][j], f11 = F[i + 1][j + 1], f01 = F[i][j + 1];
+    if (!(fin(f00) && fin(f10) && fin(f11) && fin(f01))) continue;
+    const pts = [];
+    if ((f00 < lev) !== (f10 < lev)) pts.push([lerp(gr[i], gr[i + 1], f00, f10), gz[j]]);
+    if ((f10 < lev) !== (f11 < lev)) pts.push([gr[i + 1], lerp(gz[j], gz[j + 1], f10, f11)]);
+    if ((f11 < lev) !== (f01 < lev)) pts.push([lerp(gr[i], gr[i + 1], f01, f11), gz[j + 1]]);
+    if ((f01 < lev) !== (f00 < lev)) pts.push([gr[i], lerp(gz[j], gz[j + 1], f00, f01)]);
+    if (pts.length === 2) segs.push(pts);
+    else if (pts.length === 4) { segs.push([pts[0], pts[1]]); segs.push([pts[2], pts[3]]); }
+  }
+  return segs;
+}
+function inside(poly, r, z) {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [ri, zi] = poly[i], [rj, zj] = poly[j];
+    if ((zi > z) !== (zj > z) && r < (rj - ri) * (z - zi) / (zj - zi) + ri) c = !c;
+  }
+  return c;
+}
+//: 两条闭合边界之间的距离——与 fb_evolution.py 的 boundary_distance 同一个定义（a 的每点到 b 折线的最近距离，再反过来；取最大与平均）
+//: 段距先比平方（Math.hypot 在 V8 里慢一个量级：一对 run 要 ~10⁷ 次）
+function segDist2(p, a, b) {
+  const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy;
+  let u = L2 === 0 ? 0 : ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2;
+  u = u < 0 ? 0 : u > 1 ? 1 : u;                         // 不走 Math.*：这是最内层
+  const ex = p[0] - a[0] - u * dx, ey = p[1] - a[1] - u * dy;
+  return ex * ex + ey * ey;
+}
+function bdist(a, b) {
+  const one = (p, q) => {
+    let mx = 0, sm = 0;
+    for (const x of p) {
+      let d = Infinity;
+      for (let i = 0; i < q.length; i++) { const v = segDist2(x, q[i], q[(i + 1) % q.length]); if (v < d) d = v; }
+      d = Math.sqrt(d);
+      if (d > mx) mx = d; sm += d;
+    }
+    return [mx, sm / p.length];
+  };
+  if (!(a && a.length && b && b.length)) return { max_m: NaN, mean_m: NaN };
+  const ab = one(a, b), ba = one(b, a);
+  return { max_m: Math.max(ab[0], ba[0]), mean_m: 0.5 * (ab[1] + ba[1]) };
+}
+/** 等比例的 R–Z 画框：pts 定量程；返回坐标映射与刻度。 */
+function frame(pts, W) {
+  let r0 = Infinity, r1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+  for (const [r, z] of pts) { if (!fin(r) || !fin(z)) continue; if (r < r0) r0 = r; if (r > r1) r1 = r; if (z < z0) z0 = z; if (z > z1) z1 = z; }
+  r0 -= 0.06; r1 += 0.06; z0 -= 0.06; z1 += 0.06;
+  const L = 42, R = 8, T = 8, B = 22, iw = W - L - R, ih = iw * (z1 - z0) / (r1 - r0), H = Math.round(ih + T + B);
+  const X = scale(r0, r1, L, W - R), Y = scale(z0, z1, T + ih, T);
+  let head = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="极向截面">`;
+  for (const t of nice(r0, r1, 4)) if (X(t) < W - R - 62) head += `<text x="${X(t).toFixed(1)}" y="${H - 6}" text-anchor="middle">${g(t, 3)}</text>`;
+  for (const t of nice(z0, z1, 6)) head += `<line class="grid" x1="${L}" x2="${W - R}" y1="${Y(t).toFixed(1)}" y2="${Y(t).toFixed(1)}"/><text x="${L - 4}" y="${(Y(t) + 4).toFixed(1)}" text-anchor="end">${g(t, 2)}</text>`;
+  head += `<text x="${W - R}" y="${H - 6}" text-anchor="end">R [m]</text>`;
+  const path = (p, attrs, close) => {
+    let d = "", pen = false;
+    for (const q of p) { if (!q || !fin(q[0]) || !fin(q[1])) { pen = false; continue; } d += (pen ? "L" : "M") + X(q[0]).toFixed(1) + "," + Y(q[1]).toFixed(1); pen = true; }
+    return d ? `<path d="${d}${close ? "Z" : ""}" ${attrs}/>` : "";
+  };
+  return { X, Y, W, H, head, path };
+}
+
+// ---------------------------------------------------------------------------------------------- 载入
+//: Python 的 json.dumps 把 NaN 写成裸 NaN（例如限制器位形那几步的 xpt_r / xpt_z）——JSON.parse 不认，先换成 null
+function parse(text) {
+  if (text.indexOf("NaN") >= 0 || text.indexOf("Infinity") >= 0) text = text.replace(/([:\[,]\s*)(NaN|-?Infinity)(?=\s*[,\]}])/g, "$1null");
+  return JSON.parse(text);
+}
+const TYPES = { "fylite:EastFreeBoundaryEvolution": "run", "fylite:EastFreeBoundaryInitial": "init",
+  "fylite:EastFreeBoundaryComparison": "cmp", "fylite:EastFreeBoundaryCase": "case", "fylite:EastFreeBoundaryGeometry": "geom" };
+function kindOf(res) {
+  if (!res || typeof res !== "object" || Array.isArray(res)) return null;
+  const ty = res["@type"];
+  if (ty) return TYPES[ty] || null;
+  //: wall.json 没有 @type：按形状认（fb_evolution.py wall 的输出）
+  if (Array.isArray(res.tau_s) && Array.isArray(res.contours) && "n_elements" in res) return "wall";
+  return null;
+}
+const ACCEPTS = "本页收三种结果文件：\n"
+  + "· fylite:EastFreeBoundaryEvolution —— fb_evolution.py run\n"
+  + "· fylite:EastFreeBoundaryInitial —— fb_evolution.py initial\n"
+  + "· fylite:EastFreeBoundaryComparison —— fb_evolution.py compare\n"
+  + "另收三种辅助文件：fylite:EastFreeBoundaryGeometry（geometry 的输出：线圈与限制器）· fylite:EastFreeBoundaryCase（prepare 的 case.json）· wall.json（wall 的输出，没有 @type，按 tau_s + contours 认）";
+
+/** 一份 run 载入时算好逐步要用的量（~8 MB 的文件只解析这一次）。 */
+function prep(res, name) {
+  const n = res.time.length, cur = res.sources.current_A, m = res.sources.r.length;
+  const maxAbs = new Array(n), tot = new Array(n);
+  let imax = 0;
+  for (let k = 0; k < n; k++) {
+    let mx = 0, sm = 0; const row = cur[k] || [];
+    for (let i = 0; i < row.length; i++) { const v = row[i]; if (fin(v)) { const a = Math.abs(v); if (a > mx) mx = a; sm += v; } }
+    maxAbs[k] = mx; tot[k] = sm; if (mx > imax) imax = mx;
+  }
+  const rng = {};
+  for (const key of ["psi_total_Wb", "psi_external_Wb", "psi_plasma_Wb"]) {
+    let lo = Infinity, hi = -Infinity;
+    for (const row of res.sources[key] || []) for (const v of row) if (fin(v)) { if (v < lo) lo = v; if (v > hi) hi = v; }
+    rng[key] = [lo, hi];
+  }
+  let dtmin = Infinity;
+  for (let k = 1; k < n; k++) { const d = res.time[k] - res.time[k - 1]; if (d > 0 && d < dtmin) dtmin = d; }
+  return { name, res, s: res.scalars, n, m, maxAbs, tot, imax, rng, dtmin: fin(dtmin) ? dtmin : 1, cache: {} };
+}
+/** 主那份的时刻 t 在另一份里的步：按时刻对齐（最近的一步，差不超过步长的 1/4），对不上给 −1。 */
+function matchIdx(Rn, t, tol) {
+  const tt = Rn.res.time;
+  let lo = 0, hi = tt.length - 1;
+  while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (tt[mid] <= t) lo = mid; else hi = mid; }
+  const j = Math.abs(tt[lo] - t) <= Math.abs(tt[hi] - t) ? lo : hi;
+  return Math.abs(tt[j] - t) <= tol ? j : -1;
+}
+const tolOf = (A, B) => 1e-9 + 0.25 * Math.min(A.dtmin, B.dtmin);
+
+function load(text, name, opt) {
+  opt = opt || {};
+  let res;
+  try { res = parse(text); } catch (e) { alert(`${name || "这份文件"} 不是 JSON：${e.message}`); return false; }
+  const which = kindOf(res);
+  if (!which) {
+    const ty = res && typeof res === "object" ? res["@type"] : null;
+    alert(`${name ? name + "：" : ""}这不是本页认的文件（@type ${ty ? "是「" + ty + "」" : "没有"}）。` + ACCEPTS);
+    return false;
+  }
+  const nm = stem(name) || which;
+  if (which === "run") {
+    const need = ["time", "scalars", "boundary", "sources"].filter((k) => !res[k]);
+    if (need.length || !(res.time.length && res.sources.current_A)) { alert(`这份 fylite:EastFreeBoundaryEvolution（${nm}）缺 ${need.join("、") || "sources.current_A"}，画不出来`); return false; }
+    const R = prep(res, nm), at = S.runs.findIndex((r) => r.name === nm);
+    if (at >= 0) { S.runs[at] = R; for (const key of Object.keys(S.dc)) if (key.split("|").includes(nm)) delete S.dc[key]; }
+    else S.runs.push(R);
+    const i = at >= 0 ? at : S.runs.length - 1;
+    //: 第一份当主，第二份自动叠上；再多的只列出来，由人选
+    if (S.a < 0) { S.a = i; S.k = 0; } else if (S.b < 0 && i !== S.a) S.b = i;
+    S.view = "evo";
+  } else if (which === "init") {
+    if (!res.variants || !Object.keys(res.variants).length) { alert("这份 fylite:EastFreeBoundaryInitial 里一个解都没有（variants 空）"); return false; }
+    S.init = res; S.initName = nm; S.view = "init";
+  } else if (which === "cmp") {
+    if (!res.pairs && !res.runs) { alert("这份 fylite:EastFreeBoundaryComparison 里既没有 pairs 也没有 runs"); return false; }
+    S.cmp = res; S.cmpName = nm; S.pair = null; S.view = "cmp";
+  } else if (which === "case") {
+    S.kase = res; S.kaseName = nm;
+    for (const R of S.runs) R.cache.xs = null;
+  } else if (which === "geom") {
+    if (!res.geometry || !(res.geometry.pf_coils || res.geometry.limiter)) { alert("这份 fylite:EastFreeBoundaryGeometry 里没有 geometry 块"); return false; }
+    S.geom = res; S.geomName = nm;
+    for (const R of S.runs) R.cache.xs = null;
+  } else if (which === "wall") {
+    S.wall = res; S.wallName = nm;
+  }
+  S.lastKind = which;
+  if (name && !opt.batch) $("fname").textContent = name;
+  if (!opt.batch) { showTab("res"); render(); }
+  return true;
+}
+/** 几份一起（多选或拖入）：逐份载入，再按「有 run 就停在演化页」挑页、只画一次。 */
+function loadFiles(list) {
+  let okN = 0; const kinds = [];
+  for (const it of list) {
+    if (!it || it.text == null) { alert(`${it && it.name ? it.name : "一份文件"} 读不出来`); continue; }
+    if (load(it.text, it.name, { batch: true })) { okN++; kinds.push(S.lastKind); }
+  }
+  if (!okN) return 0;
+  const names = list.filter((x) => x && x.name).map((x) => x.name);
+  $("fname").textContent = names.length > 3 ? `${names.slice(0, 3).join("、")} 等 ${names.length} 份` : names.join("、");
+  S.view = kinds.includes("run") ? "evo" : kinds.includes("init") ? "init" : kinds.includes("cmp") ? "cmp" : S.view;
+  showTab("res");
+  render();
+  return okN;
+}
+
+// ---------------------------------------------------------------------------------------------- 分页
+const BANNER = {
+  evo: "这是模型的演化，不是测量。线圈电流是实测回放，竖直位置由一对虚拟线圈钉住——它的电流是模型与实际之间的缺口，不是控制量。",
+  init: "t₀ 的初始平衡：同一组线圈电流在本应用的模型里解出的平衡，对输入 g-file（同一把尺）。差的是模型与 EFIT 之间，不是与真值之间。",
+  cmp: "各次 run 之间的差：同一组输入、不同的被动电流假设或剖面假设。差量的是假设的影响，不是误差。",
+  none: "这是模型的演化，不是测量。",
+};
+function render() {
+  const has = { evo: S.runs.length > 0 && S.a >= 0, init: !!S.init, cmp: !!S.cmp };
+  if (!S.view || !has[S.view]) S.view = has.evo ? "evo" : has.init ? "init" : has.cmp ? "cmp" : null;
+  const VL = { evo: "演化", init: "初始态", cmp: "比较" };
+  $("viewbtns").innerHTML = ["evo", "init", "cmp"].map((v) =>
+    `<button type="button" data-view="${v}" aria-pressed="${S.view === v}"${has[v] ? "" : " disabled"}>${VL[v]}</button>`).join(" ");
+  const chips = S.runs.map((r, i) => `<span class="tag">run · ${esc(r.name)}${i === S.a ? "（主）" : i === S.b ? "（叠加）" : ""}</span>`);
+  if (S.init) chips.push(`<span class="tag">initial · ${esc(S.initName)}</span>`);
+  if (S.cmp) chips.push(`<span class="tag">compare · ${esc(S.cmpName)}</span>`);
+  if (S.geom) chips.push(`<span class="tag">geometry · ${esc(S.geomName)}</span>`);
+  if (S.kase) chips.push(`<span class="tag">case · ${esc(S.kaseName)}</span>`);
+  if (S.wall) chips.push(`<span class="tag">wall · ${esc(S.wallName)}</span>`);
+  $("loaded").innerHTML = chips.length ? '<span class="muted">已载入：</span>' + chips.join("") : "";
+  $("empty").hidden = !!S.view;
+  $("emptynote").textContent = !S.view && (S.kase || S.wall || S.geom) ? "已载入辅助文件；还要一份 run / initial / compare 才有得画。" : "";
+  $("evmain").hidden = S.view !== "evo";
+  $("inmain").hidden = S.view !== "init";
+  $("cmmain").hidden = S.view !== "cmp";
+  $("banner").textContent = BANNER[S.view || "none"];
+  if (S.view === "evo") renderEvo();
+  else if (S.view === "init") renderInit();
+  else if (S.view === "cmp") renderCmp();
+  else $("title").textContent = "自由边界演化结果";
+}
+
+// ============================================================================================== 演化页
+/** 截面几何（装置事实）：结果文件自带的 geometry 块 → 载入的 geometry.json（炮号不同照用但写明）→ 没有。 */
+function geomFor(res) {
+  if (res && res.geometry && (res.geometry.pf_coils || res.geometry.limiter)) return { g: res.geometry, from: "结果文件", warn: "" };
+  if (S.geom) {
+    const shot = S.geom.shot, other = res && res.shot != null && shot != null && Number(res.shot) !== Number(shot);
+    return { g: S.geom.geometry, from: S.geomName, warn: other ? `geometry.json 是 #${shot} 的，这份是 #${res.shot}` : "" };
+  }
+  return null;
+}
+function limiterFor(res) {
+  const G = geomFor(res);
+  if (G && G.g.limiter && G.g.limiter.r && G.g.limiter.r.length > 2) return { r: G.g.limiter.r, z: G.g.limiter.z, from: `装置事实，${G.from}` };
+  const lim = res && res.limiter;
+  if (lim && lim.r && lim.r.length > 2) return { r: lim.r, z: lim.z, from: "结果文件（g-file 的 rlim / zlim）" };
+  const gf = S.kase && S.kase.gfile;
+  if (gf && gf.rlim && gf.rlim.length > 2) return { r: gf.rlim, z: gf.zlim, from: S.kaseName + "（g-file 的 rlim / zlim）" };
+  return null;
+}
+/** 线圈：PF 元素与 IC；IC 取这一次 run 实际用的位置（run 的 options.ic_rz 优先于 geometry.json 记的）。 */
+function coilsFor(res) {
+  const G = geomFor(res);
+  if (!G || !G.g.pf_coils) return null;
+  const icrz = res && res.options && res.options.ic_rz;
+  const ic = (G.g.ic_coils || []).map((c) => {
+    if (icrz && G.from !== "结果文件") return Object.assign({}, c, { r: icrz[0], z: Math.abs(icrz[1]) * (c.name === "IC1" ? 1 : -1), position_from: "--ic-rz（run 的 options）" });
+    return c;
+  });
+  return { pf: G.g.pf_coils, ic, from: G.from, warn: G.warn, source: G.g.source || {} };
+}
+/** 丝的轮廓 [[首, 尾, 闭合]]：结果文件自带的 → wall.json → 按 case.json 的断开距离 → 按 fb_evolution.py 的缺省断开距离重串。 */
+function contoursFor(Rn) {
+  const src = Rn.res.sources, m = Rn.m;
+  if (Array.isArray(src.contours) && src.contours.length) return { list: src.contours, from: "结果文件" };
+  const G = geomFor(Rn.res);
+  if (G && Array.isArray(G.g.filament_contours) && G.g.filament_contours.length && G.g.filament_contours[G.g.filament_contours.length - 1][1] === m - 1) return { list: G.g.filament_contours, from: G.from };
+  if (S.wall && S.wall.contours && S.wall.n_elements === m) return { list: S.wall.contours, from: S.wallName };
+  const gap = S.kase && S.kase.assumptions && fin(S.kase.assumptions.contour_gap_m) ? S.kase.assumptions.contour_gap_m : 0.195;
+  const from = S.kase && S.kase.assumptions ? `按 ${S.kaseName} 的断开距离 ${gap} m 重串` : `结果文件没带轮廓：按 fb_evolution.py 的缺省断开距离 ${gap} m 重串`;
+  const r = src.r, z = src.z, out = [];
+  let s0 = 0;
+  for (let i = 1; i <= m; i++) {
+    if (i === m || Math.hypot(r[i] - r[i - 1], z[i] - z[i - 1]) > gap) {
+      const e = i - 1, closed = e - s0 + 1 > 2 && Math.hypot(r[s0] - r[e], z[s0] - z[e]) <= gap;
+      out.push([s0, e, closed]); s0 = i;
+    }
+  }
+  return { list: out, from };
+}
+/** 电流着色：正负两色，深浅 ∝ |I|/量程；零 = 底色（深浅配色下都认得出）。 */
+function icol(v, vmax) {
+  if (!fin(v) || !(vmax > 0)) return ["var(--sheet)", 1];
+  const a = Math.min(1, Math.abs(v) / vmax);
+  if (a < 0.02) return ["var(--sheet)", 1];
+  return [v > 0 ? "var(--pos)" : "var(--neg)", +(0.15 + 0.85 * a).toFixed(2)];
+}
+function colorbar(vmax, unit, id) {
+  id = id || "cbar";
+  return `<svg viewBox="0 0 260 30" style="width:260px;display:inline-block;vertical-align:middle" aria-label="色标"><defs><linearGradient id="${id}">`
+    + '<stop offset="0" style="stop-color:var(--neg)"/><stop offset="0.5" style="stop-color:var(--sheet)"/><stop offset="1" style="stop-color:var(--pos)"/></linearGradient></defs>'
+    + `<rect x="10" y="2" width="240" height="10" fill="url(#${id})" stroke="var(--rule)"/>`
+    + `<text x="10" y="26">−${g(vmax, 3)}</text><text x="130" y="26" text-anchor="middle">0 ${esc(unit)}</text><text x="250" y="26" text-anchor="end">+${g(vmax, 3)}</text></svg>`;
+}
+function spans(flags, t) {
+  const out = []; let s0 = -1;
+  for (let k = 0; k <= flags.length; k++) {
+    const on = k < flags.length && flags[k];
+    if (on && s0 < 0) s0 = k;
+    if (!on && s0 >= 0) { out.push([t[s0], t[Math.min(k, t.length - 1)]]); s0 = -1; }
+  }
+  return out;
+}
+
+//: 时间迹：每张图一组量；ref = 参考（只画主那份的，灰虚线）
+const TRACES = [
+  { id: "t-ip", q: [{ get: (R) => R.s.ip, sc: 1e-3, label: "I_p（解）" }, { get: (R) => R.res.ip_target_A, sc: 1e-3, ref: true, dash: "5 3", label: "I_p 目标（magdata）" },
+    { get: (R) => R.s.ip_ampere_loop_A, sc: 1e-3, ref: true, dash: "1 3", label: "安培环路复核" }] },
+  { id: "t-ar", q: [{ get: (R) => R.s.axis_r, label: "磁轴 R" }] },
+  { id: "t-az", q: [{ get: (R) => R.s.axis_z, label: "磁轴 Z" }, { get: (R) => R.s.zc, dash: "5 3", label: "电流中心 Z_c" }],
+    hl: (R) => [{ y: R.res.options && R.res.options.zc_anchor, dash: "1 3", title: "Z_anchor（线圈对钉住的高度）" }] },
+  { id: "t-fb", q: [{ get: (R) => R.s.fb_amp && R.s.ip ? R.s.fb_amp.map((v, i) => fin(v) && fin(R.s.ip[i]) && R.s.ip[i] ? 100 * v / Math.abs(R.s.ip[i]) : NaN) : null, label: "I_fb / |I_p|" }],
+    hl: () => [{ y: 1, title: "门的阈 fb_tol = 1 % I_p" }, { y: -1, title: "门的阈 fb_tol = 1 % I_p" }] },
+  { id: "t-br", q: [{ get: (R) => R.s.pair_br_at_axis_T, sc: 1e3, label: "B_R,fb（磁轴）" }] },
+  { id: "t-pas", q: [{ get: (R) => R.s.passive_total_A || R.tot, sc: 1e-3, label: "Σ I_k" }] },
+  { id: "t-pmax", q: [{ get: (R) => R.maxAbs, label: "max |I_k|" }] },
+  { id: "t-gs", log: true, q: [{ get: (R) => R.s.gs_residual, label: "GS 残差" }] },
+  { id: "t-pit", q: [{ get: (R) => R.s.picard_iterations, label: "迭代数" }] },
+  { id: "t-li", q: [{ get: (R) => R.s.li1, label: "l_i(1) 同尺" }, { get: (R) => R.s.efit_li, ref: true, dash: "5 3", label: "magdata li（EFIT 迹，参考）" }], seg: true },
+  { id: "t-bp", q: [{ get: (R) => R.s.betap, label: "β_p 同尺" }, { get: (R) => R.s.efit_betap, ref: true, dash: "5 3", label: "magdata betap（EFIT 迹，参考）" }], seg: true },
+  { id: "t-q", q: [{ get: (R) => R.s.q95, label: "q_95" }, { get: (R) => R.s.q0, dash: "5 3", label: "q_0" }] },
+];
+function renderTraces(A, B) {
+  const t = A.res.time, lim = spans(A.s.bnd_kind ? A.s.bnd_kind.map((v) => v === 0) : [], t);
+  const segs = (A.res.profile_segments || []).length > 1 ? A.res.profile_segments.slice(1).map((sg) => sg[0]) : [];
+  for (const tr of TRACES) {
+    const series = [];
+    for (const [R, col] of [[A, RA], [B, RB]]) {
+      if (!R) continue;
+      for (const q of tr.q) {
+        if (q.ref && R === B) continue;
+        const y0 = q.get(R);
+        if (!y0 || !y0.length) continue;
+        const y = q.sc ? y0.map((v) => fin(v) ? v * q.sc : NaN) : y0;
+        series.push({ x: R.res.time, y, color: q.ref ? "var(--muted)" : col, dash: q.dash || "", width: q.ref ? 1.2 : 1.6, label: `${R.name} · ${q.label}` });
+      }
+      //: 没收敛的步在残差图上打点：定住 = 圆点，都不是 = 叉
+      if (tr.id === "t-gs" && R.s.gs_state) {
+        const pts = [];
+        R.s.gs_state.forEach((st, k) => { if (st !== 2 && fin(R.s.gs_residual[k]) && R.s.gs_residual[k] > 0) pts.push({ x: R.res.time[k], y: R.s.gs_residual[k], r: 2.4, mark: st === 0 ? "x" : "", fill: "var(--warn)", stroke: "var(--warn)", title: `${R.name} 第 ${k} 步：${st === 1 ? "定住（残差停在地板上）" : "未收敛也未定住"}` }); });
+        if (pts.length) series.push({ points: pts, color: "var(--warn)" });
+      }
+    }
+    const geo = {};
+    const has = series.some((s) => s.y || (s.points && s.points.length));
+    $(tr.id).innerHTML = has ? chart(series, { w: 420, h: 170, log: !!tr.log, geo, xlab: "t − t₀ [s]",
+      hlines: tr.hl ? tr.hl(A) : [],
+      xbands: lim.map(([a, b], i) => ({ x0: a, x1: b, color: "var(--wall)", opacity: 0.1, label: tr.id === "t-ip" && i === 0 ? "限制器位形" : "", title: "这一段边界由限制器定（bnd_kind = 0）" })),
+      vlines: tr.seg ? segs.map((x) => ({ x, title: "efit-trend：新一段剖面的起点" })) : [] })
+      : '<p class="muted">结果里没有这一量</p>';
+    S.geo[tr.id] = has ? geo : null;
+  }
+  let lg = `<span><span class="ln" style="border-color:${RA}"></span>主 ${esc(A.name)}</span>`;
+  if (B) lg += `<span><span class="ln" style="border-color:${RB}"></span>叠加 ${esc(B.name)}</span>`;
+  lg += '<span><span class="ln d" style="border-color:var(--muted)"></span>参考（目标 I_p · EFIT 迹）</span><span>浅灰底 = 限制器位形的时段</span>';
+  if (segs.length) lg += `<span>竖虚线（l_i · β_p）= efit-trend 的 ${segs.length + 1} 段剖面的分界</span>`;
+  $("tlegend").innerHTML = lg;
+}
+
+function renderChannels(A) {
+  const ch = A.res.channels;
+  if (!ch || !ch.names || !ch.aturns || !ch.aturns.length) { $("t-ch").innerHTML = '<p class="muted">结果里没有线圈通道的安匝</p>'; $("chlegend").innerHTML = ""; S.geo["t-ch"] = null; return; }
+  const COLS = ["var(--tM)", "var(--tK)", "var(--tP)", "var(--ok)", "var(--rB)", "var(--gold)", "var(--accent)"];
+  const series = ch.names.map((nm, c) => ({ x: A.res.time, y: ch.aturns.map((row) => fin(row[c]) ? row[c] / 1e3 : NaN), color: COLS[c % COLS.length], dash: c >= COLS.length ? "5 3" : "", width: 1.3, label: nm }));
+  const geo = {};
+  $("t-ch").innerHTML = chart(series, { w: 620, h: 240, geo, xlab: "t − t₀ [s]" });
+  S.geo["t-ch"] = geo;
+  $("chlegend").innerHTML = series.map((s) => `<span><span class="ln${s.dash ? " d" : ""}" style="border-color:${s.color}"></span>${esc(s.label)}</span>`).join("");
+}
+
+function renderHeat(A) {
+  if (!A.cache.heat) {
+    const n = A.n, m = A.m, cur = A.res.sources.current_A, t = A.res.time;
+    const W = 1200, H = 280, L = 46, R = 10, T = 10, Bm = 30, ncol = Math.min(n, 160), LV = 6;
+    const X = scale(t[0], t[n - 1], L, W - R), rowH = (H - T - Bm) / m;
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="丝电流热图"><rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - Bm}" fill="var(--sheet)" stroke="var(--rule)"/><g shape-rendering="crispEdges">`;
+    let rects = 0;
+    for (let c = 0; c < ncol; c++) {
+      const k0 = Math.floor(c * n / ncol), k1 = Math.max(k0 + 1, Math.floor((c + 1) * n / ncol)), km = Math.floor((k0 + k1 - 1) / 2);
+      const xa = X(t[k0]), xb = k1 >= n ? W - R : X(t[k1]), row = cur[km] || [];
+      let i = 0;
+      while (i < m) {
+        const v = row[i], lev = fin(v) && A.imax > 0 ? Math.round(Math.min(1, Math.abs(v) / A.imax) * LV) * (v < 0 ? -1 : 1) : 0;
+        let j = i + 1;
+        while (j < m) { const w = row[j], lw = fin(w) && A.imax > 0 ? Math.round(Math.min(1, Math.abs(w) / A.imax) * LV) * (w < 0 ? -1 : 1) : 0; if (lw !== lev) break; j++; }
+        if (lev !== 0) { s += `<rect x="${xa.toFixed(2)}" y="${(T + i * rowH).toFixed(2)}" width="${(xb - xa).toFixed(2)}" height="${((j - i) * rowH).toFixed(2)}" fill="${lev > 0 ? "var(--pos)" : "var(--neg)"}" fill-opacity="${(Math.abs(lev) / LV).toFixed(2)}"/>`; rects++; }
+        i = j;
+      }
+    }
+    s += "</g>";
+    for (const [s0] of contoursFor(A).list.slice(1)) s += `<line x1="${L}" x2="${W - R}" y1="${(T + s0 * rowH).toFixed(1)}" y2="${(T + s0 * rowH).toFixed(1)}" stroke="var(--ink2)" stroke-width="0.8"/>`;
+    for (const v of nice(0, m - 1, 4)) s += `<text x="${L - 4}" y="${(T + (v + 0.5) * rowH + 4).toFixed(1)}" text-anchor="end">${v}</text>`;
+    for (const v of nice(t[0], t[n - 1], 8)) s += `<text x="${X(v).toFixed(1)}" y="${H - Bm + 14}" text-anchor="middle">${g(v, 3)}</text>`;
+    s += `<text x="${(L + W - R) / 2}" y="${H - 4}" text-anchor="middle">t − t₀ [s]</text></svg>`;
+    A.cache.heat = { svg: s, geo: { x0: t[0], x1: t[n - 1], L, R, T, B: Bm, W, H }, rects, ncol };
+  }
+  const h = A.cache.heat;
+  $("hmap").innerHTML = h.svg;
+  S.geo.hmap = h.geo;
+  $("hmapnote").textContent = `${A.n} 步降采样到 ${h.ncol} 列（每列取中间那一步）· 颜色分 6 档，量程 ±${g(A.imax, 3)} A（整段最大 |I|）· 同色相邻的格并成一块（${h.rects} 块）。`;
+}
+
+function renderOpts(A) {
+  const r = A.res, o = r.options || {}, kn = r.kernel || {}, d = r.door || {};
+  const rows = [
+    ["文件", esc(A.name)], ["炮号 · t₀", `${esc(r.shot)} · ${val(r.time_origin_s)} s`],
+    ["被动电流模式", esc(PASSIVE[r.passive] || r.passive)],
+    ["passive_init（t₀ 的丝电流）", r.passive === "induced" ? val(o.passive_init) + (r.passive_init_A ? `（Σ ${f(r.passive_init_A.reduce((a, b) => a + (fin(b) ? b : 0), 0) / 1e3, 2)} kA）` : "") : '<span class="muted">—（只对 induced）</span>'],
+    ["passive_file", val(o.passive_file)],
+    ["zc_anchor", fin(o.zc_anchor) ? `${sgn(o.zc_anchor * 1e3, 2)} mm` : val(o.zc_anchor)],
+    ["剖面（--profile）", val(o.profile) + (o.segment_s ? ` · 每段 ${val(o.segment_s)} s` : "")],
+    ["stride · substeps", `${val(o.stride)} · ${val(o.substeps)}`], ["relax", val(o.relax)], ["网格", val(o.grid)],
+    ["IC 几何（--ic-rz）", o.ic_rz ? val(o.ic_rz) : '<span class="muted">装置事实（缺省）</span>'],
+    ["步数 · 时段", `${A.n} 步 · ${f(r.time[0], 4)} … ${f(r.time[A.n - 1], 4)} s（绝对 ${f(r.time_abs[0], 4)} … ${f(r.time_abs[A.n - 1], 4)} s）`],
+    ["σ（g-file 符号约定）", val(r.sigma_gfile)],
+    ["内核", `${esc(kn.kernel_version)} · built ${esc(kn.built)}<br><span class="muted">sha256 ${esc(kn.sha256)}</span>`],
+    ["门", `${esc(d.code)} · ${f(d.seconds, 1)} s`], ["门的设定", val(d.settings)],
+    ["应用", `${esc(r.app)} ${esc(r.version)}`],
+  ];
+  $("evopts").innerHTML = kvt(rows);
+  const notes = d.notes || [];
+  $("evnotes").innerHTML = notes.length ? '<ul class="plain">' + notes.map((x) => `<li>${esc(x)}</li>`).join("") + "</ul>" : '<p class="muted">门没有说明。</p>';
+  const facts = Array.isArray(d.facts) ? d.facts : d.facts ? [d.facts] : [];
+  if (facts.length) {
+    const keys = [...new Set(facts.flatMap((x) => Object.keys(x || {})))];
+    $("evfacts").innerHTML = `<h3>门的事实${facts.length > 1 ? `（${facts.length} 段，逐段）` : ""}</h3><table><tbody>` + keys.map((k) => `<tr><td class="l">${esc(k)}</td><td class="l num">${facts.map((x) => val(x ? x[k] : null)).join(" · ")}</td></tr>`).join("") + "</tbody></table>";
+  } else $("evfacts").innerHTML = "";
+  if (r.profile_fits && r.profile_fits.length) {
+    $("evfacts").innerHTML += `<h3>efit-trend 各段的剖面拟合（κ · γ → β_p · l_i(1) 对目标）</h3><table><thead><tr><th class="l">段</th><th>起点 [s]</th><th>κ</th><th>γ</th><th>β_p</th><th>目标</th><th>l_i(1)</th><th>目标</th></tr></thead><tbody>`
+      + r.profile_fits.map((p, i) => `<tr><td class="l">${i + 1}</td><td class="num">${f(((r.profile_segments || [])[i] || [])[0], 3)}</td><td class="num">${f(p.kappa, 3)}</td><td class="num">${f(p.gamma, 3)}</td><td class="num">${f(p.betap, 3)}</td><td class="num">${f((p.target || [])[0], 3)}</td><td class="num">${f(p.li1, 3)}</td><td class="num">${f((p.target || [])[1], 3)}</td></tr>`).join("") + "</tbody></table>";
+  }
+  $("evfoot").innerHTML = `${esc(r.app)} ${esc(r.version)} · ${esc(A.name)} · EAST #${esc(r.shot)} · 内核 ${esc(kn.kernel_version)} (${esc(String(kn.sha256 || "").slice(0, 12))}…) · 门 ${esc(d.code)} 用时 ${f(d.seconds, 1)} s`;
+}
+
+function renderWall(A) {
+  const c = contoursFor(A);
+  const W = S.wall;
+  let h = "";
+  if (W) {
+    h += kvt([
+      ["丝数", val(W.n_elements)],
+      ["最慢的 10 个 L/R 时间 τ [ms]", (W.tau_s || []).map((v) => f(v * 1e3, 2)).join(" · ")],
+      ["并联电阻", `${g(W.parallel_resistance_ohm * 1e6, 4)} μΩ`],
+      ["电阻复核（内核元件电阻 / VVres − 1，最大）", g(W.resistance_max_rel_error, 2)],
+      ["反推的条带厚度", (W.thickness_m || []).map((v) => f(v * 1e3, 2)).join(" … ") + " mm"],
+    ]);
+    if (W.n_elements !== A.m) h += `<p class="note warn">wall.json 的丝数 ${W.n_elements} 与这份 run 的 ${A.m} 不一致——不是同一个算例。</p>`;
+  } else h += '<p class="muted">没有载入 <code>wall.json</code>（<code>fb_evolution.py wall</code> 的输出）：丝回路的 L/R 时间不在 run 文件里。拖进来就列出。</p>';
+  h += `<h3>轮廓（${esc(c.from)}）</h3><table><thead><tr><th class="l">轮廓</th><th>丝</th><th>根数</th><th class="l">闭合</th><th>电阻范围 [mΩ]</th></tr></thead><tbody>`
+    + c.list.map(([a, b, cl], i) => { const rs = A.res.sources.resistance_ohm.slice(a, b + 1); return `<tr><td class="l">${i + 1}</td><td class="num">${a} … ${b}</td><td class="num">${b - a + 1}</td><td class="l">${cl ? "闭合" : "开"}</td><td class="num">${f(Math.min(...rs) * 1e3, 2)} … ${f(Math.max(...rs) * 1e3, 2)}</td></tr>`; }).join("") + "</tbody></table>";
+  $("evwall").innerHTML = h;
+  $("wallnote").textContent = W ? esc(S.wallName) : "缺 wall.json";
+}
+
+function pairDiff(A, B) {
+  const key = A.name + "|" + B.name;
+  if (S.dc[key]) return S.dc[key];
+  const tol = tolOf(A, B), idx = [];
+  for (let k = 0; k < A.n; k++) { const j = matchIdx(B, A.res.time[k], tol); if (j >= 0) idx.push([k, j]); }
+  const o = { t: [], dAx: [], dR: [], dZ: [], dPsi: [], dSum: [], tb: [], bmax: [], bmean: [], matched: idx.length, n: A.n, idx };
+  const same = A.m === B.m, pa = A.res.sources.psi_total_Wb, pb = B.res.sources.psi_total_Wb;
+  for (const [k, j] of idx) {
+    const dr = A.s.axis_r[k] - B.s.axis_r[j], dz = A.s.axis_z[k] - B.s.axis_z[j];
+    o.t.push(A.res.time[k]); o.dR.push(dr * 100); o.dZ.push(dz * 100); o.dAx.push(Math.hypot(dr, dz) * 100);
+    let mx = NaN;
+    if (same && pa && pb) { mx = 0; for (let i = 0; i < A.m; i++) { const d = Math.abs(pa[k][i] - pb[j][i]); if (d > mx) mx = d; } }
+    o.dPsi.push(mx); o.dSum.push((A.tot[k] - B.tot[j]) / 1e3);
+  }
+  //: 边界距离每点要 181 × 181 次段距：至多取 100 个时刻（含末步）
+  const st = Math.max(1, Math.ceil(idx.length / 100));
+  for (let m = 0; m < idx.length; m += st) {
+    const [k, j] = idx[m], d = bdist(A.res.boundary[k], B.res.boundary[j]);
+    o.tb.push(A.res.time[k]); o.bmax.push(d.max_m * 100); o.bmean.push(d.mean_m * 100);
+  }
+  if (idx.length && (idx.length - 1) % st) {
+    const [k, j] = idx[idx.length - 1], d = bdist(A.res.boundary[k], B.res.boundary[j]);
+    o.tb.push(A.res.time[k]); o.bmax.push(d.max_m * 100); o.bmean.push(d.mean_m * 100);
+  }
+  o.stride = st;
+  S.dc[key] = o;
+  return o;
+}
+/** 差随时间的四张图：演化页（带光标）与比较页共用。 */
+function diffCharts(A, B, ids, withGeo) {
+  const d = pairDiff(A, B);
+  const mk = (id, series, o) => { const geo = {}; $(id).innerHTML = chart(series, Object.assign({ w: 560, h: 190, xlab: "t − t₀ [s]", geo }, o || {})); if (withGeo) S.geo[id] = geo; };
+  if (!d.matched) { for (const id of Object.values(ids)) { $(id).innerHTML = '<p class="muted">两份的时刻一个也对不上</p>'; if (withGeo) S.geo[id] = null; } return d; }
+  mk(ids.ax, [{ x: d.t, y: d.dAx, color: "var(--ink)", label: "|Δ磁轴|" }, { x: d.t, y: d.dR, color: "var(--tK)", dash: "5 3", width: 1.2, label: "ΔR" }, { x: d.t, y: d.dZ, color: "var(--tP)", dash: "5 3", width: 1.2, label: "ΔZ" }], { hlines: [{ y: 0 }] });
+  mk(ids.bd, [{ x: d.tb, y: d.bmax, color: "var(--ink)", label: "边界距离 max" }, { x: d.tb, y: d.bmean, color: "var(--tK)", dash: "5 3", width: 1.2, label: "mean" }]);
+  if (d.dPsi.some(fin)) mk(ids.psi, [{ x: d.t, y: d.dPsi, color: "var(--ink)", label: "max |ΔΨ_tot|" }]);
+  else { $(ids.psi).innerHTML = '<p class="muted">两份的丝数不同，不逐丝相减</p>'; if (withGeo) S.geo[ids.psi] = null; }
+  mk(ids.sum, [{ x: d.t, y: d.dSum, color: "var(--ink)", label: "Δ Σ I_k" }], { hlines: [{ y: 0 }] });
+  return d;
+}
+function renderDiff(A, B) {
+  $("evdiffcard").hidden = !B;
+  if (!B) return;
+  const d = diffCharts(A, B, { ax: "d-ax", bd: "d-bd", psi: "d-psi", sum: "d-sum" }, true);
+  $("evdiffnote").textContent = `主 ${A.name} − 叠加 ${B.name} · 按时刻对上 ${d.matched} / ${A.n} 步`
+    + (d.matched && d.matched < A.n ? "（对不上的时刻不比）" : "") + (d.stride > 1 ? ` · 边界距离每 ${d.stride} 步取一次` : "");
+}
+
+function renderRunButtons() {
+  $("runA").innerHTML = S.runs.map((r, i) => `<button type="button" class="sm" data-a="${i}" aria-pressed="${i === S.a}">${esc(r.name)}</button>`).join(" ");
+  $("runB").innerHTML = `<button type="button" class="sm" data-b="-1" aria-pressed="${S.b < 0}">无</button> `
+    + S.runs.map((r, i) => `<button type="button" class="sm" data-b="${i}" aria-pressed="${i === S.b}"${i === S.a ? " disabled" : ""}>${esc(r.name)}</button>`).join(" ");
+}
+
+function renderEvo() {
+  if (S.b === S.a) S.b = -1;
+  const A = S.runs[S.a], B = S.b >= 0 ? S.runs[S.b] : null, r = A.res;
+  S.k = Math.max(0, Math.min(A.n - 1, S.k));
+  $("title").textContent = `EAST #${r.shot} · ${f(r.time_abs[0], 3)}–${f(r.time_abs[A.n - 1], 3)} s · 自由边界演化（被动电流 ${r.passive}）`;
+  renderRunButtons();
+  $("evslider").max = String(A.n - 1);
+  renderTraces(A, B); renderChannels(A); renderHeat(A); renderOpts(A); renderWall(A); renderDiff(A, B);
+  drawStep();
+}
+
+function stateLine(R, k, col, lab) {
+  const s = R.s, st = s.gs_state ? s.gs_state[k] : null, bk = s.bnd_kind ? s.bnd_kind[k] : null;
+  const gs = st === 2 ? "收敛" : st === 1 ? '<span class="warn">定住（残差停在地板上，未达 tol）</span>' : st === 0 ? '<span class="warn">没收敛也没定住</span>' : "—";
+  const ip = s.ip[k], tg = R.res.ip_target_A ? R.res.ip_target_A[k] : NaN;
+  return `<p class="note"><span class="dot" style="background:${col}"></span><b>${lab} ${esc(R.name)}</b>（第 ${k + 1} 步）· I<sub>p</sub> ${f(ip / 1e3, 1)} kA（目标 ${f(tg / 1e3, 1)}）· `
+    + `${bk === 1 ? "X 点位形" : bk === 0 ? "限制器位形" : "位形 —"} · GS ${gs}，残差 ${g(s.gs_residual[k], 2)}，迭代 ${fin(s.picard_iterations[k]) ? s.picard_iterations[k] : "—"}${k === 0 ? "（第 0 步不记）" : ""} · `
+    + `I<sub>fb</sub>/I<sub>p</sub> ${sgn(100 * s.fb_amp[k] / Math.abs(ip), 2)} % · B<sub>R,fb</sub> ${sgn(1e3 * (s.pair_br_at_axis_T || [])[k], 2)} mT · `
+    + `ΣI<sub>k</sub> ${f(R.tot[k] / 1e3, 2)} kA · max|I<sub>k</sub>| ${f(R.maxAbs[k], 0)} A · 磁轴 (${f(s.axis_r[k], 4)}, ${sgn(s.axis_z[k], 4)}) m · `
+    + `l<sub>i</sub>(1) ${f((s.li1 || [])[k], 3)} · β<sub>p</sub> ${f((s.betap || [])[k], 3)} · q<sub>95</sub> ${f((s.q95 || [])[k], 2)}</p>`;
+}
+
+/** 线圈矩形（dR × dZ，中心 r, z），带名字；fill = [颜色, 不透明度]。 */
+function coilRect(F, c, fill, cls, stroke, title, dash) {
+  if (!(fin(c.r) && fin(c.z) && fin(c.dr) && fin(c.dz))) return "";
+  const x0 = F.X(c.r - c.dr / 2), x1 = F.X(c.r + c.dr / 2), y0 = F.Y(c.z + c.dz / 2), y1 = F.Y(c.z - c.dz / 2);
+  let s = `<rect class="${cls}" x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${Math.max(1, x1 - x0).toFixed(1)}" height="${Math.max(1, y1 - y0).toFixed(1)}" fill="${fill[0]}" fill-opacity="${fill[1]}" stroke="${stroke}" stroke-width="${dash ? 1 : 1.2}"${dash ? ' stroke-dasharray="3 2"' : ""}><title>${esc(title)}</title></rect>`;
+  if (!dash) {
+    const right = x1 + 2 < F.W - 30;
+    s += `<text x="${(right ? x1 + 2 : x0 - 2).toFixed(1)}" y="${(F.Y(c.z) + 3).toFixed(1)}"${right ? "" : ' text-anchor="end"'} style="font-size:9px">${esc(c.name)}</text>`;
+  }
+  return s;
+}
+/** 通道安匝的量程（整段）：PF 通道一个、IC 通道一个——两者差一个量级，分开标。 */
+function aturnScale(A, names) {
+  const ch = A.res.channels || {}, idx = names.map((n) => (ch.names || []).indexOf(n)).filter((i) => i >= 0);
+  let m = 0;
+  for (const row of ch.aturns || []) for (const i of idx) { const v = Math.abs(row[i]); if (fin(v) && v > m) m = v; }
+  return m;
+}
+function coilLayer(F, A, k, C) {
+  const ch = A.res.channels || {}, names = ch.names || [], row = (ch.aturns || [])[k] || [];
+  const at = (c) => { const i = names.indexOf(c.channel); return i >= 0 ? row[i] : NaN; };
+  if (!A.cache.cscale) A.cache.cscale = { pf: aturnScale(A, [...new Set(C.pf.map((c) => c.channel))]), ic: aturnScale(A, [...new Set(C.ic.map((c) => c.channel))]) };
+  const sc = A.cache.cscale;
+  let s = "";
+  for (const c of C.pf) {
+    const v = at(c);
+    s += coilRect(F, c, fin(v) ? icol(v, sc.pf) : ["var(--hair)", 1], "coil", "var(--ink2)", `${c.name}（通道 ${c.channel}，${c.turns} 匝）：通道安匝 ${fin(v) ? g(v / 1e3, 4) + " kA·匝" : "—"} · 中心 (${f(c.r, 3)}, ${f(c.z, 3)}) m · ${f(c.dr * 100, 1)} × ${f(c.dz * 100, 1)} cm`);
+  }
+  for (const c of C.ic) {
+    const v = at(c);
+    s += coilRect(F, c, fin(v) ? icol(v, sc.ic) : ["var(--hair)", 1], "ic", "var(--gold)", `${c.name}（${c.turns} 匝，位置 ← ${c.position_from}）：通道安匝 ${fin(v) ? g(v / 1e3, 4) + " kA·匝" : "—"} · 中心 (${f(c.r, 3)}, ${f(c.z, 3)}) m`);
+    if (c.figure_rz && (c.figure_rz[0] !== c.r || c.figure_rz[1] !== c.z))
+      s += coilRect(F, Object.assign({}, c, { r: c.figure_rz[0], z: c.figure_rz[1] }), ["none", 1], "icfig", "var(--gold)", `${c.name} 数据附图上的位置 (${f(c.figure_rz[0], 3)}, ${f(c.figure_rz[1], 3)})——只作记录，这一次没用`, true);
+  }
+  return s;
+}
+/** 截面：静态层（限制器、盒、丝的轮廓、轨迹、ψ 等值线）按 (主, 叠加, 辅助文件) 缓存，换步只加动态层。 */
+function sectionStatic(A, B) {
+  const lim = limiterFor(A.res), c = contoursFor(A);
+  const C = coilsFor(A.res);
+  const key = [A.name, B ? B.name : "", lim ? lim.from : "", c.from, C ? C.from : ""].join("|");
+  if (A.cache.xs && A.cache.xs.key === key) return A.cache.xs;
+  const src = A.res.sources, gr = A.res.grid.r, gz = A.res.grid.z;
+  const pts = src.r.map((r, i) => [r, src.z[i]]).concat([[gr[0], gz[0]], [gr[gr.length - 1], gz[gz.length - 1]]]);
+  if (lim) lim.r.forEach((r, i) => pts.push([r, lim.z[i]]));
+  if (C) for (const c of C.pf.concat(C.ic)) if (fin(c.r) && fin(c.dr)) pts.push([c.r - c.dr / 2, c.z - c.dz / 2], [c.r + c.dr / 2, c.z + c.dz / 2]);
+  const F = frame(pts, 420);
+  let s = F.head;
+  s += `<rect x="${F.X(gr[0]).toFixed(1)}" y="${F.Y(gz[gz.length - 1]).toFixed(1)}" width="${(F.X(gr[gr.length - 1]) - F.X(gr[0])).toFixed(1)}" height="${(F.Y(gz[0]) - F.Y(gz[gz.length - 1])).toFixed(1)}" fill="none" stroke="var(--muted)" stroke-dasharray="2 3"><title>计算盒 ${gr.length}×${gz.length}</title></rect>`;
+  if (lim) s += F.path(lim.r.map((r, i) => [r, lim.z[i]]), 'fill="none" stroke="var(--wall)" stroke-width="1.6"', true);
+  for (const [a, b, cl] of c.list) s += F.path(src.r.slice(a, b + 1).map((r, i) => [r, src.z[a + i]]), 'fill="none" stroke="var(--wall)" stroke-width="0.8" opacity="0.7"', cl);
+  //: ψ 等值线：只有最后一步的图（psi_last_Wb）；段先按数据坐标算好
+  const lastSeg = psiLastSegments(A);
+  let psiSvg = "";
+  if (lastSeg) for (const sg of lastSeg) psiSvg += `<line x1="${F.X(sg[0][0]).toFixed(1)}" y1="${F.Y(sg[0][1]).toFixed(1)}" x2="${F.X(sg[1][0]).toFixed(1)}" y2="${F.Y(sg[1][1]).toFixed(1)}" stroke="var(--flux)" stroke-width="${sg[2] ? 0.9 : 0.6}"${sg[2] ? "" : ' stroke-dasharray="2 2"'}/>`;
+  const track = (R, col) => F.path(R.s.axis_r.map((r, k) => [r, R.s.axis_z[k]]), `fill="none" stroke="${col}" stroke-width="0.9" opacity="0.7"`);
+  s += track(A, RA);
+  if (B) s += track(B, RB);
+  const stp = Math.max(1, Math.ceil(A.n / 24)), trailIdx = [];
+  for (let k = 0; k < A.n; k += stp) trailIdx.push(k);
+  A.cache.xs = { key, F, s, psiSvg, lim, c, C, trailIdx };
+  return A.cache.xs;
+}
+function psiLastSegments(A) {
+  if ("psiSeg" in A.cache) return A.cache.psiSeg;
+  const r = A.res.grid.r, z = A.res.grid.z, nz = z.length, fl = A.res.psi_last_Wb, n = A.n;
+  if (!fl || fl.length !== r.length * nz) { A.cache.psiSeg = null; return null; }
+  const pa = A.s.psi_axis[n - 1], pb = A.s.psi_boundary[n - 1], bnd = A.res.boundary[n - 1] || [];
+  if (!(fin(pa) && fin(pb) && pa !== pb)) { A.cache.psiSeg = null; return null; }
+  //: psi_last_Wb 的平铺次序与 fb_evolution.py summarize 同：psi[i * nz + j]，i 走 R、j 走 Z
+  const PN = r.map((_, i) => z.map((_, j) => (pa - fl[i * nz + j]) / (pa - pb)));
+  const out = [];
+  for (const lev of [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2, 1.35, 1.5, 1.7]) {
+    for (const sg of contour(r, z, PN, lev)) {
+      const mid = [(sg[0][0] + sg[1][0]) / 2, (sg[0][1] + sg[1][1]) / 2], inn = bnd.length > 3 && inside(bnd, mid[0], mid[1]);
+      if ((lev < 1) !== inn) continue;
+      out.push([sg[0], sg[1], lev < 1]);
+    }
+  }
+  A.cache.psiSeg = out;
+  return out;
+}
+function drawSection(A, B, k, jb) {
+  const st = sectionStatic(A, B), F = st.F, last = k === A.n - 1;
+  let s = st.s;
+  if (st.C) s += coilLayer(F, A, k, st.C);
+  if (last) s += st.psiSvg;
+  //: 淡迹：之前各步的边界（越近越深）
+  for (const j of st.trailIdx) { if (j >= k) break; s += F.path(A.res.boundary[j], `fill="none" stroke="${RA}" stroke-width="0.7" opacity="${(0.12 + 0.3 * j / Math.max(1, k)).toFixed(2)}"`, true); }
+  if (B && jb >= 0) {
+    s += F.path(B.res.boundary[jb], `class="bndB" fill="none" stroke="${RB}" stroke-width="1.7" stroke-dasharray="6 3"`, true);
+    s += `<circle cx="${F.X(B.s.axis_r[jb]).toFixed(1)}" cy="${F.Y(B.s.axis_z[jb]).toFixed(1)}" r="3.2" fill="${RB}"><title>叠加 ${esc(B.name)} 磁轴 (${f(B.s.axis_r[jb], 4)}, ${f(B.s.axis_z[jb], 4)})</title></circle>`;
+  }
+  s += F.path(A.res.boundary[k], `class="bndA" fill="none" stroke="${RA}" stroke-width="2.2"`, true);
+  s += `<circle cx="${F.X(A.s.axis_r[k]).toFixed(1)}" cy="${F.Y(A.s.axis_z[k]).toFixed(1)}" r="3.6" fill="${RA}"><title>磁轴 (${f(A.s.axis_r[k], 4)}, ${f(A.s.axis_z[k], 4)})</title></circle>`;
+  const xr = (A.s.xpt_r || [])[k], xz = (A.s.xpt_z || [])[k];
+  if (fin(xr) && fin(xz)) {
+    const x = F.X(xr), y = F.Y(xz), a = 4.5, dv = A.s.bnd_kind[k] === 1;
+    s += `<path d="M${(x - a).toFixed(1)},${(y - a).toFixed(1)}L${(x + a).toFixed(1)},${(y + a).toFixed(1)}M${(x - a).toFixed(1)},${(y + a).toFixed(1)}L${(x + a).toFixed(1)},${(y - a).toFixed(1)}" stroke="${RA}" stroke-width="${dv ? 2 : 1.1}" opacity="${dv ? 1 : 0.55}"><title>${dv ? "X 点（边界由它定）" : "内核给的鞍点；这一步边界由限制器定"} (${f(xr, 3)}, ${f(xz, 3)})</title></path>`;
+  }
+  //: 丝：按这一步的电流着色，量程 = 整段最大 |I|
+  const src = A.res.sources, row = src.current_A[k] || [];
+  for (let i = 0; i < A.m; i++) {
+    const [col, op] = icol(row[i], A.imax);
+    s += `<circle class="fil" cx="${F.X(src.r[i]).toFixed(1)}" cy="${F.Y(src.z[i]).toFixed(1)}" r="3.1" fill="${col}" fill-opacity="${op}" stroke="var(--wall)" stroke-width="0.5"><title>丝 ${i}：I = ${f(row[i], 1)} A · R = ${g(src.resistance_ohm[i] * 1e3, 3)} mΩ · Ψ_tot = ${g((src.psi_total_Wb[k] || [])[i], 4)} Wb</title></circle>`;
+  }
+  $("xs").innerHTML = s + "</svg>";
+  const lim = st.lim;
+  $("xsnote").textContent = last && psiLastSegments(A) ? "ψ 等值线 = 最后一步（psi_last_Wb）：实线 ψ_N 0.1…0.9，点线 ψ_N > 1" : "ψ 等值线只有最后一步——结果只留了最后一步的 ψ 图";
+  let lg = `<span><span class="ln" style="border-color:${RA}"></span>主的边界 · ● 磁轴 · 细线 = 磁轴轨迹 · 淡线 = 之前的边界</span>`;
+  if (B) lg += `<span><span class="ln d" style="border-color:${RB}"></span>叠加 ${esc(B.name)}${jb >= 0 ? "" : '（<span class="warn">这个时刻没有步</span>）'}</span>`;
+  lg += `<span>${colorbar(A.imax, "A")} 丝电流（正负与 current_A 同号）</span>`;
+  const C = st.C;
+  if (C) lg += `<span>${colorbar(A.cache.cscale.pf / 1e3, "kA·匝", "cbarc")} PF 线圈 = 所属通道这一步的安匝（整段 PF 通道的最大）；金框 = IC，量程 ±${g(A.cache.cscale.ic / 1e3, 3)} kA·匝${C.ic.some((c) => c.figure_rz) ? "；金色虚框 = 数据附图上的 IC 位置（未用）" : ""}</span>`;
+  lg += `<span>${lim ? "粗灰线 = 限制器（" + esc(lim.from) + "）" : '<span class="warn">没有限制器</span>：run 文件没带，也没载入 geometry.json / case.json'} · 灰虚框 = 计算盒 · 细灰线 = 丝的轮廓（${esc(st.c.from)}）· × = X 点</span>`;
+  $("xslegend").innerHTML = lg;
+  $("xscoil").innerHTML = coilNote(C, A.res);
+}
+function coilNote(C, res) {
+  if (!C) return `<b>缺线圈</b>：这份文件没有 <code>geometry</code> 块（早于 2026-09-22 的输出），也没载入 <code>geometry.json</code>——截面上不画 PF / IC 线圈。`
+    + `用 <code>fb_evolution.py geometry --shot ${esc(res && res.shot)} -o geometry.json</code> 从装置事实写一份，一起拖进来。`;
+  const so = C.source, ic = C.ic.map((c) => `${esc(c.name)} (${f(c.r, 3)}, ${sgn(c.z, 3)}) ← ${esc(c.position_from)}${c.figure_rz ? `（附图 (${f(c.figure_rz[0], 2)}, ${sgn(c.figure_rz[1], 2)}) 未用）` : ""}`).join("；");
+  return `线圈与限制器取装置事实：${esc(so.device || "")} · #${esc(so.shot)} · 测量链 ${esc(so.measurement_chain || "")}（${esc(C.from)}）。`
+    + `${C.pf.length} 个 PF 元素（宽 × 高取事实的矩形），IC：${ic}。` + (C.warn ? ` <span class="warn">${esc(C.warn)}</span>` : "");
+}
+
+function drawSources(A, B, k, jb) {
+  const idx = [...Array(A.m).keys()], c = contoursFor(A).list, src = A.res.sources;
+  const xb = c.map(([a, b, cl], i) => ({ x0: a - 0.5, x1: b + 0.5, color: "var(--wall)", opacity: i % 2 ? 0.08 : 0.0001, label: `轮廓 ${i + 1}${cl ? "" : "（开）"}`, title: `轮廓 ${i + 1}：丝 ${a} … ${b}` }));
+  const same = B && jb >= 0 && B.m === A.m;
+  const im = Math.max(A.imax, same ? B.imax : 0) * 1.05 || 1;
+  const si = [{ x: idx, y: src.current_A[k], color: RA, label: `${A.name} 第 ${k + 1} 步` }];
+  if (same) si.push({ x: idx, y: B.res.sources.current_A[jb], color: RB, dash: "5 3", label: `${B.name}` });
+  $("src-i").innerHTML = chart(si, { w: 620, h: 220, xlab: "丝序号（文件次序）", xint: true, ylim: [-im, im], xbands: xb, hlines: [{ y: 0 }] });
+  const lo = Math.min(A.rng.psi_total_Wb[0], A.rng.psi_external_Wb[0], A.rng.psi_plasma_Wb[0]);
+  const hi = Math.max(A.rng.psi_total_Wb[1], A.rng.psi_external_Wb[1], A.rng.psi_plasma_Wb[1]);
+  const sp = [
+    { x: idx, y: (src.psi_total_Wb || [])[k], color: RA, label: "Ψ_tot" },
+    { x: idx, y: (src.psi_external_Wb || [])[k], color: "var(--tK)", dash: "5 3", width: 1.3, label: "Ψ_ext" },
+    { x: idx, y: (src.psi_plasma_Wb || [])[k], color: "var(--gold)", dash: "2 2", width: 1.3, label: "Ψ_p" },
+  ];
+  if (same) sp.push({ x: idx, y: (B.res.sources.psi_total_Wb || [])[jb], color: RB, dash: "5 3", label: `${B.name} Ψ_tot` });
+  $("src-psi").innerHTML = chart(sp, { w: 620, h: 220, xlab: "丝序号（文件次序）", xint: true, ylim: fin(lo) && fin(hi) ? [lo, hi] : null, xbands: xb });
+  $("srcnote").textContent = `第 ${k + 1} 步 · ${A.m} 根丝 · 纵轴量程固定为整段的范围（各步可比）`;
+  let lg = `<span><span class="ln" style="border-color:${RA}"></span>I · Ψ_tot（主）</span><span><span class="ln d" style="border-color:var(--tK)"></span>Ψ_ext = Ψ_tot − M_kk I_k</span><span><span class="ln d" style="border-color:var(--gold)"></span>Ψ_p（只有等离子体的）</span>`;
+  if (B) lg += same ? `<span><span class="ln d" style="border-color:${RB}"></span>叠加 ${esc(B.name)}</span>` : `<span class="warn">叠加的那份${jb < 0 ? "在这个时刻没有步" : "丝数不同"}，不画</span>`;
+  lg += "<span>psi_gfile_Wb_per_rad = σ Ψ_tot / 2π，同一条量换尺，不另画</span>";
+  if (A.res.passive === "zero") lg += "<span>zero 模式：丝电流恒为零，只有磁通</span>";
+  $("srclegend").innerHTML = lg;
+}
+
+function drawStep() {
+  if (S.view !== "evo" || S.a < 0) return;
+  const A = S.runs[S.a], B = S.b >= 0 ? S.runs[S.b] : null, k = S.k, t = A.res.time[k];
+  const jb = B ? matchIdx(B, t, tolOf(A, B)) : -1;
+  $("evslider").value = String(k);
+  $("evprev").disabled = k <= 0;
+  $("evnext").disabled = k >= A.n - 1;
+  $("evpos").textContent = `第 ${k + 1} / ${A.n} 步 · t − t₀ = ${f(t, 4)} s · t = ${f(A.res.time_abs[k], 4)} s`;
+  $("evstate").innerHTML = stateLine(A, k, RA, "主") + (B ? (jb >= 0 ? stateLine(B, jb, RB, "叠加") : `<p class="note"><span class="dot" style="background:${RB}"></span><b>叠加 ${esc(B.name)}</b>：这个时刻没有步（它的时段 ${f(B.res.time[0], 3)} … ${f(B.res.time[B.n - 1], 3)} s、步长 ${g(B.dtmin * 1e3, 3)} ms）</p>`) : "");
+  drawSection(A, B, k, jb);
+  for (const tr of TRACES) $(tr.id + "-c").innerHTML = cursorSvg(S.geo[tr.id], t);
+  $("t-ch-c").innerHTML = cursorSvg(S.geo["t-ch"], t);
+  drawSources(A, B, k, jb);
+  $("hmap-c").innerHTML = cursorSvg(S.geo.hmap, t);
+  for (const id of ["d-ax", "d-bd", "d-psi", "d-sum"]) $(id + "-c").innerHTML = B ? cursorSvg(S.geo[id], t) : "";
+}
+//: 步导航：滑条 · ◀ ▶ · 键盘 · 点图 · 播放，都走这一条；浏览器里合并到下一帧画
+let pending = false;
+function goStep(k) {
+  const A = S.runs[S.a];
+  if (!A) return;
+  S.k = Math.max(0, Math.min(A.n - 1, Math.round(k)));
+  if (typeof requestAnimationFrame === "function") { if (!pending) { pending = true; requestAnimationFrame(() => { pending = false; drawStep(); }); } }
+  else drawStep();
+}
+function setRuns(a, b) {
+  if (a != null && a >= 0 && a < S.runs.length) {
+    if (a !== S.a) { const t = S.a >= 0 ? S.runs[S.a].res.time[S.k] : 0; S.a = a; const j = matchIdx(S.runs[a], t, 1e9); S.k = j >= 0 ? j : 0; }
+  }
+  if (b != null) S.b = b >= 0 && b < S.runs.length && b !== S.a ? b : -1;
+  S.view = "evo";
+  render();
+}
+function setView(v) { S.view = v; render(); }
+function togglePlay() {
+  if (S.playing) { clearInterval(S.playing); S.playing = null; $("evplay").textContent = "播放"; return; }
+  if (typeof setInterval !== "function" || S.a < 0) return;
+  const A = S.runs[S.a];
+  if (S.k >= A.n - 1) S.k = 0;
+  $("evplay").textContent = "暂停";
+  S.playing = setInterval(() => { if (S.view !== "evo" || S.k >= S.runs[S.a].n - 1) { togglePlay(); return; } goStep(S.k + 1); }, 70);
+}
+
+// ============================================================================================== 初始态页
+const VNAME = { magdata: "magdata（实测线圈电流）", afile_ccbrsp: "a-file 的 EFIT 线圈电流（诊断）" };
+function renderInit() {
+  const I = S.init, V = Object.entries(I.variants), VC = [RA, RB, "var(--tK)", "var(--tP)"];
+  $("title").textContent = `EAST #${I.shot} @ ${f(I.time_s, 3)} s · 初始平衡校验`;
+  const lim = limiterFor(I);
+  const ref = I.reference || {};
+  let rb = ref.boundary, rbFrom = "initial.json";
+  if (!(rb && rb.length) && S.kase && S.kase.gfile && S.kase.gfile.rbbbs) { const gf = S.kase.gfile; rb = gf.rbbbs.map((r, i) => [r, gf.zbbbs[i]]).filter((p) => p[0] > 0); rbFrom = S.kaseName + "（g-file 的 rbbbs）"; }
+  const pts = [];
+  if (lim) lim.r.forEach((r, i) => pts.push([r, lim.z[i]]));
+  for (const [, v] of V) (v.boundary || []).forEach((p) => pts.push(p));
+  if (rb) rb.forEach((p) => pts.push(p));
+  const CL = coilsFor(I);
+  if (CL) for (const c of CL.pf.concat(CL.ic)) if (fin(c.r) && fin(c.dr)) pts.push([c.r - c.dr / 2, c.z - c.dz / 2], [c.r + c.dr / 2, c.z + c.dz / 2]);
+  const F = frame(pts, 420);
+  let s = F.head;
+  if (CL) {
+    for (const c of CL.pf) s += coilRect(F, c, ["var(--hair)", 1], "coil", "var(--ink2)", `${c.name}（通道 ${c.channel}，${c.turns} 匝）`);
+    for (const c of CL.ic) s += coilRect(F, c, ["var(--hair)", 1], "ic", "var(--gold)", `${c.name}（位置 ← ${c.position_from}）`);
+  }
+  if (lim) s += F.path(lim.r.map((r, i) => [r, lim.z[i]]), 'fill="none" stroke="var(--wall)" stroke-width="1.6"', true);
+  if (rb && rb.length) s += F.path(rb, 'class="bndRef" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="5 3"', true);
+  if (ref.axis) s += `<path d="M${F.X(ref.axis[0]) - 5},${F.Y(ref.axis[1])}h10M${F.X(ref.axis[0])},${F.Y(ref.axis[1]) - 5}v10" stroke="var(--ink)" stroke-width="1.6"><title>参考磁轴 (${f(ref.axis[0], 4)}, ${f(ref.axis[1], 4)})</title></path>`;
+  V.forEach(([nm, v], i) => {
+    const col = VC[i % VC.length];
+    if (v.boundary && v.boundary.length) s += F.path(v.boundary, `class="bndV" fill="none" stroke="${col}" stroke-width="2"`, true);
+    const ax = v.compare && v.compare.axis_ours_m;
+    if (ax) s += `<circle cx="${F.X(ax[0]).toFixed(1)}" cy="${F.Y(ax[1]).toFixed(1)}" r="3.4" fill="${col}"><title>${esc(nm)} 磁轴 (${f(ax[0], 4)}, ${f(ax[1], 4)})</title></circle>`;
+    const so = v.solve || {};
+    if (so.bnd_kind === 1 && fin(so.xpt_r) && fin(so.xpt_z)) { const x = F.X(so.xpt_r), y = F.Y(so.xpt_z); s += `<path d="M${x - 4},${y - 4}L${x + 4},${y + 4}M${x - 4},${y + 4}L${x + 4},${y - 4}" stroke="${col}" stroke-width="1.6"><title>${esc(nm)} X 点</title></path>`; }
+  });
+  $("inxs").innerHTML = s + "</svg>";
+  $("inxsnote").textContent = `${V.length} 个解 · 参考 = 输入 g-file`;
+  $("inlegend").innerHTML = V.map(([nm], i) => `<span><span class="ln" style="border-color:${VC[i % VC.length]}"></span>${esc(VNAME[nm] || nm)}</span>`).join("")
+    + (rb && rb.length ? `<span><span class="ln d" style="border-color:var(--ink)"></span>参考边界（${esc(rbFrom)}）· + 参考磁轴</span>` : '<span class="warn">没有参考边界：initial.json 没带，也没载入 case.json（它有 g-file 的 rbbbs）</span>')
+    + (lim ? `<span>粗灰线 = 限制器（${esc(lim.from)}）</span>` : '<span class="warn">没有限制器（initial.json 没带，也没载入 geometry.json / case.json）</span>')
+    + `<span>${coilNote(CL, I)}</span>`;
+  //: 逐项对照
+  const af = ref.afile || {}, it = ref.integrals || {};
+  const C = (v) => v.compare || {};
+  const rows = [
+    ["线圈电流取自", "g-file / a-file", "", (v, nm) => esc(VNAME[nm] || nm)],
+    ["I_p [kA]", f(af.ip / 1e3, 1), `实测 ${f(af.ip_measured / 1e3, 1)}`, (v) => f(v.ip_A / 1e3, 1)],
+    ["磁轴 R · Z [m]", ref.axis ? `${f(ref.axis[0], 4)} · ${sgn(ref.axis[1], 4)}` : "—", "", (v) => C(v).axis_ours_m ? `${f(C(v).axis_ours_m[0], 4)} · ${sgn(C(v).axis_ours_m[1], 4)}` : "—"],
+    ["磁轴距离 [cm]", "", "", (v) => f(C(v).axis_distance_m * 100, 2)],
+    ["边界距离 max · mean [cm]", "", "", (v) => C(v).boundary_distance ? `${f(C(v).boundary_distance.max_m * 100, 2)} · ${f(C(v).boundary_distance.mean_m * 100, 2)}` : "—"],
+    ["ψ_N 图之差 rms · max（点数）", "", "", (v) => { const p = C(v).psin_map_difference || {}; return p.n_points ? `${f(p.rms, 4)} · ${f(p.max_abs, 3)}（${p.n_points}）` : "—"; }],
+    ["q_0", f(ref.q0, 3), f(af.q0, 3), (v) => f((C(v).q0 || {}).ours, 3)],
+    ["q_95", f(ref.q95, 3), f(af.q95, 3), (v) => f((C(v).q95 || {}).ours, 3)],
+    ["l_i(1) 同尺", f(it.li1, 4), `a-file li ${f(af.li, 4)}`, (v) => f((C(v).li1_same_ruler || {}).ours, 4)],
+    ["l_i(3) 同尺", f(it.li3, 4), "", (v) => f((C(v).li3_same_ruler || {}).ours, 4)],
+    ["β_p 同尺", f(it.betap, 4), f(af.betap, 4), (v) => f((C(v).betap_same_ruler || {}).ours, 4)],
+    ["W_MHD [kJ]", f(it.w_mhd_J / 1e3, 1), f(af.w_mhd / 1e3, 1), (v) => f((C(v).w_mhd_J || {}).ours / 1e3, 1)],
+    ["体积 [m³]", f(it.volume_m3, 3), f(af.volume, 3), (v) => f((C(v).volume_m3 || {}).ours, 3)],
+    ["κ", "", f(af.kappa, 3), (v) => f((C(v).kappa || {}).ours, 3)],
+    ["I_p 安培环路复核 [kA]", f(it.ip_ampere_A / 1e3, 1), "", (v) => f((C(v).ip_ampere_loop_A || {}).ours / 1e3, 1)],
+    ["Z_anchor（线圈对不出力）[mm]", "", "", (v) => `${sgn(v.zc_free_m * 1e3, 2)}${v.zc_search && v.zc_search.bracketed === false ? ' <span class="warn">（没夹住变号，取的最小）</span>' : ""}`],
+    ["线圈对残余 I_fb [A] · B_R,fb [mT]", "", "", (v) => `${g((v.solve || {}).fb_amp, 2)} · ${g(v.pair_br_at_axis_T * 1e3, 2)}`],
+    ["解：状态 · 迭代 · 残差", "", "", (v) => { const so = v.solve || {}; return `${so.converged === 1 ? "收敛" : '<span class="warn">未收敛</span>'} · ${val(so.iterations)} · ${g(so.residual, 2)}`; }],
+    ["位形", "", "", (v) => { const so = v.solve || {}; return so.bnd_kind === 1 ? `X 点 (${f(so.xpt_r, 3)}, ${sgn(so.xpt_z, 3)})` : so.bnd_kind === 0 ? "限制器" : "—"; }],
+  ];
+  let h = `<table><thead><tr><th class="l">量</th><th>参考 g-file（同尺）</th><th>a-file</th>${V.map(([nm], i) => `<th><span class="dot" style="background:${VC[i % VC.length]}"></span>${esc(nm)}</th>`).join("")}</tr></thead><tbody>`;
+  for (const [lab, rg, ra, fn] of rows) h += `<tr><td class="l">${lab}</td><td class="num">${rg}</td><td class="num">${ra}</td>${V.map(([nm, v]) => `<td class="num">${fn(v, nm)}</td>`).join("")}</tr>`;
+  $("intable").innerHTML = h + "</tbody></table>";
+  const series = V.map(([nm, v], i) => ({ x: ((v.zc_search || {}).scan || []).map((p) => p[0] * 1e3), y: ((v.zc_search || {}).scan || []).map((p) => p[1] / 1e3), color: VC[i % VC.length], label: nm,
+    points: ((v.zc_search || {}).scan || []).map((p) => ({ x: p[0] * 1e3, y: p[1] / 1e3, r: 2.6, title: `${nm}: Z = ${f(p[0] * 1e3, 1)} mm, I_fb = ${g(p[1], 3)} A` })) }));
+  $("inscan").innerHTML = chart(series, { w: 560, h: 200, xlab: "Z_anchor [mm]", hlines: [{ y: 0 }], vlines: V.map(([nm, v], i) => ({ x: v.zc_free_m * 1e3, color: VC[i % VC.length], title: `${nm} 不出力的高度 ${f(v.zc_free_m * 1e3, 2)} mm` })) });
+  $("inscanlegend").innerHTML = V.map(([nm], i) => `<span><span class="ln" style="border-color:${VC[i % VC.length]}"></span>${esc(nm)}</span>`).join("");
+  $("innotes").innerHTML = V.map(([nm, v]) => `<h3>${esc(VNAME[nm] || nm)}</h3>` + ((v.notes || []).length ? '<ul class="plain">' + v.notes.map((x) => `<li>${esc(x)}</li>`).join("") + "</ul>" : '<p class="muted">没有说明。</p>')).join("");
+  const kn = I.kernel || {};
+  $("infoot").innerHTML = `${esc(I.app)} ${esc(I.version)} · ${esc(S.initName)} · 内核 ${esc(kn.kernel_version)} (${esc(String(kn.sha256 || "").slice(0, 12))}…)`;
+}
+
+// ============================================================================================== 比较页
+function hbars(rows, o) {
+  const W = o.w || 1200, lw = 300, rowH = 26, H = rows.length * rowH + 20;
+  let vmax = 0;
+  for (const r of rows) for (const v of r.v) if (fin(v) && v > vmax) vmax = v;
+  const X = scale(0, vmax || 1, lw, W - 70);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="成对的差">`;
+  rows.forEach((r, i) => {
+    const y = 10 + i * rowH;
+    s += `<text x="${lw - 6}" y="${y + 15}" text-anchor="end">${esc(r.label)}</text>`;
+    r.v.forEach((v, j) => {
+      if (!fin(v)) return;
+      const w = Math.max(0.8, X(v) - lw), yy = y + 3 + j * 10;
+      s += `<rect x="${lw}" y="${yy}" width="${w.toFixed(1)}" height="8" fill="${o.colors[j]}"><title>${esc(r.label)} · ${esc(o.names[j])}: ${g(v, 3)} cm</title></rect><text x="${(lw + w + 4).toFixed(1)}" y="${yy + 8}">${v < 1e-4 ? "≈0" : g(v, 3)}</text>`;
+    });
+  });
+  return s + "</svg>";
+}
+function renderCmp() {
+  const C = S.cmp, pairs = Object.entries(C.pairs || {}), runs = Object.entries(C.runs || {});
+  $("title").textContent = `自由边界演化 · ${runs.length} 份 run 之间的比较`;
+  const byName = (nm) => S.runs.findIndex((r) => r.name === nm);
+  const both = (key) => { const [x, y] = key.split(" vs "); return [byName(x), byName(y)]; };
+  if (!S.pair || !C.pairs || !C.pairs[S.pair]) { const hit = pairs.find(([key]) => both(key).every((i) => i >= 0)); S.pair = hit ? hit[0] : pairs.length ? pairs[0][0] : null; }
+  let h = '<table><thead><tr><th class="l">对（x vs y）</th><th>磁轴移动 max [cm]</th><th>末步 [cm]</th><th>边界距离 max [cm]</th><th>Δl_i(1) max</th><th>Δβ_p max</th><th>Δq_95 max</th><th>丝处磁通差 max [Wb]</th><th class="l"></th></tr></thead><tbody>';
+  for (const [key, p] of pairs) {
+    const [ia, ib] = both(key), ok = ia >= 0 && ib >= 0;
+    const same = p.axis_shift_max_m < 1e-6 && p.boundary_distance_max_m < 1e-6;
+    h += `<tr${key === S.pair ? ' style="background:var(--accent-soft)"' : ""}><td class="l">${esc(key)}${same ? ' <span class="tag">同一个解（差在数值噪声）</span>' : ""}</td>`
+      + `<td class="num">${g(p.axis_shift_max_m * 100, 3)}</td><td class="num">${g(p.axis_shift_last_m * 100, 3)}</td><td class="num">${g(p.boundary_distance_max_m * 100, 3)}</td>`
+      + `<td class="num">${g(p.li1_diff_max, 3)}</td><td class="num">${g(p.betap_diff_max, 3)}</td><td class="num">${g(p.q95_diff_max, 3)}</td><td class="num">${g(p.source_flux_diff_max_Wb, 3)}</td>`
+      + `<td class="l">${ok ? `<button type="button" class="sm" data-pair="${esc(key)}">看差</button> <button type="button" class="sm" data-overlay="${esc(key)}">叠加到演化页</button>` : `<span class="muted">缺 ${[ia < 0 ? key.split(" vs ")[0] : null, ib < 0 ? key.split(" vs ")[1] : null].filter(Boolean).map((x) => x + ".json").join("、")}</span>`}</td></tr>`;
+  }
+  $("cmpairs").innerHTML = pairs.length ? h + "</tbody></table>" : '<p class="muted">compare 里没有成对的差（各 run 的时间网格不一致时 compare 不比）。</p>';
+  $("cmnote").textContent = `${pairs.length} 对 · 只有时间网格一致的两份才成对（compare 的规则）`;
+  $("cmbars").innerHTML = pairs.length ? hbars(pairs.map(([key, p]) => ({ label: key, v: [p.axis_shift_max_m * 100, p.boundary_distance_max_m * 100] })), { colors: ["var(--tK)", "var(--tP)"], names: ["磁轴移动 max", "边界距离 max"] }) : "";
+  $("cmbarslegend").innerHTML = '<span><span class="dot" style="background:var(--tK)"></span>磁轴移动 max</span><span><span class="dot" style="background:var(--tP)"></span>边界距离 max（compare 每 n/40 步取一次）</span>';
+  //: 差随时间：compare 只留最大值；两份 run 都载入了才画得出
+  const ids = { ax: "c-ax", bd: "c-bd", psi: "c-psi", sum: "c-sum" };
+  if (S.pair) {
+    const [ia, ib] = both(S.pair);
+    if (ia >= 0 && ib >= 0) {
+      const d = diffCharts(S.runs[ia], S.runs[ib], ids, false);
+      $("cmdiffnote").textContent = `${S.pair} · 按时刻对上 ${d.matched} 步`;
+    } else {
+      for (const id of Object.values(ids)) $(id).innerHTML = "";
+      $("c-ax").innerHTML = `<p class="muted">缺：compare 只留了最大值；要看「${esc(S.pair)}」的差随时间，把 ${esc(S.pair.split(" vs ").map((x) => x + ".json").join(" 与 "))} 也拖进来。</p>`;
+      $("cmdiffnote").textContent = S.pair;
+    }
+  } else { for (const id of Object.values(ids)) $(id).innerHTML = ""; $("cmdiffnote").textContent = "没有成对的差"; }
+  let r = '<table><thead><tr><th class="l">run</th><th>步</th><th>t [s]</th><th>磁轴 R [m]</th><th>磁轴 Z [m]</th><th>l_i(1) 首 → 末</th><th>β_p 首 → 末</th><th>q_95 首 → 末</th><th>l_i − EFIT rms</th><th>β_p − EFIT rms</th><th>max |I_fb/I_p|</th><th>max |B_R,fb| [mT]</th><th>Σ I_k [kA]</th><th>max |I_k| [A]</th><th>GS 未收敛</th><th>门 [s]</th><th class="l"></th></tr></thead><tbody>';
+  for (const [nm, x] of runs) {
+    const rg = (a, d) => a ? `${f(a[0], d)} … ${f(a[1], d)}` : "—", ar = (a, d) => a ? `${f(a[0], d)} → ${f(a[1], d)}` : "—";
+    r += `<tr><td class="l">${esc(nm)}</td><td class="num">${val(x.n)}</td><td class="num">${rg(x.t, 3)}</td><td class="num">${rg(x.axis_r, 4)}</td><td class="num">${rg(x.axis_z, 4)}</td>`
+      + `<td class="num">${ar(x.li1, 3)}</td><td class="num">${ar(x.betap, 3)}</td><td class="num">${ar(x.q95, 2)}</td><td class="num">${f((x.li1_minus_efit || {}).rms, 3)}</td><td class="num">${f((x.betap_minus_efit || {}).rms, 3)}</td>`
+      + `<td class="num">${f(x.fb_over_ip_max * 100, 1)} %</td><td class="num">${f(x.pair_br_at_axis_mT_max, 2)}</td><td class="num">${x.passive_total_A ? rg(x.passive_total_A.map((v) => v / 1e3), 2) : "—"}</td><td class="num">${f(x.passive_max_abs_A, 0)}</td>`
+      + `<td class="num">${val(x.gs_unconverged)}</td><td class="num">${f(x.door_seconds, 0)}</td><td class="l">${byName(nm) >= 0 ? `<button type="button" class="sm" data-open="${esc(nm)}">打开</button>` : '<span class="muted">没载入</span>'}</td></tr>`;
+  }
+  $("cmruns").innerHTML = runs.length ? r + "</tbody></table>" : '<p class="muted">compare 里没有 runs。</p>';
+  $("cmfoot").innerHTML = `${esc(C.app)} ${esc(C.version)} · ${esc(S.cmpName)}`;
+}
+
+// ---------------------------------------------------------------------------------------------- 页签 · 接线
+function showTab(which) {
+  const res = which === "res";
+  $("docview").hidden = res; $("resview").hidden = !res;
+  $("tab-doc").setAttribute("aria-pressed", String(!res)); $("tab-res").setAttribute("aria-pressed", String(res));
+  S.tab = which;
+}
+function readAll(files) {
+  const list = Array.from(files || []);
+  if (!list.length) return;
+  $("fname").textContent = `读取 ${list.length} 份文件…`;
+  let left = list.length; const got = [];
+  list.forEach((fl, i) => {
+    const rd = new FileReader();
+    const done = (text) => { got[i] = { name: fl.name, text }; if (--left === 0) loadFiles(got); };
+    rd.onload = () => done(rd.result);
+    rd.onerror = () => done(null);
+    rd.readAsText(fl);
+  });
+}
+const closest = (ev, sel) => ev.target && ev.target.closest ? ev.target.closest(sel) : null;
+$("file").addEventListener("change", (ev) => { readAll(ev.target.files); try { ev.target.value = ""; } catch (e) { /* ignore */ } });
+document.addEventListener("dragover", (ev) => ev.preventDefault());
+document.addEventListener("drop", (ev) => { ev.preventDefault(); readAll(ev.dataTransfer && ev.dataTransfer.files); });
+$("tab-doc").addEventListener("click", () => showTab("doc"));
+$("tab-res").addEventListener("click", () => showTab("res"));
+$("viewbtns").addEventListener("click", (ev) => { const b = closest(ev, "button[data-view]"); if (b && !b.disabled) setView(b.getAttribute("data-view")); });
+$("runA").addEventListener("click", (ev) => { const b = closest(ev, "button[data-a]"); if (b) setRuns(Number(b.getAttribute("data-a")), S.b === Number(b.getAttribute("data-a")) ? -1 : S.b); });
+$("runB").addEventListener("click", (ev) => { const b = closest(ev, "button[data-b]"); if (b && !b.disabled) setRuns(null, Number(b.getAttribute("data-b"))); });
+$("cmpairs").addEventListener("click", (ev) => {
+  const p = closest(ev, "button[data-pair]"), o = closest(ev, "button[data-overlay]");
+  if (p) { S.pair = p.getAttribute("data-pair"); render(); }
+  else if (o) { const [x, y] = o.getAttribute("data-overlay").split(" vs "); setRuns(S.runs.findIndex((r) => r.name === x), S.runs.findIndex((r) => r.name === y)); }
+});
+$("cmruns").addEventListener("click", (ev) => { const b = closest(ev, "button[data-open]"); if (b) setRuns(S.runs.findIndex((r) => r.name === b.getAttribute("data-open")), null); });
+$("evprev").addEventListener("click", () => goStep(S.k - 1));
+$("evnext").addEventListener("click", () => goStep(S.k + 1));
+$("evplay").addEventListener("click", togglePlay);
+$("evslider").addEventListener("input", (ev) => goStep(Number(ev.target.value)));
+//: 点任一张时间迹：跳到那一时刻最近的一步
+function seekFrom(ev, id) {
+  const geo = S.geo[id], A = S.runs[S.a];
+  if (!geo || !A || !ev.currentTarget || !ev.currentTarget.getBoundingClientRect) return;
+  const rc = ev.currentTarget.getBoundingClientRect();
+  if (!(rc.width > 0)) return;
+  const px = (ev.clientX - rc.left) / rc.width * geo.W, t = geo.x0 + (px - geo.L) / ((geo.W - geo.R - geo.L) || 1) * (geo.x1 - geo.x0);
+  goStep(matchIdx(A, t, Infinity));
+}
+for (const id of TRACES.map((t) => t.id).concat(["t-ch", "hmap", "d-ax", "d-bd", "d-psi", "d-sum"])) $(id).addEventListener("click", (ev) => seekFrom(ev, id));
+document.addEventListener("keydown", (ev) => {
+  if (S.view !== "evo" || S.tab !== "res" || ev.altKey || ev.ctrlKey || ev.metaKey) return;
+  const tg = ev.target && ev.target.tagName;
+  if (tg === "INPUT" || tg === "TEXTAREA" || tg === "SELECT") return;          // 滑条自己认方向键
+  const A = S.runs[S.a]; if (!A) return;
+  const big = ev.shiftKey ? 10 : 1;
+  if (ev.key === "ArrowLeft") { goStep(S.k - big); ev.preventDefault(); }
+  else if (ev.key === "ArrowRight") { goStep(S.k + big); ev.preventDefault(); }
+  else if (ev.key === "Home") { goStep(0); ev.preventDefault(); }
+  else if (ev.key === "End") { goStep(A.n - 1); ev.preventDefault(); }
+});
+const MODES = ["auto", "light", "dark"], LAB = { auto: "自动", light: "浅", dark: "深" };
+let mode = "auto";
+try { mode = localStorage.getItem("fbevo-theme") || "auto"; } catch (e) { /* storage off */ }
+function applyTheme() {
+  const root = document.documentElement;
+  if (mode === "auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", mode);
+  $("theme").textContent = "配色：" + LAB[mode];
+}
+$("theme").addEventListener("click", () => { mode = MODES[(MODES.indexOf(mode) + 1) % 3]; try { localStorage.setItem("fbevo-theme", mode); } catch (e) { /* ignore */ } applyTheme(); });
+applyTheme();
+//: 给 node 检查（test/smoke.mjs）的钩子：同一条渲染路径，不另写一份
+window.FB = { load, loadFiles, render, goStep, setRuns, setView, showTab, state: S, pairDiff, bdist, contour, contoursFor, TRACES };
+})();
+</script>
+</body>
+</html>

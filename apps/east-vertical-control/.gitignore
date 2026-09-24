@@ -1,0 +1,4 @@
+# 实验数据与结果不入仓（见 README §六）
+out/
+log/
+*.json

@@ -1,0 +1,455 @@
+<meta charset="utf-8">
+<title>CFEDR d2025 放电推演</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --ground: #F3F5F7;
+  --surface: #FCFCFB;
+  --ink: #111820;
+  --ink-2: #4E5966;
+  --muted: #7C8793;
+  --grid: #DDE2E7;
+  --hair: rgba(17, 24, 32, 0.10);
+  --cmd: #4E5966;
+  --model: #2A78D6;
+  --session: #EB6834;
+  --te: #2A78D6;
+  --ti: #EB6834;
+  --ne: #1BAF7A;
+  --target: #4A3AA7;
+  --copper: #A86B32;
+  --wall: #5B6570;
+  --serious: #EC835A;
+  --flux-1: #9ec5f4; --flux-2: #86b6ef; --flux-3: #6da7ec; --flux-4: #5598e7; --flux-5: #3987e5;
+  --flux-6: #2a78d6; --flux-7: #256abf; --flux-8: #1c5cab; --flux-9: #184f95;
+  --chip-div: #DCE9F8; --chip-lim: #ECE7DF;
+  --f-ui: "IBM Plex Sans", "Noto Sans SC", system-ui, sans-serif;
+  --f-cond: "IBM Plex Sans Condensed", "Noto Sans SC", "Arial Narrow", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground: #0E1318; --surface: #151B21; --ink: #EEF2F5; --ink-2: #A9B4BF; --muted: #7E8A96;
+    --grid: #26303A; --hair: rgba(238, 242, 245, 0.10); --cmd: #A9B4BF; --model: #3987E5; --session: #D95926;
+    --te: #3987E5; --ti: #D95926; --ne: #199E70; --target: #9085E9; --copper: #C98A4E; --wall: #9AA5B1;
+    --flux-1: #184f95; --flux-2: #1c5cab; --flux-3: #256abf; --flux-4: #2a78d6; --flux-5: #3987e5;
+    --flux-6: #5598e7; --flux-7: #6da7ec; --flux-8: #86b6ef; --flux-9: #9ec5f4;
+    --chip-div: #1B3656; --chip-lim: #3A3226;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #0E1318; --surface: #151B21; --ink: #EEF2F5; --ink-2: #A9B4BF; --muted: #7E8A96;
+  --grid: #26303A; --hair: rgba(238, 242, 245, 0.10); --cmd: #A9B4BF; --model: #3987E5; --session: #D95926;
+  --te: #3987E5; --ti: #D95926; --ne: #199E70; --target: #9085E9; --copper: #C98A4E; --wall: #9AA5B1;
+  --flux-1: #184f95; --flux-2: #1c5cab; --flux-3: #256abf; --flux-4: #2a78d6; --flux-5: #3987e5;
+  --flux-6: #5598e7; --flux-7: #6da7ec; --flux-8: #86b6ef; --flux-9: #9ec5f4;
+  --chip-div: #1B3656; --chip-lim: #3A3226;
+}
+* { box-sizing: border-box; }
+body { background: var(--ground); color: var(--ink); font-family: var(--f-ui); font-size: 14px; line-height: 1.5; margin: 0; padding-inline: 20px; padding-block: 18px 40px; }
+.wrap { max-width: 1320px; margin: 0 auto; display: grid; gap: 14px; }
+h1, h2, h3 { font-family: var(--f-cond); font-weight: 600; margin: 0; text-wrap: balance; }
+h1 { font-size: 22px; letter-spacing: 0.01em; }
+h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-2); }
+.head { display: grid; grid-template-columns: 1fr auto; gap: 8px 24px; align-items: end; }
+.sub { color: var(--ink-2); font-size: 13px; max-width: 72ch; }
+.clock { font-family: var(--f-mono); font-size: 30px; font-variant-numeric: tabular-nums; text-align: right; line-height: 1; }
+.clock small { font-size: 13px; color: var(--ink-2); margin-left: 4px; }
+.transport { display: grid; grid-template-columns: auto auto auto auto 1fr auto; gap: 10px; align-items: center; background: var(--surface); border: 1px solid var(--hair); border-radius: 6px; padding: 8px 12px; }
+button, select { font-family: var(--f-cond); font-size: 13px; color: var(--ink); background: var(--ground); border: 1px solid var(--hair); border-radius: 4px; padding: 5px 10px; cursor: pointer; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--model); outline-offset: 2px; }
+button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+input[type="range"] { width: 100%; accent-color: var(--model); }
+.phase-chip { font-family: var(--f-cond); font-size: 12px; letter-spacing: 0.06em; padding: 3px 9px; border-radius: 99px; border: 1px solid var(--hair); white-space: nowrap; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1px; background: var(--hair); border: 1px solid var(--hair); border-radius: 6px; overflow: hidden; }
+.stat { background: var(--surface); padding: 8px 12px; display: grid; gap: 2px; }
+.stat .k { font-family: var(--f-cond); font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-2); }
+.stat .v { font-family: var(--f-mono); font-size: 18px; font-variant-numeric: tabular-nums; }
+.stat .v small { font-size: 11px; color: var(--ink-2); margin-left: 3px; }
+.stat.cmd .k::after { content: " · 指令"; color: var(--muted); }
+.main { display: grid; grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.6fr); gap: 14px; align-items: start; }
+.panel { background: var(--surface); border: 1px solid var(--hair); border-radius: 6px; padding: 12px 14px; display: grid; gap: 10px; min-width: 0; }
+.panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.swatch { width: 16px; height: 0; border-top: 2px solid currentColor; display: inline-block; }
+.swatch.dash { border-top-style: dashed; }
+.swatch.box { width: 10px; height: 10px; border: 1px solid var(--copper); background: color-mix(in srgb, var(--copper) 55%, transparent); }
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { font-family: var(--f-ui); fill: var(--ink-2); }
+.eqinfo { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 3px 6px; border-bottom: 1px solid var(--grid); }
+th:first-child, td:first-child { text-align: left; }
+th { font-family: var(--f-cond); font-weight: 500; color: var(--ink-2); }
+td { font-family: var(--f-mono); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font-family: var(--f-cond); font-size: 12px; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--hair); }
+.chip.div { background: var(--chip-div); }
+.chip.lim { background: var(--chip-lim); }
+.coils { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 2px 16px; font-size: 12px; }
+.coil { display: grid; grid-template-columns: 40px 1fr 62px; gap: 8px; align-items: center; }
+.coil .n { font-family: var(--f-cond); color: var(--ink-2); }
+.coil .bar { height: 7px; background: var(--grid); border-radius: 2px; position: relative; overflow: hidden; }
+.coil .bar i { position: absolute; inset: 0 auto 0 0; background: var(--copper); border-radius: 2px; }
+.coil.at .bar i { background: var(--serious); }
+.coil .val { font-family: var(--f-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.coil.at .val::after { content: " ▲"; color: var(--serious); font-size: 10px; }
+.right { display: grid; gap: 14px; min-width: 0; }
+.profiles { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; }
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--surface); font-family: var(--f-mono); font-size: 12px; padding: 5px 8px; border-radius: 4px; white-space: pre; z-index: 5; font-variant-numeric: tabular-nums; }
+.notes { font-size: 13px; color: var(--ink-2); display: grid; gap: 6px; }
+.notes p { margin: 0; max-width: 90ch; }
+.notes b { color: var(--ink); font-weight: 500; }
+details summary { cursor: pointer; font-family: var(--f-cond); font-size: 13px; letter-spacing: 0.05em; color: var(--ink); }
+@media (max-width: 1000px) {
+  .main { grid-template-columns: 1fr; }
+  .profiles { grid-template-columns: 1fr; }
+  .head { grid-template-columns: 1fr; }
+  .clock { text-align: left; }
+  .transport { grid-template-columns: auto auto auto auto; }
+  .transport input { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <div>
+      <h1>CFEDR d2025 放电推演 · 15 MA 常规 H 模</h1>
+      <p class="sub" id="head-sub">沿 PCS 指令回放（上升 0–60 s · 平顶 60–6150 s · 下降 6150–6210 s）建模：逐时刻自由边界平衡给出小截面与二维磁面，0-D 全放电模型给出时序信号与一维剖面，平顶另叠 1.5-D 会话推进。</p>
+    </div>
+    <div class="clock" id="clock" aria-live="polite">t = 100.0<small>s</small></div>
+  </header>
+
+  <div class="transport" role="group" aria-label="时间控制">
+    <button id="play" type="button" aria-pressed="false">▶ 播放</button>
+    <button id="prev" type="button" aria-label="上一帧">◀</button>
+    <button id="next" type="button" aria-label="下一帧">▶</button>
+    <select id="speed" aria-label="播放速度"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option></select>
+    <input id="scrub" type="range" min="0" max="1" step="1" value="0" aria-label="时间帧">
+    <span class="phase-chip" id="phase">平顶段</span>
+  </div>
+
+  <section class="stats" id="stats" aria-label="当前时刻读数"></section>
+
+  <div class="main">
+    <section class="panel" aria-labelledby="xs-h">
+      <div class="panel-head">
+        <h2 id="xs-h">小截面 · 二维磁面</h2>
+        <div class="legend">
+          <span style="color:var(--ink)"><i class="swatch"></i>实现 LCFS</span>
+          <span style="color:var(--target)"><i class="swatch dash"></i>目标 LCFS</span>
+          <span style="color:var(--flux-6)"><i class="swatch"></i>ψ_N 0.1–0.9</span>
+          <span style="color:var(--muted)"><i class="swatch dash"></i>ψ_N &gt; 1</span>
+          <span><i class="swatch box"></i>PF 线圈 |I|/I_max</span>
+        </div>
+      </div>
+      <svg id="xs" viewBox="0.4 -11.6 16.2 23.2" role="img" aria-label="CFEDR 极向截面：线圈、第一壁、磁面与最外闭合磁面"></svg>
+      <div class="chips" id="eqchips"></div>
+      <div class="eqinfo">
+        <table id="shape" aria-label="目标与实现形状"></table>
+        <div class="notes" id="eqnote"></div>
+      </div>
+      <h2>PF 线圈电流 · |I| / I_max</h2>
+      <div class="coils" id="coils"></div>
+    </section>
+
+    <div class="right">
+      <section class="panel" aria-labelledby="tr-h">
+        <div class="panel-head">
+          <h2 id="tr-h">时序信号</h2>
+          <div class="legend">
+            <span style="color:var(--cmd)"><i class="swatch"></i>回放指令</span>
+            <span style="color:var(--model)" id="lg-model"><i class="swatch"></i><b style="font-weight:inherit">0-D 全放电模型</b></span>
+            <span style="color:var(--session)" id="lg-session"><i class="swatch"></i>1.5-D 会话推进（平顶窗）</span>
+          </div>
+        </div>
+        <svg id="traces" role="img" aria-label="Ip、辅助功率、线平均密度、聚变功率、储能、中心电子温度、归一化比压随时间，时间轴分上升、平顶、下降三段"></svg>
+      </section>
+      <div class="profiles">
+        <section class="panel" aria-labelledby="t-h">
+          <div class="panel-head">
+            <h2 id="t-h">温度剖面</h2>
+            <div class="legend"><span style="color:var(--te)"><i class="swatch"></i>Tₑ</span><span style="color:var(--ti)"><i class="swatch"></i>Tᵢ</span></div>
+          </div>
+          <svg id="prof-t" role="img" aria-label="电子与离子温度随归一化小半径"></svg>
+        </section>
+        <section class="panel" aria-labelledby="n-h">
+          <div class="panel-head">
+            <h2 id="n-h">电子密度剖面</h2>
+            <div class="legend"><span style="color:var(--ne)"><i class="swatch"></i>nₑ</span></div>
+          </div>
+          <svg id="prof-n" role="img" aria-label="电子密度随归一化小半径"></svg>
+        </section>
+      </div>
+      <section class="panel notes" id="notes" aria-labelledby="n2-h">
+        <h2 id="n2-h">模型层级与注意事项</h2>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(() => {
+  const D = JSON.parse(document.getElementById("data").textContent);
+  const TR = D.traces, T = TR.t;
+  const frames = D.frames.filter(f => f.t <= 150.0001 || f.t >= 6149.999);
+  const SEG = [{ a: 0, b: 62, name: "上升段", w: 0.42, ticks: [0, 20, 40, 60] },
+               { a: 62, b: 152, name: "平顶段", w: 0.16, ticks: [80, 120] },
+               { a: 6146, b: 6210, name: "下降段", w: 0.42, ticks: [6160, 6180, 6200] }];
+  const ROWS = [
+    { key: "ip_ma", label: "Iₚ", unit: "MA", kind: "cmd" },
+    { key: "p_aux_mw", label: "P_aux", unit: "MW", kind: "cmd" },
+    { key: "ne_bar_19", label: "n̄ₑ", unit: "10¹⁹ m⁻³", kind: "cmd" },
+    { key: "p_fus_mw", label: "P_fus", unit: "MW", kind: "model", session: "p_fus_mw" },
+    { key: "w_th_mj", label: "W_th", unit: "MJ", kind: "model", session: "w_th_mj" },
+    { key: "te0_kev", label: "Tₑ₀", unit: "keV", kind: "model", session: "te0_kev" },
+    { key: "beta_n", label: "β_N", unit: "", kind: "model" },
+  ];
+  const $ = id => document.getElementById(id);
+  const NS = "http://www.w3.org/2000/svg";
+  const fmt = (v, d = 2) => (v == null || !isFinite(v)) ? "—" : Number(v).toFixed(d);
+  const phaseName = { "ramp-up": "上升段", "flat top": "平顶段", "ramp-down": "下降段" };
+  const nice = v => { if (!(v > 0)) return 1; const e = Math.pow(10, Math.floor(Math.log10(v))); const m = v / e; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * e; };
+  const tip = $("tip");
+  const showTip = (ev, text) => { tip.textContent = text; tip.hidden = false; const x = Math.min(ev.clientX + 14, innerWidth - tip.offsetWidth - 8); tip.style.left = x + "px"; tip.style.top = (ev.clientY + 14) + "px"; };
+  const hideTip = () => { tip.hidden = true; };
+
+  // ---------------- time traces (broken axis) ----------------
+  const W = 660, ML = 58, MR = 10, GAP = 12, RH = 62, TOP = 22, BOT = 26;
+  const plotW = W - ML - MR - GAP * (SEG.length - 1);
+  let x0 = ML; SEG.forEach(s => { s.x0 = x0; s.px = plotW * s.w; x0 += s.px + GAP; });
+  const H = TOP + ROWS.length * RH + BOT;
+  const trSvg = $("traces");
+  trSvg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const xOf = t => { for (const s of SEG) if (t >= s.a && t <= s.b) return s.x0 + (t - s.a) / (s.b - s.a) * s.px; return null; };
+  const tOf = x => { for (const s of SEG) if (x >= s.x0 && x <= s.x0 + s.px) return s.a + (x - s.x0) / s.px * (s.b - s.a); return null; };
+  let svg = "";
+  SEG.forEach(s => { svg += `<text x="${s.x0}" y="12" font-size="11" font-family="IBM Plex Sans Condensed" fill="var(--ink-2)">${s.name}</text>`; });
+  svg += `<text x="${SEG[1].x0 + SEG[1].px + GAP / 2}" y="12" font-size="11" text-anchor="middle" fill="var(--muted)">≈</text>`;
+  const cursorIds = [];
+  ROWS.forEach((r, k) => {
+    const y0 = TOP + k * RH, h = RH - 14;
+    const vals = TR[r.key];
+    let mx = 0; vals.forEach(v => { if (v != null && v > mx) mx = v; });
+    if (r.session && D.session) D.session[r.session].forEach(v => { if (v != null && v > mx) mx = v; });
+    const top = nice(mx * 1.05);
+    r.top = top; r.y0 = y0; r.h = h;
+    const yOf = v => y0 + h - (v / top) * h;
+    svg += `<text x="4" y="${y0 + 11}" font-size="12" fill="var(--ink)" font-family="IBM Plex Sans Condensed">${r.label}</text>`;
+    svg += `<text x="4" y="${y0 + 25}" font-size="10" fill="var(--muted)">${r.unit}</text>`;
+    SEG.forEach(s => {
+      svg += `<line x1="${s.x0}" x2="${s.x0 + s.px}" y1="${y0 + h}" y2="${y0 + h}" stroke="var(--grid)" stroke-width="1"/>`;
+      svg += `<line x1="${s.x0}" x2="${s.x0 + s.px}" y1="${yOf(top / 2)}" y2="${yOf(top / 2)}" stroke="var(--grid)" stroke-width="0.6"/>`;
+      let d = "";
+      for (let i = 0; i < T.length; i++) {
+        const t = T[i], v = vals[i];
+        if (t < s.a || t > s.b || v == null) continue;
+        d += (d ? "L" : "M") + xOf(t).toFixed(1) + "," + yOf(v).toFixed(1);
+      }
+      svg += `<path d="${d}" fill="none" stroke="var(--${r.kind === "cmd" ? "cmd" : "model"})" stroke-width="1.6" stroke-linejoin="round"/>`;
+      if (r.session && D.session && s.name === "平顶段") {
+        let ds = "";
+        D.session.t.forEach((t, i) => { const v = D.session[r.session][i]; if (t >= s.a && t <= s.b && v != null) ds += (ds ? "L" : "M") + xOf(t).toFixed(1) + "," + yOf(v).toFixed(1); });
+        svg += `<path d="${ds}" fill="none" stroke="var(--session)" stroke-width="1.6"/>`;
+      }
+    });
+    svg += `<text x="${ML - 6}" y="${yOf(top) + 4}" font-size="10" text-anchor="end">${+top.toPrecision(3)}</text>`;
+    svg += `<text x="${ML - 6}" y="${yOf(0) + 3}" font-size="10" text-anchor="end">0</text>`;
+    cursorIds.push(`cur${k}`);
+    svg += `<line id="cur${k}" y1="${y0}" y2="${y0 + h}" stroke="var(--ink)" stroke-width="1"/>`;
+  });
+  SEG.forEach(s => s.ticks.forEach(t => { const x = xOf(t); svg += `<text x="${x}" y="${H - 8}" font-size="10" text-anchor="middle">${t}</text>`; }));
+  svg += `<text x="${W - MR}" y="${H - 8}" font-size="10" text-anchor="end" fill="var(--muted)">t / s</text>`;
+  svg += `<line id="hover" y1="${TOP}" y2="${H - BOT}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="2 2" visibility="hidden"/>`;
+  svg += `<rect id="hit" x="${ML}" y="${TOP}" width="${W - ML - MR}" height="${H - TOP - BOT}" fill="transparent"/>`;
+  trSvg.innerHTML = svg;
+  const nearestTrace = t => { let lo = 0, hi = T.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (T[m] < t) lo = m; else hi = m; } return (t - T[lo] < T[hi] - t) ? lo : hi; };
+  const svgX = (svgEl, ev) => { const p = svgEl.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY; return p.matrixTransform(svgEl.getScreenCTM().inverse()).x; };
+  const hit = $("hit"), hov = $("hover");
+  hit.addEventListener("mousemove", ev => {
+    const t = tOf(svgX(trSvg, ev));
+    if (t == null) { hov.setAttribute("visibility", "hidden"); hideTip(); return; }
+    const i = nearestTrace(t), x = xOf(T[i]);
+    hov.setAttribute("x1", x); hov.setAttribute("x2", x); hov.setAttribute("visibility", "visible");
+    let s = `t ${fmt(T[i], 2)} s`;
+    ROWS.forEach(r => { s += `\n${r.label.padEnd(6)} ${fmt(TR[r.key][i], r.key === "beta_n" ? 2 : 1)} ${r.unit}`; });
+    showTip(ev, s);
+  });
+  hit.addEventListener("mouseleave", () => { hov.setAttribute("visibility", "hidden"); hideTip(); });
+  hit.addEventListener("click", ev => {
+    const t = tOf(svgX(trSvg, ev)); if (t == null) return;
+    let best = 0; frames.forEach((f, k) => { if (Math.abs(f.t - t) < Math.abs(frames[best].t - t)) best = k; });
+    setFrame(best);
+  });
+
+  // ---------------- cross-section ----------------
+  const xs = $("xs");
+  const poly = (r, z) => r.map((v, i) => `${v},${-z[i]}`).join(" ");
+  let base = "";
+  const g = D.grid;
+  base += `<rect x="${g.rmin}" y="${-g.zmax}" width="${g.rmax - g.rmin}" height="${g.zmax - g.zmin}" fill="none" stroke="var(--grid)" stroke-width="1" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>`;
+  base += `<polygon points="${poly(D.limiter.r, D.limiter.z)}" fill="none" stroke="var(--wall)" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;
+  D.coils.forEach((c, k) => c.rects.forEach(rc => {
+    base += `<rect id="coil${k}" x="${rc.r - rc.w / 2}" y="${-(rc.z + rc.h / 2)}" width="${rc.w}" height="${rc.h}" fill="var(--copper)" fill-opacity="0.15" stroke="var(--copper)" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+    const lx = rc.r < 3 ? rc.r + rc.w / 2 + 0.25 : rc.r;
+    const ly = rc.r < 3 ? -rc.z + 0.15 : -(rc.z + (rc.z > 0 ? rc.h / 2 + 0.3 : -rc.h / 2 - 0.65));
+    base += `<text x="${lx}" y="${ly}" font-size="0.46" text-anchor="${rc.r < 3 ? "start" : "middle"}" fill="var(--ink-2)" font-family="IBM Plex Sans Condensed">${c.name}</text>`;
+  }));
+  base += `<text x="16.4" y="11.3" font-size="0.5" text-anchor="end" fill="var(--muted)">R / m</text>`;
+  [0, 5, 10, 15].forEach(r => { base += `<text x="${r}" y="11.3" font-size="0.46" text-anchor="middle" fill="var(--muted)">${r}</text>`; });
+  [-10, -5, 0, 5, 10].forEach(z => { base += `<text x="0.5" y="${-z + 0.16}" font-size="0.46" fill="var(--muted)">${z}</text>`; });
+  xs.innerHTML = base + `<g id="xsdyn"></g>`;
+  const miller = s => {
+    const r = [], z = [];
+    for (let k = 0; k <= 120; k++) {
+      const th = 2 * Math.PI * k / 120, d = Math.sin(th) >= 0 ? s.delta_upper : s.delta_lower;
+      r.push(s.r0 + s.a * Math.cos(th + Math.asin(Math.max(-0.99, Math.min(0.99, d))) * Math.sin(th)));
+      z.push(s.kappa * s.a * Math.sin(th));
+    }
+    return { r, z };
+  };
+  const drawEq = e => {
+    let s = "";
+    if (e.ok) {
+      e.outside.forEach(l => { s += `<polyline points="${poly(l.r, l.z)}" fill="none" stroke="var(--muted)" stroke-width="0.8" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/>`; });
+      e.inside.forEach(l => { const k = Math.max(1, Math.min(9, Math.round(l.level * 10))); s += `<polyline points="${poly(l.r, l.z)}" fill="none" stroke="var(--flux-${k})" stroke-width="1" vector-effect="non-scaling-stroke"/>`; });
+      const m = miller(e.asked);
+      s += `<polyline points="${poly(m.r, m.z)}" fill="none" stroke="var(--target)" stroke-width="1.4" stroke-dasharray="5 3" vector-effect="non-scaling-stroke"/>`;
+      s += `<polygon points="${poly(e.lcfs.r, e.lcfs.z)}" fill="none" stroke="var(--ink)" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+      const [ar, az] = e.axis;
+      s += `<path d="M${ar - 0.25},${-az}H${ar + 0.25}M${ar},${-az - 0.25}V${-az + 0.25}" stroke="var(--ink)" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;
+      if (e.xpt) { const [xr, xz] = e.xpt; s += `<path d="M${xr - 0.22},${-xz - 0.22}L${xr + 0.22},${-xz + 0.22}M${xr - 0.22},${-xz + 0.22}L${xr + 0.22},${-xz - 0.22}" stroke="var(--ink)" stroke-width="1.8" vector-effect="non-scaling-stroke"/>`; }
+    }
+    $("xsdyn").innerHTML = s;
+    D.coils.forEach((c, k) => {
+      const el = document.getElementById("coil" + k); if (!el) return;
+      const ma = e.ok ? e.aturns_ma[k] : null;
+      const ratio = (ma != null && c.i_max_aturn) ? Math.min(1, Math.abs(ma) * 1e6 / c.i_max_aturn) : 0;
+      el.setAttribute("fill-opacity", (0.12 + 0.88 * ratio).toFixed(2));
+    });
+  };
+
+  // ---------------- profiles ----------------
+  const PW = 360, PH = 210, PL = 40, PR = 12, PT = 12, PB = 30;
+  const rho = D.rho;
+  let tMax = 0, nMax = 0;
+  frames.forEach(f => { f.te.forEach(v => { if (v > tMax) tMax = v; }); f.ti.forEach(v => { if (v > tMax) tMax = v; }); f.ne.forEach(v => { if (v > nMax) nMax = v; }); });
+  tMax = nice(tMax * 1.05); nMax = nice(nMax * 1.05);
+  const profAxes = (el, top, unit) => {
+    el.setAttribute("viewBox", `0 0 ${PW} ${PH}`);
+    const yOf = v => PT + (PH - PT - PB) * (1 - v / top), xOfR = r => PL + (PW - PL - PR) * r;
+    let s = "";
+    [0, 0.5, 1].forEach(f => { const y = yOf(top * f); s += `<line x1="${PL}" x2="${PW - PR}" y1="${y}" y2="${y}" stroke="var(--grid)" stroke-width="${f === 0 ? 1 : 0.6}"/><text x="${PL - 6}" y="${y + 3}" font-size="10" text-anchor="end">${+(top * f).toPrecision(3)}</text>`; });
+    [0, 0.25, 0.5, 0.75, 1].forEach(r => { s += `<text x="${xOfR(r)}" y="${PH - 12}" font-size="10" text-anchor="middle">${r}</text>`; });
+    s += `<text x="${PW - PR}" y="${PH - 1}" font-size="10" text-anchor="end" fill="var(--muted)">ρ_tor,norm</text>`;
+    s += `<text x="${PL}" y="${PT - 2}" font-size="10" fill="var(--muted)">${unit}</text>`;
+    s += `<g class="dyn"></g><line class="ph" y1="${PT}" y2="${PH - PB}" stroke="var(--muted)" stroke-dasharray="2 2" visibility="hidden"/><rect class="hit" x="${PL}" y="${PT}" width="${PW - PL - PR}" height="${PH - PT - PB}" fill="transparent"/>`;
+    el.innerHTML = s;
+    return { yOf, xOfR };
+  };
+  const pt = profAxes($("prof-t"), tMax, "keV"), pn = profAxes($("prof-n"), nMax, "10¹⁹ m⁻³");
+  const line = (ax, ys, col) => `<path d="${ys.map((v, i) => (i ? "L" : "M") + ax.xOfR(rho[i]).toFixed(1) + "," + ax.yOf(v).toFixed(1)).join("")}" fill="none" stroke="var(--${col})" stroke-width="2" stroke-linejoin="round"/>`;
+  let cur = 0;
+  const profHover = (id, ax, series) => {
+    const el = $(id), hitEl = el.querySelector(".hit"), ph = el.querySelector(".ph");
+    hitEl.addEventListener("mousemove", ev => {
+      const x = svgX(el, ev), r = Math.max(0, Math.min(1, (x - PL) / (PW - PL - PR)));
+      let i = 0; rho.forEach((v, k) => { if (Math.abs(v - r) < Math.abs(rho[i] - r)) i = k; });
+      ph.setAttribute("x1", ax.xOfR(rho[i])); ph.setAttribute("x2", ax.xOfR(rho[i])); ph.setAttribute("visibility", "visible");
+      const f = frames[cur];
+      showTip(ev, `ρ ${fmt(rho[i], 2)}` + series.map(([k, lab, u]) => `\n${lab} ${fmt(f[k][i], 2)} ${u}`).join(""));
+    });
+    hitEl.addEventListener("mouseleave", () => { ph.setAttribute("visibility", "hidden"); hideTip(); });
+  };
+  profHover("prof-t", pt, [["te", "Tₑ", "keV"], ["ti", "Tᵢ", "keV"]]);
+  profHover("prof-n", pn, [["ne", "nₑ", "10¹⁹ m⁻³"]]);
+
+  // ---------------- readouts ----------------
+  const STATS = [["ip_ma", "Iₚ", "MA", 2, true], ["p_aux_mw", "P_aux", "MW", 0, true], ["p_fus_mw", "P_fus", "MW", 0, false],
+                 ["q", "Q", "", 1, false], ["w_th_mj", "W_th", "MJ", 0, false], ["beta_n", "β_N", "", 2, false], ["f_gw", "n̄ₑ / n_GW", "", 2, false]];
+  $("stats").innerHTML = STATS.map(([k, lab, u, d, cmd]) => `<div class="stat${cmd ? " cmd" : ""}"><span class="k">${lab}</span><span class="v" id="st-${k}">—</span></div>`).join("");
+
+  const shapeRow = (lab, a, g2, d = 3) => `<tr><td>${lab}</td><td>${fmt(a, d)}</td><td>${fmt(g2, d)}</td></tr>`;
+  const setFrame = k => {
+    cur = Math.max(0, Math.min(frames.length - 1, k));
+    const f = frames[cur], i = f.i, e = D.equilibria[f.eq];
+    $("scrub").value = cur;
+    $("clock").innerHTML = `t = ${f.t.toFixed(1)}<small>s</small>`;
+    $("phase").textContent = phaseName[f.phase] || f.phase;
+    STATS.forEach(([key, lab, u, d]) => { $("st-" + key).innerHTML = `${fmt(TR[key][i], d)}${u ? `<small>${u}</small>` : ""}`; });
+    ROWS.forEach((r, k2) => { const x = xOf(f.t); const el = $(cursorIds[k2]); if (x == null) el.setAttribute("visibility", "hidden"); else { el.setAttribute("visibility", "visible"); el.setAttribute("x1", x); el.setAttribute("x2", x); } });
+    $("prof-t").querySelector(".dyn").innerHTML = line(pt, f.te, "te") + line(pt, f.ti, "ti");
+    $("prof-n").querySelector(".dyn").innerHTML = line(pn, f.ne, "ne");
+    drawEq(e);
+    if (e.ok) {
+      $("eqchips").innerHTML = `<span class="chip ${e.diverted ? "div" : "lim"}">${e.diverted ? "偏滤器位形（X 点界定）" : "限制器位形"}</span>`
+        + `<span class="chip">回放要求：${e.asked_config === "diverted_lsn" ? "下单零偏滤器" : "高场侧限制器"}</span>`
+        + (e.synthetic ? `<span class="chip">合成节点</span>` : "")
+        + `<span class="chip">平衡时刻 ${e.t} s · Iₚ ${fmt(e.ip / 1e6, 2)} MA</span>`;
+      $("shape").innerHTML = `<tr><th>形状</th><th>目标</th><th>实现</th></tr>` + shapeRow("R₀ / m", e.asked.r0, e.got.r0) + shapeRow("a / m", e.asked.a, e.got.a)
+        + shapeRow("κ", e.asked.kappa, e.got.kappa) + shapeRow("δ_u", e.asked.delta_upper, e.got.delta_upper) + shapeRow("δ_l", e.asked.delta_lower, e.got.delta_lower);
+      $("eqnote").innerHTML = `<p>分离面到目标曲线距离 <b>rms ${fmt(e.gap_rms, 3)} m</b> · 最大 ${fmt(e.gap_max, 2)} m</p>`
+        + `<p>线圈电流 / 额定最大 <b>${fmt(e.coil_ratio, 2)}</b> · 达上限 <b>${fmt(e.n_at_limit, 0)}</b> 路</p>`;
+      $("coils").innerHTML = D.coils.map((c, k2) => {
+        const ma = e.aturns_ma[k2], lim = c.i_max_aturn / 1e6, ratio = Math.min(1, Math.abs(ma) / lim), at = Math.abs(ma) >= lim * 0.999;
+        return `<div class="coil${at ? " at" : ""}" title="${c.name}: ${fmt(ma, 2)} MA·匝 / 额定 ${fmt(lim, 2)}"><span class="n">${c.name}</span><span class="bar"><i style="width:${(ratio * 100).toFixed(1)}%"></i></span><span class="val">${fmt(ma, 1)} MA</span></div>`;
+      }).join("");
+    } else {
+      $("eqchips").innerHTML = `<span class="chip">该时刻平衡求解被拒：${e.error}</span>`;
+    }
+  };
+
+  // ---------------- transport ----------------
+  const scrub = $("scrub");
+  scrub.max = frames.length - 1;
+  scrub.addEventListener("input", () => setFrame(+scrub.value));
+  $("prev").addEventListener("click", () => setFrame(cur - 1));
+  $("next").addEventListener("click", () => setFrame(cur + 1));
+  let playing = false, last = 0;
+  const tick = now => {
+    if (!playing) return;
+    if (now - last > 180 / +$("speed").value) { last = now; setFrame(cur + 1 >= frames.length ? 0 : cur + 1); }
+    requestAnimationFrame(tick);
+  };
+  $("play").addEventListener("click", () => {
+    playing = !playing;
+    $("play").setAttribute("aria-pressed", String(playing));
+    $("play").textContent = playing ? "❚❚ 暂停" : "▶ 播放";
+    if (playing) requestAnimationFrame(tick);
+  });
+  document.addEventListener("keydown", ev => {
+    if (ev.target.tagName === "SELECT") return;
+    if (ev.key === "ArrowRight") { setFrame(cur + 1); ev.preventDefault(); }
+    if (ev.key === "ArrowLeft") { setFrame(cur - 1); ev.preventDefault(); }
+  });
+
+  // ---------------- notes ----------------
+  const m = D.meta;
+  const oneFive = m.model === "1.5-D";
+  if (oneFive) {
+    $("head-sub").textContent = `沿 PCS 指令回放（上升 0–60 s · 平顶 60–6150 s · 下降 6150–6210 s）建模：逐时刻自由边界平衡给出小截面与二维磁面，1.5-D 输运（回放驱动分窗推进）给出时序信号与一维剖面；上升段与平顶 / 下降段在 ${m.t_split} s 拼接。`;
+    $("lg-model").querySelector("b").textContent = "1.5-D 输运";
+    if (!D.session) $("lg-session").hidden = true;
+  }
+  const profileNote = oneFive
+    ? `<p><b>时序信号与一维剖面</b>：${m.tiers.traces_profiles}。10 ms 输出取内核逐步迹（含 W_th），剖面取窗端；上升段与平顶 / 下降段在 ${m.t_split} s 拼接，拼接处状态不连续。数据止于 ${m.t_last} s。</p>`
+    : `<p><b>时序信号与一维剖面</b>：${m.tiers.traces_profiles}。定标：Tᵢ/Tₑ = ${m.zerod_settings.tite}（CASE-20 轴上 23.0/28.7 keV），H 因子 ${m.zerod_settings.hfac}（使平顶 W_th ≈ CASE-20 的 807 MJ），Z_eff ${m.zerod_settings.zeff}，B₀ ${fmt(m.zerod_settings.bt, 2)} T @ R₀ ${m.zerod_settings.r0} m。剖面为参数化形状，不是输运解。</p>
+    <p><b>1.5-D 会话推进</b>：${m.tiers.session}；从 65 s 起跑（该时刻起加热 102 MW 与 CASE-20 燃烧起步态相符），P_fus 稳定在约 1.18 GW。</p>`;
+  $("notes").insertAdjacentHTML("beforeend", `
+    <p><b>小截面与二维磁面</b>：${m.tiers.equilibrium}。平衡按采样时刻求解（上升 16 个、平顶 3 个、下降 10 个），动画帧显示同一阶段内不晚于该帧的最近一次平衡。</p>
+    ${profileNote}
+    <p><b>回放</b>：${m.replay}。平顶 150 → 6150 s 为稳态，时间轴在此折断未画；下降段节点为合成。</p>
+    <p><b>已知偏差</b>：平顶实现 R₀ 比目标偏内约 0.3 m（C4 形心设定点未计 Shafranov 外移）；线圈贴近 104014 表 1 额定上限时偏滤器位形不稳定，部分时刻给出限制器位形。本页是建模推演，不是设计方结论。</p>`);
+
+  let start = 0; frames.forEach((f, k) => { if (Math.abs(f.t - 100) < Math.abs(frames[start].t - 100)) start = k; });
+  setFrame(start);
+})();
+</script>

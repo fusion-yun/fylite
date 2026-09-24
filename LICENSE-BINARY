@@ -1,0 +1,52 @@
+================================================================================
+ DRAFT — NOT IN FORCE.  Pending review by the rights holder (ASIPP) and the
+ resolution of one open question: the METIS-derived (CeCILL-C) arithmetic in
+ the kernel's heating module (see NOTICE, "DERIVED WORK — METIS").  Until this
+ banner is removed, no binary is distributed under these terms.
+================================================================================
+
+fylite binary licence
+Copyright (c) 2026 YU Zhi (于治), Institute of Plasma Physics, Chinese Academy of
+Sciences (ASIPP), and the fylite contributors.  All rights reserved.
+
+1. What this covers.  "Binary Components" means the compiled fylite numerical
+   kernel as it is contained in the shared library libfylite.so (and its
+   versioned names), the fy executable, and the WebAssembly modules
+   fylite_rs.wasm and fylite_kernel_ext.wasm, in the form published by the
+   rights holder.  It does not cover the source code of that kernel, which is
+   not licensed to you.  Other parts of the distributions that carry these
+   files — the Python package, the runtime crate and the browser front end —
+   are licensed under the Apache License, Version 2.0 (LICENSE), not under
+   this licence.
+
+2. Grant.  Subject to the conditions below, the rights holder grants you a
+   worldwide, royalty-free, non-exclusive licence to use the Binary Components
+   for any purpose, and to reproduce and redistribute them, alone or as part
+   of the unmodified fylite distributions in which they are published.
+
+3. Conditions.
+   (a) Redistribute the Binary Components only in unmodified form.
+   (b) Keep this licence, the LICENSE file and the NOTICE file with every copy
+       you redistribute, and do not remove or alter any copyright, licence or
+       attribution notice in or with the Binary Components.
+   (c) Do not represent a modified or rebuilt binary as the fylite kernel
+       published by the rights holder.
+
+4. Third-party components.  The Binary Components contain work derived from
+   third-party software, listed with its licence in NOTICE.  Nothing in this
+   licence limits any right you have under those third-party licences for the
+   parts derived from them.
+
+5. No warranty.  THE BINARY COMPONENTS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF
+   ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.  The
+   results they compute are research-grade and are not qualified for the
+   operation or protection of any device.
+
+6. Limitation of liability.  IN NO EVENT SHALL THE RIGHTS HOLDER OR THE
+   CONTRIBUTORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+   AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+   CONNECTION WITH THE BINARY COMPONENTS OR THEIR USE.
+
+7. Termination.  This licence ends automatically if you breach its conditions;
+   sections 5 and 6 survive.

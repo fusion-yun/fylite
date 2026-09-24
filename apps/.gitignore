@@ -1,0 +1,18 @@
+# apps/ 只收源与输入（见 apps/README.md）。下面兜住场景里会跑出来的产物。
+*.so
+*.so.*
+__pycache__/
+# 模型工具的产物：完整时序 · 演化后的状态（初始状态 state_init.json 是输入，保留）
+*/app/run_*.json
+*/app/state_*.json
+!*/app/state_init.json
+# 报告页、动画、IMAS 条目、复现运行
+*/reports/
+*/imas*/
+*/repro-*/
+*.mp4
+*.gif
+*.csv
+*.jsonl
+*.log
+*.tar.gz

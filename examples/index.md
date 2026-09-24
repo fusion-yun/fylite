@@ -1,0 +1,205 @@
+---
+title: 算例语料 (The Case Corpus)
+---
+
+# 算例语料：一份计划、一次运行、一份报告
+
+本书后面五章各讲一族**典型算例**。它们不是为文档现编的片段——每一条都在仓里
+`cases/` 下有一份**计划文档**，可以原样跑、原样改、原样发给别人。这一章讲那条链子
+本身：计划长什么样、怎么跑、结果落在哪、怎么变成一份可读的报告。
+
+## 三份文档，三件事
+
+| 文档 | 是什么 | 谁写 |
+| :--- | :--- | :--- |
+| **计划** `cases/<id>.jsonld` | `fyo:ScenarioSpecification`（上游 `spo:ComputationPlan`）：要跑哪个代码、参数取什么值、输入从哪来、产出往哪去 | 人（或页面导出） |
+| **记录** `record.jsonld` | `spo:ComputationRecord`：跑完之后的事实——状态、用时、内核哈希、每个产出端口上的数据集 | 内核与数据层 |
+| **呈现规格** `presentation.jsonld` | `spo:PresentationSpecification`：这份记录**怎么画**——哪些面板、哪些视图、每条序列绑记录里的哪个量 | 渲染器（或人，见算例报告） |
+
+★**三者分开不是分层癖好。** 计划里没有答案，记录里没有主张，规格里没有数字。所以
+换一份规格不会改变结论，重跑一次不会改写计划，而报告永远是记录的**投影**——它不能
+比记录多说一个字。
+
+## 五个入口
+
+★★这些是**库调用**：Python 包不带命令行，五个入口都是直接调的函数。
+
+```python
+from fylite.engine import cases, casereport
+
+cases.catalogue()                  # 列出语料：25 条，各自的能力栏、装置、名字
+cases.load("zerod-iter-15ma")      # 那份计划（JSON-LD 原文）+ 它的目录项
+cases.problems()                   # 结构检查：每条目录项都在盘上、无孤儿文件、词汇只有 fyo / spo
+cases.plan("zerod-iter-15ma")      # 只映射不跑：计划的每个控件落到 Python 入口的哪个字段
+cases.run("zerod-iter-15ma")       # 跑，并留下清单 / 验收 / 账本
+casereport.render(cases.run("zerod-iter-15ma"), out="out/")   # 跑完渲染成 MyST + SVG
+```
+
+`plan()` 是读者最该先调的那个。它把**语料的控件词表**逐条分类，一个都不许漏：
+
+```python
+>>> cases.plan("zerod-iter-15ma")
+{ "case_id": "zerod-iter-15ma", "bar": "zerod", "tool": "zerod", "device": "iter",
+  "accounting": { "mapped": {...21 项...}, "sub": {...11 项...}, "ui": {"slice": ...} } }
+```
+
+四类去处，**没有第五类**：
+
+- `mapped`——喂给 Python 入口的字段（连同单位换算）；
+- `sub`——只有某个**具名的子能力**才会读它（蒙特卡洛 UQ、通量账本、湍流外环…），
+  不跑那个子能力时基准运行**不读它**，所以照跑不算失真；
+- `shared`——设计页上几条栏共用的等离子体标量，本栏不消费；
+- `ui`——显示状态（滑块位置、折叠）。
+
+★**一个没被分类的键会让 `--run` 报错**（`python/tests/test_case_runs.py` 把这条钉死）。
+静默丢弃一个控件，是这一层最该防的失败方式：跑出来的数看着像那个算例，其实不是。
+
+## 命令行入口，与它今天到得了哪里
+
+★★这些是**库调用**，另一条路是**命令行** `fy`——本仓唯一的那一个（Python 包没有命令行）。
+两条路合成同一份计划、写同一种记录，走同一扇内核门——**树门**
+（`fylite_rs_fyo_tree`）。所以内核里十八个吃整份文档的 code 在三个宿主上同样到得了，
+不会有**宿主的差别冒充算例的差别**；0-D · 输运 · 演化三档在扁平门与树门下的每一份
+产出文档**逐字节相同**。
+
+```bash
+fy list presets                            # 语料里的 25 份具名计划
+fy list presets zerod-iter-15ma            # 一份的全文
+fy run  model --preset zerod-iter-15ma -o rec/
+fy run  examples/transport/transport-iter-15ma.jsonld chi0=0.55 -o rec/
+```
+
+2026-09-07 在本仓检出上逐条实测（`fy` 内部版 · 内核 ABI 152），命令行这一侧：
+
+| 章 | 命令行 | 结果 |
+| :--- | :--- | :--- |
+| [0-D 放电](zerod/zerod.md) | `fy run model --preset zerod-iter-15ma` | ✅ 5 个文件 |
+| [输运](transport/transport.md) | `fy run model --preset transport-iter-15ma` | ✅ 6 个文件 |
+| [含时演化](evolve/evolve.md) | `fy run model --preset evolve-default` | ✅ 7 个文件 |
+| [含时演化](evolve/evolve.md) | `fy run model --preset evolve-iter-15ma` | ✅ 8 个文件（一个 IMAS 数据入口） |
+| [放电设计](design/design.md) | `fy run design --preset breakdown-iter` | ⛔ 树门专属（`--dry-run` 可用） |
+| [放电设计](design/design.md) | `fy run design --preset discharge-iter` | ⛔ 同上 |
+| [放电设计](design/design.md) | `fy run design --preset pulse-iter` | ⛔ `code/pfwave` 内核不认（登记在案：P2-c） |
+| [平衡反演](reconstruction/reconstruction.md) | `fy run analysis --preset reconstruction-default` | ⛔ 树门专属 + 本仓无装置清单 |
+| [平衡反演](reconstruction/reconstruction.md) | `fy run analysis --preset series-default` | ⛔ `code/series` 内核不认（登记在案） |
+| [装置信息](device/device.md) | `fy run channels.jsonld --bind device=…` | ✅ 3 个文件（EAST 通道图 14 × 14） |
+| [装置信息](device/device.md) | `fy data convert <装置文档> imas/ --layout imas --to hdf5` | ✅ 6 个文件（5 个 IDS + master，161 KB） |
+| [各装置一览](device/machine_survey.ipynb) | 同上，逐台跑六台 | ✅ 6 台 × 7 个文件；读回来画成截面图 |
+
+★装置信息那两行各靠一件事：通道图要树门，数据入口要写入方把一个 fylite
+容器拆成它装着的 IDS。
+
+每一章的〈命令行〉一节写着自己那一行的完整输出与产物清单；命令行本身的用法与限制
+见[命令行](../docs/cli.md)。
+
+## 跑一次留下什么
+
+```python
+>>> cases.run("transport-iter-15ma")
+{ "case_id": "transport-iter-15ma", "bar": "transport", "tool": "transport",
+  "run": "r-20260902-190432",
+  "run_dir": "~/.cache/fylite/runs/s-…/r-20260902-190432",
+  "accounting": { "mapped": 13, "sub": 6, "shared": 0, "ui": 0 },
+  "result_keys": [...] }
+# 验收在运行目录的 acceptance.json 里：pass（converged=pass, settled=pass）
+# 渲染成报告：from fylite.engine import report; report.render("r-20260902-190432")
+```
+
+运行目录里是清单（`manifest.json`）、结果（`result.json`，数组只存**摘要**：形状 /
+dtype / min / max / mean / sha256，正本在 `arrays.npz`）、验收（`acceptance.json`）与
+账本。`$FYLITE_RUN_DIR` 决定它落在哪，缺省是 `~/.cache/fylite/runs/`。
+
+★**验收是运行自己报的，不是报告重判的。** 四态 `pass / conditional / fail /
+unevaluated`——上面那条 `settled=pass` 是判据说话，而 0-D 那条 `converged=unevaluated`
+是它**没有**这条判据可评，不是它不合格。
+
+## 变成一份报告
+
+```python
+from fylite.engine import casereport, cases
+casereport.render(cases.run("evolve-iter-15ma"), out="out/")
+```
+
+出来的是一整个目录：`report.md`（MyST，五节：摘要 · 方法 · 结果 · 验收 · 复现性）、
+`figures/fig-NN.svg`（折线图与极向截面，**不需要 matplotlib**）、`presentation.jsonld`
+（画它所依据的规格）、`record.jsonld` 与 `plan.jsonld`。同一份记录也能在浏览器里画：
+打开 `ui/pages/report.html` 选中这几个文件，或 `report.html?src=<地址>`——两端**同一条
+规则**推出同一份规格，由 `ui/tests/validate-report.mjs` 逐字段盯着。
+
+体例与规则见参考书的算例报告。
+
+## 不经 Python 的那条路
+
+计划文档也能直接交给数据层的可执行件，走内核的单入口 `fylite_rs_fyo`：
+
+```bash
+fy run examples/evolve/evolve-iter-15ma.jsonld --dry-run   # 只解析与合成，不跑
+fy run examples/evolve/evolve-iter-15ma.jsonld -o out/
+fy run examples/evolve/evolve-iter-15ma.jsonld -o out/ --format imas-hdf5
+fy run examples/evolve/evolve-default.jsonld --json        # 一份计划进，一份记录出（stdout）
+```
+
+★四条命令词是 `app` / `data` / `run` / `list`；没有 `case`，算例由 `run` 跑
+，写 `case` 按名拒绝并指路，对照表在命令行那一章。
+
+★`fy` 是本仓**唯一的可执行文件**（`bash rust/build.sh --exe`），它读的规格与本页
+描述的那些 Python 入口出自同一份 `_cli.json`。
+
+多份计划按序合成（后者覆盖前者），再叠 `--set k=v` / `--bind 端口=路径`。★
+`--format imas-hdf5`（或计划自己在输出端口上要 `fyo:ImasHdf5Format`）写出的是**一个
+IMAS 数据入口**：`imas/master.h5` 加逐 IDS 的 `<ids>.h5`，imas-core 的 HDF5 后端布局。
+
+Python 侧同一道门：
+
+```python
+from fylite.io import fydoc
+record = fydoc.case_json(json.load(open("cases/evolve-default.jsonld")), base="cases")
+record["run_state"]        # 'succeeded'
+```
+
+## 被拒绝的算例，与拒绝的理由
+
+语料里有几条**跑不了**，`--run` 会**点名拒绝**而不是给一个近似答案：
+
+| 算例 | 为什么 |
+| :--- | :--- |
+| `pulse-iter` · `profile-default` · `series-default` | 浏览器专属的功能栏（`pfwave` / `profile` / `series`）：它们是别的栏的**组合或队列**，Python 侧没有独立入口 |
+| `reconstruction-default` | `analysis.reconstruction` 在，但这条算例冻的是**合成孪生生成器**的旋钮，而那个生成器只在 `worker.js` 里 |
+| `evolve-jintrac-*` | 参考运行是第三方产物（受限），本仓跑不动；它们是**对拍记录的输入侧说明**，不是可执行算例 |
+
+★**宁可拒绝，不给假数**（拒绝逐条带理由，见 `fylite.engine.cases.REFUSALS`）。想跑
+反演，走[诊断分析：平衡反演](reconstruction/reconstruction.md)那一章的 Python 入口。
+
+## 五族典型算例
+
+| 章 | 算例 | 问的是 |
+| :--- | :--- | :--- |
+| [0-D 放电](zerod/zerod.md) | `zerod-iter-15ma` | 一发放电的功率平衡与时间轨迹 |
+| [1.5-D 芯部输运](transport/transport.md) | `transport-iter-15ma` | 给定度规与 χ，剖面长什么样 |
+| [含时演化](evolve/evolve.md) | `evolve-iter-15ma` | 剖面随时间怎么走，能不能点燃 |
+| [放电设计](design/design.md) | `breakdown-iter` · `discharge-iter` | 线圈电流该给多少，才有这个位形 |
+| [诊断分析：平衡反演](reconstruction/reconstruction.md) | EAST #137985 @ 4 s | 给定测量，位形是什么 |
+| [KEFIT 动理学反演](kinetic/kinetic.md) | EAST #137985 @ 4.041 s 孪生 | 再给剖面诊断，平衡与它映射出的剖面自洽吗 |
+
+<!-- BEGIN GENERATED: tools/examples-book.py —— 勿手改 -->
+
+## 本章的文件
+
+点文件名即得原文。计划可以原样跑、原样改（`fy run <文件>`），脚本用 `python <文件>`；目录、上下文与场景模板是给计划引用的，不单独跑。
+
+| 文件 | id | 标题 |
+| :--- | :--- | :--- |
+| [`catalogue.jsonld`](catalogue.jsonld) | `cases/catalogue` | 算例语料目录 |
+| [`context.jsonld`](context.jsonld) | — | JSON-LD 上下文（语料的词表映射） |
+| [`scenario/breakdown.jsonld`](scenario/breakdown.jsonld) | `scenario/breakdown` | 击穿场零设计 |
+| [`scenario/discharge.jsonld`](scenario/discharge.jsonld) | `scenario/discharge` | 静态线圈反解 |
+| [`scenario/evolve.jsonld`](scenario/evolve.jsonld) | `scenario/evolve` | 含时演化 |
+| [`scenario/lines.jsonld`](scenario/lines.jsonld) | `scenario/lines` | 场景目录 |
+| [`scenario/pfwave.jsonld`](scenario/pfwave.jsonld) | `scenario/pfwave` | PF 电源整定与波形 |
+| [`scenario/profile.jsonld`](scenario/profile.jsonld) | `scenario/profile` | 剖面拟合 |
+| [`scenario/reconstruction.jsonld`](scenario/reconstruction.jsonld) | `scenario/reconstruction` | 平衡反演 |
+| [`scenario/series.jsonld`](scenario/series.jsonld) | `scenario/series` | 时间序列反演 |
+| [`scenario/transport.jsonld`](scenario/transport.jsonld) | `scenario/transport` | 定态芯部输运 |
+| [`scenario/zerod.jsonld`](scenario/zerod.jsonld) | `scenario/zerod` | 0-D 放电分析 |
+
+<!-- END GENERATED -->

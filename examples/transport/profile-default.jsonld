@@ -1,0 +1,52 @@
+{
+ "@context": [
+  "context.jsonld",
+  {
+   "@base": "../"
+  }
+ ],
+ "id": "cases/profile-default",
+ "type": "fyo:ScenarioSpecification",
+ "title": {
+  "zh": "剖面拟合（出厂设置）",
+  "en": "Profile fit (as shipped)"
+ },
+ "note": {
+  "zh": "★S-1 提取档（2026-08-26）：由 analysis.html 的出厂控件值机械提取，不是页面导出的会话文件——分析页尚未接算例菜单（接线按裁定推后），接线后应由页面「导出 → 会话文件」重新产生并替换本档，完成往返校验。内容：GCV 定阶剖面拟合的求解旋钮（拟合量 / 最高阶 / 采样点数 / 噪声水平 / 种子）。本档不带数据：拟合对象来自导入或牌面重采样，算例只固化方法参数。",
+  "en": "★S-1 extraction (2026-08-26): mechanically lifted from analysis.html factory control values, NOT a page-exported session file — the analysis page has no case menu yet (wiring postponed by ruling); once wired, regenerate via 导出 → 会话文件 and replace this file to close the round trip. Contents: the solver knobs of the GCV-ordered profile fit (quantity / max order / sample count / noise level / seed). No data inside: the fitted profile comes from an import or the deck resample; the case freezes only the method parameters."
+ },
+ "prescribed_task_kind": "fyo:ExperimentAnalysisTask",
+ "prescribes_code": {
+  "id": "code/profile",
+  "type": "spo:Code",
+  "name": "fylite",
+  "comment": "browser-only bar `profile` of the fylite app (python/fylite/scenario/__init__.py BROWSER_ONLY_BARS): realized by the app worker, no Python entry; the parameter IRIs `code/profile#<name>` are its control vocabulary"
+ },
+ "parameters": [
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/profile#quantity",
+   "literal_value": "pressure"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/profile#maxorder",
+   "literal_value": 6
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/profile#npts",
+   "literal_value": 24
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/profile#sigma",
+   "literal_value": 0.05
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/profile#pseed",
+   "literal_value": 3
+  }
+ ]
+}

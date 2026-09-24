@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EAST 竖直位置控制</title>
+<meta name="description" content="读 vs_control.py 的结果 JSON：竖直不稳定模、被动壁的作用、PD 控制的增益图与回路时延上限、竖直位移扰动的开环与闭环响应。">
+<style>
+:root {
+  --paper: #F3F4EF; --sheet: #FBFBF8; --ink: #17212B; --ink2: #475463; --muted: #7A8592;
+  --rule: #DADDD4; --hair: rgba(23, 33, 43, 0.08); --accent: #0E6E68; --accent-soft: #D7EAE7;
+  --wall: #5B6570; --warn: #A33A2E; --pos: #C0522B; --neg: #2C6BA8; --ok: #2F7D4A;
+  --gold: #A07A12; --plasma: #0E6E68; --grey: #B9BEB5;
+  --s0: #E4EFEC; --s1: #B7D6D0; --s2: #84B9B1; --s3: #4E968D; --s4: #1F7067; --s5: #0B4A44;
+  --c1: #0E6E68; --c2: #C0522B; --c3: #6A55B3; --c4: #A07A12;
+  --lift: 0 1px 2px rgba(23, 33, 43, 0.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #11171D; --sheet: #172028; --ink: #E6EAEE; --ink2: #B3BDC7; --muted: #7F8B97;
+    --rule: #2A3540; --hair: rgba(230, 234, 238, 0.08); --accent: #4FB8AE; --accent-soft: #1C3634;
+    --wall: #9AA5B0; --warn: #EE8A7E; --pos: #F08A5B; --neg: #6FA8E0; --ok: #6BCB85;
+    --gold: #D8B24A; --plasma: #4FB8AE; --grey: #3A4550;
+    --s0: #16302D; --s1: #1C4A44; --s2: #22665D; --s3: #2E8578; --s4: #4FB8AE; --s5: #9EDDD5;
+    --c1: #4FB8AE; --c2: #F08A5B; --c3: #A996F0; --c4: #D8B24A;
+    --lift: 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #11171D; --sheet: #172028; --ink: #E6EAEE; --ink2: #B3BDC7; --muted: #7F8B97;
+  --rule: #2A3540; --hair: rgba(230, 234, 238, 0.08); --accent: #4FB8AE; --accent-soft: #1C3634;
+  --wall: #9AA5B0; --warn: #EE8A7E; --pos: #F08A5B; --neg: #6FA8E0; --ok: #6BCB85;
+  --gold: #D8B24A; --plasma: #4FB8AE; --grey: #3A4550;
+  --s0: #16302D; --s1: #1C4A44; --s2: #22665D; --s3: #2E8578; --s4: #4FB8AE; --s5: #9EDDD5;
+  --c1: #4FB8AE; --c2: #F08A5B; --c3: #A996F0; --c4: #D8B24A;
+  --lift: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink);
+  font: 14px/1.6 "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 20px 16px 56px; }
+header { display: grid; gap: 6px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
+.eyebrow { font: 500 12px/1.3 ui-monospace, "SFMono-Regular", Menlo, monospace; letter-spacing: .08em; color: var(--accent); }
+h1 { font-size: 24px; line-height: 1.25; margin: 0; text-wrap: balance; }
+h2 { font-size: 17px; margin: 28px 0 8px; text-wrap: balance; }
+p.lede { color: var(--ink2); margin: 0; max-width: 80ch; }
+.banner { border-left: 3px solid var(--warn); background: var(--sheet); padding: 6px 12px; color: var(--ink2); font-size: 13px; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+button, .file, select { font: inherit; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink);
+  border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+button:hover, .file:hover, select:hover { border-color: var(--accent); }
+button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+button:focus-visible, .file:focus-within, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.file input { display: none; }
+input[type="range"] { flex: 1; min-width: 160px; accent-color: var(--accent); }
+.tabs { display: flex; gap: 4px; margin-top: 14px; border-bottom: 1px solid var(--rule); }
+.tabs button { border: none; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: 6px 12px; color: var(--ink2); }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+.grid { display: grid; gap: 16px; }
+.two { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+@media (max-width: 900px) { .two { grid-template-columns: 1fr; } }
+.card { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; box-shadow: var(--lift); min-width: 0; }
+.card h3 { font-size: 13px; margin: 0 0 6px; color: var(--ink2); font-weight: 600; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.kpi { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; }
+.kpi .l { font-size: 12px; color: var(--ink2); }
+.kpi .v { font: 600 20px/1.3 ui-monospace, "SFMono-Regular", Menlo, monospace; font-variant-numeric: tabular-nums; }
+.kpi .s { font-size: 12px; color: var(--muted); }
+.pill { display: inline-block; border-radius: 10px; padding: 0 8px; font-size: 12px; border: 1px solid currentColor; }
+.pill.ok { color: var(--ok); } .pill.warn { color: var(--warn); } .pill.acc { color: var(--accent); }
+.note { color: var(--ink2); font-size: 13px; margin: 6px 0 0; max-width: 90ch; }
+.muted { color: var(--muted); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--hair); }
+th { color: var(--ink2); font-weight: 600; }
+td.n { text-align: right; font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; }
+.scroll { overflow-x: auto; }
+svg { display: block; width: 100%; height: auto; }
+svg text { fill: var(--ink2); font: 11px ui-monospace, "SFMono-Regular", Menlo, monospace; }
+svg .ax { stroke: var(--rule); stroke-width: 1; fill: none; }
+svg .grid { stroke: var(--hair); stroke-width: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--ink2); margin: 4px 0; }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+#tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--paper); font: 12px/1.45 ui-monospace, Menlo, monospace;
+  padding: 5px 8px; border-radius: 5px; display: none; z-index: 10; max-width: 320px; white-space: pre; }
+.empty { border: 2px dashed var(--rule); border-radius: 10px; padding: 36px 16px; text-align: center; color: var(--ink2); margin-top: 16px; }
+.drop .empty { border-color: var(--accent); background: var(--accent-soft); }
+.theory { max-width: 82ch; }
+.theory .eq { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; background: var(--sheet); border: 1px solid var(--rule);
+  border-radius: 6px; padding: 8px 12px; overflow-x: auto; white-space: pre; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+<header>
+  <div class="eyebrow">EAST · n = 0 竖直模 · 刚性位移模型</div>
+  <h1>EAST 竖直位置控制</h1>
+  <p class="lede">一份平衡上的竖直不稳定模：被动壁把它从理想增长拖慢到壁的 L/R 时间，IC 快控线圈对以 PD 律把它拉回。被控对象来自 fylite 内核的 <code>code/vstab</code>，控制器与闭环仿真是本示例自己的。</p>
+  <div class="banner">仅为示意：控制器、电源与时延参数是本示例的设定，不是 EAST PCS 的实际值；没有电压限幅。</div>
+</header>
+
+<div class="tabs" role="tablist">
+  <button role="tab" id="tab-res" aria-selected="true" aria-controls="pane-res">结果</button>
+  <button role="tab" id="tab-th" aria-selected="false" aria-controls="pane-th">原理与过程</button>
+  <span style="flex:1"></span>
+  <button id="theme" title="明暗">◐ 风格</button>
+</div>
+
+<section id="pane-res" role="tabpanel">
+  <div class="bar">
+    <label class="file">导入结果 JSON <input type="file" id="file" accept=".json,application/json"></label>
+    <span class="muted" id="loaded">也可以把 <code>vs_control.py run</code> 写出的 JSON 直接拖进页面。</span>
+  </div>
+  <div id="empty" class="empty">还没有载入结果。<br>
+    <code>python vs_control.py run DATA_DIR -o out/vs.json</code> 之后把 <code>out/vs.json</code> 拖进来。</div>
+  <div id="res" hidden>
+    <div class="kpis" id="kpis"></div>
+
+    <h2>截面与竖直位移扰动</h2>
+    <div class="bar">
+      <label>工况 <select id="case"></select></label>
+      <label>看 <select id="view"><option value="sim">仿真：壁电流随时间</option><option value="mode">开环不稳定模（每米位移）</option></select></label>
+      <button id="play">▶ 播放</button>
+      <input type="range" id="frame" min="0" max="0" value="0" aria-label="时间帧">
+      <span id="ftime" class="muted"></span>
+      <label>位移放大 <select id="mag"><option>1</option><option>10</option><option selected>30</option><option>100</option></select></label>
+    </div>
+    <div class="grid two">
+      <div class="card"><h3 id="xs-title">截面</h3><div id="xs"></div><div class="legend" id="xs-legend"></div><p class="note" id="xs-note"></p></div>
+      <div class="card">
+        <h3>竖直位移 ξ(t)</h3><div class="legend" id="lg-xi"></div><div id="c-xi"></div>
+        <h3 style="margin-top:10px">IC 电源电压 v(t) · 控制指令 u(t)</h3><div class="legend" id="lg-u"></div><div id="c-u"></div>
+        <h3 style="margin-top:10px">IC1 电流 · 被动结构电流之和</h3><div class="legend" id="lg-i"></div><div id="c-i"></div>
+      </div>
+    </div>
+
+    <h2>PD 增益图</h2>
+    <div class="bar">
+      <label>回路时延 <select id="dsel"></select></label>
+      <label>着色 <select id="gq"><option value="settle_s">ξ 的 2 % 沉降时间</option><option value="u_peak_V">峰值电压 |u|</option><option value="max_re">闭环最大实部</option></select></label>
+    </div>
+    <div class="grid two">
+      <div class="card"><h3 id="gm-title">增益图</h3><div id="gm"></div><div class="legend" id="gm-legend"></div><p class="note" id="gm-note"></p></div>
+      <div class="card"><h3>沉降时间 ↔ 电压需求（稳定区内每个增益点）</h3><div id="pareto"></div><p class="note">越往左下越好。左边界是这一时延下「要多快就得给多大电压」的代价曲线；本示例没有电压限幅，所以最快的点只是这张网格上最快的，不代表电源给得出。</p></div>
+    </div>
+
+    <h2>回路时延上限</h2>
+    <div class="grid two">
+      <div class="card"><h3>每个时延下能做到的最好闭环最大实部</h3><div id="dsw"></div><p class="note" id="dsw-note"></p></div>
+      <div class="card"><h3>极点（复平面）</h3><div class="legend" id="lg-p"></div><div id="poles"></div><p class="note">开环那个正实轴上的极点就是竖直不稳定模 γ；其余都是被动结构的 L/R 模。靠近原点、闭环也不动的那几个是被动板的慢模——IC 控制不到它们，它们决定了「最大实部」却不决定 ξ 的沉降。</p></div>
+    </div>
+
+    <h2>壁的作用</h2>
+    <div class="grid two">
+      <div class="card"><h3>增长率 vs 壁到磁轴的距离（<code>vessel_scale</code>）</h3><div id="ws-v"></div><p class="note" id="ws-v-note"></p></div>
+      <div class="card"><h3>增长率 vs 壁电阻率（<code>eta_scale</code>）</h3><div id="ws-e"></div><p class="note" id="ws-e-note"></p></div>
+    </div>
+
+    <h2>明细</h2>
+    <div class="grid two">
+      <div class="card"><h3>对象</h3><div class="scroll"><table id="t-plant"></table></div></div>
+      <div class="card"><h3>各工况</h3><div class="scroll"><table id="t-cases"></table></div><h3 style="margin-top:12px">门的说明</h3><div id="notes" class="note"></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="pane-th" role="tabpanel" hidden>
+  <div class="theory">
+    <h2>要回答的问题</h2>
+    <p>拉长位形的托卡马克等离子体在竖直方向上是不稳定的：外场的曲率让它一旦上下偏离，就被继续推离。导体壁里感应的涡流会顶住它，但壁有电阻，涡流会衰减——于是本来以 Alfvén 时间尺度发生的理想不稳定，被拖慢成以壁的 L/R 时间尺度增长的<strong>阻性壁模</strong>。这个模必须由主动反馈拉住。本页回答三件事：它长得多快；PD 控制怎样的增益能拉住它、拉得多快、要多大电压；回路时延大到多少就再也拉不住。</p>
+
+    <h2>被控对象（内核 <code>code/vstab</code>）</h2>
+    <p>无质量刚性位移模型：等离子体电流分布整体竖直平移 ξ，外场刚度 k = I<sub>p</sub> ∂²ψ<sub>ext</sub>/∂Z²（k &gt; 0 去稳），导体电流 I 经耦合梯度 G = ∂M<sub>pk</sub>/∂Z 与它相互作用。力平衡</p>
+    <div class="eq">k ξ + I_p Gᵀ δI = 0      ⇒   ξ = −(I_p / k) Gᵀ δI = C_ξ · δI</div>
+    <p>消去 ξ 后，导体电路满足</p>
+    <div class="eq">M* dI/dt + R I = B v,      M* = M − (I_p² / k) G Gᵀ</div>
+    <p>秩一修正让 M* 恰有一个负特征值，那就是不稳定模；增长率 γ 是 −M*⁻¹R 的最大实部。三档判读由两个刚度定：k ≤ 0 稳定，0 &lt; k &lt; k<sub>ideal</sub> 阻性壁，k ≥ k<sub>ideal</sub> = I<sub>p</sub>² Gᵀ M⁻¹ G 理想不稳（无质量模型里增长无穷快，门按名报出而不给一个看着正常的大数）。</p>
+    <p><strong>成员</strong>：被动结构三组（内壳 40 件、外壳 40 件、被动板 10 件）与 IC1、IC2 两路快控线圈。门在 <code>circuit: full</code> 下给出全部矩阵，本示例把 12 路 PF 通道删掉——PF 由电源保持电流，对小信号动态没有贡献；EAST 的 PF 是超导线圈，把它们当成有电阻的回路成员会变成完美的磁通守恒体，把对象错误地稳住。<strong>接线判据</strong>：再把 IC 也删掉、只留被动结构，γ 必须落回门在 <code>circuit: passive</code> 下自己给的值；不相等就停。</p>
+
+    <h2>控制回路（本示例）</h2>
+    <div class="eq">ξ → [PD：u = −K_p ξ − K_d ξ̇_f] → [时延 e^(−sT)，Padé 4 阶] → [电源 1/(τ_a s + 1)] → v
+v_IC1 = +v ，v_IC2 = −v        （反对称对产生竖直力的径向场）
+ξ̇_f ：微分经一阶滤波 τ_d</div>
+    <p>极性取使 K<sub>p</sub> &gt; 0 为恢复力的那一侧（两种极性都试一次 P 律，看哪一侧压得住）。增益图的 K<sub>p</sub> 围绕 P 律下限 K<sub>p,min</sub> 取对数，K<sub>d</sub> 以 K<sub>p,min</sub>/γ 为尺。</p>
+    <p><strong>挑增益不看「最大实部」</strong>：被动板的慢 L/R 模 IC 控制不到，在稳定区里它一直占着最大实部，像一块平台。挑增益看的是 ξ 本身：从开环不稳定模的形状、ξ(0) = ξ<sub>0</sub> 出发，ξ 落进 ±2 % 的时刻（沉降时间），以及这一路要的峰值电压。时间推进用精确离散 x<sub>k+1</sub> = e<sup>AΔt</sup> x<sub>k</sub>。</p>
+    <h2>回路时延为什么是硬限制</h2>
+    <p>一阶滞后能被 PD 的超前相位补回来，纯时延补不回来。经典结论：对 ẋ = γx − K x(t − T)，存在稳定的 K 当且仅当 <strong>γT &lt; 1</strong>。时延扫描以 γT 为横轴，给出这台对象、这套 PD 律下可稳定的时延上限 T<sub>crit</sub>。</p>
+    <h2>本页怎么读</h2>
+    <ul>
+      <li><strong>截面</strong>：线圈（金色是 IC）、被动结构按电流着色（红正蓝负，量程按整段最大值固定、各帧可比），等离子体边界按 ξ 刚性平移（放大倍数在工具栏）。「开环不稳定模」一档画的是每米位移对应的壁电流。</li>
+      <li><strong>增益图</strong>：灰色是不稳定区；最底一行是 K<sub>d</sub> = 0（纯 P）。点出的圆圈是沉降最快的那一点。</li>
+      <li><strong>壁的作用</strong>：壁越远 γ 越大，到理想阈值为止；壁电阻率与 γ 严格成正比——这是阻性壁支的判据。</li>
+    </ul>
+    <h2>没做到的</h2>
+    <ul>
+      <li>无质量刚性模型只管 n = 0 竖直模的小信号线性行为；大位移、形状变化、触壁之后都不在其中。</li>
+      <li>ξ 取模型真值（状态反馈）；真实系统要从磁测量估计。</li>
+      <li>没有电源电压 / 电流限幅，没有测量噪声。</li>
+    </ul>
+  </div>
+</section>
+</div>
+<div id="tip"></div>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const tip = $("#tip");
+let D = null, playing = null;
+
+// ---------------------------------------------------------------- 主题 · 页签
+(function () {
+  let saved = null;
+  try { saved = localStorage.getItem("vs-theme"); } catch (e) {}
+  if (saved) document.documentElement.dataset.theme = saved;
+  $("#theme").onclick = () => {
+    const cur = document.documentElement.dataset.theme;
+    const next = cur === "dark" ? "light" : cur === "light" ? "" : "dark";
+    if (next) document.documentElement.dataset.theme = next; else delete document.documentElement.dataset.theme;
+    try { next ? localStorage.setItem("vs-theme", next) : localStorage.removeItem("vs-theme"); } catch (e) {}
+    if (D) renderAll();
+  };
+  for (const [t, p] of [["#tab-res", "#pane-res"], ["#tab-th", "#pane-th"]]) {
+    $(t).onclick = () => {
+      for (const [t2, p2] of [["#tab-res", "#pane-res"], ["#tab-th", "#pane-th"]]) {
+        $(t2).setAttribute("aria-selected", String(t2 === t)); $(p2).hidden = t2 !== t;
+      }
+    };
+  }
+})();
+
+// ---------------------------------------------------------------- 载入
+function accept(obj, name) {
+  if (!obj || obj["@type"] !== "fylite:EastVerticalControl") {
+    $("#loaded").textContent = `${name}：不是 vs_control.py 的结果（@type = ${obj && obj["@type"]}），本页只收 fylite:EastVerticalControl。`;
+    return;
+  }
+  D = obj;
+  $("#loaded").textContent = `已载入 ${name}：#${D.shot} · ${D.inputs.gfile}`;
+  $("#empty").hidden = true; $("#res").hidden = false;
+  setupControls(); renderAll();
+}
+function readFile(f) { f.text().then((t) => { try { accept(JSON.parse(t), f.name); } catch (e) { $("#loaded").textContent = `${f.name}：${e.message}`; } }); }
+$("#file").onchange = (e) => { if (e.target.files[0]) readFile(e.target.files[0]); };
+document.addEventListener("dragover", (e) => { e.preventDefault(); document.body.classList.add("drop"); });
+document.addEventListener("dragleave", () => document.body.classList.remove("drop"));
+document.addEventListener("drop", (e) => { e.preventDefault(); document.body.classList.remove("drop"); if (e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]); });
+
+// ---------------------------------------------------------------- 小工具
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function fmt(x, d = 3) {
+  if (x === null || x === undefined || !isFinite(x)) return "—";
+  const a = Math.abs(x);
+  if (a !== 0 && (a < 1e-3 || a >= 1e5)) return x.toExponential(d - 1).replace("e+", "e");
+  return Number(x.toPrecision(d)).toString();
+}
+function fmtT(s) { if (!isFinite(s)) return "—"; return s < 1 ? `${fmt(s * 1e3)} ms` : `${fmt(s)} s`; }
+function showTip(ev, text) { tip.textContent = text; tip.style.display = "block"; tip.style.left = (ev.clientX + 14) + "px"; tip.style.top = (ev.clientY + 12) + "px"; }
+function hideTip() { tip.style.display = "none"; }
+const CASE_COLOR = { open: "--c2", pd_best: "--c1", p_only: "--c3", too_slow: "--c4" };
+const caseColor = (k) => css(CASE_COLOR[k] || "--ink2");
+
+function scale(d0, d1, r0, r1, log) {
+  if (log) { const l0 = Math.log10(d0), l1 = Math.log10(d1); const f = (v) => r0 + (Math.log10(v) - l0) / (l1 - l0) * (r1 - r0); f.log = true; f.d = [d0, d1]; return f; }
+  const f = (v) => r0 + (v - d0) / (d1 - d0 || 1) * (r1 - r0); f.d = [d0, d1]; return f;
+}
+function ticks(d0, d1, log, n = 5) {
+  if (log) { const out = []; for (let e = Math.floor(Math.log10(d0)); e <= Math.ceil(Math.log10(d1)); e++) { const v = 10 ** e; if (v >= d0 * 0.999 && v <= d1 * 1.001) out.push(v); } return out.length >= 2 ? out : [d0, d1]; }
+  const span = d1 - d0, step0 = span / n, mag = 10 ** Math.floor(Math.log10(step0 || 1)), err = step0 / mag;
+  const step = (err >= 7 ? 10 : err >= 3 ? 5 : err >= 1.5 ? 2 : 1) * mag;
+  const out = []; for (let v = Math.ceil(d0 / step) * step; v <= d1 + step * 1e-9; v += step) out.push(Math.abs(v) < step * 1e-9 ? 0 : v); return out;
+}
+
+/** 折线图：series = [{name, x[], y[], color, dash}]；返回 svg 与坐标变换 */
+function lineChart(host, series, o = {}) {
+  host.innerHTML = "";
+  const W = o.w || 640, H = o.h || 190, m = { l: 62, r: 14, t: 10, b: 30 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": o.label || "" }, host);
+  const xs = series.flatMap((s) => s.x), ys = series.flatMap((s) => s.y).filter((v) => isFinite(v));
+  let x0 = o.x0 ?? Math.min(...xs), x1 = o.x1 ?? Math.max(...xs);
+  let y0 = o.y0 ?? Math.min(...ys), y1 = o.y1 ?? Math.max(...ys);
+  if (o.ylog) { y0 = Math.max(y0, o.yfloor || 1e-12); }
+  if (y0 === y1) { y0 -= 1; y1 += 1; }
+  if (!o.ylog) { const pad = (y1 - y0) * 0.06; y0 -= pad; y1 += pad; }
+  const X = scale(x0, x1, m.l, W - m.r, o.xlog), Y = scale(y0, y1, H - m.b, m.t, o.ylog);
+  for (const t of ticks(y0, y1, o.ylog)) { el("line", { x1: m.l, x2: W - m.r, y1: Y(t), y2: Y(t), class: "grid" }, svg); el("text", { x: m.l - 6, y: Y(t) + 4, "text-anchor": "end" }, svg).textContent = fmt(t, 2); }
+  for (const t of ticks(x0, x1, o.xlog)) { el("line", { x1: X(t), x2: X(t), y1: m.t, y2: H - m.b, class: "grid" }, svg); el("text", { x: X(t), y: H - m.b + 16, "text-anchor": "middle" }, svg).textContent = o.xfmt ? o.xfmt(t) : fmt(t, 2); }
+  el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, class: "ax" }, svg);
+  if (o.xlabel) el("text", { x: W - m.r, y: H - 4, "text-anchor": "end" }, svg).textContent = o.xlabel;
+  if (o.ylabel) el("text", { x: 4, y: m.t + 10 }, svg).textContent = o.ylabel;
+  if (!o.ylog && y0 < 0 && y1 > 0) el("line", { x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), stroke: css("--muted"), "stroke-width": 1 }, svg);
+  for (const r of o.vlines || []) { el("line", { x1: X(r.x), x2: X(r.x), y1: m.t, y2: H - m.b, stroke: r.color || css("--warn"), "stroke-dasharray": "4 3" }, svg); if (r.text) el("text", { x: X(r.x) + 4, y: m.t + 12 }, svg).textContent = r.text; }
+  for (const s of series) {
+    let d = "", pen = false;
+    for (let i = 0; i < s.x.length; i++) {
+      const y = s.y[i]; if (!isFinite(y) || (o.ylog && y <= 0)) { pen = false; continue; }
+      d += (pen ? "L" : "M") + X(s.x[i]).toFixed(1) + " " + Y(Math.min(Math.max(y, y0), y1)).toFixed(1); pen = true;
+    }
+    el("path", { d, fill: "none", stroke: s.color, "stroke-width": s.w || 2, "stroke-dasharray": s.dash || "", "stroke-linejoin": "round" }, svg);
+    for (const p of s.points || []) el("circle", { cx: X(p[0]), cy: Y(p[1]), r: 4.5, fill: s.color, stroke: css("--sheet"), "stroke-width": 2 }, svg);
+  }
+  const cur = el("line", { y1: m.t, y2: H - m.b, stroke: css("--ink"), "stroke-width": 1, opacity: 0 }, svg);
+  const hit = el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" }, svg);
+  hit.addEventListener("mousemove", (ev) => {
+    const b = svg.getBoundingClientRect(), px = (ev.clientX - b.left) * W / b.width;
+    const xv = X.log ? 10 ** (Math.log10(x0) + (px - m.l) / (W - m.l - m.r) * (Math.log10(x1) - Math.log10(x0))) : x0 + (px - m.l) / (W - m.l - m.r) * (x1 - x0);
+    cur.setAttribute("x1", px); cur.setAttribute("x2", px); cur.setAttribute("opacity", 0.35);
+    const lines = [(o.xname || "x") + " = " + (o.xfmt ? o.xfmt(xv) : fmt(xv))];
+    for (const s of series) { let k = 0, best = Infinity; for (let i = 0; i < s.x.length; i++) { const dd = Math.abs(s.x[i] - xv); if (dd < best) { best = dd; k = i; } } lines.push(`${s.name}: ${fmt(s.y[k])}${o.yunit || ""}`); }
+    showTip(ev, lines.join("\n"));
+    if (o.onhover) o.onhover(xv);
+  });
+  hit.addEventListener("mouseleave", () => { hideTip(); cur.setAttribute("opacity", 0); });
+  if (o.onclick) hit.addEventListener("click", (ev) => { const b = svg.getBoundingClientRect(), px = (ev.clientX - b.left) * W / b.width; o.onclick(x0 + (px - m.l) / (W - m.l - m.r) * (x1 - x0)); });
+  return { svg, X, Y, m, W, H };
+}
+function legend(host, items) { host.innerHTML = items.map((i) => `<span><i style="background:${i.color};${i.dash ? "background:repeating-linear-gradient(90deg," + i.color + " 0 5px,transparent 5px 8px)" : ""}"></i>${i.name}</span>`).join(""); }
+
+// ---------------------------------------------------------------- 控件
+function setupControls() {
+  const cs = $("#case"); cs.innerHTML = D.simulations.map((s, i) => `<option value="${i}">${s.label}</option>`).join("");
+  const pd = D.simulations.findIndex((s) => s.key === "pd_best"); cs.value = String(pd >= 0 ? pd : 0);
+  const ds = $("#dsel"); ds.innerHTML = D.controller.gain_maps.map((g, i) => `<option value="${i}">T = ${fmtT(g.delay)}（γT = ${fmt(g.delay * D.plant.gamma, 2)}）</option>`).join("");
+  cs.onchange = () => { stop(); setFrameRange(); renderSection(); };
+  $("#view").onchange = renderSection; $("#mag").onchange = renderSection;
+  $("#frame").oninput = renderXS;
+  ds.onchange = renderGain; $("#gq").onchange = renderGain;
+  $("#play").onclick = () => { if (playing) { stop(); return; } $("#play").textContent = "❚❚ 暂停"; playing = setInterval(() => { const f = $("#frame"); f.value = (Number(f.value) + 1) % (Number(f.max) + 1); renderXS(); }, 90); };
+  setFrameRange();
+}
+function stop() { if (playing) clearInterval(playing); playing = null; $("#play").textContent = "▶ 播放"; }
+function setFrameRange() { const s = sim(); $("#frame").max = String(s.frames.t.length - 1); $("#frame").value = "0"; }
+const sim = () => D.simulations[Number($("#case").value) || 0];
+
+// ---------------------------------------------------------------- 读数
+function renderKPI() {
+  const P = D.plant, C = D.controller, ds = C.delay_sweep;
+  const reg = { "stable": ["稳定", "ok"], "resistive-wall": ["阻性壁", "acc"], "ideal-unstable": ["理想不稳", "warn"] }[P.regime] || [P.regime, ""];
+  const k = [
+    ["开环增长率 γ（被动 + IC）", `${fmt(P.gamma, 4)} s⁻¹`, `增长时间 1/γ = ${fmtT(1 / P.gamma)}`],
+    ["只有被动结构（门）", `${fmt(P.door_passive.gamma, 4)} s⁻¹`, `IC 铜回路自己也顶一点：${fmt((1 - P.gamma / P.door_passive.gamma) * 100, 2)} %`],
+    ["判读档位", `<span class="pill ${reg[1]}">${reg[0]}</span>`, `稳定裕度 k_ideal/k − 1 = ${fmt(P.door_passive.margin, 3)}（门 · 被动结构）`],
+    ["P 律下限 K_p,min", `${fmt(C.kp_min_P, 3)} V/m`, "无时延、电源滞后 τ_a"],
+    ["可稳定的回路时延上限", ds.delay_crit ? fmtT(ds.delay_crit) : "—", ds.gamma_delay_crit ? `γ·T_crit = ${fmt(ds.gamma_delay_crit, 3)}（纯 P 律的界是 1）` : "扫描范围内没有过零"],
+    ["I_p", `${fmt(P.ip / 1e6, 4)} MA`, `#${D.shot} · ${D.inputs.gfile}`],
+  ];
+  $("#kpis").innerHTML = k.map(([l, v, s]) => `<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+}
+
+// ---------------------------------------------------------------- 截面
+function quad(e) {
+  const t1 = e.a1 ? Math.tan(e.a1 * Math.PI / 180) : 0;
+  const t2 = (e.a2 && Math.abs(e.a2 - 90) > 1e-9) ? 1 / Math.tan(e.a2 * Math.PI / 180) : 0;
+  return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([sx, sz]) => { const xl = sx * e.w / 2, zl = sz * e.h / 2; return [e.r + xl + zl * t2, e.z + zl + xl * t1]; });
+}
+function divColor(v, vmax) {
+  if (!isFinite(v) || vmax <= 0) return css("--grey");
+  const f = Math.max(-1, Math.min(1, v / vmax)), a = Math.abs(f);
+  const end = f >= 0 ? css("--pos") : css("--neg"), base = css("--sheet");
+  return mix(base, end, Math.pow(a, 0.6));
+}
+function hex(c) { const m = c.replace("#", ""); return [0, 2, 4].map((i) => parseInt(m.slice(i, i + 2), 16)); }
+function mix(a, b, t) { const A = hex(a), B = hex(b); return "rgb(" + A.map((x, i) => Math.round(x + (B[i] - x) * t)).join(",") + ")"; }
+
+function renderXS() {
+  const G = D.geometry, view = $("#view").value || "sim", s = sim(), mag = Number($("#mag").value) || 30;
+  const fi = Number($("#frame").value) || 0;
+  const host = $("#xs"); host.innerHTML = "";
+  const pts = [...G.limiter.r.map((r, i) => [r, G.limiter.z[i]]), ...G.coils.flatMap((c) => c.elements.flatMap(quad))];
+  let r0 = Math.min(...pts.map((p) => p[0])), r1 = Math.max(...pts.map((p) => p[0])), z0 = Math.min(...pts.map((p) => p[1])), z1 = Math.max(...pts.map((p) => p[1]));
+  const pad = 0.08 * (z1 - z0); r0 -= pad; r1 += pad; z0 -= pad; z1 += pad;
+  const W = 420, H = Math.round(W * (z1 - z0) / (r1 - r0));
+  const X = (r) => (r - r0) / (r1 - r0) * W, Y = (z) => (z1 - z) / (z1 - z0) * H;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "EAST 截面" }, host);
+  const poly = (q, attrs) => el("polygon", { points: q.map((p) => X(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1)).join(" "), ...attrs }, svg);
+  // 线圈
+  for (const c of G.coils) for (const e of c.elements) {
+    const p = poly(quad(e), { fill: c.fast ? css("--gold") : "none", "fill-opacity": c.fast ? 0.85 : 1, stroke: c.fast ? css("--gold") : css("--wall"), "stroke-width": c.fast ? 1.5 : 1 });
+    p.addEventListener("mousemove", (ev) => showTip(ev, `${c.name}${c.fast ? "（快控，执行器）" : "（PF，电流保持）"}\nR ${fmt(e.r)} m · Z ${fmt(e.z)} m`)); p.addEventListener("mouseleave", hideTip);
+  }
+  // 限制器
+  el("polyline", { points: G.limiter.r.map((r, i) => X(r).toFixed(1) + "," + Y(G.limiter.z[i]).toFixed(1)).join(" "), fill: "none", stroke: css("--ink2"), "stroke-width": 1.2 }, svg);
+  // 被动结构电流
+  let I, vmax, title, unit;
+  if (view === "mode") {
+    I = D.plant.mode.i_passive_A_per_m; unit = "A/m"; title = "开环不稳定模：每米竖直位移对应的壁电流";
+    vmax = Math.max(...I.map(Math.abs));
+  } else {
+    I = s.frames.i_passive[fi] || s.frames.i_passive[0]; unit = "A";
+    vmax = Math.max(...s.frames.i_passive.flatMap((f) => f.map(Math.abs)));
+    title = `${s.label}：t = ${fmtT(s.frames.t[fi])}`;
+  }
+  G.passive.forEach((e, k) => {
+    const grp = (G.passive_groups.find((g) => k >= g.start && k < g.stop) || {}).name || "";
+    const p = poly(quad(e), { fill: divColor(I[k], vmax), stroke: css("--wall"), "stroke-width": 0.6 });
+    p.addEventListener("mousemove", (ev) => showTip(ev, `${grp} #${k - ((G.passive_groups.find((g) => g.name === grp) || { start: 0 }).start)}\nI = ${fmt(I[k])} ${unit}\nR ${fmt(e.r)} · Z ${fmt(e.z)} m`)); p.addEventListener("mouseleave", hideTip);
+  });
+  // 等离子体（按 ξ 刚性平移）
+  const xi = view === "mode" ? 0 : (() => { const t = s.frames.t[fi]; let k = 0; while (k < s.t.length - 1 && s.t[k] < t) k++; return s.xi[k]; })();
+  const dz = xi * mag;
+  const B = G.boundary;
+  if (B.r.length) {
+    el("polygon", { points: B.r.map((r, i) => X(r).toFixed(1) + "," + Y(B.z[i]).toFixed(1)).join(" "), fill: "none", stroke: css("--muted"), "stroke-dasharray": "3 3", "stroke-width": 1 }, svg);
+    el("polygon", { points: B.r.map((r, i) => X(r).toFixed(1) + "," + Y(B.z[i] + dz).toFixed(1)).join(" "), fill: css("--plasma"), "fill-opacity": 0.12, stroke: css("--plasma"), "stroke-width": 2 }, svg);
+  }
+  el("circle", { cx: X(G.axis.r), cy: Y(G.axis.z + dz), r: 3.5, fill: css("--plasma") }, svg);
+  $("#xs-title").textContent = title;
+  $("#ftime").textContent = view === "mode" ? "" : `t = ${fmtT(s.frames.t[fi])} · ξ = ${fmt(xi * 1e3, 3)} mm`;
+  legend($("#xs-legend"), [{ name: "PF（电流保持）", color: css("--wall") }, { name: "IC 快控线圈", color: css("--gold") }, { name: "壁电流 +", color: css("--pos") }, { name: "壁电流 −", color: css("--neg") }, { name: `等离子体边界（ξ × ${mag}）`, color: css("--plasma") }, { name: "平衡位置", color: css("--muted"), dash: true }]);
+  $("#xs-note").textContent = view === "mode"
+    ? "不稳定模里，内壳在等离子体上下两侧的电流反号——那正是顶住竖直移动的鞍形涡流。量程按这张图自己的最大值。"
+    : `壁电流量程固定为这一工况整段的最大 |I| = ${fmt(vmax)} A，各帧可比。边界的平移按刚性位移模型的 ξ，放大 ${mag} 倍。`;
+  drawCursor(view === "mode" ? null : s.frames.t[fi]);
+}
+
+// ---------------------------------------------------------------- 时间响应
+let charts = {};
+function renderTime() {
+  const sims = D.simulations, sel = sim();
+  const xiSeries = sims.map((s) => ({ name: s.label, x: s.t, y: s.xi.map((v) => v * 1e3), color: caseColor(s.key), w: s === sel ? 2.4 : 1.4 }));
+  const tEnd = Math.max(...sims.map((s) => s.t[s.t.length - 1]));
+  //: 纵轴按「收敛的」闭环工况定：开环与发散的那几档会一路长出去，把它们算进量程就什么都看不见
+  const conv = sims.filter((s) => s.closed && Math.abs(s.xi[s.xi.length - 1]) < Math.abs(s.xi0));
+  const lim = (conv.length ? Math.max(...conv.flatMap((s) => s.xi.map((v) => Math.abs(v)))) : Math.abs(sims[0].xi0)) * 1e3 * 1.6;
+  charts.xi = lineChart($("#c-xi"), xiSeries, { h: 200, x0: 0, x1: tEnd, y0: -lim, y1: lim, xname: "t", xfmt: (v) => fmtT(v), yunit: " mm", ylabel: "ξ [mm]", label: "竖直位移" });
+  legend($("#lg-xi"), xiSeries.map((s) => ({ name: s.name, color: s.color })));
+  $("#lg-xi").insertAdjacentHTML("beforeend", `<span class="muted">开环与发散的工况会一路长出纵轴——纵轴按收敛的闭环工况定。</span>`);
+  const uS = [{ name: "电源输出 v", x: sel.t, y: sel.v, color: caseColor(sel.key) }, { name: "指令 u", x: sel.t, y: sel.u, color: css("--muted"), dash: "4 3", w: 1.4 }];
+  charts.u = lineChart($("#c-u"), uS, { h: 160, x0: 0, x1: tEnd, xname: "t", xfmt: (v) => fmtT(v), yunit: " V", ylabel: "[V]" });
+  legend($("#lg-u"), uS.map((s) => ({ name: s.name, color: s.color, dash: !!s.dash })));
+  const iS = [{ name: "I_IC1", x: sel.t, y: sel.i_ic1.map((v) => v / 1e3), color: css("--gold") }, { name: "Σ I 被动", x: sel.t, y: sel.i_wall_sum.map((v) => v / 1e3), color: css("--wall"), dash: "4 3" }];
+  charts.i = lineChart($("#c-i"), iS, { h: 160, x0: 0, x1: tEnd, xname: "t", xfmt: (v) => fmtT(v), yunit: " kA", ylabel: "[kA]" });
+  legend($("#lg-i"), iS.map((s) => ({ name: s.name, color: s.color, dash: !!s.dash })));
+}
+function drawCursor(t) {
+  for (const k of ["xi", "u", "i"]) {
+    const c = charts[k]; if (!c) continue;
+    let ln = c.svg.querySelector(".tcur");
+    if (t === null) { if (ln) ln.remove(); continue; }
+    if (!ln) { ln = el("line", { class: "tcur", stroke: css("--accent"), "stroke-width": 1.5 }, c.svg); }
+    ln.setAttribute("x1", c.X(t)); ln.setAttribute("x2", c.X(t)); ln.setAttribute("y1", c.m.t); ln.setAttribute("y2", c.H - c.m.b);
+  }
+}
+
+// ---------------------------------------------------------------- 增益图
+function seq(t) { const st = ["--s0", "--s1", "--s2", "--s3", "--s4", "--s5"].map(css); const x = Math.max(0, Math.min(0.9999, t)) * (st.length - 1); const i = Math.floor(x); return mix(st[i], st[i + 1], x - i); }
+function renderGain() {
+  const gm = D.controller.gain_maps[Number($("#dsel").value) || 0], q = $("#gq").value || "settle_s";
+  const host = $("#gm"); host.innerHTML = "";
+  const nk = gm.kp.length, nd = gm.kd.length;
+  const W = 560, H = 380, m = { l: 70, r: 14, t: 10, b: 44 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "增益图" }, host);
+  const cw = (W - m.l - m.r) / nk, ch = (H - m.t - m.b) / nd;
+  const vals = gm[q].flat().filter((v) => v !== null && isFinite(v));
+  const stableVals = q === "max_re" ? vals : vals;
+  const lo = Math.min(...stableVals), hi = Math.max(...stableVals);
+  const logc = q !== "max_re";
+  const norm = (v) => logc ? (Math.log10(v) - Math.log10(Math.max(lo, 1e-12))) / (Math.log10(hi) - Math.log10(Math.max(lo, 1e-12)) || 1) : (v - lo) / (hi - lo || 1);
+  for (let i = 0; i < nd; i++) for (let j = 0; j < nk; j++) {
+    const v = gm[q][i][j], unstable = gm.max_re[i][j] >= 0;
+    const yy = m.t + (nd - 1 - i) * ch;
+    const r = el("rect", { x: m.l + j * cw, y: yy, width: cw + 0.3, height: ch + 0.3, fill: unstable ? css("--grey") : (v === null ? css("--grey") : seq(q === "max_re" ? 1 - norm(v) : norm(v))) }, svg);
+    r.addEventListener("mousemove", (ev) => showTip(ev, `K_p = ${fmt(gm.kp[j])} V/m\nK_d = ${fmt(gm.kd[i])} V·s/m\n最大实部 ${fmt(gm.max_re[i][j])} s⁻¹` + (unstable ? "\n不稳定" : `\n沉降 ${fmtT(gm.settle_s[i][j])}\n峰值 |u| ${fmt(gm.u_peak_V[i][j])} V`)));
+    r.addEventListener("mouseleave", hideTip);
+  }
+  // K_d = 0 那一行与其上的分隔
+  el("line", { x1: m.l, x2: W - m.r, y1: m.t + (nd - 1) * ch, y2: m.t + (nd - 1) * ch, stroke: css("--sheet"), "stroke-width": 2 }, svg);
+  el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, class: "ax" }, svg);
+  for (let j = 0; j < nk; j += Math.max(1, Math.floor(nk / 6))) el("text", { x: m.l + (j + 0.5) * cw, y: H - m.b + 16, "text-anchor": "middle" }, svg).textContent = fmt(gm.kp[j], 2);
+  for (let i = 1; i < nd; i += Math.max(1, Math.floor(nd / 6))) el("text", { x: m.l - 6, y: m.t + (nd - 1 - i + 0.5) * ch + 4, "text-anchor": "end" }, svg).textContent = fmt(gm.kd[i], 2);
+  el("text", { x: m.l - 6, y: m.t + (nd - 0.5) * ch + 4, "text-anchor": "end" }, svg).textContent = "0";
+  el("text", { x: W - m.r, y: H - 6, "text-anchor": "end" }, svg).textContent = "K_p [V/m]（对数）";
+  el("text", { x: 4, y: m.t + 10 }, svg).textContent = "K_d [V·s/m]";
+  if (gm.best) {
+    const j = gm.kp.indexOf(gm.best.kp), i = gm.kd.indexOf(gm.best.kd);
+    el("circle", { cx: m.l + (j + 0.5) * cw, cy: m.t + (nd - 1 - i + 0.5) * ch, r: 7, fill: "none", stroke: css("--ink"), "stroke-width": 2 }, svg);
+  }
+  const qn = { settle_s: "ξ 的 2 % 沉降时间", u_peak_V: "峰值电压 |u|", max_re: "闭环最大实部" }[q];
+  $("#gm-title").textContent = `增益图：${qn}（T = ${fmtT(gm.delay)}，γT = ${fmt(gm.delay * D.plant.gamma, 2)}）`;
+  legend($("#gm-legend"), [{ name: q === "max_re" ? `最负 ${fmt(lo)} s⁻¹` : `最小 ${q === "settle_s" ? fmtT(lo) : fmt(lo) + " V"}`, color: seq(0.02) }, { name: q === "max_re" ? `最大 ${fmt(hi)} s⁻¹` : `最大 ${q === "settle_s" ? fmtT(hi) : fmt(hi) + " V"}`, color: seq(0.98) }, { name: "不稳定", color: css("--grey") }, { name: "○ 沉降最快", color: css("--ink") }]);
+  const b = gm.best;
+  $("#gm-note").textContent = b ? `稳定区占网格 ${fmt(gm.stable_fraction * 100, 3)} %。沉降最快的一点：K_p = ${fmt(b.kp)} V/m、K_d = ${fmt(b.kd)} V·s/m，ξ 在 ${fmtT(b.settle_s)} 内落进 ±2 %，峰值电压 ${fmt(b.u_peak_V)} V。`
+    + (b.on_edge ? "★这一点在网格边上：再加增益还会更快——没有电压限幅时它只是网格的边，不是最优。" : "")
+    + "最底一行是纯 P 律（K_d = 0）。" : "这一时延下网格上没有一个稳定点。";
+  renderPareto(gm);
+}
+function renderPareto(gm) {
+  const pts = [];
+  for (let i = 0; i < gm.kd.length; i++) for (let j = 0; j < gm.kp.length; j++) { const s = gm.settle_s[i][j], u = gm.u_peak_V[i][j]; if (s !== null && u !== null && s > 0) pts.push([u, s, gm.kp[j], gm.kd[i]]); }
+  const host = $("#pareto"); host.innerHTML = "";
+  if (!pts.length) { host.textContent = "没有稳定点。"; return; }
+  const W = 560, H = 300, m = { l: 62, r: 14, t: 10, b: 34 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}` }, host);
+  const u0 = Math.min(...pts.map((p) => p[0])), u1 = Math.max(...pts.map((p) => p[0])), s0 = Math.min(...pts.map((p) => p[1])), s1 = Math.max(...pts.map((p) => p[1]));
+  const X = scale(Math.max(u0, 1e-6), u1, m.l, W - m.r, true), Y = scale(Math.max(s0, 1e-6), s1, H - m.b, m.t, true);
+  for (const t of ticks(Math.max(u0, 1e-6), u1, true)) { el("line", { x1: X(t), x2: X(t), y1: m.t, y2: H - m.b, class: "grid" }, svg); el("text", { x: X(t), y: H - m.b + 16, "text-anchor": "middle" }, svg).textContent = fmt(t, 2); }
+  for (const t of ticks(Math.max(s0, 1e-6), s1, true)) { el("line", { x1: m.l, x2: W - m.r, y1: Y(t), y2: Y(t), class: "grid" }, svg); el("text", { x: m.l - 6, y: Y(t) + 4, "text-anchor": "end" }, svg).textContent = fmtT(t); }
+  el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, class: "ax" }, svg);
+  el("text", { x: W - m.r, y: H - 4, "text-anchor": "end" }, svg).textContent = "峰值电压 |u| [V]";
+  el("text", { x: 4, y: m.t + 10 }, svg).textContent = "沉降时间";
+  // 前沿：按电压升序，沉降时间的下包络
+  const sorted = [...pts].sort((a, b) => a[0] - b[0]); const front = []; let bestS = Infinity;
+  for (const p of sorted) if (p[1] < bestS) { bestS = p[1]; front.push(p); }
+  for (const p of pts) { const c = el("circle", { cx: X(Math.max(p[0], 1e-6)), cy: Y(p[1]), r: 2.4, fill: css("--s3"), "fill-opacity": 0.5 }, svg); c.addEventListener("mousemove", (ev) => showTip(ev, `K_p ${fmt(p[2])} · K_d ${fmt(p[3])}\n沉降 ${fmtT(p[1])}\n峰值 ${fmt(p[0])} V`)); c.addEventListener("mouseleave", hideTip); }
+  el("path", { d: front.map((p, i) => (i ? "L" : "M") + X(Math.max(p[0], 1e-6)).toFixed(1) + " " + Y(p[1]).toFixed(1)).join(""), fill: "none", stroke: css("--accent"), "stroke-width": 2.2 }, svg);
+}
+
+// ---------------------------------------------------------------- 时延 · 极点
+function renderDelay() {
+  const ds = D.controller.delay_sweep, g = D.plant.gamma;
+  const x = ds.rows.map((r) => r.delay * g), y = ds.rows.map((r) => r.best_max_re);
+  const vl = [{ x: 1, text: "γT = 1（纯 P 律的界）", color: css("--muted") }];
+  if (ds.gamma_delay_crit) vl.push({ x: ds.gamma_delay_crit, text: `γT_crit = ${fmt(ds.gamma_delay_crit, 3)}`, color: css("--warn") });
+  lineChart($("#dsw"), [{ name: "最好的最大实部", x, y, color: css("--accent"), points: x.map((v, i) => [v, y[i]]) }],
+    { h: 240, xlog: true, xname: "γT", xfmt: (v) => fmt(v, 2), yunit: " s⁻¹", ylabel: "max Re λ [s⁻¹]", xlabel: "γT（对数）", vlines: vl });
+  $("#dsw-note").textContent = ds.delay_crit
+    ? `这台对象、这套 PD 律下，回路时延到 T_crit = ${fmtT(ds.delay_crit)}（γT = ${fmt(ds.gamma_delay_crit, 3)}）为止还能稳住；再慢，网格上任何增益都拉不住。纵轴在 0 以下的平台是被动板的慢模，不随时延变。`
+    : "扫描范围内每个时延都还能稳住（或每个都稳不住）——放宽 --gT-lo / --gT-hi。";
+}
+function renderPoles() {
+  const host = $("#poles"); host.innerHTML = "";
+  const open = D.plant.open_loop_poles, sel = sim(), cl = sel.closed ? sel.poles : null;
+  const all = [...open, ...(cl || [])];
+  const re = all.map((p) => p[0]), im = all.map((p) => p[1]);
+  const W = 560, H = 280, m = { l: 62, r: 14, t: 10, b: 34 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}` }, host);
+  const sre = (v) => Math.sign(v) * Math.log10(1 + Math.abs(v));
+  const x0 = Math.min(...re.map(sre)) - 0.2, x1 = Math.max(...re.map(sre)) + 0.2;
+  const ymax = Math.max(1, ...im.map((v) => Math.abs(sre(v)))) + 0.2;
+  const X = scale(x0, x1, m.l, W - m.r), Y = scale(-ymax, ymax, H - m.b, m.t);
+  el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, class: "ax" }, svg);
+  el("line", { x1: X(0), x2: X(0), y1: m.t, y2: H - m.b, stroke: css("--warn"), "stroke-dasharray": "4 3" }, svg);
+  el("line", { x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), class: "grid" }, svg);
+  for (const t of [-3, -2, -1, 0, 1, 2, 3].filter((v) => v >= x0 && v <= x1)) el("text", { x: X(t), y: H - m.b + 16, "text-anchor": "middle" }, svg).textContent = t === 0 ? "0" : (t < 0 ? "−" : "") + "10" + String.fromCharCode(0x2070 + 0) .replace("⁰", ["⁰","¹","²","³"][Math.abs(t)]);
+  el("text", { x: W - m.r, y: H - 4, "text-anchor": "end" }, svg).textContent = "Re λ [s⁻¹]（sign·log10(1+|x|)）";
+  el("text", { x: X(0) + 4, y: m.t + 12 }, svg).textContent = "不稳定 →";
+  const dot = (p, color, r, shape) => {
+    const cx = X(sre(p[0])), cy = Y(sre(p[1]));
+    const e = shape === "x" ? el("path", { d: `M${cx - r} ${cy - r}L${cx + r} ${cy + r}M${cx - r} ${cy + r}L${cx + r} ${cy - r}`, stroke: color, "stroke-width": 2 }, svg) : el("circle", { cx, cy, r, fill: color, stroke: css("--sheet"), "stroke-width": 1.5 }, svg);
+    e.addEventListener("mousemove", (ev) => showTip(ev, `Re ${fmt(p[0])} s⁻¹\nIm ${fmt(p[1])} s⁻¹`)); e.addEventListener("mouseleave", hideTip);
+  };
+  for (const p of open) dot(p, css("--c2"), 5, "x");
+  if (cl) for (const p of cl) dot(p, caseColor(sel.key), 4.5, "o");
+  legend($("#lg-p"), [{ name: "开环极点 ×", color: css("--c2") }, ...(cl ? [{ name: `闭环：${sel.label}`, color: caseColor(sel.key) }] : [])]);
+}
+
+// ---------------------------------------------------------------- 壁扫描
+function renderWall() {
+  const W = D.wall_scan;
+  if (!W) { for (const id of ["#ws-v", "#ws-e"]) $(id).innerHTML = `<p class="muted">这次运行没有做壁扫描（<code>--no-scan</code>）。</p>`; $("#ws-v-note").textContent = $("#ws-e-note").textContent = ""; return; }
+  //: ★先判类型：JS 的 isFinite(null) 是 true（null 被转成 0），理想不稳那几档的 γ 写的就是 null
+  const num = (x) => typeof x === "number" && isFinite(x);
+  const v = W.vessel_scale, fin = v.filter((r) => num(r.gamma) && r.gamma > 0);
+  const firstIdeal = v.find((r) => r.regime === "ideal-unstable" || r.refused);
+  lineChart($("#ws-v"), [{ name: "γ", x: fin.map((r) => r.vessel_scale), y: fin.map((r) => r.gamma), color: css("--accent"), points: fin.map((r) => [r.vessel_scale, r.gamma]) }],
+    { h: 230, ylog: true, xname: "vessel_scale", yunit: " s⁻¹", ylabel: "γ [s⁻¹]", xlabel: "壁到磁轴的距离（倍）", vlines: [{ x: 1, text: "实际位置", color: css("--muted") }, ...(firstIdeal ? [{ x: firstIdeal.vessel_scale, text: firstIdeal.refused ? "门拒绝" : "理想不稳", color: css("--warn") }] : [])] });
+  $("#ws-v-note").innerHTML = v.map((r) => `${fmt(r.vessel_scale, 3)}×：` + (r.refused ? `<span class="pill warn">拒绝</span>` : `${num(r.gamma) ? fmt(r.gamma, 3) + " s⁻¹" : "+∞"} <span class="pill ${r.regime === "ideal-unstable" ? "warn" : "acc"}">${r.regime === "ideal-unstable" ? "理想不稳" : r.regime === "stable" ? "稳定" : "阻性壁"}</span>`)).join(" · ")
+    + "<br>壁越远，涡流越顶不住，γ 越大；越过理想阈值之后无质量模型的增长是无穷快，门按名报出，不给有限数。";
+  const e = W.eta_scale.filter((r) => num(r.gamma));
+  lineChart($("#ws-e"), [{ name: "γ", x: e.map((r) => r.eta_scale), y: e.map((r) => r.gamma), color: css("--accent"), points: e.map((r) => [r.eta_scale, r.gamma]) },
+    { name: "γ ∝ η（参考线）", x: e.map((r) => r.eta_scale), y: e.map((r) => r.eta_scale * (W.eta_scale.find((q) => q.eta_scale === 1) || e[0]).gamma / ((W.eta_scale.find((q) => q.eta_scale === 1) || e[0]).eta_scale)), color: css("--muted"), dash: "4 3", w: 1.2 }],
+    { h: 230, xlog: true, ylog: true, xname: "eta_scale", yunit: " s⁻¹", ylabel: "γ [s⁻¹]", xlabel: "壁电阻率（倍，对数）" });
+  const r1 = e.find((q) => q.eta_scale === 1);
+  const spread = r1 ? Math.max(...e.map((q) => Math.abs(q.gamma / q.eta_scale / (r1.gamma / r1.eta_scale) - 1))) : NaN;
+  $("#ws-e-note").textContent = `阻性壁支上 γ 与壁电阻率严格成正比（γ = (1/τ_w)·k/(k_ideal − k)，τ_w ∝ 1/η）：γ/η 各档相对 1 倍那档的最大偏离 ${fmt(spread, 2)}。这是一条接线判据，不是物理发现。`;
+}
+
+// ---------------------------------------------------------------- 表格
+function renderTables() {
+  const P = D.plant, C = D.controller;
+  const rows = [
+    ["I_p", fmt(P.ip / 1e6, 4) + " MA"], ["外场刚度 k", fmt(P.k) + " N/m"], ["理想阈值 k_ideal", fmt(P.k_ideal) + " N/m"],
+    ["被动元件 / IC", `${P.n_passive} / ${P.n_ic}`], ["IC 电阻", P.r_ic_ohm.map((x) => fmt(x * 1e3, 3)).join(" · ") + " mΩ"],
+    ["γ（被动 + IC，本示例）", fmt(P.gamma, 6) + " s⁻¹"], ["γ（门 · circuit: passive）", fmt(P.door_passive.gamma, 6) + " s⁻¹"],
+    ["γ（门 · circuit: full，PF 当超导回路）", fmt(P.door_full.gamma, 6) + " s⁻¹"],
+    ["接线判据：删 IC 后 γ 对门", `${fmt(P.check.gamma_reduced, 7)} / ${fmt(P.check.gamma_door_passive, 7)}（相对差 ${fmt(P.check.rel_diff, 2)}）`],
+    ["电源滞后 τ_a · 微分滤波 τ_d", `${fmtT(C.tau_a)} · ${fmtT(C.tau_d)}`], ["时延近似", `Padé [${C.pade_order}/${C.pade_order}]`],
+  ];
+  $("#t-plant").innerHTML = rows.map(([a, b]) => `<tr><th>${a}</th><td class="n">${b}</td></tr>`).join("");
+  $("#t-cases").innerHTML = `<tr><th>工况</th><th>K_p [V/m]</th><th>K_d [V·s/m]</th><th>时延</th><th>ξ 末值</th><th>峰值 |u|</th></tr>` +
+    D.simulations.map((s) => `<tr><td><span style="color:${caseColor(s.key)}">■</span> ${s.label}</td><td class="n">${s.closed ? fmt(s.kp) : "—"}</td><td class="n">${s.closed ? fmt(s.kd) : "—"}</td><td class="n">${s.closed ? fmtT(s.delay) : "—"}</td><td class="n">${fmt(s.xi[s.xi.length - 1] * 1e3)} mm</td><td class="n">${fmt(Math.max(...s.u.map(Math.abs)))} V</td></tr>`).join("");
+  $("#notes").innerHTML = [...P.notes.map((n) => `门：${n}`), ...D.provenance.caveats.map((n) => `★${n}`)].map((n) => `<div>${n.replace(/</g, "&lt;")}</div>`).join("");
+}
+
+function renderSection() { renderXS(); renderTime(); renderXS(); renderPoles(); }
+function renderAll() { renderKPI(); renderSection(); renderGain(); renderDelay(); renderWall(); renderTables(); }
+</script>
+</body>
+</html>

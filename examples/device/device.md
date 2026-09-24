@@ -1,0 +1,269 @@
+---
+title: 装置信息 (Device Information) —— 补全，并交付成 IMAS 数据入口
+---
+
+# 装置信息：补全，并交付成 IMAS 数据入口
+
+前五章各算一段物理。这一章算的是**机器本身**：一台装置的描述进来，补全它只是隐含
+给出的那一部分，再把整份交付成一个 **IMAS 数据入口**。以 EAST 为例，全程在命令行上，
+**不联网**。
+
+:::{note}
+本仓**不带任何装置的清单文档**：`facts/device/<id>/` 里只有 `rights.json`，文档在 fydoc
+（[命令行](../../docs/cli.md)那一节说明了为什么）。所以本章的装置文档由 `--bind` 从盘上
+绑定，路径写作 `<装置文档>`——把它换成你自己那一份。
+:::
+
+## 一 · 牌里有什么
+
+```console
+$ fy data info <装置文档>
+<装置文档>: json (fyo layout)
+  ? (occurrence 0): 1959 leaves
+    @type: "fylite:DeviceDescription/1"
+    fylite:device_id: "east"
+```
+
+★读作：这是一份 **fylite 容器**，不是一个 IDS。它把 `tf` · `pf_active` · `wall` ·
+`magnetics` · `lh_antennas` 五支**当作子树**装在一个屋顶下，另带 `fylite:channel_map`
+`fylite:grid` 这些 DD 不认识的行。数据入口只装 IDS——第三节回到这一点。
+
+## 二 · 补全：通道图由内核算
+
+装置的**电路侧**在牌里只是隐含的。deck 给出每个线圈的元件与匝数；控制与反解要的是
+BRSP **通道 → 元件**的稠密权重图。`code/channels` 把它算出来：
+
+这一步没有现成的**场景**可用——语料收的是场景算例，而 `code/channels` 是一扇门，
+没有对应的场景模板（`fy list scenarios` 里没有它）。所以计划直接写出来，四行：
+
+```bash
+cat > channels.jsonld <<'JSON'
+{ "@context": {"fyo":"https://fusion-yun.github.io/fyo/latest/",
+               "spo":"https://spdata.org/spo#"},
+  "type": "fyo:ScenarioSpecification",
+  "prescribes_code": {"id": "code/channels"},
+  "inputs": [{"type": "spo:PortBinding",
+              "binds_port": {"type": "spo:PortDefinition",
+                             "port_name": "device", "port_direction": "input"}}] }
+JSON
+
+fy run channels.jsonld --bind device=<装置文档> -o rec/
+```
+
+★端口在计划里**只声明不绑定**，值由命令行的 `--bind` 给：同一份计划因此对任何一台
+装置都成立，换机器只换那一个参数。
+
+实测（2026-09-07，本仓检出 · 内核 ABI 152），`run_state: succeeded`：
+
+| 文件 | 内容 | 字节 |
+| :--- | :--- | ---: |
+| `plan.jsonld` | 合成好的计划 | — |
+| `record.jsonld` | 记录 | — |
+| `entry.fyo.jsonld` | `weights`：**14 × 14** 的通道权重矩阵 | — |
+
+★`code/channels` 与其余十七个 code 一样吃**整份文档**，只经树门到达；两扇门都由
+这条命令走得到，所以这一族算例在命令行上跑得起来。逐位对拍过——0-D · 输运 · 演化
+三档的每一份产出文档在两扇门下**逐字节相同**。
+
+★答案落在 `entry` 里而不是某个 IDS 里，因为**权重矩阵在 DD 里没有家**。这不是缺陷，
+是 DD 的边界：它记录线圈与元件的几何，不记录某台机器把哪几个元件接到同一个电源上。
+
+## 三 · 交付：整份装置写成一个 IMAS 数据入口
+
+```bash
+fy data convert <装置文档> rec/imas --layout imas --to hdf5
+```
+
+实测产出——五个 IDS 加一份 master，共 161 KB：
+
+| 文件 | 字节 |
+| :--- | ---: |
+| `master.h5`（外部链接指向下面五份） | 2 176 |
+| `wall.h5` | 62 752 |
+| `magnetics.h5` | 38 536 |
+| `pf_active.h5` | 36 200 |
+| `lh_antennas.h5` | 16 968 |
+| `tf.h5` | 8 408 |
+
+读得回来，且逐值相同：
+
+```console
+$ fy data info rec/imas
+rec/imas: imas-hdf5 (imas layout)
+  lh_antennas (occurrence 0): 9 leaves
+  magnetics (occurrence 0): 426 leaves
+  pf_active (occurrence 0): 103 leaves
+  tf (occurrence 0): 7 leaves
+  wall (occurrence 0): 188 leaves
+$ fy data dump rec/imas --path pf_active/coil/0/element/0/geometry/rectangle/r --compact
+0.62866
+```
+
+（源文档同一路径也是 `0.62866`。另两处抽查：`tf/r0` 1.75 · `magnetics/flux_loop/0/position/0/r`
+1.2707，两边一致。）
+
+### 这一步做了什么，没做什么
+
+**做了**：把容器**拆成它装着的那几个 IDS**，每个写成一份数据入口文件。★容器自己
+没有 DD 归宿，所以拆分在 IMAS 布局下自动进行，并且**说出**放到一边的是什么。
+
+**没做**：容器自己的 `fylite:` 行（`fylite:channel_map` · `fylite:grid` · 线圈元件的
+`fylite:a1` / `a2` 倾角）**不进数据入口**——数据入口只装 IDS。命令行逐条报出来。
+
+## 四 · 四类「进不去」，三类由归一化接住
+
+装置文档写进数据入口时，**丢了什么**，是这一章真正要说的事。实测 2026-09-07（EAST），
+除声明局部（`fylite:` 前缀的行，那是设计）外，不做归一化时有 **184 条裸路径**丢在门外，
+`wall.h5` 只剩 8 个叶子——一份**看着像结果的空 IDS**。四类，成因各不相同：
+
+| 条数 | 路径 | 性质 | 处置 |
+| ---: | :--- | :--- | :--- |
+| 90 | `wall/…/vessel/unit/element/geometry` | **词汇**：DD 的真空室元件由 `outline` 描述，没有 `geometry` | 归一化，见下 |
+| 79 | `magnetics/b_field_pol_probe/position` | **形状**：DD 说结构，文档给一元列表 | 归一化，见下 |
+| 14 | `pf_active/coil/element/geometry/geometry_type` | **类型**：DD 是整数索引，文档写字符串 | 归一化，见下 |
+| 1 | `tf/b0` | **名字**：DD 的 `tf` 没有 `b0` | 源无家，**留在闸子里** |
+
+判据只有一条，钉在 `rust/fylite_runtime/tests/device_to_imas.rs`：**这张表只准变小**。
+
+### 形状 —— 79 个探针位置
+
+DD 把 `flux_loop/position` 写成**结构数组**（一条环可以穿过好几个点），把
+`b_field_pol_probe/position` 写成**一个结构**（一个探针在一个点上）；fylite 的文档
+两者同写成 `[{r,z}]`，于是环对了、探针错了——EAST 的 79 个探针位置**全数静默丢失**。
+归一化解一元列表（记进 `unwrapped`），`magnetics` 因此是 **426** 个叶子（不解是 268 个），
+逐值与源文档相同。两个以上元素则丢弃：取第一个是悄悄丢掉其余，比丢整支更坏。
+
+### 类型 —— 14 个线圈元件
+
+DD 的 `pf_active/coil/element/geometry/geometry_type` 是**整数索引**，文档写
+`"rectangle"`。索引表逐条抄自 DD 自己的 `schemas/utilities/dd_support.xsd`
+（`outline_2d_geometry_static`：1 outline · 2 rectangle · 3 oblique · 4 arcs of circle ·
+5 annulus · 6 thick line），换名记进 `named`：
+
+```console
+  pf_active: … named ["coil/0/element/0/geometry/geometry_type = 2 (rectangle)", …]
+```
+
+### 词汇 —— 90 个真空室元件
+
+DD 的 `wall` 元件**只有** `outline/{r,z}`（加 `name` · `midplane_thickness` ·
+`resistivity` · `j_phi` · `resistance`），根本没有 `geometry`；fylite 借了 `pf_active`
+线圈元件的参数化写法。归一化把矩形展成轮廓的四个角，首点重复以闭合（DD 自己的话：
+"Repeat the first point since this is a closed contour"），用的是**内核
+`kernels::element_filaments` 的同一个映射**——同一个矩形在内核里怎么铺成电流丝，
+在这里就怎么铺成四个角，倾角 `fylite:a1` / `fylite:a2` 一并算上：
+
+```
+r = r0 + u + v·cos a2 ,  z = z0 + v·sin a2 ,  再绕 (r0, z0) 转 a1
+u = ±w/2 ,  v = ±h/2
+```
+
+原矩形**留作参考**，挂在本地名 `geometry` 下——DD 的 wall 元件没有 `geometry`，
+裸着留就是声称一个它没有的出处。实测：`wall.h5` 从 8 个叶子到 **188** 个，
+90 条真空室元件一条不丢。抽一个核对（内圈第 0 个元件，`r` 2.7286 · `z` 0.0833 ·
+`width` 0.008 · `height` 0.1666 · `a2` 93.743°）：
+
+```console
+$ fy data dump rec/imas --path wall/description_2d/0/vessel/unit/0/element/0/outline/r --compact
+[2.730037925399138,2.738037925399138,2.7271620746008622,2.7191620746008622,2.730037925399138]
+```
+
+★**层轮廓另算，另放**：见下一节。数据入口里的 `outline` 是**逐元件**的，
+逐位等于源矩形；层轮廓是一条近似曲线，它不进数据入口。
+
+### 名字 —— `tf/b0`
+
+DD 的 `tf` 没有 `b0`，有 `b_field_phi_vacuum_r`——而且那是一个**信号结构**
+（`data` 随 `time` 走），不是裸浮点。换算写在 `data` 上，记进 `derived`：
+
+```console
+  tf: dropped 1 non-DD path(s) ["b0"]; … derived ["b_field_phi_vacuum_r/data = r0 * b0"]
+$ fy data dump rec/imas --path tf/b_field_phi_vacuum_r/data --compact
+[3.15]
+```
+
+（源文档 `r0` 1.75 · `b0` 1.8。）**源**槽 `b0` 本身在 DD 里没有家，丢弃并点名
+——所以它是闸子里的**唯一**一条。
+
+★所以**这份数据入口不能代替装置文档**：它是同一台机器给 IMAS 工具链看的那一面，
+少了 fylite 自己那几行。要完整的一份，留着 fyo（`--layout fyo`）。这是 fyo 与 DD 之间
+一处**真实**的表达差，不是转换缺陷；把它印在命令的输出里，比让它在下游某处变成一个
+安静的零要好。
+
+## 五 · 横过来看：六台机器
+
+这一章讲的是**一台**机器。同一条命令逐台跑一遍、把入口读回来画成极向截面，
+在同目录的笔记本里：[各装置一览](machine_survey.ipynb)。
+
+那一册的判据与这一章不同：这一章问「一台机器交付得完整吗」，那一册问
+「**画出来的机器，和源文档里的那台，是同一台吗**」——几何一旦在转换中错位
+（轮廓的 `r` 与 `z` 落到两个地方、矩形展开时倾角丢了），数值核对未必发现，
+图上立刻是错的。实测 2026-09-07，编译进二进制的六台（BEST · CFEDR · CFETR ·
+ITER · JT-60SA · WEST）**过一遍数据入口，几何逐点不变**。
+
+```{figure} ../../docs/figures/machine/iter.svg
+:width: 300px
+:align: center
+
+ITER，由 `fy data convert … --layout imas --to hdf5` 的产物读回来画出。
+灰 = 真空室 · 蓝 = 限制器 / 第一壁 · 橙 = PF 线圈。比例尺一米，长宽比不拉伸。
+```
+
+★画图的是 `fylite.machine_svg`——**读文档，不认机器**：源文档、数据入口、两者的
+任意子集都吃，输出 SVG 文本。它不引入绘图依赖（本包运行期只依赖 numpy），
+也不做物理：文档里有什么画什么，画不出来的留白，不补一条像样的曲线。
+
+## 六 · 层轮廓：一个明确标注为近似的派生产物
+
+〔容差 **5 mm**〕真空室的 90 块壳板按 `fylite:group` 分三层。
+把一层的板连成内外两条轮廓，做法只有四步：
+
+1. 每块板取它的**两条长边**——短边是板端的封头，正是要去掉的「相邻短边」。
+   长边按 `max(width, height)` 认，**不按字段名**：EAST 上下段的板长轴在 `width` 上、
+   内外侧段在 `height` 上，按名字挑会挑错一半。
+2. 两条长边里，中点离该层形心近的是**内**轮廓的一段，另一条是**外**。
+3. 板按对形心的极向角排一圈；相邻两段端点距离 **≤ 5 mm 的并成一点**，其余
+   **直线跨过去**，每一段跨距逐条记下。
+4. 一层里若有一个接头**比板的长边还长**，说明那里少了一块板——轮廓该绕过去还是
+   直穿过去无从判断，**拒绝这一层**，不猜。
+
+实测 EAST（2026-09-07，容差 5 mm）：
+
+| 层 | 板 | 接头 | 并成一点 | 跨过去 | 最大跨距 | 板长 | 结果 |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | :--- |
+| `inner_shell` | 40 | 80 | 34 | 46 | 45.5 mm | 161 mm | 内外两条**闭合**轮廓（63 / 65 点） |
+| `outer_shell` | 40 | 80 | 36 | 44 | 53.4 mm | 172 mm | 内外两条**闭合**轮廓（65 / 61 点） |
+| `passive_plates` | 10 | — | — | — | 1 582 mm | 55 mm | **拒绝**：接头比板长 |
+
+★★读这张表的方法：**并成一点的那 34/36 个接头是数据；跨过去的 44/46 个不是**。
+板与板之间本来就有约 1–2 cm 的缝（这是 EAST 壳板的实际排布，不是转换误差），
+5 mm 的容差并不掉它们，于是轮廓在那里是一条直线段——这正是「近似」二字的全部内容，
+所以每一段跨距都记在产物里，而不是抹平。
+
+产物挂在**本地名**下，不冒充 DD：
+
+```python
+from fylite import machine_svg
+doc = machine_svg.apply_layer_outlines(doc)          # 默认容差 5 mm
+doc["wall"]["description_2d"][0]["vessel"]["fylite:layer_outline"]
+#   [{fylite:group, outline_inner, outline_outer, fylite:approximation}, ...]
+#   fylite:approximation = {method, tolerance_m, joints, snapped, bridged[], plate_length_m}
+doc["wall"]["description_2d"][0]["vessel"]["fylite:layer_outline_refused"]
+#   ["passive_plates: 最大接头 1582 mm 比板还长 …"]
+```
+
+★**为什么不写进 `annular/outline_inner`**（DD 有这个位置，别的机器也用它——见
+[各装置一览](machine_survey.ipynb) 里 ITER · WEST · CFETR 的真空室）：DD 那两支说的是
+「这层壳实际的内外面」。把一条跨过 46 段空隙的曲线放进去，下游读到的是实测几何，
+而它不是。挂在 `fylite:layer_outline` 下，它就**不进数据入口**——那是对的：
+数据入口只装 IDS，而这条曲线在 DD 里没有家，也不该有。
+
+画图默认画**数据本身**（90 块板）；要看层轮廓，明说：
+
+```python
+machine_svg.cross_section(doc, layers=True)   # 该层的板换成两条轮廓，被拒的层原样
+```
+
+★本仓**不带 EAST 的截面图**：这一层的几何来自 EAST 的装置卷宗（上游声明 NOT OPEN），
+上表是对它的**测量结果**，不是它本身。`docs/figures/machine/` 里的六张是编译进
+二进制的那六台。

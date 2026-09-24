@@ -1,0 +1,30 @@
+name: 功能建议 / 物理问题 · Feature request or physics question
+description: 想要的能力、口径之争、文档说不清的地方
+labels: ["feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        物理口径之争（同一个量两种定义、两套归一化）在这里是**受欢迎的 issue**——
+        这类问题最常见的结局是双方都没错而定义不同，把它写清楚本身就有价值。
+
+  - type: textarea
+    id: what
+    attributes:
+      label: 想要什么 · What you want
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: 为什么 · Why
+      description: 你手上是什么任务？现在只能怎么绕过去？
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 版本行（若与某一版有关）· Version line, if version-specific
+      placeholder: 内核 0.0.1 · 接口 123 · 前端 0.0.1-alpha

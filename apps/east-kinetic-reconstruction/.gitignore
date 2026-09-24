@@ -1,0 +1,5 @@
+# 实验数据与反演结果不入仓（见 README）
+meas*.json
+result*.json
+ts_*.json
+*.log
