@@ -70,7 +70,7 @@ LAPACK / UMFPACK 换成本仓自写的稠密与稀疏例程，上游 `STOP` 的�
 | *ITER Physics Design Guidelines: 1989*（IAEA 1990） | 快波驱流效率（作上限标注） | `rust/fylite/src/hcd/cd.rs` |
 | L. L. Lao et al., *Nucl. Fusion* 25 (1985) 1611 | 重构结构（Picard + 最小二乘）——仅作算法参照，见「刻意未取的东西」 | `rust/fylite/src/inverse.rs` |
 | O. Sauter, C. Angioni, Y. R. Lin-Liu, *Phys. Plasmas* 6 (1999) 2834 | 自举电流 / 电导率 | `rust/fylite/src/neoclassical.rs` |
-| A. Redl, C. Angioni, E. Belli, O. Sauter, *Phys. Plasmas* 28 (2021) 022502 | 自举电流重新标定（两条读数**分开保留**：NEO 的 `compute_Sauter_mod` 与 IMAS.jl / FUSE 一脉） | `rust/fylite/src/neoclassical.rs`、`python/fylite/scenario/model/neoclassical.py` |
+| A. Redl, C. Angioni, E. Belli, O. Sauter, *Phys. Plasmas* 28 (2021) 022502 | 自举电流重新标定（两条读数**分开保留**：NEO 的 `compute_Sauter_mod` 与 IMAS.jl / FUSE 一脉） | `rust/fylite/src/neoclassical.rs` |
 | Hinton–Hazeltine；Chang–Hinton；Hirshman–Sigmar；Taguchi；Hinton–Rosenbluth；Koh et al.；Y. R. Lin-Liu & R. L. Miller (1995) | 解析新经典变体与俘获份额 | `rust/fylite/src/neoclassical.rs`、`dke.rs` |
 | Y. R. Lin-Liu & F. L. Hinton, *Phys. Plasmas* 4 (1997) 4179 | NBCD 电子屏蔽 | `rust/fylite/src/heating.rs` |
 | T. H. Stix, *Nucl. Fusion* 15 (1975) 737 | 少数离子 ICRH 分布及其 H 函数 | `rust/fylite/src/hcd/icrh.rs` |

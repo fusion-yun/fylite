@@ -35,9 +35,8 @@ attached to each [GitHub Release](https://github.com/fusion-yun/fylite/releases)
 not committed. Development happens elsewhere, so patches cannot be merged here;
 a precise issue is the contribution (see [Reporting a problem](#reporting-a-problem)).
 
-> ★The first binary release is **pending**: it waits for the binary licence
-> ([`LICENSE-BINARY`](LICENSE-BINARY), PolyForm Noncommercial 1.0.0) to come
-> into force.
+> ★The kernel binaries (wheel, `fy`) are licensed under PolyForm Noncommercial
+> 1.0.0 ([`LICENSE-BINARY`](LICENSE-BINARY)) — noncommercial use only.
 
 | path | what it is |
 | :--- | :--- |
@@ -150,8 +149,6 @@ fy data merge machine.h5 shot.nc -o all.jsonld       # later sources win
   use**. For a commercial licence, contact the author, YU Zhi
   <yuzhi@ipp.ac.cn>. The kernel's source is not published, so the kernel is not
   open source; only the Apache-2.0 parts are.
-  ★The terms are not yet in force (the file says so at its top); no binary is
-  released until they are.
 - The documentation and examples are **CC-BY-4.0**.
 
 Parts of the physics are white-box translations of published open-source
