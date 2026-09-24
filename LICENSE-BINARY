@@ -1,52 +1,109 @@
 ================================================================================
- DRAFT — NOT IN FORCE.  Pending review by the rights holder (ASIPP) and the
- resolution of one open question: the METIS-derived (CeCILL-C) arithmetic in
- the kernel's heating module (see NOTICE, "DERIVED WORK — METIS").  Until this
- banner is removed, no binary is distributed under these terms.
+ DRAFT — NOT IN FORCE.  The licence is chosen (PolyForm Noncommercial 1.0.0,
+ decided 2026-09-24); the rights holder's review of the licensor line below is
+ pending.  Until this banner is removed, no binary is distributed under these
+ terms.
 ================================================================================
 
-fylite binary licence
-Copyright (c) 2026 YU Zhi (于治), Institute of Plasma Physics, Chinese Academy of
-Sciences (ASIPP), and the fylite contributors.  All rights reserved.
+fylite binary licence — PolyForm Noncommercial License 1.0.0
 
-1. What this covers.  "Binary Components" means the compiled fylite numerical
-   kernel as it is contained in the shared library libfylite.so (and its
-   versioned names), the fy executable, and the WebAssembly modules
-   fylite_rs.wasm and fylite_kernel_ext.wasm, in the form published by the
-   rights holder.  It does not cover the source code of that kernel, which is
-   not licensed to you.  Other parts of the distributions that carry these
-   files — the Python package, the runtime crate and the browser front end —
-   are licensed under the Apache License, Version 2.0 (LICENSE), not under
-   this licence.
+Required Notice: Copyright (c) 2026 YU Zhi (于治), Institute of Plasma Physics, Chinese Academy of Sciences (ASIPP), and the fylite contributors.
 
-2. Grant.  Subject to the conditions below, the rights holder grants you a
-   worldwide, royalty-free, non-exclusive licence to use the Binary Components
-   for any purpose, and to reproduce and redistribute them, alone or as part
-   of the unmodified fylite distributions in which they are published.
+What these terms cover.  "The software" in the terms below is the compiled
+fylite numerical kernel as it is contained in the shared library libfylite.so
+(and its versioned names), the fy executable, and the WebAssembly modules
+fylite_rs.wasm and fylite_kernel_ext.wasm, in the form published by the
+licensor.  The source code of that kernel is not licensed to you.  Other parts
+of the distributions that carry these files — the Python package source, the
+runtime crate source and the browser front end — are licensed under the Apache
+License, Version 2.0 (LICENSE), not under these terms.
 
-3. Conditions.
-   (a) Redistribute the Binary Components only in unmodified form.
-   (b) Keep this licence, the LICENSE file and the NOTICE file with every copy
-       you redistribute, and do not remove or alter any copyright, licence or
-       attribution notice in or with the Binary Components.
-   (c) Do not represent a modified or rebuilt binary as the fylite kernel
-       published by the rights holder.
+Commercial use.  These terms permit noncommercial purposes only.  For a
+commercial licence, contact the author: YU Zhi <yuzhi@ipp.ac.cn>.
 
-4. Third-party components.  The Binary Components contain work derived from
-   third-party software, listed with its licence in NOTICE.  Nothing in this
-   licence limits any right you have under those third-party licences for the
-   parts derived from them.
+Third-party components.  The software contains work derived from third-party
+software under permissive licences, listed with those licences in NOTICE, which
+must accompany every copy.  Nothing in these terms limits any right you have
+under those licences for the parts derived from them.
 
-5. No warranty.  THE BINARY COMPONENTS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF
-   ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.  The
-   results they compute are research-grade and are not qualified for the
-   operation or protection of any device.
+Not qualified for operation.  The results the software computes are
+research-grade and are not qualified for the operation or protection of any
+device.  (A statement of fact, not a term of the licence.)
 
-6. Limitation of liability.  IN NO EVENT SHALL THE RIGHTS HOLDER OR THE
-   CONTRIBUTORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-   AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-   CONNECTION WITH THE BINARY COMPONENTS OR THEIR USE.
+The terms follow verbatim (source: https://polyformproject.org/licenses/noncommercial/1.0.0).
 
-7. Termination.  This licence ends automatically if you breach its conditions;
-   sections 5 and 6 survive.
+--------------------------------------------------------------------------------
+
+# PolyForm Noncommercial License 1.0.0
+
+<https://polyformproject.org/licenses/noncommercial/1.0.0>
+
+## Acceptance
+
+In order to get any license under these terms, you must agree to them as both strict obligations and conditions to all your licenses.
+
+## Copyright License
+
+The licensor grants you a copyright license for the software to do everything you might do with the software that would otherwise infringe the licensor's copyright in it for any permitted purpose.  However, you may only distribute the software according to [Distribution License](#distribution-license) and make changes or new works based on the software according to [Changes and New Works License](#changes-and-new-works-license).
+
+## Distribution License
+
+The licensor grants you an additional copyright license to distribute copies of the software.  Your license to distribute covers distributing the software with changes and new works permitted by [Changes and New Works License](#changes-and-new-works-license).
+
+## Notices
+
+You must ensure that anyone who gets a copy of any part of the software from you also gets a copy of these terms or the URL for them above, as well as copies of any plain-text lines beginning with `Required Notice:` that the licensor provided with the software.  For example:
+
+> Required Notice: Copyright Yoyodyne, Inc. (http://example.com)
+
+## Changes and New Works License
+
+The licensor grants you an additional copyright license to make changes and new works based on the software for any permitted purpose.
+
+## Patent License
+
+The licensor grants you a patent license for the software that covers patent claims the licensor can license, or becomes able to license, that you would infringe by using the software.
+
+## Noncommercial Purposes
+
+Any noncommercial purpose is a permitted purpose.
+
+## Personal Uses
+
+Personal use for research, experiment, and testing for the benefit of public knowledge, personal study, private entertainment, hobby projects, amateur pursuits, or religious observance, without any anticipated commercial application, is use for a permitted purpose.
+
+## Noncommercial Organizations
+
+Use by any charitable organization, educational institution, public research organization, public safety or health organization, environmental protection organization, or government institution is use for a permitted purpose regardless of the source of funding or obligations resulting from the funding.
+
+## Fair Use
+
+You may have "fair use" rights for the software under the law. These terms do not limit them.
+
+## No Other Rights
+
+These terms do not allow you to sublicense or transfer any of your licenses to anyone else, or prevent the licensor from granting licenses to anyone else.  These terms do not imply any other licenses.
+
+## Patent Defense
+
+If you make any written claim that the software infringes or contributes to infringement of any patent, your patent license for the software granted under these terms ends immediately. If your company makes such a claim, your patent license ends immediately for work on behalf of your company.
+
+## Violations
+
+The first time you are notified in writing that you have violated any of these terms, or done anything with the software not covered by your licenses, your licenses can nonetheless continue if you come into full compliance with these terms, and take practical steps to correct past violations, within 32 days of receiving notice.  Otherwise, all your licenses end immediately.
+
+## No Liability
+
+***As far as the law allows, the software comes as is, without any warranty or condition, and the licensor will not be liable to you for any damages arising out of these terms or the use or nature of the software, under any kind of legal claim.***
+
+## Definitions
+
+The **licensor** is the individual or entity offering these terms, and the **software** is the software the licensor makes available under these terms.
+
+**You** refers to the individual or entity agreeing to these terms.
+
+**Your company** is any legal entity, sole proprietorship, or other kind of organization that you work for, plus all organizations that have control over, are under the control of, or are under common control with that organization.  **Control** means ownership of substantially all the assets of an entity, or the power to direct its management and policies by vote, contract, or otherwise.  Control can be direct or indirect.
+
+**Your licenses** are all the licenses granted to you for the software under these terms.
+
+**Use** means anything you do with the software requiring one of your licenses.

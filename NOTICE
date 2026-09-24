@@ -14,8 +14,9 @@ Licensing (as of 2026-09-23):
       rust/fylite_static) is proprietary and not distributed (see LICENSE at
       the root of the development tree);
     * the kernel's COMPILED form, inside libfylite.so, the fy executable and
-      the .wasm modules, is distributed under the fylite binary licence
-      (public/LICENSE-BINARY).
+      the .wasm modules, is distributed under the PolyForm Noncommercial
+      License 1.0.0 (LICENSE-BINARY) — noncommercial purposes only; for a
+      commercial licence, contact the author, YU Zhi <yuzhi@ipp.ac.cn>.
 Nothing in those terms limits the rights granted by the third-party licences
 of the derived works listed below, for the parts derived from them.
 
