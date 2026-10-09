@@ -1,2 +1,10 @@
 # Claude Code local state; never versioned
 .claude/
+
+# Local agent prompts and configuration; never publish in this repository
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+.context/
+.codex/
+.agents/
