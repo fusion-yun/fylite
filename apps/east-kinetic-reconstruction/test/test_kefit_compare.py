@@ -1,6 +1,6 @@
 """kefit_compare's offline parts: the KEFIT slot map and the namelist writer (no server, no KEFIT run).
 
-Needs the KEFIT reference bundle ($KEFIT_BUNDLE, default ../../../third_party/kefit_reference_bundle), libfylite.so next to
+Needs the KEFIT reference bundle ($KEFIT_BUNDLE, default ../../../third_party/kefit_reference_bundle), libfylite_kernel.so + libsp.so + libfylite_kernel.so next to
 kinetic_recon.py, and — for the namelist test only — one stored slice result ($EKR_SLICE_RESULT: a `series --results-dir`
 or `run` file) and the `pull` document of the same time ($EKR_SLICE_MEAS); experimental data, never in the repo.  Missing pieces skip, they do not fail.
 Run:  python3 test/test_kefit_compare.py"""
@@ -27,7 +27,7 @@ def _values(text: str, key: str) -> list:
     return re.findall(r"[-+]?\d+\.\d*(?:[eE][-+]?\d+)?", m.group(1)) if m else []
 
 
-@unittest.skipUnless((TABLES / "dprobe.dat").exists() and K.DEFAULT_LIB.exists(), "KEFIT bundle or libfylite.so missing")
+@unittest.skipUnless((TABLES / "dprobe.dat").exists() and K.DEFAULT_LIB.exists(), "KEFIT bundle or libfylite_kernel.so + libsp.so missing")
 class SlotMap(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

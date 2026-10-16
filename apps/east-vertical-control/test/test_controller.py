@@ -124,3 +124,25 @@ def test_read_ccbrsp_finds_the_coil_block(tmp_path):
     f.write_text(" 23-Jan-2026  01/01/99\n 1 1\n*  100.000  1  2  3  4\n 1.0 2.0\n 2 3 4 0\n"
                  " 1.0E+00 2.0E+00 3.0E+00 4.0E+00 5.0E+00\n 6.0E+00 7.0E+00 8.0E+00 9.9E+00\n")
     assert vs.read_ccbrsp(f) == [6.0, 7.0, 8.0, 9.9]
+
+
+def test_element_figure_derives_from_canonical_geometry():
+    """★2026-10-07（O-5 的 B-6 债迁移）：图角从规范几何按内核同一约定导出，不再读退役的角对拼写。"""
+    rect = {"geometry": {"geometry_type": 2,
+                         "rectangle": {"r": 1.0, "z": 0.5, "width": 0.2, "height": 0.1}}}
+    assert vs.element_figure(rect) == {"r": 1.0, "z": 0.5, "w": 0.2, "h": 0.1, "a1": 0.0, "a2": 90.0}
+    #: α 支：a1 = α、a2 = 90；中心 = 角点 + 半条 (u+v)
+    a = math.radians(-26.1)
+    ob = {"geometry_type": 3, "oblique": {"r": 1.0, "z": 0.5, "length_alpha": 0.2, "length_beta": 0.4,
+                                          "alpha": a, "beta": 0.0}}
+    f = vs.element_figure({"geometry": ob})
+    assert f["a1"] == pytest.approx(-26.1, abs=1e-9) and f["a2"] == 90.0
+    assert f["w"] == pytest.approx(0.2 * math.cos(a))
+    assert f["h"] == pytest.approx(0.4)
+    assert f["r"] == pytest.approx(1.0 + 0.5 * 0.2 * math.cos(a))
+    #: β 支：a1 = 0、a2 = 90 + β
+    ob2 = {"geometry_type": 3, "oblique": {"r": 1.0, "z": 0.5, "length_alpha": 0.2, "length_beta": 0.3,
+                                           "alpha": 0.0, "beta": math.radians(30.0)}}
+    f2 = vs.element_figure({"geometry": ob2})
+    assert f2["a1"] == 0.0 and f2["a2"] == pytest.approx(120.0)
+    assert vs.element_figure({}) is None

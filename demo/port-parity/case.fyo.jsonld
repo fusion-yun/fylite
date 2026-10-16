@@ -1,0 +1,49 @@
+{
+ "@context": {
+  "sp": "https://spdata.org/sp#",
+  "prov": "http://www.w3.org/ns/prov#",
+  "fyo": "https://fusion-yun.github.io/fyo/latest/",
+  "fylite": "urn:fylite:"
+ },
+ "@id": "fylite:examples/port-parity",
+ "@type": [
+  "sp:DataArtifact",
+  "prov:Entity"
+ ],
+ "fylite:title": "NEO / TGLF white-box ports: parity vs the frozen GACODE oracle",
+ "fylite:version": "0.2.0",
+ "fylite:generated": "2026-08-21T00:00:00Z",
+ "fylite:entry": "demo/port-parity/collect_parity.py (to write)",
+ "fylite:ports": {
+  "in": [
+   {
+    "port_id": "oracles",
+    "label": "the frozen reference store — 328 records in 14 entries (dke_* / geo.* / neo* / tglf.*), each carrying its inputs",
+    "data_type": "fyo:summary",
+    "storage_uri": "$FY_ORACLE_STORE/",
+    "fylite:external": "FY_ORACLE_STORE",
+    "fylite:default": "tests/data/oracle/",
+    "fylite:role": "reference"
+   }
+  ],
+  "out": [
+   {
+    "port_id": "parity_data",
+    "label": "(ref, ours) pairs per family with max relative deviation",
+    "data_type": "fyo:summary",
+    "storage_uri": "parity.json"
+   },
+   {
+    "port_id": "figure",
+    "label": "log-log parity scatter, per-family point counts + max deviation",
+    "data_type": "fyo:summary",
+    "storage_uri": "parity.png"
+   }
+  ]
+ },
+ "fylite:notes": [
+  "the input port said python/tests/oracles/ — that directory holds the reference IMPLEMENTATIONS (6 modules); the frozen ANSWERS are in tests/data/oracle/, resolved by fylite._oracle through $FY_ORACLE_STORE.",
+  "verification against reference implementations, not validation against experiment",
+  "known deliberate deviations are listed in NOTICE and must appear in the figure notes, not be dropped"
+ ]
+}

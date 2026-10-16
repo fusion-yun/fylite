@@ -1,0 +1,75 @@
+{
+ "@context": {
+  "fylite": "urn:fylite:"
+ },
+ "@id": "fylite:CaseCatalogue/app",
+ "@type": "fylite:CaseCatalogue/1",
+ "fylite:note": "Worked examples for the 导入 button. ★★A case is a SESSION DOCUMENT -- byte-for-byte the shape 「导出 → 会话文件」 writes -- so applying one goes through the same `FySession.apply` an imported file goes through, a reader can save their own run and it is a case, and a case cannot drift into a format only some menu can read. What a case may NOT do is carry a result: it is a set of INPUTS, and the page still has to run. ★★THE MENUS ARE GONE (2026-09-01): no bar applies a case on a first visit any more -- every bar opens on its factory settings -- so `fylite:initial` and `fylite:order` are inert, kept only because they say which case was meant to lead. These files are reached by the reader picking one, not by the page choosing for them. ★These ten were exported by an EARLIER build and are honoured on a best-effort basis: the importer reports what it skipped (「跳过 N 项未知」) rather than failing, which is the behaviour that matters -- but a case is only as current as its last export. ★★`fylite:device` is load-bearing at PUBLISH time: `tools/build-site.sh` drops from the public build every case whose device is not in that build's facts (EAST is not), so a case cannot smuggle in a machine the device corpus was ruled to exclude.",
+ "fylite:cases": [
+  {
+   "fylite:case_id": "evolve-default",
+   "fylite:document": "evolve-default.jsonld",
+   "fylite:bar": "evolve",
+   "fylite:order": 0
+  },
+  {
+   "fylite:case_id": "evolve-east-hmode",
+   "fylite:document": "evolve-east-hmode.jsonld",
+   "fylite:bar": "evolve",
+   "fylite:device": "east",
+   "fylite:order": 1
+  },
+  {
+   "fylite:case_id": "evolve-iter-15ma",
+   "fylite:document": "evolve-iter-15ma.jsonld",
+   "fylite:bar": "evolve",
+   "fylite:order": 2,
+   "fylite:initial": true
+  },
+  {
+   "fylite:case_id": "evolve-iter-15ma-benchmark",
+   "fylite:document": "evolve-iter-15ma-benchmark.jsonld",
+   "fylite:bar": "evolve",
+   "fylite:order": 3
+  },
+  {
+   "fylite:case_id": "transport-iter-15ma",
+   "fylite:document": "transport-iter-15ma.jsonld",
+   "fylite:bar": "transport",
+   "fylite:order": 0,
+   "fylite:initial": true
+  },
+  {
+   "fylite:case_id": "zerod-iter-15ma",
+   "fylite:document": "zerod-iter-15ma.jsonld",
+   "fylite:bar": "zerod",
+   "fylite:device": "iter",
+   "fylite:order": 0,
+   "fylite:initial": true
+  },
+  {
+   "fylite:case_id": "breakdown-iter",
+   "fylite:document": "breakdown-iter.jsonld",
+   "fylite:bar": "breakdown",
+   "fylite:device": "iter",
+   "fylite:order": 0,
+   "fylite:initial": true
+  },
+  {
+   "fylite:case_id": "pulse-iter",
+   "fylite:document": "pulse-iter.jsonld",
+   "fylite:bar": "pulse",
+   "fylite:device": "iter",
+   "fylite:order": 0,
+   "fylite:initial": true
+  },
+  {
+   "fylite:case_id": "discharge-iter",
+   "fylite:document": "discharge-iter.jsonld",
+   "fylite:bar": "discharge",
+   "fylite:device": "iter",
+   "fylite:order": 0,
+   "fylite:initial": true
+  }
+ ]
+}

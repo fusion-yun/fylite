@@ -1,0 +1,49 @@
+{
+ "@context": {
+  "sp": "https://spdata.org/sp#",
+  "prov": "http://www.w3.org/ns/prov#",
+  "fyo": "https://fusion-yun.github.io/fyo/latest/",
+  "fylite": "urn:fylite:"
+ },
+ "@id": "fylite:examples/zerod-metis",
+ "@type": [
+  "sp:DataArtifact",
+  "prov:Entity"
+ ],
+ "fylite:title": "0-D full-discharge time traces vs METIS certification baseline",
+ "fylite:version": "0.2.0",
+ "fylite:generated": "2026-08-21T00:00:00Z",
+ "fylite:entry": "fylite.scenario.model:zerod",
+ "fylite:ports": {
+  "in": [
+   {
+    "port_id": "metis_baseline",
+    "label": "METIS certification regression baseline (fywork CASE-07 t11/t12, 13 targets green)",
+    "data_type": "fyo:summary",
+    "storage_uri": "data/metis_cert_regression.fyo.jsonld",
+    "storage_hash": "sha256:5b717e7274eaecbfeb6925b3089705c0ea4e162e917141a7b72c4f5647757afa",
+    "fylite:role": "reference"
+   }
+  ],
+  "out": [
+   {
+    "port_id": "figure",
+    "label": "Ip / W_th / <Te> vs t, fylite solid vs METIS dashed, flattop deviation annotated",
+    "data_type": "fyo:summary",
+    "storage_uri": "zerod_metis.png"
+   },
+   {
+    "port_id": "run_summary",
+    "label": "fylite zerod output incl. tier (prescribed|predicted)",
+    "data_type": "fyo:summary",
+    "storage_uri": "zerod_run.json"
+   }
+  ]
+ },
+ "fylite:notes": [
+  "provenance of baseline: ~/workspace/fywork/cases/CASE-07-zerod-fast-integrated-modeling/baselines/",
+  "this is the ONE case whose data stays in examples/: modelling scenarios, no device geometry and no experimental discharge.",
+  "field-mapping audit REQUIRED before plotting; unmapped quantities are not drawn",
+  "prescribed-tier agreement validates bookkeeping+sequencing, not transport prediction"
+ ]
+}

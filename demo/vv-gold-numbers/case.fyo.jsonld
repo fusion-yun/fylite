@@ -1,0 +1,50 @@
+{
+ "@context": {
+  "sp": "https://spdata.org/sp#",
+  "prov": "http://www.w3.org/ns/prov#",
+  "fyo": "https://fusion-yun.github.io/fyo/latest/",
+  "fylite": "urn:fylite:"
+ },
+ "@id": "fylite:examples/vv-gold-numbers",
+ "@type": [
+  "sp:DataArtifact",
+  "prov:Entity"
+ ],
+ "fylite:title": "V&V gold-number harvest: per-module measured deviations with provenance",
+ "fylite:version": "0.2.0",
+ "fylite:generated": "2026-08-21T00:00:00Z",
+ "fylite:entry": "demo/vv-gold-numbers/harvest.py (to write)",
+ "fylite:ports": {
+  "in": [
+   {
+    "port_id": "cases",
+    "label": "the other four cases' recorded outputs",
+    "data_type": "fyo:summary",
+    "storage_uri": "../",
+    "fylite:role": "reference"
+   },
+   {
+    "port_id": "oracles",
+    "label": "the frozen reference store",
+    "data_type": "fyo:summary",
+    "storage_uri": "$FY_ORACLE_STORE/",
+    "fylite:external": "FY_ORACLE_STORE",
+    "fylite:default": "tests/data/oracle/",
+    "fylite:role": "reference"
+   }
+  ],
+  "out": [
+   {
+    "port_id": "table",
+    "label": "markdown table: module | quantity | reference | norm | case | deviation | source",
+    "data_type": "fyo:summary",
+    "storage_uri": "vv_table.md"
+   }
+  ]
+ },
+ "fylite:notes": [
+  "every number must point back to a real run artifact; empty cells stay empty — no estimates",
+  "verification and validation are separate columns/rows, never merged",
+  "blocked on the other four cases producing accepted output; it is the LAST of the five, not a parallel one"
+ ]
+}

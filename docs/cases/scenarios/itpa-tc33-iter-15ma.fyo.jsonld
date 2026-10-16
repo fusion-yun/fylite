@@ -1,0 +1,50 @@
+{
+ "@context": [
+  "../context.jsonld",
+  {
+   "@base": "../"
+  }
+ ],
+ "id": "scenario/itpa-tc33-iter-15ma",
+ "type": "fyo:ScenarioSpecification",
+ "title": "ITPA TC-33：ITER 15 MA 感应燃烧的参考解（IMAS IDS，两个时刻）",
+ "abstract": "ITPA 输运与约束组第 33 号对拍算例的参考解，以 IMAS IDS 发布：ITER 15 MA / 5.3 T 感应燃烧，t = 415 s 与 450 s 两个时刻，含平衡、core_profiles 与源项。★选它的理由是**读者能自己取到**：件在 Zenodo（doi:10.5281/zenodo.21391776，CC BY 4.0）公开发布，而本册 ITER 侧的其余参考（CORSICA / ASTRA / TEQ / DINA）都是 ITER IDM 的受限件——读者复算不了。所以同一个物理点上，这一条是唯一可被外部完整重算的那个。",
+ "about_discharge": {
+  "type": "fyo:Discharge",
+  "performed_on": {
+   "type": "fyo:Tokamak",
+   "title": "ITER"
+  }
+ },
+ "over_time_axis": {
+  "type": "spo:TimeAxis",
+  "samples": [
+   415.0,
+   450.0
+  ],
+  "comment": "the two slices the reference publishes; they are samples, not a window"
+ },
+ "state": [
+  {
+   "type": "spo:PortBinding",
+   "bound_to": {
+    "type": "fyo:Equilibrium",
+    "ip_A": 15000000.0,
+    "b0_T": 5.3,
+    "r0_m": 6.2,
+    "a_m": 2.0,
+    "species": [
+     "D",
+     "T",
+     "Be",
+     "He"
+    ]
+   }
+  }
+ ],
+ "caveat": [
+  "★★**参考件带台基，0-D 侧没有**：参考的 T_e,ped = 4.84 keV · n_e,ped = 7.69e19，而本仓 0-D 的形状是 `(1-ρ²)^p`。摆平体平均之后剩下的差是**形状**的，而 ⟨σv⟩ 对 T 超线性——所以这个场景上「体平均对齐」不等于「功率对齐」，这是场景的性质，不是某一条记录的容差。",
+  "★★**燃料稀释要读参考件自己的组分**，不能取「一半电子是燃料」：件里分离面 n_D = n_T = 2.6e19 而 n_e = 5.72e19（即 0.4546）。P_fus ∝ n_D n_T，这 9 % 的密度差在功率上是 19 %。",
+  "★**非感应电流占比高**：参考解含 4.21 MA 自举 + 1.07 MA NBI + 0.21 MA EC 驱动。任何纯欧姆的环电压模型在这个场景上都不可判——不是精度不够，是问的不是同一个量。"
+ ]
+}

@@ -16,7 +16,7 @@
   ``code/rf_ray``（射线追踪，不是 TORAY），输运用 ``code/interpretive``（不是 ONETWO）。清洗的阈值文献没公布，
   用 ``wei_profiles.CLEAN_DEFAULTS``。
 
-★独立发行的约束不变：只用标准库与 ``libfylite.so``。诊断的树与节点名**从库里编进的装置事实解析**
+★独立发行的约束不变：只用标准库与两份库（``libfylite_runtime.so`` · ``libfylite_kernel.so``）。诊断的树与节点名**从库里编进的装置事实解析**
 （``<ids>/fylite:signal``）；``--signals FILE`` 可以给一份覆盖（同一形状的 JSON），本仓不写任何新节点名。
 ★实验数据不入仓：输出写在调用方给的路径；服务器地址在输出里一律记作 ``mds.invalid``。
 """
@@ -331,63 +331,100 @@ def magnetics_at(shot_data: dict, t: float) -> dict:
 # ================================================================================================ equilibrium
 
 
+#: 档 M 设定点并行几路（每个进程一份：切片工作进程在 ``_init_worker`` 里设；内核 ``code/kinetic`` 的 ``jobs``）
+SLICE_JOBS = {"n": K.JOBS}
+#: 档 M 用本应用自己的基阶（p′ 2 阶 · FF′ 2 阶；``kinetic_recon.run`` 缺省 1 / 2，见那边 ``--npp`` 的说明）
+M_NPP, M_NFF = 2, 2
+
+
+def scan_options(a) -> dict:
+    """``--scan`` / ``--scan-grid`` / ``--scan-top`` → 内核的同名开关。"""
+    return {"scan": a.scan, "scan_grid": a.scan_grid, "scan_top": a.scan_top}
+
+
+def _tier_m(lib: K.Lib, meas: dict, reject_sigma: float, max_rounds: int, readmit: bool, scan: dict | None,
+            anderson: int, nk: int, warm: dict | None = None, zcs: list | None = None) -> tuple[dict, dict]:
+    """一次档 M（内核 ``code/kinetic``，只跑 M、不做物理校验——本应用照旧只要那个解）→ (结果记录, 档 M 的块)；
+    块里 ``solve`` 是未取整的解（``fa`` / ``fi``，与内核门交回的同一份数）。"""
+    ko = {"keep_solve": ["M"], "readmit": bool(readmit)}
+    if zcs is not None:
+        ko["zc_scan"] = zcs
+    if warm:
+        ko["warm_rejected"] = list(warm.get("rejected") or [])
+        ko["warm_readmitted"] = list(warm.get("readmitted") or [])
+    res = K.reconstruct(meas, None, lib=lib, origin={"kind": "wei2026"}, tiers="M", npp=M_NPP, nff=M_NFF,
+                        reject_sigma=reject_sigma, max_rounds=max_rounds, per_round=3, anderson=anderson, nk=nk,
+                        jobs=SLICE_JOBS["n"], physics_check=False, loops="B+readmit", kernel_options=ko,
+                        **(scan or {}))
+    return res, res["tiers"]["M"]
+
+
+def eq_doc(fa: dict, fi: dict) -> dict:
+    """反演解 → ``code/chords`` 读的平衡文档（ψ 图 + 两端值）。"""
+    return {"time_slice": {"profiles_2d": {"psi": fi["psi"]},
+                           "global_quantities": {"psi_axis": [fa["psi_axis"]], "psi_boundary": [fa["psi_bnd"]]}}}
+
+
 def equilibrium(lib: K.Lib, shot_data: dict, t: float, warm: dict | None, reject_sigma: float = 4.0,
                 scan: dict | None = None, anderson: int = K.ANDERSON, nk: int = K.NEWTON_KRYLOV) -> dict:
     """档 M（磁测量）：一段的第一片照本应用全扫；其后各片**继承**上一片的剔道与竖直设定点，只在它 ±8 mm 的 5 个设定点上解。
-    ``scan``：竖直设定点扫描的做法（``K.SCAN_FULL`` / ``K.SCAN_COARSE``）；只省在冷启动的 16 点扫上，热启动的 5 点扫照全扫。
-    ``anderson`` / ``nk``：档 M 反演的 Anderson / Newton–Krylov 深度（``K.ANDERSON`` / ``K.NEWTON_KRYLOV``；0 = 不用），
-    冷热两种扫都带。两种扫的各设定点按 ``K.set_jobs`` 的路数并行（热启动的 5 点一轮就是 5 个独立调用）。"""
+    ``scan``：竖直设定点扫描的做法（``scan_options``：``scan`` · ``scan_grid`` · ``scan_top``）；只省在冷启动的 16 点扫上，
+    热启动的 5 点扫照全扫。``anderson`` / ``nk``：档 M 反演的 Anderson / Newton–Krylov 深度（0 = 不用），冷热两种扫都带。
+    两种扫的各设定点按 ``SLICE_JOBS`` 的路数并行（热启动的 5 点一轮就是 5 个独立调用）。
+    ★2026-09-26 起档 M 在内核里（``code/kinetic``）：热启动经它的 ``warm_rejected`` / ``warm_readmitted`` / ``zc_scan``。"""
     meas = magnetics_at(shot_data, t)
     card, _ = lib.device("east", shot_data["shot"], shot_data["chain"])
-    c = K.Case(lib, meas, card, "B+readmit")
-    settings = K.m_settings(K.SETTINGS, anderson, nk)
     if warm:
-        for r in warm["rejected"]:
-            names = c.loop_names if r["kind"] == "loop" else c.probe_names
-            if r["index"] < len(names) and names[r["index"]] == r["name"]:
-                (c.lw if r["kind"] == "loop" else c.pw)[r["index"]] = 0.0
-        for r in warm.get("readmitted", []):
-            if r["kind"] == "loop" and r["index"] < len(c.lw) and not r.get("reverted"):
-                c.lw[r["index"]] = 1.0 / c.loop_sigma[r["index"]]
         zc = warm["zc"]
-        saved = K.ZC_SCAN[:]
-        K.ZC_SCAN[:] = [round(zc + d, 3) for d in (-0.008, -0.004, 0.0, 0.004, 0.008)]
-        try:
-            view, base = K.tier_m(c, reject_sigma, 2, 3, settings, False, scan)
-        finally:
-            K.ZC_SCAN[:] = saved
-        if base is None:                                 #: 继承的起点解不出：退回全扫
-            c = K.Case(lib, meas, card, "B+readmit")
-            view, base = K.tier_m(c, reject_sigma, 4, 3, settings, True, scan)
+        res, view = _tier_m(lib, meas, reject_sigma, 2, False, scan, anderson, nk, warm=warm,
+                            zcs=[round(zc + d, 3) for d in (-0.008, -0.004, 0.0, 0.004, 0.008)])
+        if view.get("status") == "error":                #: 继承的起点解不出：退回全扫
+            res, view = _tier_m(lib, meas, reject_sigma, 4, True, scan, anderson, nk)
     else:
-        view, base = K.tier_m(c, reject_sigma, 4, 3, settings, True, scan)
-    if base is None:
+        res, view = _tier_m(lib, meas, reject_sigma, 4, True, scan, anderson, nk)
+    if view.get("status") == "error" or "solve" not in view:
         return {"status": "error", "why": view.get("error"), "meas": meas}
-    fa, fi, zc = base
+    sol = view["solve"]
+    fa, fi, zc = sol["facts"], sol["fields"], sol["zc"]
     rejected = list((warm or {}).get("rejected", [])) + [r for r in view["rejected"] if not r.get("reverted")]
-    return {"status": "ok", "fa": fa, "fi": fi, "zc": zc, "meas": meas, "loop_start_rule": c.loop_start_rule,
+    return {"status": "ok", "fa": fa, "fi": fi, "zc": zc, "meas": meas, "loop_start_rule": res["settings"]["loop_start_rule"],
             "scan": view.get("scan"),
             "rejected": rejected, "readmitted": view.get("readmitted", []),
-            "chi2_per_dof": fa.get("chi2_per_dof"), "b_tor": c.b_tor, "card": card}
+            "chi2_per_dof": fa.get("chi2_per_dof"), "b_tor": sol["b_tor"], "card": card}
 
 
 def eq_document(fa: dict, fi: dict) -> dict:
-    """反演结果 → DD 形的平衡文档（内核自己的 COCOS 17 规：整圈 Wb、轴上极大）。"""
+    """反演结果 → DD 形的平衡文档（内核自己的 COCOS 17 规：整圈 Wb、轴上极大）。
+
+    ★O-5 B-4（2026-10-06）：limiter 不再写在平衡文档里（`equilibrium/fylite:limiter`
+    已退役，内核按名拒绝）——它随 `wall_document` 作为**自己的 `fyo:wall` 文档**由计划绑定
+    到 `wall` 口（`ladder()` 同时交两份）。
+    """
     b = fi["boundary"]
     return {"time_slice": {"profiles_2d": {"grid": {"dim1": fi["grid_r"], "dim2": fi["grid_z"]}, "psi": fi["psi"]},
                            "global_quantities": {"psi_axis": fa["psi_axis"], "psi_boundary": fa["psi_bnd"], "ip": fa["ip"],
                                                  "magnetic_axis": {"r": fa["axis_r"], "z": fa["axis_z"]}},
                            "profiles_1d": {"f": fi["fpol"], "q": fi["qpsi"], "psi_norm": fi["psin_1d"]},
                            "boundary": {"outline": {"r": [p[0] for p in b], "z": [p[1] for p in b]}}},
-            "fylite:limiter": {"r": fi["limiter_r"], "z": fi["limiter_z"]},
             "vacuum_toroidal_field": {"r0": fa["rcentr"], "b0": fa["bcentr"]}, "fylite:psi_convention": 17}
+
+
+def wall_document(fi: dict) -> dict:
+    """The limiting surface as its own `fyo:wall` document (O-5 B-4)."""
+    return {"@type": "fyo:wall",
+            "description_2d": [{"limiter": {"unit": {"name": "kefit",
+                                                     "outline": {"r": list(fi["limiter_r"]),
+                                                                 "z": list(fi["limiter_z"])}}}}]}
 
 
 LP = "equilibrium/time_slice/profiles_1d/"
 
 
-def ladder(lib: K.Lib, eq: dict, n: int = 51) -> dict:
-    lf, li, _ = lib.door("code/ladder", {"n_surfaces": n, "axis_node": 1, "edge": 0.995}, {"equilibrium": eq})
+def ladder(lib: K.Lib, eq: dict, wall: dict, n: int = 51) -> dict:
+    #: ★O-5 B-4：墙按自己的 `fyo:wall` 文档绑到 `code/ladder` 的 `wall` 口（原写在平衡文档里的
+    #: `fylite:limiter` 已退役）
+    lf, li, _ = lib.door("code/ladder", {"n_surfaces": n, "axis_node": 1, "edge": 0.995},
+                         {"equilibrium": eq, "wall": wall})
     lad = {k[len(LP):]: v for k, v in li.items() if k.startswith(LP)}
     lad["facts"] = lf
     return lad
@@ -438,7 +475,7 @@ def point_ne(lib: K.Lib, eq: dict, rm: "RhoMap"):
         return None
     try:
         fit, _, _ = lib.door("code/chords", {"ne0": 3e19, "rows": 0},
-                             {"device": eq["card"], "equilibrium": K._eq_doc(eq["fa"], eq["fi"]),
+                             {"device": eq["card"], "equilibrium": eq_doc(eq["fa"], eq["fi"]),
                               "discharge": {"fylite:chord_nel": [v * 1e19 for v in nel], "fylite:chord_nel_weight": w}})
     except (K.KernelError, K.Refused):
         return None
@@ -729,15 +766,12 @@ _WORKER: dict = {}
 def _init_worker(lib_path: str, shot_data: dict, jobs: int):
     _WORKER["lib"] = K.Lib(Path(lib_path))
     _WORKER["shot"] = shot_data
-    K.set_jobs(jobs)                                     #: 每个切片工作进程自己的设定点池（嵌套；见 slice_jobs）
+    SLICE_JOBS["n"] = jobs                               #: 每个切片工作进程自己的设定点并行路数（嵌套；见 slice_jobs）
 
 
 def _run_chunk(args):
     chunk, clean_opts, scan, anderson, nk, h98_opts = args
-    try:
-        return chunk_job(_WORKER["lib"], _WORKER["shot"], chunk, clean_opts, scan, anderson, nk, h98_opts)
-    finally:                                             #: 工作进程退出时不跑 atexit：自己的设定点池要当场关掉
-        K.close_jobs()
+    return chunk_job(_WORKER["lib"], _WORKER["shot"], chunk, clean_opts, scan, anderson, nk, h98_opts)
 
 
 def slice_jobs(jobs: int | None, workers: int) -> int:
@@ -771,7 +805,7 @@ def slice_job(lib: K.Lib, sd: dict, it: int, warm: dict | None, clean_opts: dict
         if eq["status"] != "ok":
             return {"time_s": t, "status": "error", "why": f"equilibrium: {eq['why']}"}
         t1 = time.time()
-        lad = ladder(lib, eq_document(eq["fa"], eq["fi"]))
+        lad = ladder(lib, eq_document(eq["fa"], eq["fi"]), wall_document(eq["fi"]))
         rm = RhoMap(eq["fa"], eq["fi"], lad)
         heat = heating_at(sd["heating"], t)
         pt = point_ne(lib, eq, rm)
@@ -813,7 +847,7 @@ def cmd_profiles(a) -> int:
     nw = max(1, min(a.workers, len(idx)))
     chunks = [idx[k * len(idx) // nw:(k + 1) * len(idx) // nw] for k in range(nw)]
     chunks = [c for c in chunks if c]
-    scan = K.scan_from_args(a)
+    scan = scan_options(a)
     per_slice = slice_jobs(a.jobs, nw)
     log(f"{nw} 个切片进程 × 每进程 {per_slice} 路设定点并行")
     h98_opts = h98_options(a)
@@ -825,10 +859,9 @@ def cmd_profiles(a) -> int:
             for part in pool.map(_run_chunk, jobs):
                 results.extend(part)
     else:
-        K.set_jobs(per_slice)
+        SLICE_JOBS["n"] = per_slice
         for c in chunks:
             results.extend(chunk_job(lib, sd, c, clean_opts, scan, a.anderson, a.nk, h98_opts))
-        K.close_jobs()
     results.sort(key=lambda r: r["time_s"])
     for r in results:
         log(f"  {r['time_s']:.3f} s: {r['status']} {r.get('why', '')[:80]} "
@@ -941,15 +974,14 @@ def cmd_transport(a) -> int:
     it = min(range(len(th["times"])), key=lambda k: abs(th["times"][k] - a.time))
     t = th["times"][it]
     log(f"#{a.shot}: 要 {a.time} s，最近的 TS 脉冲 {t:.3f} s（本炮只存 {len(th['times'])} 幅）")
-    K.set_jobs(K.JOBS if a.jobs is None else a.jobs)
-    eq = equilibrium(lib, sd, t, None, scan=K.scan_from_args(a), anderson=a.anderson, nk=a.nk)
-    K.close_jobs()
+    SLICE_JOBS["n"] = K.JOBS if a.jobs is None else a.jobs
+    eq = equilibrium(lib, sd, t, None, scan=scan_options(a), anderson=a.anderson, nk=a.nk)
     if eq["status"] != "ok":
         log(f"平衡解不出：{eq['why']}")
         return 1
     fa, fi = eq["fa"], eq["fi"]
     eqd = eq_document(fa, fi)
-    lad = ladder(lib, eqd)
+    lad = ladder(lib, eqd, wall_document(fi))
     rm = RhoMap(fa, fi, lad)
     heat = heating_at(sd["heating"], t)
     pt = point_ne(lib, eq, rm)
@@ -1084,7 +1116,7 @@ def main(argv=None) -> int:
         p.add_argument("--chain", default="east")
         p.add_argument("--server", help="主机:端口（缺省 $FYLITE_MDSIP_SERVER）")
         p.add_argument("--timeout", type=float, default=60.0)
-        p.add_argument("--lib", help="另一份 libfylite.so（缺省本目录的）")
+        p.add_argument("--lib", help="另一份 libfylite_runtime.so（缺省本目录的；内核在它旁边）")
         p.add_argument("--signals", help="诊断绑定的覆盖 JSON（{ids: {量: {tree, node, scale, units}}}）；缺省只用库里的")
         p.add_argument("--h98-recipe", choices=H98_RECIPES, default="loss",
                        help="H98 的 P_loss 口径：loss = P_absorbed − dW/dt（缺省）；legacy = 2026-09-19 之前那份"

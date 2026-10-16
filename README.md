@@ -164,3 +164,5 @@ Open an issue. The kernel source is not published, so reproducing a report
 depends on knowing **which binary** you ran: the issue template asks for the demo
 page's footer line (`kernel … · interface … · app …`) and the kernel `sha256`
 shown on its credits page. Security issues: see [`SECURITY.md`](SECURITY.md).
+
+The browser front end is maintained in `ui/`, applications in `apps/`, demonstrations in `demo/`, and registered cases in `docs/cases/`. Native build tools and validation remain in the adjacent development checkout.

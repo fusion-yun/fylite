@@ -1,0 +1,284 @@
+// 设计页的 worker 走文档门（FYL-SDD-02 K-3 第三刀的页面一半，2026-09-05）。
+//
+// `worker.js` 的 `startRun` / `designRun` 从前各自编排十几个扁平导出；今天它们把一份
+// 计划交给 `code/discharge`（`fy.complete`，静态站点上是 wasm 的 `fylite_rs_fyo_tree`），
+// 留在 worker 里的只有显示：判据 · 通量分段 · 剖面 · 垂直模。这道门在 node 里
+// **把 worker 当脚本跑**（`importScripts` / `postMessage` 用 vm 顶上），对着发布出去的
+// EAST 装置文档（`dist/facts/device/east.jsonld`，`tools/abox-to-facts.py --all` 拖回）：
+//
+//   1. `init` 起得来（wasm 那条路，不需要 fy 宿主）；
+//   2. `start` 答回有限的电流、psiRms、绑定集与目标边界；
+//   3. `design`（两遍退火）答回 history 三条、形状六个量有限、判据在、pass 在 0..2；
+//      同一请求再发一次**逐位相同**（门无状态）；
+//   4. 缺 schedule 的 design 仍然答（内核按 passes 造表）——页面从不发 schedule=null 之外的
+//      东西，但 worker 不该因此死；
+//   5-6. pulse 与四条 0-D 命令；7. 模型页的 interpretive 栏（Miller 档，`code/interpretive`）。
+//
+// 物理的对拍在内核仓（`tests/test_discharge_code.py`：旧 Python 配方 vs 内核，安匝 1e-9）；
+// 这里判的是**页面这一侧接得上、说得清**。
+import { readFileSync, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+import { deviceDoc } from './_device.mjs';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const SITE = path.join(HERE, '..', 'assets') + path.sep;
+const BASE = 'http://127.0.0.1:0/';
+//: ★EAST when the card is here (it is hand-maintained and not pulled from the
+//: A-Box, so a fresh checkout may lack it), else the first published machine
+//: whose document the page's reader accepts — a machine with no reference
+//: discharge is exactly the case the designed start exists for
+const CANDIDATES = ['east', 'iter', 'west', 'jt60sa', 'cfetr', 'cfedr', 'best'];
+
+// --- the worker's host ------------------------------------------------------
+globalThis.self = globalThis;
+globalThis.location = { hostname: '127.0.0.1', href: BASE + 'assets/worker.js', search: '' };
+globalThis.localStorage = { _s: {}, getItem(k) { return k in this._s ? this._s[k] : null; },
+                            setItem(k, v) { this._s[k] = String(v); }, removeItem(k) { delete this._s[k]; } };
+globalThis.importScripts = function () {
+  for (const f of arguments) vm.runInThisContext(readFileSync(SITE + f, 'utf8'), { filename: f });
+};
+const inbox = [];
+globalThis.postMessage = function (m) { inbox.push(m); };
+globalThis.fetch = async (url) => {
+  const u = String(url);
+  if (/api\/health/.test(u)) throw new Error('offline: no desktop face');
+  const f = SITE + path.basename(u.split('?')[0]);
+  if (!existsSync(f)) throw new Error('no such asset ' + f);
+  const bytes = readFileSync(f);
+  return { ok: true, status: 200, arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+           json: async () => JSON.parse(bytes.toString('utf8')), text: async () => bytes.toString('utf8') };
+};
+vm.runInThisContext(readFileSync(SITE + 'worker.js', 'utf8'), { filename: 'worker.js' });
+
+let M = null, id = null, why = [];
+for (const c of CANDIDATES) {
+  const d = deviceDoc(c);
+  if (!d) continue;
+  try { M = globalThis.FyoDevice.fromFyo(d); id = c; break; }
+  catch (e) { why.push(c + ': ' + e.message); }
+}
+if (!M) {
+  console.log('跳过：dist/facts/device/ 里没有页面读得懂的装置文档（tools/abox-to-facts.py --all）'
+              + (why.length ? '\n  ' + why.join('\n  ') : ''));
+  process.exit(0);
+}
+let n = 0;
+const ok = (msg) => { n += 1; console.log('  ok ' + msg); };
+const take = (type) => {
+  const i = inbox.findIndex((m) => m.type === type || m.type === 'error');
+  assert.ok(i >= 0, `no ${type} answer; inbox: ` + inbox.map((m) => m.type).join(','));
+  const m = inbox.splice(i, 1)[0];
+  assert.notEqual(m.type, 'error', `${type}: worker error: ` + m.message);
+  return m;
+};
+const send = (msg) => globalThis.self.onmessage({ data: msg });
+
+// --- 1. init ------------------------------------------------------------------
+await send({ cmd: 'init', machine: M });
+//: 第四十六刀: the species menu comes through the tree door (`code/adas_species`)
+const ready = inbox.find((m) => m.type === 'ready');
+assert.ok(ready && Array.isArray(ready.species) && ready.species.length > 20, 'the ready message carries the ADAS species list');
+assert.ok(ready.species.includes('W') && ready.species.includes('He'), 'the species list names tungsten and helium');
+ok(`init on ${M.name}: ${M.coils.length} coils, ${M.channels.length} channels, ${ready.species.length} ADAS species`);
+inbox.splice(0, inbox.length);
+
+// --- 2. start -----------------------------------------------------------------
+//: the target sized from the machine's own box and field: 60 % of the half
+//: width, κ 1.6, and the current a q95 of 3.5 implies there (the page's own
+//: `ranges` rule, `device.js`)
+const bb = globalThis.FyDevice.bbox(M), tf = globalThis.FyDevice.tf(M);
+const rgeo = 0.5 * (bb.rmin + bb.rmax), amax = 0.5 * (bb.rmax - bb.rmin);
+const target = { r0: rgeo, z0: 0.5 * (bb.zmin + bb.zmax), a: 0.6 * amax, kappa: 1.6, deltaU: 0.4, deltaL: 0.5 };
+const b0 = Math.abs(tf.b0 * tf.r0 / rgeo);
+const ip = 2 * Math.PI * target.a * target.a * b0 * (1 + target.kappa * target.kappa)
+           / (2 * 4e-7 * Math.PI * rgeo * 3.5);
+//: ★★不再显式传 `lambda` —— 走**出厂缺省**（2026-09-07 用户裁定 3e-1，`worker.js`
+//: 与内核 `case.rs` 两侧同一个数）。此前这里写死 1e-3，于是闸子守着一个不出厂的
+//: 配置：缺省改了它也不红，而它自己那一档的病态（1e-13 的输入扰动动 2–11 % 的
+//: 电流）反倒要靠夹具容差兜。缺省改动时这道闸该红，红了就重录并写下为什么。
+send({ cmd: 'start', target, ip, nPoints: 24, xWeight: 0, control: [], iMax: null,
+       nRing: 4, peaking: 1 });
+const st = take('start');
+assert.equal(st.chan.length, M.channels.length);
+assert.ok(Array.from(st.chan).every(Number.isFinite), 'finite start currents');
+assert.ok(Number.isFinite(st.psiRms) && st.psiRms >= 0, 'psiRms');
+assert.ok(Array.isArray(st.bind));
+assert.equal(st.targetBoundary.length, 48);
+assert.equal(st.bX, null, 'no null asked for: bX is null');
+ok(`start: psiRms ${st.psiRms.toExponential(2)}, ${st.bind.length} channels at bound`);
+
+// --- 3. design ----------------------------------------------------------------
+//: the door's own record, kept beside the worker's answer: the history the page
+//: is handed carries each pass's shape error but not its boundary gap, and the
+//: best pass is chosen on the gap (see the assertion below)
+const DOOR = [];
+{
+  const complete = globalThis.fy.complete;
+  globalThis.fy.complete = function (code, plan) {
+    const rec = complete.call(this, code, plan);
+    if (code === 'code/discharge') DOOR.push(rec);
+    return rec;
+  };
+}
+const design = { cmd: 'design', chan: Array.from(st.chan), target, ip, warm: true,
+                 prof: { beta0: 0.55, emp: 1, enp: 1, r0: target.r0 },
+                 schedule: [0.1, 0.03], gamma: 0.4, nPoints: 24, xWeight: 0, control: [],
+                 solve: { maxIter: 400, relax: 0.3, tol: 1e-8 } };
+send(design);
+const d = take('design');
+assert.equal(d.history.length, 3, 'pass 0 + two passes');
+assert.ok(d.pass >= 0 && d.pass <= 2);
+const hist = d.history.filter((h) => h.err !== null);
+assert.ok(hist.every((h) => Number.isFinite(h.err)), 'finite errors');
+for (const k of ['r0', 'z0', 'a', 'kappa', 'deltaU', 'deltaL'])
+  assert.ok(Number.isFinite(d.result.shape[k]), 'shape.' + k);
+assert.ok(d.result.criteria && typeof d.result.criteria === 'object', 'criteria present');
+assert.equal(d.result.psi.length, M.grid.nr * M.grid.nz);
+assert.ok(d.result.lcfs.length > 16, 'a traced boundary');
+assert.equal(d.chan.length, M.channels.length);
+const best = d.history.find((h) => h.pass === d.pass);
+//: ★★2026-09-14 (user rulings F4 and F3): the best pass is the one with the LOWEST
+//: BOUNDARY GAP (`history_gap`, the door's rule), and with the coil-current limits on,
+//: a pass inside them is preferred to one outside.  This assertion used to ask for
+//: the lowest SHAPE ERROR (`history_err`).  The door has chosen on the gap since
+//: 2026-09-08, and on this card the two agreed only by coincidence.  Measured on the
+//: EAST card this gate designs, where limits are OFF (no `pf_active/supply`):
+//:   page lambda 1e-1   gap 0.1374 / 0.0617 / 0.0322   err 0.2137 / 0.1107 / 0.0710   both pick pass 2
+//:   page lambda 1.5e-1 gap 0.1558 / 0.0867 / 0.0509   err 0.1995 / 0.1056 / 0.1138   gap picks 2, err picks 1
+//: The page's default lambda moved to 1.5e-1 (F3', `worker.js::designPlan`) and split
+//: them; the kernel wasm without the limit patch reproduces this bit for bit.
+//: ★The door publishes no per-pass "inside the limits" flag, so when limits are ON
+//: this checks the preference through the returned design (inside, or the door says
+//: no pass was) and the exact gap minimum only in the case it pins down.
+const rec = DOOR[DOOR.length - 1];
+assert.ok(rec && rec.fields.history_gap, 'the discharge record carries history_gap');
+const hgap = Array.from(rec.fields.history_gap.data);
+const hpass = Array.from(rec.fields.history_pass.data);
+const passGap = hpass.map((p, i) => [p, hgap[i]]).filter(([, g]) => Number.isFinite(g) && Math.abs(g) < 1e30);
+const gapOf = (p) => passGap.find(([q]) => q === p)[1];
+const minGap = Math.min(...passGap.map(([, g]) => g));
+const limitsOn = rec.facts.coil_limits ? rec.facts.coil_limits.value === 1 : false;
+const noneInside = (rec.notes || []).some((s) => /OUTSIDE the coil limits/.test(s));
+if (!limitsOn || noneInside) {
+  assert.equal(gapOf(d.pass), minGap, 'the returned pass has the lowest boundary gap (F4)');
+} else {
+  assert.ok(rec.facts.coil_limit_ratio.value <= 1, 'limits on: the returned pass is inside them (F3)');
+  assert.ok(gapOf(d.pass) >= minGap, 'the returned gap is one of the history\'s');
+}
+const progress = inbox.filter((m) => m.type === 'progress');
+assert.ok(progress.length >= 2, 'progress was posted');
+inbox.splice(0, inbox.length);
+ok(`design: best pass ${d.pass}, err ${best.err.toFixed(4)} (from ${d.history[0].err.toFixed(4)}), boundary ${d.result.lcfs.length / 2} points, vertical ${d.result.criteria.vertical ? 'on' : 'off'}`);
+
+send(design);
+const d2 = take('design');
+assert.deepEqual(Array.from(d2.chan), Array.from(d.chan), 'the same request twice: bit for bit');
+assert.deepEqual(d2.history.map((h) => h.err), d.history.map((h) => h.err));
+inbox.splice(0, inbox.length);
+ok('the same design twice: identical currents and history (the door is stateless)');
+
+// --- 4. no schedule -----------------------------------------------------------
+send({ ...design, schedule: null, warm: false });
+const d3 = take('design');
+assert.ok(d3.history.length >= 1);
+inbox.splice(0, inbox.length);
+ok(`schedule=null: the kernel's own geometric table ran (${d3.history.length - 1} passes)`);
+
+// --- 5. pulse ------------------------------------------------------------------
+const wps = [0.0, 0.5, 1.5, 2.5].map((tk, k) => ({
+  t: tk, ip: [0, 0.6 * ip, ip, 0.4 * ip][k],
+  target: { r0: target.r0, z0: target.z0, a: target.a * [0.8, 0.9, 1, 0.9][k], kappa: target.kappa,
+            deltaU: target.deltaU, deltaL: target.deltaL } }));
+send({ cmd: 'pulse', waypoints: wps, nPoints: 24, xWeight: 0, verify: [2], iMax: null,
+       prof: { beta0: 0.55, emp: 1, enp: 1, r0: target.r0 }, solve: { maxIter: 400, relax: 0.3 } });
+const pu = take('pulse');
+assert.equal(pu.t.length, 4);
+assert.equal(pu.nch, M.channels.length);
+assert.equal(pu.x.length, 4 * pu.nch);
+assert.equal(pu.v.length, 4 * pu.nch);
+assert.ok(Array.from(pu.v).every(Number.isFinite), 'finite voltages');
+assert.ok(Array.from(pu.x.slice(0, pu.nch)).every((c) => c === 0), 'no plasma at t=0: zero currents');
+assert.equal(pu.designs.length, 4);
+assert.equal(pu.designs[0].psiRms, 0);
+assert.ok(pu.designs[2].psiRms > 0);
+assert.equal(pu.checks.length, 1);
+assert.equal(pu.checks[0].k, 2);
+assert.ok(!pu.checks[0].error, 'the check solved: ' + (pu.checks[0].error || ''));
+assert.ok(Number.isFinite(pu.checks[0].shape.a), 'the checked waypoint has a shape');
+assert.equal(pu.resistance.length, pu.nch);
+inbox.splice(0, inbox.length);
+ok(`pulse: 4 waypoints, ${pu.nv} passive conductors, check at k=2: a=${pu.checks[0].shape.a.toFixed(3)} (asked ${wps[2].target.a.toFixed(3)})`);
+
+// --- 6. the four 0-D commands ------------------------------------------------------
+const tz = Array.from({ length: 60 }, (_, i) => i / 59 * 10);
+const trap = (flat, lo) => Float64Array.from(tz, (t) => t < 1 ? Math.max(lo, flat * t) : t < 8 ? flat : Math.max(lo, flat * (10 - t) / 2));
+const z = { t: tz, ip: trap(1.5e7, 0), ne0: trap(1e20, 2e18), te0: trap(20, 0.2), pInj: Float64Array.from(tz, (t) => t >= 1 && t <= 8 ? 33e6 : 0),
+            rho: Array.from({ length: 41 }, (_, i) => i / 40), par: [0.9, 1, 1.5, 0.05, 6.2, 1.75, 1.9, 1.8, 0.9, 0.5],
+            geom: { r0: 6.2, a: 1.75, kappa: 1.9 }, phases: [0, 1, 8, 10], li: 0.9, phiAvail: 0 };
+send({ cmd: 'zerod', ...z });
+const zr = take('zerod');
+assert.equal(zr.nt, 60); assert.equal(zr.nr, 41);
+assert.equal(zr.result.vLoop.length, 60); assert.equal(zr.result.ne.length, 60 * 41);
+assert.ok(zr.result.pFus[30] > 0, 'fusion power on the flat top');
+assert.equal(zr.limits.neBar.length, 60); assert.equal(zr.limits.pLH.length, 60);
+assert.ok(zr.limits.flux && Number.isFinite(zr.limits.flux.phiInd), 'the flux account rode along');
+inbox.splice(0, inbox.length);
+ok(`zerod: Q(mid) ${zr.result.q[30].toFixed(2)}, f_GW(mid) ${zr.limits.fGw[30].toFixed(2)}, Φ_ind ${zr.limits.flux.phiInd.toFixed(1)} Wb`);
+
+send({ cmd: 'zerodflux', t: tz, vLoop: Array.from(zr.result.vLoop), ip: Array.from(z.ip), phases: [0, 1, 8, 10], r0: 6.2, a: 1.75, li: 1.49, phiAvail: 100 });
+const zf = take('zerodflux');
+assert.equal(zf.li, 1.49);
+assert.ok(zf.result.phiInd > zr.limits.flux.phiInd, 'a larger l_i charges more inductive flux');
+inbox.splice(0, inbox.length);
+ok(`zerodflux at l_i 1.49: Φ_ind ${zf.result.phiInd.toFixed(1)} Wb (was ${zr.limits.flux.phiInd.toFixed(1)})`);
+
+send({ cmd: 'zerodb', t: tz, ip: z.ip, ne0: z.ne0, pAux: z.pInj, rho: z.rho, par: z.par, pred: [0, 1, 2.5, 5.3, 0] });
+const zb = take('zerodb');
+assert.equal(zb.result.te0.length, 60); assert.ok(zb.result.wTh[30] > 0);
+inbox.splice(0, inbox.length);
+ok(`zerodb: T_e0(mid) ${zb.result.te0[30].toFixed(2)} keV, τ_E ${zb.result.tauE[30].toFixed(2)} s`);
+
+const nS = 12, flatTz = (a) => { const out = new Float64Array(nS * 60); for (let s2 = 0; s2 < nS; s2++) for (let i = 0; i < 60; i++) out[s2 * 60 + i] = a[i] * (1 + 0.02 * ((s2 % 5) - 2)); return out; };
+const parS = new Float64Array(nS * 10); for (let s2 = 0; s2 < nS; s2++) parS.set(z.par, s2 * 10);
+send({ cmd: 'zerodmc', nSample: nS, nt: 60, slice: 30, t: tz, ip: flatTz(z.ip), ne0: flatTz(z.ne0), te0: flatTz(z.te0), pInj: flatTz(z.pInj), rho: z.rho, par: parS });
+const zm = take('zerodmc');
+assert.equal(zm.n, nS); assert.equal(zm.stats.pFus.n, nS); assert.ok(zm.stats.pFus.p95 >= zm.stats.pFus.p05);
+assert.equal(zm.samples.pFus.length, nS);
+inbox.splice(0, inbox.length);
+ok(`zerodmc: ${nS} samples, P_fus p05..p95 ${(zm.stats.pFus.p05 / 1e6).toFixed(0)}..${(zm.stats.pFus.p95 / 1e6).toFixed(0)} MW`);
+
+// --- 7. the model page's interpretive bar (Miller tier) ------------------------------
+//: the reference profiles on a metre grid a shade wider than the metric, so the
+//: no-extrapolation rule is satisfied; the sources all on
+const ia = 0.45, ir = Array.from({ length: 61 }, (_, i) => i / 60 * ia * 1.02);
+const ix = ir.map((r) => Math.min(r / ia, 1));
+send({ cmd: 'interp',
+       spec: { geometry: 'miller', n: 31, edgePsin: 0.95, a: ia, r0: 1.85, kappa: 1.6, delta: 0.4, q95: 3.5, b0: 2.0,
+               ip: 5e5, r0Src: 1.85, gradFloor: 1e-3, pE: 1.5, pI: 1.0, depCentre: 0, depWidth: 0.3, vLoop: 0.8,
+               alpha: true, brem: true, impurity: 'C', cImp: 0.02, zeff: 1.8, dtFraction: 0.5 },
+       profiles: { rho: ir, te: ix.map((x) => 100 + 2400 * Math.pow(1 - x * x, 1.5)),
+                   ti: ix.map((x) => 100 + 1900 * (1 - x * x)), ne: ix.map((x) => 5e18 + 4.5e19 * Math.sqrt(1 - x * x)) } });
+const ip1 = take('interp');
+assert.equal(ip1.rho.length, 31); assert.equal(ip1.chiE.length, 31); assert.equal(ip1.validE.length, 31);
+assert.equal(ip1.geoSource, 'miller'); assert.equal(ip1.free, null);
+assert.ok(ip1.validE.some(Boolean) && Number.isFinite(ip1.avgE.chi) && ip1.avgE.chi > 0, 'a valid interior average');
+assert.ok(ip1.alpha && ip1.rad && ip1.ohm, 'the three state-dependent sources rode along');
+assert.ok(ip1.diag.pAlpha > 0 && ip1.diag.pRad > 0 && ip1.diag.pOhm > 0);
+assert.ok(ip1.wTh > 0 && Number.isFinite(ip1.tauE));
+assert.equal(ip1.aMinor, ia); assert.equal(ip1.b0, 2.0);
+inbox.splice(0, inbox.length);
+ok(`interp (miller): <chi_e> ${ip1.avgE.chi.toFixed(3)} m^2/s over ${ip1.avgE.used} interior points, tau_E ${ip1.tauE.toFixed(3)} s`);
+
+send({ cmd: 'interp', spec: { geometry: 'miller', n: 31, a: ia, r0: 1.85, kappa: 1.6, delta: 0.4, q95: 3.5, b0: 2.0,
+                              gradFloor: 1e-3, pE: 1, pI: 1, depCentre: 0, depWidth: 0.3, vLoop: 0, alpha: false, brem: false,
+                              impurity: '', cImp: 0, zeff: 1, dtFraction: 0.5 },
+       profiles: { rho: ir.slice(0, 30), te: ix.slice(0, 30).map(() => 1000), ti: ix.slice(0, 30).map(() => 1000), ne: ix.slice(0, 30).map(() => 1e19) } });
+const ipErr = inbox.splice(inbox.findIndex((m) => m.type === 'error'), 1)[0];
+assert.ok(ipErr && /no extrapolation/.test(ipErr.message), 'a short reference is refused by name: ' + (ipErr && ipErr.message));
+inbox.splice(0, inbox.length);
+ok('interp: a reference that does not span the metric is refused, not extrapolated');
+
+console.log(`validate-worker-design: ${n} 项通过`);

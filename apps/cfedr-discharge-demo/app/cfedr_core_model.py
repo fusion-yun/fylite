@@ -10,11 +10,9 @@
 2. :func:`run_discharge` —— 循环调用 :func:`step`，按回放指令走完**上升 · 平顶 · 下降**整个放电，
    结果写成一份**扁平 JSON**（一层键 → 数组）。
 
-物理调用：``libfylite.so`` 的 JSON 门 ``fylite_runtime_case_tree_json(code, plan, kernel_lib)``
-把工况交给内核的 ``code/evolve``（本文件只用 ctypes，不 import fylite 包）。
-fylite 只装**一个** ``libfylite.so``：内核（物理）与中间层（格式 · 装配）在同一个库里，所以
-第三个参数留空——门用它自己链着的那份内核。库的位置**只有一处**：脚本旁边的
-``libfylite.so``（:data:`LIB`），不搜索上层目录，也不读环境变量。
+物理调用：内核库 ``libfylite_kernel.so`` 自己的 JSON 门 ``fylite_rs_fyo_json(code, plan)``，把工况交给内核的
+``code/evolve``（本文件只用 ctypes，不 import fylite 包）。**一份库**，位置**只有一处**：脚本旁边（:data:`KERNEL_LIB`），
+不搜索上层目录，也不读环境变量。（2026-09-26..27 门在中间层 ``libfylite_runtime.so``，它再载内核。）
 
 ★本模型的边界（读数才算数，别的都写在这里）：
 
@@ -34,7 +32,7 @@ fylite 只装**一个** ``libfylite.so``：内核（物理）与中间层（格�
 
 ★**跑一炮要的东西都在本脚本旁边**，命令就在这个目录里发：装置描述 ``device_cfedr.json`` ·
 初始状态 ``state_init.json`` · 控制波形 ``waveform_d2025.json`` ·
-库 ``libfylite.so``。本脚本不引用目录之外的任何文件，也没有绝对路径；产物落在 ``--out``
+库 ``libfylite_kernel.so``。本脚本不引用目录之外的任何文件，也没有绝对路径；产物落在 ``--out``
 说的地方。
 
 ★★★**JSON 只有四类**，按**内容**认，命令行上一格一类：**装置描述**（``--device``）·
@@ -175,75 +173,71 @@ class Refused(RuntimeError):
 # --------------------------------------------------------------------------- #
 # 内核门：JSON 进，记录 JSON 出
 # --------------------------------------------------------------------------- #
-#: ★★★**库就在脚本旁边，名字固定**：`app/libfylite.so`（一个真文件，没有版本后缀链接）。
+#: ★★★**库就在脚本旁边，名字固定**：`app/libfylite_kernel.so`（一个真文件，没有版本后缀链接）。
 #: 不搜索上层目录、不读环境变量、不认第二个名字——「到别处找库」找错了**不会报错**，
 #: 它会静默地用另一份库算完整炮，而那种错误只在读数上露一点。要换库就换这个文件。
-LIB = Path(__file__).resolve().parent / "libfylite.so"
+KERNEL_LIB = Path(__file__).resolve().parent / "libfylite_kernel.so"
+LIB = KERNEL_LIB
 
 
 class Kernel:
     """:data:`LIB` 的 JSON 门 —— 内核与中间层在同一个库里。"""
 
     def __init__(self) -> None:
-        #: ★内核库这一格**留空**：内核与中间层在同一个 `libfylite.so` 里，门用它自己链着的那份。
-        self.kernel_lib = ""
+        if not KERNEL_LIB.is_file():
+            raise KernelError(f"找不到 {KERNEL_LIB}：内核库要放在脚本旁边")
         try:
-            self.lib = ctypes.CDLL(str(LIB))
+            self.lib = ctypes.CDLL(str(KERNEL_LIB))
         except OSError as exc:
-            #: ★这份库**不链 HDF5 / netCDF**（`ldd` 上只有 libgcc_s / libm / libc），所以打不开
-            #: 一般是文件不在、位数不对或没有执行权限，不是缺 C 库。
-            raise KernelError(f"打不开 {LIB}：{exc}") from exc
-        f = self.lib.fylite_runtime_case_tree_json
+            #: ★这份库只依赖 libc / libm / libgcc_s，所以打不开一般是文件不在、位数不对或没有执行权限。
+            raise KernelError(f"打不开 {KERNEL_LIB}：{exc}") from exc
+        f = getattr(self.lib, "fylite_rs_fyo_json", None)
+        if f is None:
+            raise KernelError(f"{KERNEL_LIB.name} 没有文档门 fylite_rs_fyo_json（内核 ABI 161 之前的构建）——换一份新构建的库")
         f.argtypes = [ctypes.c_char_p, ctypes.c_uint64, ctypes.c_char_p, ctypes.c_uint64,
-                      ctypes.c_char_p, ctypes.c_uint64,
                       ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_uint64)]
         f.restype = ctypes.c_int32
-        self.lib.fylite_runtime_case_free.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
-        self.lib.fylite_runtime_case_free.restype = None
+        self.lib.fylite_rs_free.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
+        self.lib.fylite_rs_free.restype = None
         self.identity = self._identity()
 
     def _identity(self) -> dict:
-        """算这些数的**内核是哪一份**：ABI 号 + 链进库的那次内核构建（版本 · 时刻 · sha256）。
-
-        随输出走进 `meta.kernel_*`，页面页首显示。两处来源：
-        `fylite_rs_abi_version()`（内核自己的 C 导出）与 `fylite_runtime_linked_kernel()`
-        （中间层在链接期把 `kernel-static.json` 编了进去）。取不到就留空，不编。
+        """算这些数的**内核是哪一份**：问内核库自己——版本（`fylite_rs_kernel_version`，内核自己的版本号）·
+        ABI（`fylite_rs_abi_version`）· 文件 sha256。随输出走进 `meta.kernel_*`，页面页首显示。
+        取不到就留空，不编。
         """
+        import hashlib
         out: dict = {}
         try:
-            self.lib.fylite_rs_abi_version.restype = ctypes.c_uint32
-            self.lib.fylite_rs_abi_version.argtypes = []
-            out["abi"] = int(self.lib.fylite_rs_abi_version())
+            out["sha256"] = hashlib.sha256(KERNEL_LIB.resolve().read_bytes()).hexdigest()
+            k = ctypes.CDLL(str(KERNEL_LIB))
+            k.fylite_rs_abi_version.restype = ctypes.c_uint32
+            k.fylite_rs_abi_version.argtypes = []
+            out["abi"] = int(k.fylite_rs_abi_version())
+            f = getattr(k, "fylite_rs_kernel_version", None)
+            if f is not None:
+                f.restype = ctypes.c_uint64
+                f.argtypes = [ctypes.c_char_p, ctypes.c_uint64]
+                buf = ctypes.create_string_buffer(64)
+                n = int(f(buf, 64))
+                out["kernel_version"] = buf.raw[: min(n, 64)].decode("utf-8", "replace")
         except Exception:                                              # noqa: BLE001
             pass
-        try:
-            f = self.lib.fylite_runtime_linked_kernel
-            f.argtypes = [ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_uint64)]
-            f.restype = ctypes.c_int32
-            buf, n = ctypes.c_void_p(), ctypes.c_uint64(0)
-            if f(ctypes.byref(buf), ctypes.byref(n)) == 0 and buf.value and n.value:
-                try:
-                    out.update(json.loads(ctypes.string_at(buf, n.value).decode("utf-8", "replace")) or {})
-                finally:
-                    self.lib.fylite_runtime_case_free(buf, n)
-        except Exception:                                              # noqa: BLE001
-            pass
-        out["lib"] = str(getattr(self.lib, "_name", ""))
+        out["lib"] = KERNEL_LIB.name
         return out
 
     def complete(self, code: str, plan: dict) -> dict:
         """一份工况进，一份记录出；被拒时抛 :class:`Refused`（记录里带内核那句话）。"""
-        cb = code.encode(); jb = json.dumps(plan, allow_nan=True).encode(); kb = self.kernel_lib.encode()
+        cb = code.encode(); jb = json.dumps(plan, allow_nan=True).encode()
         out, n = ctypes.c_void_p(), ctypes.c_uint64(0)
-        rc = self.lib.fylite_runtime_case_tree_json(cb, len(cb), jb, len(jb), kb, len(kb),
-                                                    ctypes.byref(out), ctypes.byref(n))
+        rc = self.lib.fylite_rs_fyo_json(cb, len(cb), jb, len(jb), ctypes.byref(out), ctypes.byref(n))
         try:
             text = ctypes.string_at(out, n.value).decode("utf-8", "replace") if out.value and n.value else ""
         finally:
             if out.value and n.value:
-                self.lib.fylite_runtime_case_free(out, n)
+                self.lib.fylite_rs_free(out, n)
         if rc < 0:
-            raise KernelError(f"fylite_runtime_case_tree_json 返回 {rc}：{text}")
+            raise KernelError(f"fylite_rs_fyo_json 返回 {rc}：{text}")
         rec = json.loads(text) if text else None
         if rc == 1:
             ref = (rec or {}).get("refusal", {})
@@ -313,6 +307,8 @@ def guess_state(nodes: list, device: dict | None = None, template=None, log=prin
     ★这是个**起头用的猜测**，不是标定：模板（缺省是脚本旁边的 `state_init.json`）提供的是
     χ 表 · 沉积表 · 成分 · 边界值这些**物理设置**，波形只能换掉四样——时刻 · I_p · 密度标度 ·
     位形（给了装置卡才换）。温度剖面沿用模板的，因为波形里没有任何能定它的东西。
+    ★O-5 B-4（2026-10-06）：给了装置卡就同时把它的第一壁绑成 `inputs/wall`（限制器已不从平衡
+    文档里走）——绑的是**这次用的那张卡**，不是模板里留下的一条旧轮廓。
     ★为什么不从零造：`code/evolve` 的设置有六十余项（χ 标定参考 · 成分 · 台基 · 加料 · 边界），
     凭空填出来的那份跑得动也不可信，而且失败时看不出是猜错了哪一项。有模板就诚实得多：
     换掉的四样写进 `meta`，没换的照旧是模板那一炮的。
@@ -335,19 +331,23 @@ def guess_state(nodes: list, device: dict | None = None, template=None, log=prin
         k = ne_cmd / (sum(ne) / len(ne))
         prof = {kk: vv for kk, vv in cp.items()}
         prof["electrons"] = dict(prof.get("electrons") or {}, density=[v * k for v in ne])
-        if prof.get("fylite:ion_density"):
-            prof["fylite:ion_density"] = [float(v) * k for v in prof["fylite:ion_density"]]
+        #: ★O-5 B-5：离子随种群的**热密度行**一起缩放（身份不动），电子与离子同一个因子；
+        #: 模板没有种群就不写这一格（空的 `ion: []` 是「声明了种群」，内核按名拒绝）
+        if prof.get("ion"):
+            prof["ion"] = scale_ions(prof["ion"], k)
         plan["inputs"] = dict(plan["inputs"], core_profiles={"profiles_1d": prof})
         plan["settings"]["ne0"] = float(plan["settings"].get("ne0", 0.0)) * k
         plan["settings"]["edgene"] = float(plan["settings"].get("edgene", 0.0)) * k
         changed.append("密度标度")
+    #: ★O-5 B-4：第一壁作为自己的 `fyo:wall` 文档绑在计划上（旧的平衡文档内抄法已退役）
+    if device is not None:
+        plan["inputs"] = dict(plan["inputs"], wall=wall_document(device))
     #: 位形：给了装置卡与控制点就解一次自由边界，把 ψ · 边界 · 磁轴 · q / F 换进来
     if device is not None and (n0.get("boundary") or []):
         eq, _facts, _wall = solve_equilibrium(n0["boundary"], float(n0.get("Ip", 0.0)), device)
         old = plan["inputs"].get("equilibrium") or {}
-        for key in ("fylite:limiter", "vacuum_toroidal_field"):
-            if old.get(key):
-                eq[key] = old[key]
+        if old.get("vacuum_toroidal_field"):
+            eq["vacuum_toroidal_field"] = old["vacuum_toroidal_field"]
         p1 = ((old.get("time_slice") or {}).get("profiles_1d"))
         if not ((eq.get("time_slice") or {}).get("profiles_1d") or {}).get("q") and p1:
             eq["time_slice"]["profiles_1d"] = p1
@@ -372,16 +372,115 @@ def _geometry(plan: dict) -> dict:
     return {"lcfs_r": list(map(float, r)), "lcfs_z": list(map(float, z)), "b0": b0, "r0": r0v, "a": a}
 
 
-def device_meta(plan: dict) -> dict:
+def wall_document(device: dict) -> dict:
+    """装置卡的第一壁 → 一份**自己的** `fyo:wall` 文档（★O-5 B-4）。
+
+    2026-10-06 起限制器不再抄进平衡文档（`equilibrium/fylite:limiter` 已退役，内核按名拒绝）：
+    它是独立的 `fyo:wall` 文档，由计划绑到 `wall` 口。读的路径与内核求解器是同一处
+    （装置卡 `wall/description_2d/limiter/unit`），只把每个 unit 的名字与外轮廓抬过来——
+    装置卡自己的取样来路（`fylite:source` 一类）不带进这一炮的工况。
+    """
+    slices = (device.get("wall") or {}).get("description_2d")
+    sl = slices[0] if isinstance(slices, list) and slices else (slices or {})
+    units = ((sl or {}).get("limiter") or {}).get("unit")
+    units = units if isinstance(units, list) else ([units] if units else [])
+    if not units:
+        raise ValueError("装置卡里没有 wall/description_2d/limiter/unit，绑不出一份 wall："
+                         "第一壁是装置的事实，这里不从别处猜一条轮廓")
+    return {"@type": "fyo:wall",
+            "description_2d": [{"limiter": {"unit": [
+                {"name": str(u.get("name") or ""),
+                 "outline": {"r": [float(x) for x in ((u.get("outline") or {}).get("r") or [])],
+                             "z": [float(x) for x in ((u.get("outline") or {}).get("z") or [])]}}
+                for u in units]}}]}
+
+
+def wall_limiter(wall: dict, name: str = "") -> tuple[list, list]:
+    """一份 `fyo:wall` 里第一个（或指定名字的）限制器轮廓 `(r, z)`。"""
+    slices = (wall or {}).get("description_2d")
+    sl = slices[0] if isinstance(slices, list) and slices else (slices or {})
+    units = ((sl or {}).get("limiter") or {}).get("unit")
+    units = units if isinstance(units, list) else ([units] if units else [])
+    chosen = next((u for u in units if not name or str(u.get("name") or "") == name), None)
+    if chosen is None:
+        raise ValueError(f"绑定的 wall 里没有名字是 {name!r} 的限制器" if name else "绑定的 wall 里没有限制器")
+    o = chosen.get("outline") or {}
+    r, z = [float(x) for x in (o.get("r") or [])], [float(x) for x in (o.get("z") or [])]
+    if not r or len(r) != len(z):
+        raise ValueError("绑定的 wall 的限制器轮廓 r/z 不齐（空或长度不等）")
+    return r, z
+
+
+def device_meta(plan: dict, device: dict | None = None) -> dict:
     """装置常数与第一壁——**写进输出的 `meta.*`**，让输出文件自带写 g-file 所需的一切。
 
     ★为什么放在 meta 而不是逐时间片：R₀ / B₀ 与限制器在一炮里不变，逐片存 383 遍是死重。
+    ★★O-5 B-4（2026-10-06）：限制器**不再从平衡文档里读**（`equilibrium/fylite:limiter` 已退役）——
+    它是计划上绑的 `inputs/wall`（本工具在 :func:`guess_state` / :func:`step` 里从装置卡绑）；
+    计划里没有而这次调用带了装置卡，就现场绑一份。**两处都没有就报错**：写一条空的 `limiter_r`
+    不会在任何地方报错，只会让导出的 g-file 少一条第一壁。
     """
     geo = _geometry(plan)
-    lim = ((plan.get("inputs") or {}).get("equilibrium") or {}).get("fylite:limiter") or {}
-    return {"r0": geo["r0"], "b0": geo["b0"],
-            "limiter_r": [float(x) for x in (lim.get("r") or [])],
-            "limiter_z": [float(x) for x in (lim.get("z") or [])]}
+    wall = (plan.get("inputs") or {}).get("wall") or (wall_document(device) if device else None)
+    if not wall:
+        raise ValueError("这一炮的第一壁没着落：计划 inputs 里没有绑定的 wall（B-4 之后限制器住在自己的 "
+                         "fyo:wall 文档里），调用也没给装置卡——给一份 device 或绑一份 wall 再来")
+    r, z = wall_limiter(wall)
+    return {"r0": geo["r0"], "b0": geo["b0"], "limiter_r": r, "limiter_z": z}
+
+
+def record_ions(rec: dict) -> tuple[list, list]:
+    """记录的**具名离子种群** → 下一次调用要的 `core_profiles/profiles_1d/ion` 形（无下标）。
+
+    ★★★O-5 B-5（2026-10-06）：密度不再是 `profiles_1d/fylite:ion_density` 一条平剖面，而是
+    每种种群一条、各带核素身份。记录里这两半**分开放**：数在
+    `fields/core_profiles/profiles_1d/0/ion/<i>/…`（**带样点下标 0** 的密度行），身份
+    （`name` / `element` / `z_ion`）在 `document_fields` 的 `profiles_1d/0/ion/<i>/name` 一行。
+    只读数会得到一排没有名字的剖面——那正是旧路径的毛病，所以这里把两半合起来，名字缺了就报错。
+
+    返回 `(离子行, n_i_thermal_total)`（后者没有就是空表）。
+    """
+    p1 = ((rec.get("fields") or {}).get("core_profiles") or {}).get("profiles_1d") or {}
+    sample = p1.get("0") or {}
+    rows = sample.get("ion") or {}
+    if not rows:
+        return [], []
+    keys = [str(k) for k in rows] if isinstance(rows, dict) else [str(i) for i in range(len(rows))]
+    ident: dict = {}
+    for row in rec.get("document_fields") or []:
+        parts = str(row.get("path") or "").split("/")
+        if len(parts) == 5 and parts[0] == "profiles_1d" and parts[2] == "ion" and parts[4] in ("name", "element", "z_ion"):
+            ident.setdefault(parts[3], {})[parts[4]] = row.get("value")
+    out = []
+    for k in sorted(keys, key=lambda s: int(s) if s.lstrip("-").isdigit() else 0):
+        row = rows[k] if isinstance(rows, dict) else rows[int(k)]
+        who = ident.get(k) or {}
+        if not who.get("name"):
+            raise ValueError(f"记录里第 {k} 个离子种群没有名字（document_fields 里缺 "
+                             f"profiles_1d/0/ion/{k}/name）——无声名的种群不往下传")
+        item = {"name": who["name"]}
+        if "element" in who:
+            item["element"] = who["element"]
+        if "z_ion" in who:
+            item["z_ion"] = float(who["z_ion"])
+        for key, node in row.items():
+            if isinstance(node, dict) and "data" in node:
+                item[key] = [float(x) for x in node["data"]]
+        out.append(item)
+    total = sample.get("n_i_thermal_total")
+    return out, ([float(x) for x in total["data"]] if isinstance(total, dict) and "data" in total else [])
+
+
+def scale_ions(rows: list, k: float) -> list:
+    """每种离子种群的密度行整体乘 `k`（身份不动），返回新表——与 `n_e` 的缩放同一口径。"""
+    scaled = []
+    for ion in rows or []:
+        item = {kk: vv for kk, vv in ion.items()}
+        for key in ("density", "density_thermal", "density_fast"):
+            if isinstance(item.get(key), list):
+                item[key] = [float(v) * k for v in item[key]]
+        scaled.append(item)
+    return scaled
 
 
 def equilibrium_snapshot(plan: dict, facts: dict | None = None, *, stride: int = 1, bnd_points: int = 160,
@@ -547,8 +646,20 @@ def _resume_call(plan: dict, rec, t_stop: float, dt: float, dt_max: float | None
     cp = rec["fields"]["core_profiles"]["profiles_1d"]
     prof = {"electrons": {"temperature": cp["electrons"]["temperature"]["data"],
                           "density": cp["electrons"]["density"]["data"]},
-            "t_i_average": cp["t_i_average"]["data"],
-            "fylite:ion_density": cp["fylite:ion_density"]["data"]}
+            "t_i_average": cp["t_i_average"]["data"]}
+    #: ★O-5 B-5：带名字的离子种群整表交接（数在记录的下标样点里、名字在 document_fields 里，
+    #: 由 `record_ions` 合起来）；旧的平剖面 `fylite:ion_density` 已退役，不再读写。
+    #: ★★**只在整份状态原样交接时才带种群**（`edge_ne is None`）：`composition = species` 之下，
+    #: 内核把**带进来的**热总量绑在它**自己**在同一状态上解出的成分上，容差 `STATE_ROUNDOFF` = 1e-14
+    #: （`evolve.rs` · `evolve_density::same_row`）。而那个解**不正比于 n_e**——实测沿 ρ 的
+    #: `n_i_thermal_total / n_e` 在 0.9234–0.9280 间变（氩的电离度随 T_e 走），所以宿主刚按边界
+    #: 密度缩过末点的剖面**带不动**一份种群。计划本身声明了成分（`composition` · `zeff` ·
+    #: `ash_fraction` · `match_impurity`），于是改由内核在被强加的 n_e 上重解一遍；要带，就得原样带。
+    ions, ni_total = record_ions(rec)
+    if ions and edge_ne is None:
+        prof["ion"] = ions
+        if ni_total:
+            prof["n_i_thermal_total"] = ni_total
     for slot in _PROFILE_LAGS:
         if slot in cp and isinstance(cp[slot], dict) and "data" in cp[slot]:
             prof[slot] = cp[slot]["data"]
@@ -558,10 +669,14 @@ def _resume_call(plan: dict, rec, t_stop: float, dt: float, dt_max: float | None
     if edge_ne is not None and prof["electrons"]["density"] and float(prof["electrons"]["density"][-1]) > 0.0:
         #: 宿主侧边界密度：密度通道的边界是状态末点的 Dirichlet，按一个因子缩放电子 / 离子末点（成分不动）
         f = float(edge_ne) / float(prof["electrons"]["density"][-1])
-        for key, holder in (("density", prof["electrons"]), ("fylite:ion_density", prof)):
-            arr = list(holder[key])
-            arr[-1] = float(arr[-1]) * f
-            holder[key] = arr
+        arr = list(prof["electrons"]["density"])
+        arr[-1] = float(arr[-1]) * f
+        prof["electrons"]["density"] = arr
+        #: 末点的离子行整份跟着缩（宿主侧的控制量），种群**不**在这条路上交接（见上）。
+        #: ★没有种群时**不写** ``ion``：写一个空的 `ion: []` 会让内核看见「声明了种群」而
+        #: 又没有总量，直接按名拒绝（实测 -31）——缺省与空表是两回事
+        if prof.get("ion"):
+            prof["ion"] = scale_ions(prof["ion"], f)
     inp["core_profiles"] = {"profiles_1d": prof}
     inp["evolve"] = {dst: raw[src]["data"] for src, dst in _LAGS if src in raw}
     return {"settings": st, "inputs": inp}
@@ -792,7 +907,9 @@ def solve_equilibrium(points, ip: float, device: dict, *, settings: dict | None 
     """八点当 LCFS：作目标曲线 + **isoflux 控制点**求一次自由边界平衡。
 
     返回 ``(equilibrium 文档, 形状事实, 墙钟秒)``。文档按 ``code/evolve`` 读的槽装：ψ(R,Z) 与网格 ·
-    边界轮廓 · 磁轴 · ψ_axis / ψ_bnd · 限制器 · **q 与 F** · ``fylite:psi_convention``。
+    边界轮廓 · 磁轴 · ψ_axis / ψ_bnd · **q 与 F** · ``fylite:psi_convention``。
+    ★O-5 B-4（2026-10-06）：**限制器不在这份文档里**——它是自己的 `fyo:wall` 文档，由计划绑到
+    `wall` 口（:func:`wall_document`）；这里的求解器本来就从 ``device`` 口的那张卡读第一壁。
 
     ★``q`` / ``f`` **由内核给**：`code/discharge` 拿到 ``b0`` 之后按磁面几何算 q
     （F 取真空值 R₀B₀），随记录写在 ``profiles_1d/q`` 与 ``f`` 上。这两条不能拿工况自带的
@@ -810,6 +927,20 @@ def solve_equilibrium(points, ip: float, device: dict, *, settings: dict | None 
     st = dict(DISCHARGE_SETTINGS, ip=float(ip))
     if EQ_MAX_ITER is not None:
         st["max_iter"] = float(EQ_MAX_ITER)
+    #: ★★求解盒在**计划**上：`code/discharge` 只从计划读（`solve_box_settings`，没有装置回退），
+    #: 六个数缺一个就按名拒绝。取值来自**装置卡自己声明的那一盒**——`machine/default_grid`
+    #: （卡里写明「按本文档的限制器轮廓外扩 5 cm、向外取整」）与 `solver_dims` 的分辨率；
+    #: 卡里没有就按名拒绝，不从轮廓临时猜一个盒子（猜出来的盒会静默改变解）。
+    grid = (device.get("machine") or {}).get("default_grid") or {}
+    dims = device.get("solver_dims") or {}
+    box = ("r_min", "r_max", "z_min", "z_max")
+    if not all(isinstance(grid.get(k), (int, float)) for k in box):
+        raise ValueError("装置卡里没有 machine/default_grid 的求解盒（r_min/r_max/z_min/z_max）："
+                         "`code/discharge` 只从计划读求解盒，这里不从轮廓临时猜一个")
+    st.update({k: float(grid[k]) for k in box})
+    for key in ("nw", "nh"):
+        if isinstance(dims.get(key), (int, float)):
+            st[key] = float(dims[key])
     #: ★★真空环向场：内核要它才说得出 q（F = R₀·B₀）。装置卡给的是 **R·B_φ**（T·m，IMAS 的
     #: `b_field_phi_vacuum_r`，老名 `b_field_tor_vacuum_r`），除以卡里的 R₀ 得 B₀。
     tf = device.get("tf") or {}
@@ -863,8 +994,7 @@ def solve_equilibrium(points, ip: float, device: dict, *, settings: dict | None 
         "global_quantities": {"psi_axis": val(gq["psi_axis"]), "psi_boundary": val(gq["psi_boundary"]),
                               "ip": val(gq["ip"]) if "ip" in gq else float(ip),
                               "magnetic_axis": {"r": val(gq["magnetic_axis"]["r"]),
-                                                "z": val(gq["magnetic_axis"]["z"])}}},
-        "fylite:limiter": {"r": E["fylite:limiter"]["r"]["data"], "z": E["fylite:limiter"]["z"]["data"]}}
+                                                "z": val(gq["magnetic_axis"]["z"])}}}}
     #: ★内核给了 q / F 就带上（同一张位形的 q，来路 kernel）；没给则调用方照旧补工况那份
     p1 = F.get("profiles_1d") or {}
     if p1.get("q") and p1.get("f"):
@@ -885,7 +1015,7 @@ def solve_equilibrium(points, ip: float, device: dict, *, settings: dict | None 
     #: 自己那条 q（q₀ 1.280）。★不写死名字：号由记录说，宿主只是把它转给下一道门。
     if "cocos" not in facts:
         raise RuntimeError(
-            "libfylite.so 的 code/discharge 没有报 cocos —— 这份库太旧（需要 ABI ≥ 155）。"
+            "libfylite_kernel.so 的 code/discharge 没有报 cocos —— 这份库太旧（需要 ABI ≥ 155）。"
             "没有它就只能猜 ψ 的通量规，而猜错 2π 不会报错，只会让 q 整条偏。")
     eq["fylite:psi_convention"] = float(facts["cocos"])
     #: 解出的线圈电流（整匝安匝）与线圈名——输出名表的 PF 部分
@@ -1050,6 +1180,11 @@ def step(state: dict, control: dict, *, dt_max: float | None = 0.025, max_calls:
             raise ValueError(f"n_roh 中途从 {have} 改成 {want_n}：径向网格在推进中不能换（要换请从起步给）")
     plan, rec = state["plan"], state["record"]
     shape_facts = None
+    #: ★O-5 B-4：这一步带着装置卡、而计划上还没有绑墙（旧的状态文件就是这样）——用这次的卡绑一份，
+    #: 并把它写回 state，于是**一次调用之后就自洽**，不必手改状态文件
+    if device is not None and not (plan.get("inputs") or {}).get("wall"):
+        plan = {"settings": plan["settings"], "inputs": dict(plan.get("inputs") or {}, wall=wall_document(device))}
+        state = dict(state, plan=plan)
     #: ★★★**固定位形档只适用于位形不变的一段**（平顶）。指令位形动了还用它，等于拿平顶的度规
     #: 去算爬升段——输运答案会错，而输出里的等高线一动不动，看不出来。所以这里把"指令位形与
     #: 工况所用 LCFS 的距离"拿出来比一次：超过阈值就说一句，指向 `--isoflux`（每步重解）。
@@ -1076,9 +1211,9 @@ def step(state: dict, control: dict, *, dt_max: float | None = 0.025, max_calls:
         p1 = ((old_eq.get("time_slice") or {}).get("profiles_1d"))
         if p1:
             eqd["time_slice"]["profiles_1d"] = p1
-        for k in ("fylite:limiter", "vacuum_toroidal_field"):
-            if old_eq.get(k):
-                eqd[k] = old_eq[k]
+        #: ★O-5 B-4：平衡文档里不再有第一壁；墙照旧是计划上绑的那一份（inputs 原样带过去）
+        if old_eq.get("vacuum_toroidal_field"):
+            eqd["vacuum_toroidal_field"] = old_eq["vacuum_toroidal_field"]
         #: ★通量规跟着**这张图**走，不跟着被它换掉的那份文档走：调用方说了就照说的，
         #: 没说就按每弧度读（读文档那一侧的缺省）。本工具输出的时序里这一格是
         #: `psi_convention`，整匝 —— 拿自己的输出回放时把它一并传进来。
@@ -1491,7 +1626,7 @@ def run_discharge(plan, nodes: list, t0: float, t1: float, dt: float = 0.5, *, d
     if series_path and times:
         summary["output"] = write_output(series_path, times, outs, psi_dedup=psi_dedup,
                                          meta={"plan": str(plan), "stopped": stopped or "",
-                                               **device_meta(state["plan"])})
+                                               **device_meta(state["plan"], device)})
         log(f"输出：{summary['output']}")
     return {"times": times, "outputs": outs, "controls": ctls, "state": state, "summary": summary}
 

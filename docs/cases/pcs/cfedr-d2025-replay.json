@@ -1,0 +1,693 @@
+{
+ "title": "CFEDR d2025 conventional H-mode — PCS command replay (DRAFT v0.1)",
+ "status": "draft for PCS-W3 / ledger I-5 (2026-09-13); field names follow no agreed interface yet — PCS-W0 interface table pending",
+ "device": "CFEDR",
+ "design_version": "d2025 (104014/104007 official version, 15 MA). NOT d2026 20 MA (FYDOC-CASE-21); no CFETR values.",
+ "units": {
+  "t": "s",
+  "ip": "A",
+  "ne_bar": "m^-3",
+  "p_*": "W",
+  "lcfs r0 z0 a": "m",
+  "kappa delta": "1",
+  "rho_tor_norm": "1",
+  "temperatures (none here)": "eV"
+ },
+ "lcfs_convention": "Miller parameters (r0, z0, a, kappa, delta_upper, delta_lower) as in code/discharge settings; COCOS 17; point lists [TBD] (PCS-G4)",
+ "interpolation": {
+  "ip": "linear",
+  "ne_bar": "linear",
+  "lcfs": "linear per Miller parameter; configuration switches at the flagged node",
+  "p_ec p_ic p_nbi p_lh": "zero-order hold from a node's t until the next node"
+ },
+ "lcfs_rule": "ramp-up (synthetic): a piecewise linear (1 s 1.9 m, 17 s 2.1 m, 60 s 2.45 m); kappa 1.1 to 5 s then linear to 1.90 at 60 s; delta_u/l 0.10 to 5 s then linear to 0.567/0.584 at 60 s; R0 = 5.12 m + a while HFS-limited (t < 17 s), then linear to 7.87 m at 60 s; z0 = 0",
+ "heating_groups": {
+  "ec_rampup": {
+   "rho_tor_norm": "per node (0.36 for 10-30 s, 0.39 for 30-60 s)",
+   "source": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-hcd"
+  },
+  "ec_co": {
+   "rho_tor_norm": 0.35,
+   "i_cd_reference_A": 1220000.0,
+   "source": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-hcd / tbl-r20-current"
+  },
+  "ec_counter": {
+   "rho_tor_norm": 0.0,
+   "i_cd_reference_A": -140000.0,
+   "source": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-hcd"
+  },
+  "ic": {
+   "frequency_Hz": 60000000.0,
+   "n_phi": 40,
+   "minority": "3He 2 %",
+   "source": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-hcd"
+  },
+  "ec_ntm": {
+   "note": "28-69 MW at rho 0.6 for NTM control is outside the 102 MW and not scheduled here (tbl-r20-hcd)"
+  }
+ },
+ "greenwald_fraction_flat_top": 1.408,
+ "nodes": [
+  {
+   "t": 0.0,
+   "phase": "breakdown",
+   "ip": 500000.0,
+   "ne_bar": 1e+18,
+   "p_ec": {
+    "ec_rampup": 0.0,
+    "ec_co": 0.0,
+    "ec_counter": 0.0
+   },
+   "ec_rampup_rho_tor_norm": null,
+   "p_ic": 0.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": null,
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [
+    "informational: the 1.5-D replay starts at t = 1 s (PCS-W5); Ip 0.5 MA here (control paper) is inconsistent with Ip 0.25 MA at 1 s (equilibrium paper) — two model families, not reconciled"
+   ],
+   "provenance": {
+    "ip": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 击穿 (控制篇 huang2025cfedrcontrol §2: initial Ip 500 kA)",
+    "ne_bar": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 击穿 (0.1e19 m^-3)",
+    "p_ec": "synthetic: no breakdown-assist power given in the sources -> 0",
+    "p_ic": "synthetic: none given -> 0",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "none: breakdown has no closed LCFS (code/breakdown field-null design, not code/discharge)",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 1.0,
+   "phase": "ramp_up_limiter",
+   "ip": 250000.0,
+   "ne_bar": 8e+18,
+   "p_ec": {
+    "ec_rampup": 0.0,
+    "ec_co": 0.0,
+    "ec_counter": 0.0
+   },
+   "ec_rampup_rho_tor_norm": null,
+   "p_ic": 0.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.02,
+    "z0": 0.0,
+    "a": 1.9,
+    "kappa": 1.1,
+    "delta_upper": 0.1,
+    "delta_lower": 0.1,
+    "configuration": "limiter_hfs"
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [],
+   "provenance": {
+    "ip": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row L 模爬升（限制器）(平衡篇 start Ip 0.25 MA)",
+    "ne_bar": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row L 模爬升 (8e18 m^-3 at start)",
+    "p_ec": "synthetic: no ramp heating before 10 s in the sources -> 0",
+    "p_ic": "synthetic: -> 0 before 10 s",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "synthetic: a 1.9 m from fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row L 模爬升 (HFS limiter, 平衡篇); R0 = R_IW 5.12 m (tbl-r20-geometry) + a (inner edge on the HFS wall); kappa 1.1, delta 0.1 chosen",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 5.0,
+   "phase": "ramp_up_limiter",
+   "ip": 1250000.0,
+   "ne_bar": 1.102e+19,
+   "p_ec": {
+    "ec_rampup": 0.0,
+    "ec_co": 0.0,
+    "ec_counter": 0.0
+   },
+   "ec_rampup_rho_tor_norm": null,
+   "p_ic": 0.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.07,
+    "z0": 0.0,
+    "a": 1.95,
+    "kappa": 1.1,
+    "delta_upper": 0.1,
+    "delta_lower": 0.1,
+    "configuration": "limiter_hfs"
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [],
+   "provenance": {
+    "ip": "derived: 0.25 MA + 0.25 MA/s x (t - 1 s) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline rows L 模爬升 + 电流平顶达成)",
+    "ne_bar": "derived: linear in Ip between the 1 s and 50 s anchors (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline: '随电流线性升')",
+    "p_ec": "synthetic: no ramp heating before 10 s in the sources -> 0",
+    "p_ic": "synthetic: -> 0 before 10 s",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "synthetic: interpolated Miller parameters (lcfs_rule)",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 10.0,
+   "phase": "ramp_up_limiter",
+   "ip": 2500000.0,
+   "ne_bar": 1.48e+19,
+   "p_ec": {
+    "ec_rampup": 5000000.0,
+    "ec_co": 0.0,
+    "ec_counter": 0.0
+   },
+   "ec_rampup_rho_tor_norm": 0.36,
+   "p_ic": 10000000.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.1325,
+    "z0": 0.0,
+    "a": 2.0125,
+    "kappa": 1.1727,
+    "delta_upper": 0.1425,
+    "delta_lower": 0.144,
+    "configuration": "limiter_hfs"
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [
+    "ramp-up EC follows the EC paper (5/10 MW) while IC follows the control paper (10 MW): the control paper's own base case is EC 10 + IC 10 MW — families mixed, not reconciled"
+   ],
+   "provenance": {
+    "ip": "derived: 0.25 MA + 0.25 MA/s x (t - 1 s) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline rows L 模爬升 + 电流平顶达成)",
+    "ne_bar": "derived: linear in Ip between the 1 s and 50 s anchors (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline: '随电流线性升')",
+    "p_ec": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 爬升加热 + tbl-r20-hcd 〔爬升段〕EC (5 MW at rho ~0.36, 10-30 s; EC paper)",
+    "p_ic": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 爬升加热 (control paper base case: IC 10 MW during ramp-up) + tbl-r20-ic-antenna (ramp-up coupled power 10 MW); ★switch-on time synthetic (= EC start, 10 s)",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "synthetic: interpolated Miller parameters (lcfs_rule)",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 17.0,
+   "phase": "ramp_up_diverted",
+   "ip": 4250000.0,
+   "ne_bar": 2.008e+19,
+   "p_ec": {
+    "ec_rampup": 5000000.0,
+    "ec_co": 0.0,
+    "ec_counter": 0.0
+   },
+   "ec_rampup_rho_tor_norm": 0.36,
+   "p_ic": 10000000.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.22,
+    "z0": 0.0,
+    "a": 2.1,
+    "kappa": 1.2745,
+    "delta_upper": 0.2019,
+    "delta_lower": 0.2056,
+    "configuration": "diverted_lsn"
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [
+    "ramp-up EC follows the EC paper (5/10 MW) while IC follows the control paper (10 MW): the control paper's own base case is EC 10 + IC 10 MW — families mixed, not reconciled",
+    "configuration switch limiter -> LSN (control paper: 13 s; equilibrium paper: ~17 s; 17 s used)"
+   ],
+   "provenance": {
+    "ip": "derived: 0.25 MA + 0.25 MA/s x (t - 1 s) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline rows L 模爬升 + 电流平顶达成)",
+    "ne_bar": "derived: linear in Ip between the 1 s and 50 s anchors (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline: '随电流线性升')",
+    "p_ec": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 爬升加热 + tbl-r20-hcd 〔爬升段〕EC (5 MW at rho ~0.36, 10-30 s; EC paper)",
+    "p_ic": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 爬升加热 (control paper base case: IC 10 MW during ramp-up) + tbl-r20-ic-antenna (ramp-up coupled power 10 MW); ★switch-on time synthetic (= EC start, 10 s)",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "synthetic: a 2.1 m and divertor transition at ~17 s from fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 位形转换 (平衡篇); R0 = 5.12 + a; kappa/delta interpolated (lcfs_rule)",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 30.0,
+   "phase": "ramp_up_diverted",
+   "ip": 7500000.0,
+   "ne_bar": 2.99e+19,
+   "p_ec": {
+    "ec_rampup": 10000000.0,
+    "ec_co": 0.0,
+    "ec_counter": 0.0
+   },
+   "ec_rampup_rho_tor_norm": 0.39,
+   "p_ic": 10000000.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.4165,
+    "z0": 0.0,
+    "a": 2.2058,
+    "kappa": 1.4636,
+    "delta_upper": 0.3123,
+    "delta_lower": 0.32,
+    "configuration": "diverted_lsn"
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [],
+   "provenance": {
+    "ip": "derived: 0.25 MA + 0.25 MA/s x (t - 1 s) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline rows L 模爬升 + 电流平顶达成)",
+    "ne_bar": "derived: linear in Ip between the 1 s and 50 s anchors (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline: '随电流线性升')",
+    "p_ec": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 爬升加热 + tbl-r20-hcd (10 MW at rho ~0.39, 30-60 s); ★60-65 s hold synthetic",
+    "p_ic": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 爬升加热 (control paper, 10 MW) + tbl-r20-ic-antenna",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "synthetic: interpolated Miller parameters (lcfs_rule)",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 50.0,
+   "phase": "ramp_up_diverted",
+   "ip": 12500000.0,
+   "ne_bar": 4.5e+19,
+   "p_ec": {
+    "ec_rampup": 10000000.0,
+    "ec_co": 0.0,
+    "ec_counter": 0.0
+   },
+   "ec_rampup_rho_tor_norm": 0.39,
+   "p_ic": 10000000.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.7188,
+    "z0": 0.0,
+    "a": 2.3686,
+    "kappa": 1.7545,
+    "delta_upper": 0.4821,
+    "delta_lower": 0.496,
+    "configuration": "diverted_lsn"
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [],
+   "provenance": {
+    "ip": "derived: 0.25 MA + 0.25 MA/s x (t - 1 s) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline rows L 模爬升 + 电流平顶达成)",
+    "ne_bar": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 电流平顶达成 (4.5e19 m^-3 at 50 s)",
+    "p_ec": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 爬升加热 + tbl-r20-hcd (10 MW at rho ~0.39, 30-60 s); ★60-65 s hold synthetic",
+    "p_ic": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 爬升加热 (control paper, 10 MW) + tbl-r20-ic-antenna",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "synthetic: interpolated Miller parameters (lcfs_rule)",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 60.0,
+   "phase": "flat_top_current",
+   "ip": 15000000.0,
+   "ne_bar": 1.14e+20,
+   "p_ec": {
+    "ec_rampup": 10000000.0,
+    "ec_co": 0.0,
+    "ec_counter": 0.0
+   },
+   "ec_rampup_rho_tor_norm": 0.39,
+   "p_ic": 10000000.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.87,
+    "z0": 0.0,
+    "a": 2.45,
+    "kappa": 1.9,
+    "delta_upper": 0.567,
+    "delta_lower": 0.584,
+    "configuration": "diverted_lsn",
+    "x_point_ref": {
+     "r": 6.35,
+     "z": -4.2,
+     "source": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-geometry (104014 §2.1)"
+    }
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [],
+   "provenance": {
+    "ip": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 电流平顶达成 (Ip 15 MA at 60 s, 0.25 MA/s)",
+    "ne_bar": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 电流平顶达成 (1.14e20 m^-3 at 60 s)",
+    "p_ec": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 爬升加热 + tbl-r20-hcd (10 MW at rho ~0.39, 30-60 s); ★60-65 s hold synthetic",
+    "p_ic": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 爬升加热 (control paper, 10 MW) + tbl-r20-ic-antenna",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-geometry (104014 Table 2: R0 7.87 · a 2.45 · kappa 1.90 · delta_u/l 0.567/0.584); kappa 1.90 at 60 s per tbl-r20-timeline row 电流平顶达成",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 65.0,
+   "phase": "flat_top_current",
+   "ip": 15000000.0,
+   "ne_bar": 1.139e+20,
+   "p_ec": {
+    "ec_rampup": 0.0,
+    "ec_co": 72000000.0,
+    "ec_counter": 10000000.0
+   },
+   "ec_rampup_rho_tor_norm": null,
+   "p_ic": 20000000.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.87,
+    "z0": 0.0,
+    "a": 2.45,
+    "kappa": 1.9,
+    "delta_upper": 0.567,
+    "delta_lower": 0.584,
+    "configuration": "diverted_lsn",
+    "x_point_ref": {
+     "r": 6.35,
+     "z": -4.2,
+     "source": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-geometry (104014 §2.1)"
+    }
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [],
+   "provenance": {
+    "ip": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 电流平顶达成 (Ip 15 MA at 60 s, 0.25 MA/s)",
+    "ne_bar": "synthetic: linear in time between the 60 s and 150 s anchors",
+    "p_ec": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 满功率投入 (82 MW EC at 65 s) + tbl-r20-hcd (72 MW co at rho 0.35, 10 MW counter on axis)",
+    "p_ic": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 满功率投入 + tbl-r20-hcd (20 MW ICRF, 3He minority, on axis)",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-geometry (104014 Table 2: R0 7.87 · a 2.45 · kappa 1.90 · delta_u/l 0.567/0.584); kappa 1.90 at 60 s per tbl-r20-timeline row 电流平顶达成",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 150.0,
+   "phase": "burn",
+   "ip": 15000000.0,
+   "ne_bar": 1.12e+20,
+   "p_ec": {
+    "ec_rampup": 0.0,
+    "ec_co": 72000000.0,
+    "ec_counter": 10000000.0
+   },
+   "ec_rampup_rho_tor_norm": null,
+   "p_ic": 20000000.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.87,
+    "z0": 0.0,
+    "a": 2.45,
+    "kappa": 1.9,
+    "delta_upper": 0.567,
+    "delta_lower": 0.584,
+    "configuration": "diverted_lsn",
+    "x_point_ref": {
+     "r": 6.35,
+     "z": -4.2,
+     "source": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-geometry (104014 §2.1)"
+    }
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [],
+   "provenance": {
+    "ip": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 电流平顶达成 (Ip 15 MA at 60 s, 0.25 MA/s)",
+    "ne_bar": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-kinetic (flat-top line average 1.12e20 m^-3, 104007 Table 1)",
+    "p_ec": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 满功率投入 (82 MW EC at 65 s) + tbl-r20-hcd (72 MW co at rho 0.35, 10 MW counter on axis)",
+    "p_ic": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-timeline row 满功率投入 + tbl-r20-hcd (20 MW ICRF, 3He minority, on axis)",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-geometry (104014 Table 2: R0 7.87 · a 2.45 · kappa 1.90 · delta_u/l 0.567/0.584); kappa 1.90 at 60 s per tbl-r20-timeline row 电流平顶达成",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 6150.0,
+   "phase": "burn_end",
+   "ip": 15000000.0,
+   "ne_bar": 1.12e+20,
+   "p_ec": {
+    "ec_rampup": 0.0,
+    "ec_co": 72000000.0,
+    "ec_counter": 10000000.0
+   },
+   "ec_rampup_rho_tor_norm": null,
+   "p_ic": 20000000.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.87,
+    "z0": 0.0,
+    "a": 2.45,
+    "kappa": 1.9,
+    "delta_upper": 0.567,
+    "delta_lower": 0.584,
+    "configuration": "diverted_lsn",
+    "x_point_ref": {
+     "r": 6.35,
+     "z": -4.2,
+     "source": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-geometry (104014 §2.1)"
+    }
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [
+    "flat-top length for the PCS-W7 end-to-end run is [TBD] (truncated); this node is the source's burn end"
+   ],
+   "provenance": {
+    "t": "derived: 150 s + ~6000 s (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-flux 燃烧时长 ~1 h 40 min, base case; tbl-r20-timeline row 燃烧终止)",
+    "ip": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-current (15 MA)",
+    "ne_bar": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-kinetic (1.12e20 m^-3)",
+    "p_ec": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-hcd",
+    "p_ic": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-hcd",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-geometry (104014 Table 2)",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 6155.0,
+   "phase": "ramp_down",
+   "ip": 13750000.0,
+   "ne_bar": 1.062e+20,
+   "p_ec": {
+    "ec_rampup": 0.0,
+    "ec_co": 72000000.0,
+    "ec_counter": 10000000.0
+   },
+   "ec_rampup_rho_tor_norm": null,
+   "p_ic": 0.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.7944,
+    "z0": 0.0,
+    "a": 2.4093,
+    "kappa": 1.8273,
+    "delta_upper": 0.5245,
+    "delta_lower": 0.54,
+    "configuration": "diverted_lsn"
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [
+    "synthetic"
+   ],
+   "provenance": {
+    "ip": "synthetic ramp-down (no source has one, PCS-G13): Ip -0.25 MA/s from 15 MA (mirror of the ramp-up rate)",
+    "ne_bar": "synthetic ramp-down (no source has one, PCS-G13): constant Greenwald fraction 1.4080 (flat-top 1.12e20 / n_G(15 MA, a 2.45 m)), n_G = Ip[MA]/(pi a^2) 1e20 with this node's a",
+    "p_ec": "synthetic ramp-down (no source has one, PCS-G13): EC held at flat-top power",
+    "p_ic": "synthetic ramp-down (no source has one, PCS-G13): IC switched off first (IC off before EC)",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "synthetic ramp-down (no source has one, PCS-G13): the ramp-up Miller parameters at the same Ip (lcfs_rule evaluated at t_up = 1 s + (Ip - 0.25 MA)/0.25 MA/s)",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 6170.0,
+   "phase": "ramp_down",
+   "ip": 10000000.0,
+   "ne_bar": 8.567e+19,
+   "p_ec": {
+    "ec_rampup": 10000000.0,
+    "ec_co": 0.0,
+    "ec_counter": 0.0
+   },
+   "ec_rampup_rho_tor_norm": 0.39,
+   "p_ic": 0.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.5677,
+    "z0": 0.0,
+    "a": 2.2872,
+    "kappa": 1.6091,
+    "delta_upper": 0.3972,
+    "delta_lower": 0.408,
+    "configuration": "diverted_lsn"
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [
+    "synthetic"
+   ],
+   "provenance": {
+    "ip": "synthetic ramp-down (no source has one, PCS-G13): Ip -0.25 MA/s from 15 MA (mirror of the ramp-up rate)",
+    "ne_bar": "synthetic ramp-down (no source has one, PCS-G13): constant Greenwald fraction 1.4080 (flat-top 1.12e20 / n_G(15 MA, a 2.45 m)), n_G = Ip[MA]/(pi a^2) 1e20 with this node's a",
+    "p_ec": "synthetic ramp-down (no source has one, PCS-G13): EC reduced to 10 MW at rho 0.39 (mirror of the 30-60 s ramp-up group)",
+    "p_ic": "synthetic ramp-down (no source has one, PCS-G13): off",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "synthetic ramp-down (no source has one, PCS-G13): the ramp-up Miller parameters at the same Ip (lcfs_rule evaluated at t_up = 1 s + (Ip - 0.25 MA)/0.25 MA/s)",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 6193.0,
+   "phase": "ramp_down",
+   "ip": 4250000.0,
+   "ne_bar": 4.319e+19,
+   "p_ec": {
+    "ec_rampup": 10000000.0,
+    "ec_co": 0.0,
+    "ec_counter": 0.0
+   },
+   "ec_rampup_rho_tor_norm": 0.39,
+   "p_ic": 0.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.22,
+    "z0": 0.0,
+    "a": 2.1,
+    "kappa": 1.2745,
+    "delta_upper": 0.2019,
+    "delta_lower": 0.2056,
+    "configuration": "diverted_lsn"
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [
+    "synthetic",
+    "configuration switch LSN -> limiter at Ip 4.25 MA (mirror of 17 s)"
+   ],
+   "provenance": {
+    "ip": "synthetic ramp-down (no source has one, PCS-G13): Ip -0.25 MA/s from 15 MA (mirror of the ramp-up rate)",
+    "ne_bar": "synthetic ramp-down (no source has one, PCS-G13): constant Greenwald fraction 1.4080 (flat-top 1.12e20 / n_G(15 MA, a 2.45 m)), n_G = Ip[MA]/(pi a^2) 1e20 with this node's a",
+    "p_ec": "synthetic ramp-down (no source has one, PCS-G13): 10 MW held",
+    "p_ic": "synthetic ramp-down (no source has one, PCS-G13): off",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "synthetic ramp-down (no source has one, PCS-G13): the ramp-up Miller parameters at the same Ip (lcfs_rule evaluated at t_up = 1 s + (Ip - 0.25 MA)/0.25 MA/s)",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 6200.0,
+   "phase": "ramp_down",
+   "ip": 2500000.0,
+   "ne_bar": 2.766e+19,
+   "p_ec": {
+    "ec_rampup": 0.0,
+    "ec_co": 0.0,
+    "ec_counter": 0.0
+   },
+   "ec_rampup_rho_tor_norm": null,
+   "p_ic": 0.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.1325,
+    "z0": 0.0,
+    "a": 2.0125,
+    "kappa": 1.1727,
+    "delta_upper": 0.1425,
+    "delta_lower": 0.144,
+    "configuration": "limiter_hfs"
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [
+    "synthetic"
+   ],
+   "provenance": {
+    "ip": "synthetic ramp-down (no source has one, PCS-G13): Ip -0.25 MA/s from 15 MA (mirror of the ramp-up rate)",
+    "ne_bar": "synthetic ramp-down (no source has one, PCS-G13): constant Greenwald fraction 1.4080 (flat-top 1.12e20 / n_G(15 MA, a 2.45 m)), n_G = Ip[MA]/(pi a^2) 1e20 with this node's a",
+    "p_ec": "synthetic ramp-down (no source has one, PCS-G13): EC off at Ip 2.5 MA",
+    "p_ic": "synthetic ramp-down (no source has one, PCS-G13): off",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "synthetic ramp-down (no source has one, PCS-G13): the ramp-up Miller parameters at the same Ip (lcfs_rule evaluated at t_up = 1 s + (Ip - 0.25 MA)/0.25 MA/s)",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 6209.0,
+   "phase": "ramp_down",
+   "ip": 250000.0,
+   "ne_bar": 3.104e+18,
+   "p_ec": {
+    "ec_rampup": 0.0,
+    "ec_co": 0.0,
+    "ec_counter": 0.0
+   },
+   "ec_rampup_rho_tor_norm": null,
+   "p_ic": 0.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": {
+    "r0": 7.02,
+    "z0": 0.0,
+    "a": 1.9,
+    "kappa": 1.1,
+    "delta_upper": 0.1,
+    "delta_lower": 0.1,
+    "configuration": "limiter_hfs"
+   },
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [
+    "synthetic",
+    "Ip 0.25 MA: end of the modelled range (mirror of the 1 s start); termination below is not modelled"
+   ],
+   "provenance": {
+    "ip": "synthetic ramp-down (no source has one, PCS-G13): Ip -0.25 MA/s from 15 MA (mirror of the ramp-up rate)",
+    "ne_bar": "synthetic ramp-down (no source has one, PCS-G13): constant Greenwald fraction 1.4080 (flat-top 1.12e20 / n_G(15 MA, a 2.45 m)), n_G = Ip[MA]/(pi a^2) 1e20 with this node's a",
+    "p_ec": "synthetic ramp-down (no source has one, PCS-G13): off",
+    "p_ic": "synthetic ramp-down (no source has one, PCS-G13): off",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "synthetic ramp-down (no source has one, PCS-G13): the ramp-up Miller parameters at the same Ip (lcfs_rule evaluated at t_up = 1 s + (Ip - 0.25 MA)/0.25 MA/s)",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  },
+  {
+   "t": 6210.0,
+   "phase": "ramp_down",
+   "ip": 0.0,
+   "ne_bar": 0.0,
+   "p_ec": {
+    "ec_rampup": 0.0,
+    "ec_co": 0.0,
+    "ec_counter": 0.0
+   },
+   "ec_rampup_rho_tor_norm": null,
+   "p_ic": 0.0,
+   "p_nbi": 0.0,
+   "p_lh": 0.0,
+   "lcfs": null,
+   "gas_rate": "[TBD]",
+   "pellet": "[TBD]",
+   "flags": [
+    "synthetic",
+    "pulse end: Ip 0, no LCFS"
+   ],
+   "provenance": {
+    "ip": "synthetic ramp-down (no source has one, PCS-G13): Ip -0.25 MA/s from 15 MA (mirror of the ramp-up rate)",
+    "ne_bar": "synthetic ramp-down (no source has one, PCS-G13): constant Greenwald fraction 1.4080 (flat-top 1.12e20 / n_G(15 MA, a 2.45 m)), n_G = Ip[MA]/(pi a^2) 1e20 with this node's a",
+    "p_ec": "synthetic ramp-down (no source has one, PCS-G13): off",
+    "p_ic": "synthetic ramp-down (no source has one, PCS-G13): off",
+    "p_nbi_p_lh": "fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-identity (加热方式：纯射频 EC + IC，无 NBI); no LHW in any CFEDR source (PCS-G6)",
+    "lcfs": "synthetic ramp-down (no source has one, PCS-G13): no plasma",
+    "gas_pellet": "[TBD] no time-resolved gas/pellet command in any source; flat-top IM fuelling reference = gauss_add(0.7, 0.2, 5e21 s^-1) (fydoc report/FYDOC-REPORT-20_cfedr_typical_discharge_scenario.md tbl-r20-fuel)"
+   }
+  }
+ ]
+}

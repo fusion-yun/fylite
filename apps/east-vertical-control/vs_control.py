@@ -428,6 +428,27 @@ def wall_scan(dev, eq, at, *, vessel, eta, log=print) -> dict:
 # --------------------------------------------------------------------------- #
 # 几何（画截面用；全部取装置文档与 g-file，不补任何尺寸）
 # --------------------------------------------------------------------------- #
+def element_figure(e: dict) -> dict | None:
+    """PF 元素 -> 图记录。几何取规范形（DD 矩形/oblique），图角 a1/a2 由它按内核同一约定导出：
+    α≠0 → (α, 90)；α=0 → (0, 90+β)。★2026-10-07（O-5 的 B-6 债迁移）：不再从退役的角对拼写读。"""
+    g = e.get("geometry") or {}
+    ob = g.get("oblique")
+    if isinstance(ob, dict):
+        a, b = float(ob["alpha"]), float(ob["beta"])
+        la, lb = float(ob["length_alpha"]), float(ob["length_beta"])
+        ux, uz = la * math.cos(a), la * math.sin(a)
+        vx, vz = -lb * math.sin(b), lb * math.cos(b)
+        return {"r": float(ob["r"]) + 0.5 * (ux + vx), "z": float(ob["z"]) + 0.5 * (uz + vz),
+                "w": ux, "h": vz,
+                "a1": math.degrees(a) if a != 0.0 else 0.0,
+                "a2": 90.0 if a != 0.0 else 90.0 + math.degrees(b)}
+    rect = g.get("rectangle")
+    if isinstance(rect, dict):
+        return {"r": float(rect["r"]), "z": float(rect["z"]), "w": float(rect["width"]),
+                "h": float(rect["height"]), "a1": 0.0, "a2": 90.0}
+    return None
+
+
 def geometry(dev, g, n_passive: int) -> dict:
     from fylite import device
     elems, eta, groups = device.passive_set(dev, groups=GROUPS)
@@ -437,11 +458,9 @@ def geometry(dev, g, n_passive: int) -> dict:
     for c in (dev.get("pf_active") or {}).get("coil") or []:
         els = []
         for e in c.get("element") or []:
-            rect = (e.get("geometry") or {}).get("rectangle") or {}
-            if rect:
-                els.append({"r": float(rect["r"]), "z": float(rect["z"]), "w": float(rect["width"]),
-                            "h": float(rect["height"]), "a1": float(e.get("fylite:a1", 0.0)),
-                            "a2": float(e.get("fylite:a2", 90.0))})
+            fig = element_figure(e)
+            if fig:
+                els.append(fig)
         coils.append({"name": str(c.get("name")), "fast": bool(device.is_fast_coil(c)), "elements": els})
     lim = device.limiter_unit(dev)
     outline = lim.get("outline") or {}

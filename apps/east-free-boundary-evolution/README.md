@@ -4,7 +4,7 @@
 按时间推进**自由边界平衡**；再把一组点状电流源（真空室、被动板等被动结构，给坐标与电阻）放进来，
 算它们对位形演化的影响，并报告**每个电流源处的极向磁通**。
 
-一个文件 `fb_evolution.py`，只用 Python 标准库（≥ 3.8）与一份 `libfylite.so`；所有物理计算经库里内核的文档门。
+一个文件 `fb_evolution.py`，只用 Python 标准库（≥ 3.8）与两份库（内核 `libfylite_kernel.so` · 数据层 `libsp.so`）；所有物理计算经内核库的文档门。
 
 ```bash
 python fb_evolution.py prepare DATA_DIR -o in/case.json                 # g/a/mat → 一份输入文档
@@ -100,7 +100,7 @@ $I_\mathrm{fb} = -g\,|I_p|\,(Z_c - Z_\mathrm{anchor})$，$g = 8$）。缺省的 
 
 | 命令 | 做什么 | 门 |
 | :--- | :--- | :--- |
-| `prepare` | 读 g-file（库里的读者）、a-file、三个 `.mat`（标准库读 MAT v5）→ `case.json` | `fylite_runtime_gfile_json` |
+| `prepare` | 读 g-file（数据层的读者）、a-file、三个 `.mat`（标准库读 MAT v5）→ `case.json` | `libsp` `read`（`raw`） |
 | `wall` | 被动丝回路 $M\,\dot I + R I = 0$ 的本征时间 $\tau_k$、电阻复核 | `code/wall` |
 | `initial` | t0：二分找线圈对不出力的 $Z_c$ → 一次自由边界解 → 与 g/a 文件同尺比较；另用 a-file 里 EFIT 拟合的线圈电流再解一次作诊断 | `code/forward` · `code/summary` |
 | `run` | 整段一次（`efit-trend` 分段）电流驱动演化，每步留 ψ；逐步后处理 | `code/evolve_free_boundary` · `code/summary` |
@@ -221,14 +221,16 @@ $=\sigma\,\Psi^\mathrm{tot}_k/2\pi$，$\sigma = \pm1$ 取成与输入 g-file 同
 
 ## 七 · 库
 
-要一份 `libfylite.so`：
+要 fylite 的两份库（同一次构建）：
 
 * 内核带 `code/evolve_free_boundary` 的 `keep_psi` 与 `zc_anchor`（内核仓 2026-09-22 起；更早的库上 `run` 会因为记录里没有
   `psi_t` 而报错）；
-* **内部版**构建（编进了 EAST 的装置事实：线圈、通道映射、限制器、计算盒）。公开版没有 EAST，`Lib.device` 会按名报出库里有哪些装置。
+* EAST 的装置事实（线圈、通道映射、限制器、计算盒）：本文件旁边的 `facts/`，或 `$SP_FACTS_PATH`。EAST 装置数据不公开；
+  没有它，`Lib.device` 会按名报出。
 
-缺省找本文件旁边的 `libfylite.so`（一个位置，不搜索）；`--lib` 显式给另一份。取法：本仓 `bash rust/build.sh`
-（`FYLITE_KERNEL=` 指向带上述设定的内核检出）后在 `python/fylite/_lib/` 下。
+缺省找本文件旁边的 `libfylite_kernel.so`，数据层 `libsp.so` 在它旁边（一个位置，不搜索）；`--lib` 显式给另一份内核。
+取法：本仓 `bash build.sh` 后两份都在 `python/fylite/_lib/` 下（`cp -L` 拷真文件），internal 版的装置事实在
+`python/fylite/_facts/`（拷成本目录下的 `facts/`）。
 
 ---
 

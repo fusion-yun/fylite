@@ -4,14 +4,14 @@
 **在 fylite 仓里（`apps/cfedr-discharge-demo/`）只收源与输入**：`app/` 的模型工具、工作台页面
 与三份输入（`device_cfedr.json` · `state_init.json` · `waveform_studio.json`）、`test/` 两道页面检查、
 `scripts/` 生成脚本与模板、`i10/` 的探针脚本与诊断记录。**不在仓里**的是下文提到的产物：
-`app/libfylite.so`、`app/run_full.json` · `app/state_end.json`、`reports/`、`imas*/`、`repro-1p5d/`、
+`app/libfylite_kernel.so`、`app/run_full.json` · `app/state_end.json`、`reports/`、`imas*/`、`repro-1p5d/`、
 `discharge*.json`、`i10/` 的 CSV / 日志 / 快照与 `cfedr_evolve_plan_fuelled.json`、`cfedr-app.tar.gz`。
 
 补回库（跑模型工具要它）：
 
 ```bash
-bash rust/build.sh --no-io                    # 在 fylite 仓根；不链 HDF5 / netCDF 的那一档
-cp rust/fylite_runtime/target/release/libfylite_runtime.so apps/cfedr-discharge-demo/app/libfylite.so
+bash build.sh                            # 在 fylite 仓根
+cp -L python/fylite/_lib/libfylite_kernel.so apps/cfedr-discharge-demo/app/libfylite_kernel.so
 ```
 
 然后照 `app/README.md`〈用法〉跑一遍即得完整时序与结束状态；报告与 IMAS 条目照下文〈重新生成〉。
@@ -24,7 +24,7 @@ cfedr-discharge-demo/
 ├── app/       工具 · 工作台 · **跑一炮要的全部输入**（见 `app/README.md`）：
 │              cfedr_core_model.py · cfedr_studio.html（单文件页面，双击即开）·
 │              device_cfedr.json · state_init.json · waveform_studio.json ·
-│              libfylite.so（产物不入库：状态与时序跑一遍就有）
+│              libfylite_kernel.so（产物不入库：状态与时序跑一遍就有）
 ├── test/      页面的两道 node 检查（初始化 + 逐个按钮点一遍），见 test/README.md
 ├── reports/   报告页与动画：cfedr-report.html · cfedr-discharge*.html / .mp4 / .gif
 ├── repro-1p5d/ · imas*/ · scripts/      复现运行、IMAS 条目、生成脚本

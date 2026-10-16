@@ -1,0 +1,19 @@
+{
+  "@context": [
+    "../context.jsonld",
+    {
+      "@base": "../"
+    }
+  ],
+  "id": "scenario/ga-standard-rotating",
+  "type": "fyo:ScenarioSpecification",
+  "title": "GA 标准算例，Miller 几何，带平行速度剪切",
+  "abstract": "不是一次放电，是**一张磁面上的一组局部参数**：R/a = 3.0、r/a = 0.5、q = 2.0、圆截面（κ = 1.0、δ = 0.0）、两种粒子，加上转动驱动。它是 GACODE 自带九个 TGLF 回归算例里**唯一开转动的一个**（`tglf/tools/input/tglf06`，'GA standard case with Miller geometry and parallel velocity shear'，VPAR_SHEAR = 1.0、ALPHA_P = 1、SIGN_IT = +1、FIND_WIDTH、NMODES = 2），也是一个**有名字的公开算例**而不是本仓恰好持有的某次放电。环向动量通道的两条记录都站在它上面：C-05 对 GYRO 非线性回旋动理学的有效普朗特数，V-05 对宇称对称性定理。",
+  "caveat": [
+    "★没有装置、没有时间演化、没有平衡求解：局部几何与梯度是给定的，不是从剖面推出来的。用它做 validation 之外的推广是范畴错误。",
+    "★★**饱和规则必须两边都写明，不能有一边靠缺省**。算例自己的设置是 SAT_RULE = 0，本仓这一支不带；记录在案的量是 SAT_RULE 1 与 2 下测的，UNITS 随预设（规则 2 → CGYRO）。算例自带的 SAT_RULE 0 答案存为**出处**而不是判据。这一条是写出来的教训：同一个陷阱在能量道与动量道各犯过一次，第二次花了三轮才归因。",
+    "★V-05 用它时把驱动**全部关掉**并断言上下对称（ZMAJ_LOC/DZMAJDX_LOC/ZETA_LOC/S_ZETA_LOC 全零），因为宇称定理只在那个条件下成立——那是同一组几何参数的**另一个**用法，不是同一次运行。",
+    "★剪切 1.0 比本仓 JINTRAC 各 deck 高一个量级，所以它探到的是动量道的量级而不是它的小扰动行为。",
+    "上游可重取（GACODE `6357db306`，Apache-2.0），deck 存的是 `input.tglf.gen`——每个值都由上游自己解析定下，没有在这里猜任何缺省。"
+  ]
+}

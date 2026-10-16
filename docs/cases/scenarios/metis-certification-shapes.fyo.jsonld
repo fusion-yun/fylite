@@ -1,0 +1,67 @@
+{
+  "@context": [
+    "../context.jsonld",
+    {
+      "@base": "../"
+    }
+  ],
+  "id": "scenario/metis-certification-shapes",
+  "type": "fyo:ScenarioSpecification",
+  "title": "认证套件的形状谱：圆截面到强成形",
+  "abstract": "28 条既有放电模拟，跨越一个刻意宽的截面形状范围：从 δ=0、κ≈1 的圆截面（Tore Supra、TFTR、RFX）经中等成形（JET、MAST、ITER）到 δ=0.60、κ=1.87 的强成形（DIII-D-like）。取其中已建立等离子体的时间片。用于判定「用 R / a / κ 三个数描述的等离子体」与「平衡解出来的等离子体」在体积与体平均上差多少——形状谱的两端同时在场，是这个场景的全部要点：圆截面那一端提供解析恒等的对照组，强成形那一端提供上界。",
+  "about_discharge": {
+    "type": "fyo:Discharge",
+    "performed_on": [
+      {
+        "type": "fyo:Tokamak",
+        "title": "Tore Supra"
+      },
+      {
+        "type": "fyo:Tokamak",
+        "title": "TFTR"
+      },
+      {
+        "type": "fyo:Tokamak",
+        "title": "RFX"
+      },
+      {
+        "type": "fyo:Tokamak",
+        "title": "JET"
+      },
+      {
+        "type": "fyo:Tokamak",
+        "title": "MAST"
+      },
+      {
+        "type": "fyo:Tokamak",
+        "title": "DIII-D"
+      },
+      {
+        "type": "fyo:Tokamak",
+        "title": "ITER"
+      }
+    ]
+  },
+  "state": [
+    {
+      "type": "spo:PortBinding",
+      "bound_to": {
+        "type": "fyo:Equilibrium",
+        "species": [
+          "H",
+          "D",
+          "T",
+          "He"
+        ]
+      }
+    }
+  ],
+  "caveat": [
+    "参数跨度（84 个时间片实测）：R 0.82–6.20 m · a 0.12–2.01 m · κ 0.98–1.91 · δ 0–0.60 · B₀ 0.41–5.50 T · I_p 25 kA–15 MA。",
+    "★形状摘要 κ 在这批存档里不是同一个量：有的例给的是等面积拉长比（π a² κ 精确复现真分界面面积），有的给的是边界拉长比（π a² κ 比真面积高 11–12 %）。任何跨例的形状回归先要分开这两种定义，否则量到的是定义差。",
+    "★★椭球体积式 2π²Ra²κ 对圆/椭圆截面是 Pappus 恒等式，不是近似。所以圆截面那一端的偏差为零是判据而非结果——非零即对齐有误。",
+    "剖面在共用的 21 点归一环径格点 linspace(0,1,21) 上，全套存档一致；不得重采样。",
+    "每个被比的量都是该时间片自身几何与剖面的瞬时泛函，无历史项，故时间片不需稳态筛选。",
+    "主离子按例为 H / D / DT；杂质按 Z 给定（Z_imp ∈ {3,4,5,6,8}，Z_max ∈ {4,6,8,18,28}），元素名未在存档中声明，故此处不列。四条算例（含两条纯参数测试）不对应具名装置。"
+  ]
+}

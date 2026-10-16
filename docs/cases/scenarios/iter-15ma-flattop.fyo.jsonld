@@ -1,0 +1,52 @@
+{
+  "@context": [
+    "../context.jsonld",
+    {
+      "@base": "../"
+    }
+  ],
+  "id": "scenario/iter-15ma-flattop",
+  "type": "fyo:ScenarioSpecification",
+  "title": "ITER 15 MA 感应燃烧，平顶段",
+  "abstract": "常规环、D-T、感应平顶。用于电子热输运闭包与整合编排的对拍；窗口内 I_p 恒定，剖面准稳态，因此零假设很强，任何闭包必须先赢它。",
+  "about_discharge": {
+    "type": "fyo:Discharge",
+    "pulse_number": 53301,
+    "performed_on": {
+      "type": "fyo:Tokamak",
+      "title": "ITER"
+    }
+  },
+  "over_time_axis": {
+    "type": "spo:TimeAxis",
+    "samples": [
+      83.51,
+      99.83
+    ],
+    "comment": "window bounds [t0, t1] in seconds; spo TimeInterval carries no bound attributes yet, so the axis lists the two ends"
+  },
+  "state": [
+    {
+      "type": "spo:PortBinding",
+      "bound_to": {
+        "type": "fyo:Equilibrium",
+        "ip_A": 15000000.0,
+        "b0_T": 5.3,
+        "r0_m": 6.2,
+        "a_m": 2.0,
+        "kappa": 1.85,
+        "delta": 0.485,
+        "species": [
+          "D",
+          "T",
+          "Be",
+          "He"
+        ]
+      }
+    }
+  ],
+  "caveat": [
+    "★这是一个准稳态窗口：参考自己的 T_e(0) 在 16 s 内只走 −5.2 %，「什么都不做」的全剖面 RMS 就是 4.07 %。任何模型跑完若不比这条线好，它什么也没说。",
+    "参考侧只解电流与电子温度两条方程；T_i 与 n_e 是给定的（见各 record 的 prescribes）。"
+  ]
+}

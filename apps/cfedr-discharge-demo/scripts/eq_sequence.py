@@ -52,6 +52,24 @@ def field(rec, path):
     return np.asarray(node["data"], float)
 
 
+def wall_outline(dev):
+    """The limiting surface for the slice files' `lim_r`/`lim_z`.
+
+    ★O-5 B-4（2026-10-06）：记录的 `equilibrium/fylite:limiter/{r,z}` 已退役（内核按名拒绝），
+    不再由求解器回写；外轮廓是**装置文档自己的墙**（`wall/description_2d/limiter/unit`，
+    与内核 `planned_limiter` 读的是同一份）。没有就按名拒绝，不从别处猜一条轮廓。
+    """
+    units = ((dev.get("wall") or {}).get("description_2d") or {}).get("limiter", {}).get("unit")
+    if not units:
+        raise SystemExit("eq_sequence: the device document carries no wall/description_2d/limiter/unit — "
+                         "the record no longer echoes a limiter (O-5 B-4); bind the wall on the device")
+    outline = units[0].get("outline") or {}
+    r, z = outline.get("r"), outline.get("z")
+    if not r or not z or len(r) != len(z):
+        raise SystemExit("eq_sequence: the device's first limiter unit has no usable outline r/z")
+    return np.asarray(r, float), np.asarray(z, float)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("device"); ap.add_argument("replay"); ap.add_argument("out")
@@ -115,12 +133,13 @@ def main():
         prev = (float(t), field(rec, "aturns").tolist(), field(rec, "psi").ravel().tolist())
         fc = {k2: v["value"] for k2, v in rec["facts"].items()}
         eq = "equilibrium/time_slice/"
+        lim_r, lim_z = wall_outline(dev)
         np.savez_compressed(
             out / f"eq_{t:08.2f}.npz",
             psi=field(rec, eq + "profiles_2d/psi"), r=field(rec, eq + "profiles_2d/grid/dim1"),
             z=field(rec, eq + "profiles_2d/grid/dim2"),
             bnd_r=field(rec, eq + "boundary/outline/r"), bnd_z=field(rec, eq + "boundary/outline/z"),
-            lim_r=field(rec, "equilibrium/fylite:limiter/r"), lim_z=field(rec, "equilibrium/fylite:limiter/z"),
+            lim_r=lim_r, lim_z=lim_z,
             aturns=field(rec, "aturns"))
         index.append({**n, "ok": True, "warm": warm, **extra, "wall_s": wall, "facts": fc})
         print(f"t {t}: Ip {n['ip']/1e6:.2f} MA · bnd_kind {fc.get('bnd_kind')} · gap {fc.get('boundary_gap_rms'):.3f} m · "

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>放电时序 · FyLite</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#172b3b;background:#f3f6f8;--ink:#172b3b;--muted:#587083;--blue:#1768aa;--red:#d75c4b;--green:#268878;--line:#d9e2e9;--panel:#fff}*{box-sizing:border-box}body{margin:0;padding:22px;max-width:1600px;margin-inline:auto}header{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}h1{font-size:25px;margin:0}p{color:var(--muted);margin:8px 0}button,select,.import{font:inherit;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:9px 13px;color:var(--ink)}button{cursor:pointer}button:disabled{opacity:.5;cursor:default}.import{background:var(--blue);color:#fff;cursor:pointer;display:inline-block}.import input{display:none}.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0}.timebar{display:flex;align-items:center;gap:14px;flex:1;min-width:260px}input[type=range]{flex:1;accent-color:var(--blue)}#time{font-variant-numeric:tabular-nums;min-width:110px}.grid{display:grid;grid-template-columns:1.05fr 1fr 1fr;gap:15px}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}.card h2{font-size:16px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}.equilibrium{grid-row:span 2}.card canvas{width:100%;height:240px;display:block}.equilibrium canvas{height:515px}.hint{font-size:12px;color:var(--muted)}#status{min-height:24px;color:var(--muted)}#status.error{color:#a22f24}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:15px 0}.metric{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px}.metric b{display:block;font-size:21px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}.metric span{font-size:12px;color:var(--muted)}footer{font-size:12px;color:var(--muted);margin-top:15px}details{padding:8px 0}#scope{white-space:pre-wrap;line-height:1.6}@media(max-width:1050px){.grid{grid-template-columns:1fr 1fr}.equilibrium{grid-row:auto;grid-column:span 2}.equilibrium canvas{height:400px}}@media(max-width:650px){body{padding:12px}.grid{grid-template-columns:1fr}.equilibrium{grid-column:auto}.metrics{grid-template-columns:1fr 1fr}.toolbar{gap:8px}}
+</style>
+</head>
+<body>
+<header><div><h1>放电过程时序</h1><p id="subtitle">导入命令行结果，探索平衡、线圈与剖面的变化。</p></div><label class="import">导入结果 JSON<input id="files" type="file" accept=".json,.jsonld,application/json" multiple></label></header>
+<div class="toolbar"><select id="datasets" aria-label="数据集" disabled><option>尚未导入</option></select><button id="play" disabled>播放</button><div class="timebar"><input id="timeline" type="range" min="0" max="0" value="0" aria-label="物理时刻" disabled><output id="time">— s</output></div><label><input id="compare" type="checkbox">对比初态</label></div>
+<div id="status" role="status" aria-live="polite">选择 fy demo 输出的时序结果文件。</div>
+<div class="metrics"><div class="metric"><span>Ip 设定</span><b id="metric-ip">—</b></div><div class="metric"><span>热储能</span><b id="metric-w">—</b></div><div class="metric"><span>辅助加热功率</span><b id="metric-power">—</b></div><div class="metric"><span>阶段 / 时间切片</span><b id="metric-phase">—</b></div></div>
+<div class="grid">
+<section class="card equilibrium"><h2>平衡与 PF 位型 <span class="hint">R / Z [m]</span></h2><canvas id="equilibrium" aria-label="磁通等值线、边界和线圈"></canvas><p class="hint" id="equilibrium-caption">—</p></section>
+<section class="card"><h2>0D 时序<select id="global-quantity" aria-label="全局时序量"><option value="ip_a">Ip 设定</option><option value="w_th_j" selected>热储能</option><option value="p_aux_w">辅助加热</option><option value="beta_n">βN</option><option value="te_axis_ev">轴心电子温度</option><option value="ne_axis_m3">轴心电子密度</option></select></h2><canvas id="globals" aria-label="全局物理量随时间变化"></canvas></section>
+<section class="card"><h2>PF 通道电流 <span class="hint">A·匝</span></h2><canvas id="pf" aria-label="各PF通道电流"></canvas></section>
+<section class="card"><h2>温度 / 密度<select id="profile-quantity" aria-label="剖面量"><option value="temperature">Te / Ti</option><option value="density">ne</option></select></h2><canvas id="thermal" aria-label="温度或密度径向剖面"></canvas></section>
+<section class="card"><h2>电流 / q 剖面<select id="current-quantity" aria-label="电流剖面量"><option value="i_enclosed">包围电流 I(ρ)</option><option value="j_total">总电流密度</option><option value="q">安全因子 q</option><option value="psi">极向磁通</option></select></h2><canvas id="current" aria-label="电流密度或安全因子剖面"></canvas></section>
+</div>
+<details><summary>模型与数据来源</summary><div id="scope">导入结果后显示。</div></details>
+<footer>FyLite · 放电时序查看器</footer>
+<script src="../assets/discharge-timeline.js"></script>
+</body></html>

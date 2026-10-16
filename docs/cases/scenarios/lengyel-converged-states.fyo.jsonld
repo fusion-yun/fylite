@@ -1,0 +1,19 @@
+{
+  "@context": [
+    "../context.jsonld",
+    {
+      "@base": "../"
+    }
+  ],
+  "id": "scenario/lengyel-converged-states",
+  "type": "fyo:ScenarioSpecification",
+  "title": "extended Lengyel 的二十个收敛态",
+  "abstract": "不是一次放电，是**上游求解器停在的二十个状态**：正向与逆向各十个（一个锚点 + 九个逐项扫描）。模型的整个状态只有五个数，所以这些态可以被原样交给一个尚无求解器的移植，去问「派生量对不对」。",
+  "caveat": [
+    "★★这些态**只对派生量是合法 oracle**。对定点仍在更新的量（`alpha_t`/`q_parallel`/`kappa_e`）它们是错的 oracle——报告的态落后一步，残差是停机规则不是物理（见 V-10）。",
+    "★算例连**收敛点的派生态**一起记（`divertor_Z_eff` 等）：没有它 `kappa_e` 无法比对。",
+    "★状态按**名字**记不按序号；四个「完全脱靶」（`Q_CC_SQUARED_NEGATIVE`）算例照记——**在那里「收敛」的移植不是更强，是错的**。",
+    "★扫描是**一次只动一个旋钮**：网格更大但说得更少，移植需要的是「错在哪个输入上」。",
+    "上游可重取（github.com/google-deepmind/torax，Apache-2.0），存的是数值 + 出处 + 复现配方。"
+  ]
+}

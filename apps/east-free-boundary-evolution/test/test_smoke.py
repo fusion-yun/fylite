@@ -3,7 +3,7 @@
     python3 -m pytest apps/east-free-boundary-evolution/test -q        # 或
     python3 apps/east-free-boundary-evolution/test/test_smoke.py
 
-库（``libfylite.so``）在就多测一条 G-EQDSK 写出 → 库里的读者读回；不在就跳过那一条。
+库（``libfylite_kernel.so`` + ``libsp.so``）在就多测一条 G-EQDSK 写出 → 数据层的读者读回；不在就跳过那一条。
 """
 from __future__ import annotations
 
@@ -92,6 +92,74 @@ class Geometry(unittest.TestCase):
         at = fe.channel_aturns(ch, {"PF1": -10.0, "PF7": 5.0, "PF9": 6.0, "IC1": 3.0, "IC2": -3.0})
         self.assertEqual(at, [-1400.0, 44 * 5.0 + 204 * 6.0, 6.0, -6.0])
 
+    def _case(self):
+        r, z = self.ring(8, 1.8, 0.3)
+        return {"filaments": {"r": r, "z": z, "resistance": [0.01] * 8},
+                "assumptions": {"rho_ohm_m": 0.74e-6, "contour_gap_m": 0.05}}
+
+    def test_build_device_emits_the_canonical_forms(self):
+        """★2026-10-07（O-5 的 B-6/B-7 债迁移）：卡上的角对就地迁到 DD 形、全局电阻率转录到布局、
+        被动组改走计划的 passive_model；丝条与仓内转换器 `tools/device_geometry_migration.py` 逐值相同。
+
+        （本测试故意构造退役前的形——那是要证明被迁走的东西。）"""
+        ic = lambda r, z: {"geometry": {"rectangle": {"r": r, "z": z, "width": 0.1, "height": 0.1}},  # noqa: E731
+                           "turns_with_sign": 2.0}
+        dev0 = {"pf_active": {"coil": [
+            {"name": "PF1", "element": [
+                {"geometry": {"rectangle": {"r": 0.6, "z": 0.2, "width": 0.08, "height": 0.2}},
+                 "fylite:a1": 0.0, "fylite:a2": 90.0, "turns_with_sign": 1.0}]},
+            {"name": "IC1", "element": [ic(2.4, 0.6)], "function": [{"name": "b_field_fb"}]},
+            {"name": "IC2", "element": [ic(2.4, -0.6)], "function": [{"name": "b_field_fb"}]}]},
+            "pf_channel_elements": [[{"element": 0, "weight": 1.0}]],
+            "fylite:vessel_resistivity_uohm_m": 0.74,
+            "pf_passive": {"vessel": {"resistivity_uohm_m": 0.74, "element": [[0.6, 0.2, 0.05, 0.1, 0.0, 90.0]]}},
+            "fylite:grid": {"rmin": 1.2, "rmax": 2.8, "zmin": -1.4, "zmax": 1.4, "nr": 65, "nz": 65}}
+        case = self._case()
+        dev, lay = fe.build_device(dev0, case, "zero")
+        e = dev["pf_active"]["coil"][0]["element"][0]
+        self.assertNotIn("fylite:a1", e)
+        self.assertEqual(e["geometry"], {"geometry_type": 2, "rectangle": {"r": 0.6, "z": 0.2,
+                                                                          "width": 0.08, "height": 0.2}})
+        self.assertNotIn("fylite:vessel_resistivity_uohm_m", dev)
+        self.assertNotIn("pf_passive", dev)
+        self.assertAlmostEqual(lay["vessel_resistivity"], 0.74e-6, places=15)
+        self.assertIsNone(lay["passive_model"])
+        vv = dev["pf_active"]["coil"][-8:]
+        for c in vv:
+            g = c["element"][0]["geometry"]
+            self.assertIn(g["geometry_type"], (2, 3))
+            self.assertNotIn("fylite:a1", c["element"][0])
+            if g["geometry_type"] == 3:
+                ob = g["oblique"]
+                self.assertTrue((ob["alpha"] == 0.0) != (ob["beta"] == 0.0))  #: 单剪，内核的只收面
+        dev_i, lay_i = fe.build_device(dev0, case, "induced")
+        pm = lay_i["passive_model"]
+        self.assertEqual([g["name"] for g in pm["groups"]], ["efb_vv"])
+        self.assertEqual(pm["groups"][0]["resistivity"], case["assumptions"]["rho_ohm_m"])
+        self.assertEqual(len(pm["groups"][0]["elements"]), 8)
+        self.assertEqual(len(dev_i["pf_active"]["coil"]), 3)  #: induced 不加 pf 线圈
+        self.assertNotIn("pf_passive", dev_i)
+
+    def test_the_strip_map_matches_the_repository_converter(self):
+        import importlib.util
+        root = HERE.parents[3] / "fylite_dev"
+        spec = importlib.util.spec_from_file_location("geomtool", root / "tools/device_geometry_migration.py")
+        tool = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(tool)
+        r, z = self.ring(24, 1.8, 0.5)
+        rows, _ = fe.filament_strips(r, z, [0.01] * 24)
+        for row in rows:
+            mine = fe.geometry_from_efit(*row)
+            theirs = tool.geometry_from_efit(*row)
+            self.assertEqual(mine["geometry_type"], theirs["geometry_type"])
+            key = "rectangle" if "rectangle" in mine else "oblique"
+            for k, v in theirs[key].items():
+                self.assertAlmostEqual(mine[key][k], v, places=12)
+            #: 同一张图记录约定下往返（内核读侧的 (r, z, w, h, a1, a2)）
+            back = fe.efit_from_geometry(mine)
+            for a, b in zip(back, row):
+                self.assertAlmostEqual(a, b, places=9)
+
 
 class Integrals(unittest.TestCase):
     def test_circular_torus_volume_and_current(self):
@@ -124,11 +192,11 @@ class Integrals(unittest.TestCase):
 
 
 def _lib_path():
-    p = Path(os.environ.get("FYLITE_APP_LIB") or (HERE.parent / "libfylite.so"))
-    return p if p.is_file() else None
+    p = Path(os.environ.get("FYLITE_APP_LIB") or (HERE.parent / "libfylite_kernel.so"))
+    return p if p.is_file() and (p.parent / "libsp.so").is_file() else None
 
 
-@unittest.skipIf(_lib_path() is None, "no libfylite.so next to the app (or $FYLITE_APP_LIB)")
+@unittest.skipIf(_lib_path() is None, "no libfylite_kernel.so + libsp.so next to the app (or $FYLITE_APP_LIB)")
 class GfileRoundTrip(unittest.TestCase):
     def test_written_gfile_reads_back(self):
         lib = fe.Lib(_lib_path())

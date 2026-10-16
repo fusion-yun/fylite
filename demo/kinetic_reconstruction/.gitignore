@@ -1,0 +1,7 @@
+__pycache__/
+libfylite.so
+input/
+output/
+
+libsp.so
+facts/

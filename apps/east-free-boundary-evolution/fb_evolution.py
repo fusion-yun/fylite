@@ -14,8 +14,8 @@
 * ``prescribed`` —— 各丝电流由 ``--passive-file`` 给出（时间序列，按时刻线性插值）；
 * ``induced``    —— 各丝电流由回路方程 R_k I_k + dΨ_k/dt = 0 自洽算出（Ψ_k 含等离子体、PF、IC 与其余各丝的互感）。
 
-★★独立发行：只用 Python 标准库（ctypes · json · math · struct · zlib）与**一个** ``libfylite.so``——不 import
-fylite 的 Python 包，也不要 numpy。物理计算全部经库里内核的文档门 ``fylite_runtime_case_tree_json``：
+★★独立发行：只用 Python 标准库（ctypes · json · math · struct · zlib）与**两份库**（内核 ``libfylite_kernel.so`` · 数据层
+``libsp.so``）——不 import fylite 的 Python 包，也不要 numpy。物理计算全部经内核库的文档门 ``fylite_rs_fyo_json``：
 
 * ``code/evolve_free_boundary`` —— 线圈（电流驱动）与被动结构（隐式欧拉回路方程）同步推进，每一步重解自由边界平衡，
   等离子体在每个导体处的磁通反馈进回路（内核 PCS 同一套互感与格林函数）；
@@ -24,7 +24,8 @@ fylite 的 Python 包，也不要 numpy。物理计算全部经库里内核的�
 * ``code/wall``     —— 被动丝回路的 L/R 本征时间（选步长的依据）。
 
 要求的库：内核带 ``code/evolve_free_boundary`` 的 ``keep_psi`` 与 ``zc_anchor`` 两个 opt-in 设定（2026-09-22），
-并编进了 EAST 装置事实（内部版构建）。库在哪：缺省是本文件旁边的 ``libfylite.so``；``--lib`` 显式给另一份。
+EAST 装置事实经数据层（``libsp`` 的 ``facts`` · ``resolve_device``）从本文件旁边的 ``facts/``（或 ``$SP_FACTS_PATH``）读。库在哪：
+缺省是本文件旁边的 ``libfylite_kernel.so``，数据层 ``libsp.so`` 在它旁边；``--lib`` 显式给另一份内核。
 
 ★★实验数据与结果不入仓：数据目录、输出路径都由调用方给。
 """
@@ -62,7 +63,11 @@ def _write_json(path, obj, indent=None) -> None:
 HERE = Path(__file__).resolve().parent
 APP = "east-free-boundary-evolution"
 VERSION = "0.1.0"
-DEFAULT_LIB = HERE / "libfylite.so"
+#: ★★两份库、各自的版本号，放在同一处：内核 ``libfylite_kernel.so``（文档门）与数据层 ``libsp.so``（spdata：装置事实 ·
+#: 解析 · g-file）。2026-09-26..27 数据层是 ``libfylite_runtime.so``。
+KERNEL_LIB_NAME = "libfylite_kernel.so"
+SP_LIB_NAME = "libsp.so"
+DEFAULT_LIB = HERE / KERNEL_LIB_NAME
 MU0 = 4e-7 * math.pi
 TWO_PI = 2.0 * math.pi
 _U8P = ctypes.POINTER(ctypes.c_uint8)
@@ -106,54 +111,123 @@ def flat(v) -> list:
 # =========================================================================== #
 # 库
 # =========================================================================== #
+def kernel_identity(kpath: Path) -> dict:
+    """算这些数的**内核是哪一份**，问内核库自己：版本（``fylite_rs_kernel_version``，内核自己的版本号）·
+    ABI · 文件的 sha256。★2026-09-26 起内核与中间层是两份库、各自的版本号；中间层不再链内核，
+    所以这一格不能再问中间层（``fylite_runtime_linked_kernel`` 在那里答空）。取不到的格留空，不编。"""
+    import hashlib
+    out: dict = {"lib": kpath.name}
+    try:
+        out["sha256"] = hashlib.sha256(Path(kpath).resolve().read_bytes()).hexdigest()
+        k = ctypes.CDLL(str(kpath))
+        k.fylite_rs_abi_version.restype = ctypes.c_uint32
+        out["abi"] = int(k.fylite_rs_abi_version())
+        fn = getattr(k, "fylite_rs_kernel_version", None)
+        if fn is not None:
+            fn.restype = ctypes.c_uint64
+            fn.argtypes = [ctypes.c_char_p, ctypes.c_uint64]
+            buf = ctypes.create_string_buffer(64)
+            n = int(fn(buf, 64))
+            out["kernel_version"] = buf.raw[: min(n, 64)].decode("utf-8", "replace")
+    except (OSError, AttributeError):
+        pass
+    return out
+
+
 class Lib:
-    """``libfylite.so`` 的三扇门：内核文档门、装置事实、g-file 读者。
+    """两份库的三扇门：内核文档门、装置事实（数据层）、g-file 读者（数据层）。``path`` 是内核
+    ``libfylite_kernel.so``；数据层 ``libsp.so`` 在它旁边。
 
     ★与 ``apps/east-kinetic-reconstruction/kinetic_recon.py`` 的 ``Lib`` 同形（少了 mdsip）。照 ``apps/README.md``
     「拷走即可运行」的规矩抄一份小的，而不 import 那个 2000 多行的兄弟脚本：两个场景各自可以单独拷走。"""
 
     def __init__(self, path: Path):
-        if not Path(path).is_file():
-            raise SystemExit(f"找不到 {path}：把 libfylite.so 放在 {HERE} 下，或用 --lib 指一份（README §7）")
-        self.path = Path(path)
-        self.lib = ctypes.CDLL(str(path))
-        L = self.lib
-        L.fylite_runtime_case_tree_json.argtypes = [ctypes.c_char_p, ctypes.c_uint64] * 3 + [
+        path = Path(path)
+        if path.is_dir():
+            path = path / KERNEL_LIB_NAME
+        self.kernel_path = path
+        self.path = path.parent / SP_LIB_NAME
+        for p in (path, self.path):
+            if not p.is_file():
+                raise SystemExit(f"找不到 {p}：把 libfylite_kernel.so 与 libsp.so 放在 {HERE} 下，"
+                                 "或用 --lib 指内核那一份（数据层在它旁边；README §7）")
+        k = ctypes.CDLL(str(path))
+        if getattr(k, "fylite_rs_fyo_json", None) is None:
+            raise SystemExit(f"{path.name} 没有文档门 fylite_rs_fyo_json（内核 ABI 161 之前的构建）——换一份新构建的库")
+        k.fylite_rs_fyo_json.argtypes = [ctypes.c_char_p, ctypes.c_uint64] * 2 + [
             ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_uint64)]
-        L.fylite_runtime_case_tree_json.restype = ctypes.c_int32
-        L.fylite_runtime_case_free.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
-        L.fylite_runtime_case_free.restype = None
-        for n in ("fylite_runtime_facts_ids", "fylite_runtime_facts_doc", "fylite_runtime_facts_resolution",
-                  "fylite_runtime_device_resolve"):
-            getattr(L, n).restype = ctypes.c_int64
-        L.fylite_runtime_device_resolve.argtypes = [ctypes.c_char_p, ctypes.c_uint64] * 4 + [_U8P, ctypes.c_uint64]
+        k.fylite_rs_fyo_json.restype = ctypes.c_int32
+        k.fylite_rs_free.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
+        k.fylite_rs_free.restype = None
+        self._k = k
+        L = ctypes.CDLL(str(self.path))
+        L.sp_call.argtypes = [_U8P, ctypes.c_uint64, _U8P, ctypes.c_uint64]
+        L.sp_call.restype = ctypes.c_void_p
+        L.sp_result_status.argtypes = [ctypes.c_void_p]
+        L.sp_result_status.restype = ctypes.c_int32
+        for n in ("sp_result_json", "sp_result_error"):
+            getattr(L, n).argtypes = [ctypes.c_void_p, _U8P, ctypes.c_uint64]
+            getattr(L, n).restype = ctypes.c_uint64
+        L.sp_result_array_count.argtypes = [ctypes.c_void_p]
+        L.sp_result_array_count.restype = ctypes.c_uint32
+        L.sp_result_array.argtypes = [ctypes.c_void_p, ctypes.c_uint32, _U8P, ctypes.c_uint64]
+        L.sp_result_array.restype = ctypes.c_uint64
+        L.sp_result_free.argtypes = [ctypes.c_void_p]
+        self.lib = L
+        self.facts = [str(HERE / "facts")] if (HERE / "facts").is_dir() else None
 
     @staticmethod
-    def _ask(fn, *args):
-        n = fn(*args, None, 0)
-        if n < 0:
-            return int(n)
-        if n == 0:
-            return ""
-        buf = (ctypes.c_uint8 * int(n))()
-        got = fn(*args, ctypes.cast(buf, _U8P), n)
-        if got < 0:
-            return int(got)
-        return bytes(buf)[: min(int(got), int(n))].decode("utf-8", "replace")
+    def _text(fn, h) -> str:
+        n = fn(h, None, 0)
+        buf = (ctypes.c_uint8 * max(int(n), 1))()
+        fn(h, ctypes.cast(buf, _U8P), n)
+        return bytes(buf)[:int(n)].decode("utf-8", "replace")
+
+    def call(self, op: str, req: dict):
+        """数据层（``libsp``）的一次调用 → 答案；大数组经旁路回来，放回原处成（一维）列表。"""
+        if self.facts is not None and "facts" not in req:
+            req = dict(req, facts=self.facts)
+        raw_op, raw_req = op.encode(), json.dumps(req, allow_nan=True).encode()
+        ob = (ctypes.c_uint8 * len(raw_op)).from_buffer_copy(raw_op)
+        rb = (ctypes.c_uint8 * max(len(raw_req), 1)).from_buffer_copy(raw_req or b"\0")
+        h = self.lib.sp_call(ctypes.cast(ob, _U8P), len(raw_op), ctypes.cast(rb, _U8P), len(raw_req))
+        try:
+            if int(self.lib.sp_result_status(h)) != 0:
+                raise KernelError(f"libsp {op}: {self._text(self.lib.sp_result_error, h)}")
+            ans = json.loads(self._text(self.lib.sp_result_json, h) or "null")
+            blobs = []
+            for k in range(int(self.lib.sp_result_array_count(h))):
+                size = int(self.lib.sp_result_array(h, k, None, 0))
+                buf = (ctypes.c_uint8 * max(size, 1))()
+                self.lib.sp_result_array(h, k, ctypes.cast(buf, _U8P), size)
+                blobs.append(bytes(buf)[:size])
+        finally:
+            self.lib.sp_result_free(h)
+
+        def back(n):
+            if isinstance(n, dict):
+                if "@array" in n and "dtype" in n and "shape" in n:
+                    raw = blobs[int(n["@array"])]
+                    return list(struct.unpack(f"<{len(raw) // 8}{'d' if n['dtype'] == 'f64' else 'q'}", raw))
+                return {k: back(v) for k, v in n.items()}
+            if isinstance(n, list):
+                return [back(v) for v in n]
+            return n
+        return back(ans) if blobs else ans
 
     def door(self, code: str, settings: dict, inputs: dict):
         """一份请求进、一份记录出：(facts{key: 数}, fields{key: 值}, notes)。"""
         cb = code.encode()
         jb = json.dumps({"settings": settings, "inputs": inputs}, allow_nan=True).encode()
         out, n = ctypes.c_void_p(), ctypes.c_uint64(0)
-        rc = self.lib.fylite_runtime_case_tree_json(cb, len(cb), jb, len(jb), b"", 0, ctypes.byref(out), ctypes.byref(n))
+        rc = self._k.fylite_rs_fyo_json(cb, len(cb), jb, len(jb), ctypes.byref(out), ctypes.byref(n))
         try:
             text = ctypes.string_at(out, n.value).decode("utf-8", "replace") if out.value and n.value else ""
         finally:
             if out.value and n.value:
-                self.lib.fylite_runtime_case_free(out, n)
+                self._k.fylite_rs_free(out, n)
         if rc < 0:
-            raise KernelError(f"{code}: fylite_runtime_case_tree_json 返回 {rc}：{text[:300]}")
+            raise KernelError(f"{code}: fylite_rs_fyo_json 返回 {rc}：{text[:300]}")
         rec = json.loads(text) if text else {}
         if rc == 1:
             ref = rec.get("refusal") or {}
@@ -172,53 +246,31 @@ class Lib:
         return fa, fi, list(rec.get("notes") or [])
 
     def linked_kernel(self) -> dict:
-        out, n = ctypes.c_void_p(), ctypes.c_uint64(0)
-        fn = self.lib.fylite_runtime_linked_kernel
-        fn.argtypes = [ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_uint64)]
-        fn.restype = ctypes.c_int32
-        info = {}
-        if fn(ctypes.byref(out), ctypes.byref(n)) == 0 and out.value and n.value:
-            try:
-                info = json.loads(ctypes.string_at(out, n.value).decode("utf-8", "replace")) or {}
-            finally:
-                self.lib.fylite_runtime_case_free(out, n)
-        return {k: info.get(k) for k in ("kernel_version", "built", "sha256") if k in info}
+        """算这些数的内核：问内核库自己（:func:`kernel_identity`）。"""
+        k = kernel_identity(self.kernel_path)
+        return {key: k.get(key) for key in ("kernel_version", "abi", "sha256") if key in k}
 
     def device(self, device_id: str, shot: int, chain: str) -> dict:
-        """这一炮、这条测量链上的装置文档（编进库里的事实 + 运行时的解析规则）。"""
-        d, i = b"device", device_id.encode()
-        doc = self._ask(self.lib.fylite_runtime_facts_doc, d, len(d), i, len(i))
-        res = self._ask(self.lib.fylite_runtime_facts_resolution, d, len(d), i, len(i))
-        if not isinstance(doc, str) or not doc or not isinstance(res, str) or not res:
-            have = self._ask(self.lib.fylite_runtime_facts_ids, d, len(d))
-            raise SystemExit(f"这份 libfylite.so 没有编进装置 {device_id!r}（它有：{have}）——要的是含 EAST 的内部版构建")
-        q = json.dumps({"shot": int(shot), "measurement_chain": chain, "strict": False}).encode()
-        c, r = doc.encode(), res.encode()
-        text = self._ask(self.lib.fylite_runtime_device_resolve, c, len(c), r, len(r), q, len(q), b"document", 8)
-        if not isinstance(text, str):
-            raise KernelError(f"fylite_runtime_device_resolve 失败（{text}）")
-        out = json.loads(text)
-        if "error" in out:
-            raise SystemExit(f"装置解析：{out['error']}")
+        """这一炮、这条测量链上的装置文档（数据层的装置事实 + 解析规则）。"""
+        try:
+            card = self.call("facts", {"doc": ["device", device_id]})
+            res = self.call("facts", {"resolution": ["device", device_id]})
+        except KernelError as e:
+            raise SystemExit(f"facts 里没有装置 {device_id!r} 的卡片与解析文档——把 EAST 的装置事实放进 {HERE / 'facts'}，"
+                             f"或 export SP_FACTS_PATH=…（{e}）")
+        try:
+            out = self.call("resolve_device", {"card": card, "resolution": res, "shot": int(shot),
+                                               "measurement_chain": chain, "strict": False, "form": "document"})
+        except KernelError as e:
+            raise SystemExit(f"装置解析：{e}")
         return out["document"]
 
     def gfile(self, text: str) -> dict:
-        """G-EQDSK 文本 → 内核 ``GFile`` 的 JSON（``fylite_runtime_gfile_json``，与页面同一个读者）。"""
-        fn = getattr(self.lib, "fylite_runtime_gfile_json", None)
-        if fn is None:
-            raise SystemExit("这份 libfylite.so 没有 fylite_runtime_gfile_json（abi_gfile 特性）")
-        fn.argtypes = [ctypes.c_char_p, ctypes.c_uint64, ctypes.c_void_p, ctypes.c_uint64]
-        fn.restype = ctypes.c_int64
-        b = text.encode()
-        n = fn(b, len(b), None, 0)
-        if n < 0 and n != -2:
-            raise KernelError(f"fylite_runtime_gfile_json 返回 {n}")
-        cap = max(int(n), 4096)
-        buf = ctypes.create_string_buffer(cap)
-        got = fn(b, len(b), buf, cap)
-        if got == -2 or n == -2:
-            raise SystemExit(f"g-file 读不动：{buf.raw[:400].decode('utf-8', 'replace').rstrip(chr(0))}")
-        return json.loads(buf.raw[:got].decode("utf-8"))
+        """G-EQDSK 文本 → 与内核 ``GFile`` 同样键名的字典（数据层的读者：``read`` 带 ``raw``）。"""
+        try:
+            return self.call("read", {"input": {"text": text, "format": "geqdsk"}, "raw": True})
+        except KernelError as e:
+            raise SystemExit(f"g-file 读不动：{e}")
 
 
 # =========================================================================== #
@@ -613,15 +665,94 @@ def filament_strips(r, z, res, rho=RHO_SS, gap=CONTOUR_GAP):
     return rows, info
 
 
-def build_device(dev0: dict, case: dict, mode: str, *, ic_rz=None) -> tuple[dict, dict]:
-    """装置文档的一份拷贝，改三处：
+def geometry_from_efit(r, z, w, h, a=0.0, a2=90.0) -> dict:
+    """EFIT 矩形角 -> 内核现在读的 DD 形（矩形或单剪 oblique）。
 
+    与 ``tools/device_geometry_migration.py`` 同一张映射（它逐字保内核原丝条分支，含小正弦
+    规则；AF1 剪切分支里 AF2 角不起作用）：``(u, v)`` 是旧 efund 参数化下矩形的两条边矢量，
+    DD oblique 记角点 + 边长与边角。★2026-10-07（O-5 的 B-6 债迁移）：本 app 不再写角对。"""
+    if a != 0.0:
+        u = (w, w * math.tan(math.radians(a)))
+        v = (0.0, h)
+    elif a2 != 90.0:
+        c, s = math.cos(math.radians(a2)), math.sin(math.radians(a2))
+        u = (w, 0.0)
+        v = (h * (0.0 if abs(s) < 1e-6 else c / s), h)
+    else:
+        u, v = (w, 0.0), (0.0, h)
+    if u[1] == 0.0 and v[0] == 0.0:
+        return {"geometry_type": 2, "rectangle": {"r": r, "z": z, "width": w, "height": h}}
+    return {"geometry_type": 3, "oblique": {
+        "r": r - 0.5 * (u[0] + v[0]), "z": z - 0.5 * (u[1] + v[1]),
+        "length_alpha": math.hypot(*u), "length_beta": math.hypot(*v),
+        "alpha": math.atan2(u[1], u[0]), "beta": math.atan2(-v[0], v[1])}}
+
+
+def efit_from_geometry(geometry: dict):
+    """DD 几何 -> 图记录的 ``(r, z, w, h, a1, a2)``（内核读侧同一约定；无几何返回 None）。"""
+    g = geometry or {}
+    rect = g.get("rectangle")
+    if isinstance(rect, dict):
+        return (float(rect["r"]), float(rect["z"]), float(rect["width"]), float(rect["height"]),
+                0.0, 90.0)
+    ob = g.get("oblique")
+    if not isinstance(ob, dict):
+        return None
+    a, b = float(ob["alpha"]), float(ob["beta"])
+    la, lb = float(ob["length_alpha"]), float(ob["length_beta"])
+    ux, uz = la * math.cos(a), la * math.sin(a)
+    vx, vz = -lb * math.sin(b), lb * math.cos(b)
+    return (float(ob["r"]) + 0.5 * (ux + vx), float(ob["z"]) + 0.5 * (uz + vz), ux, vz,
+            math.degrees(a) if a != 0.0 else 0.0,
+            90.0 if a != 0.0 else 90.0 + math.degrees(b))
+
+
+def migrate_device_geometry(dev: dict) -> None:
+    """把装置拷贝里的旧 EFIT 角对元素就地迁到 DD 形（数字不动；范围同
+    ``tools/device_geometry_migration.py``：pf_active 各线圈与墙 vessel 各单元的 element）。"""
+    slices = ((dev.get("wall") or {}).get("description_2d") or [])
+    if isinstance(slices, dict):
+        slices = [slices]
+    holders = list((dev.get("pf_active") or {}).get("coil", []))
+    for sl in slices:
+        holders += ((sl.get("vessel") or {}).get("unit") or [])
+    for holder in holders:
+        for e in holder.get("element", []):
+            if "fylite:a1" not in e and "fylite:a2" not in e:
+                continue
+            rect = (e.get("geometry") or {}).get("rectangle")
+            if not isinstance(rect, dict):
+                raise SystemExit(f"装置元素带角对而缺 rectangle：{holder.get('name')}")
+            e["geometry"] = geometry_from_efit(
+                float(rect["r"]), float(rect["z"]), float(rect["width"]), float(rect["height"]),
+                float(e.pop("fylite:a1", 0.0)), float(e.pop("fylite:a2", 90.0)))
+
+
+def plan_box(dev: dict) -> dict:
+    """计划上的求解盒：逐字取本装置的声明（``fylite:grid``，其注自陈逐字来自
+    ``machine.default_grid``）——盒子在计划上（内核无装置回退）。"""
+    g = dev.get("fylite:grid") or (dev.get("machine") or {}).get("default_grid") or {}
+    keys = (("r_min", "rmin"), ("r_max", "rmax"), ("z_min", "zmin"), ("z_max", "zmax"))
+    return {k: float(g[gk]) for k, gk in keys if gk in g}
+
+
+def build_device(dev0: dict, case: dict, mode: str, *, ic_rz=None) -> tuple[dict, dict]:
+    """装置文档的一份拷贝，改四处：
+
+    * ★2026-10-07（O-5 的 B-6/B-7 债迁移）：产出卡还是退役前的形，门按名拒——元素角对就地迁到
+      DD 形（``migrate_device_geometry``，同一张丝条映射）；全局 ``fylite:vessel_resistivity_uohm_m``
+      去掉、其值转录进布局（调用方放上 ``settings/vessel_resistivity``）；遗留 ``pf_passive``
+      组去掉（本 app 的门只读具名的被动集）。
     * IC1 / IC2：去掉 ``function: b_field_fb``（内核的线圈读者跳过快控线圈），各接成一个单元素通道；
       ``ic_rz`` 给了就改它们的中心 (R, ±Z)。
-    * ``mode = induced``：全部丝进 ``pf_passive/efb_vv``（电阻率 ρ，截面由 VVres 反推 → 电阻逐丝等于 VVres）；
+    * ``mode = induced``：全部丝进**计划的** ``inputs/passive_model`` 组 ``efb_vv``（电阻率 ρ [Ω·m]，
+      截面由 VVres 反推 → 电阻逐丝等于 VVres）；
     * ``mode = zero | prescribed``：全部丝进 ``pf_active`` 当单匝线圈、各一个通道（电流给定）。
-    返回 (装置, 布局 {n_pfic, fil_index, channels})。"""
+    返回 (装置, 布局 {n_pfic, fil_index, passive_model, vessel_resistivity})。"""
     dev = json.loads(json.dumps(dev0))
+    migrate_device_geometry(dev)
+    vessel_uohm = dev.pop("fylite:vessel_resistivity_uohm_m", None)
+    dev.pop("pf_passive", None)
     coils = dev["pf_active"]["coil"]
     for c in coils:
         if c["name"] in ("IC1", "IC2"):
@@ -638,22 +769,24 @@ def build_device(dev0: dict, case: dict, mode: str, *, ic_rz=None) -> tuple[dict
     strips, _ = filament_strips(vv["r"], vv["z"], vv["resistance"], case["assumptions"]["rho_ohm_m"],
                                 case["assumptions"]["contour_gap_m"])
     n_pfic = len(rows)
+    pmodel = None
     if mode == "induced":
-        dev.setdefault("pf_passive", {})
-        dev["pf_passive"] = dict(dev["pf_passive"])
-        dev["pf_passive"]["efb_vv"] = {"resistivity_uohm_m": case["assumptions"]["rho_ohm_m"] * 1e6, "element": strips}
+        #: 被动组在计划上（组名不变：efb_vv；元素 DD 形；电阻率 SI [Ω·m]）
+        pmodel = {"model_format": 1, "groups": [{
+            "name": "efb_vv", "resistivity": case["assumptions"]["rho_ohm_m"],
+            "elements": [{"geometry": geometry_from_efit(*s)} for s in strips]}]}
         fil = list(range(n_pfic, n_pfic + len(strips)))
     else:
         base = len(names)
         for k, s in enumerate(strips):
             coils.append({"name": f"VV{k + 1:03d}", "element": [{
-                "geometry": {"rectangle": {"r": s[0], "z": s[1], "width": s[2], "height": s[3]}},
-                "fylite:a1": s[4], "fylite:a2": s[5], "turns_with_sign": 1.0}],
+                "geometry": geometry_from_efit(*s), "turns_with_sign": 1.0}],
                 "resistance": vv["resistance"][k]})
             rows.append([{"element": base + k, "weight": 1.0}])
         fil = list(range(n_pfic, n_pfic + len(strips)))
     dev["pf_channel_elements"] = rows
-    return dev, {"n_pfic": n_pfic, "fil_index": fil}
+    return dev, {"n_pfic": n_pfic, "fil_index": fil, "passive_model": pmodel,
+                 "vessel_resistivity": None if vessel_uohm is None else vessel_uohm * 1e-6}
 
 
 def geometry_block(dev0: dict, shot: int, chain: str, ic_rz=None, case: dict | None = None, ic_figure=None) -> dict:
@@ -675,10 +808,16 @@ def geometry_block(dev0: dict, shot: int, chain: str, ic_rz=None, case: dict | N
     for c in pa["coil"]:
         fast = c["name"] in ("IC1", "IC2")
         for e in c["element"]:
-            rect = (e.get("geometry") or {}).get("rectangle") or {}
+            geom = e.get("geometry") or {}
+            rect = geom.get("rectangle") or {}
+            fig = efit_from_geometry(geom)
             ci, cname, _w = (where.get(c["name"]) or [(None, None, None)])[0]
-            row = {"name": c["name"], "r": rect.get("r"), "z": rect.get("z"), "dr": rect.get("width"), "dz": rect.get("height"),
-                   "turns": e.get("turns_with_sign", c.get("turns")), "a1": e.get("fylite:a1"), "a2": e.get("fylite:a2"),
+            row = {"name": c["name"],
+                   "r": fig[0] if fig else rect.get("r"), "z": fig[1] if fig else rect.get("z"),
+                   "dr": fig[2] if fig else rect.get("width"), "dz": fig[3] if fig else rect.get("height"),
+                   "turns": e.get("turns_with_sign", c.get("turns")),
+                   "a1": fig[4] if fig else None, "a2": fig[5] if fig else None,
+                   "geometry_type": geom.get("geometry_type"),
                    "channel": cname, "channel_index": ci}
             if fast:
                 row["facts_rz"] = [row["r"], row["z"]]
@@ -800,7 +939,8 @@ def per_turn_at(case: dict, k: int, frac: float = 0.0, k1: int | None = None) ->
 
 
 def forward_at(lib, dev, case, aturns, ip, zc, a, psi_warm=None, profile=None):
-    s = dict(SOLVE, ip=ip, zc_anchor=zc, relax=a.relax, max_iter=a.max_iter, tol=a.tol, **box_settings(a))
+    s = dict(SOLVE, ip=ip, zc_anchor=zc, relax=a.relax, max_iter=a.max_iter, tol=a.tol,
+             **box_settings(a), **plan_box(dev))
     return lib.door("code/forward", s, {"device": dev, "equilibrium": eq_inputs(case, psi_warm, profile),
                                         "discharge": {"fylite:channel_aturns": aturns}})
 
@@ -882,7 +1022,9 @@ def run_march(lib, case, dev, lay, times, where, a, mode, zc, passive0=None, pre
             v += f * (case["magdata"]["ip"][k1] - v)
         ip.append(v)
     st = dict(SOLVE, drive="current", passive="efb_vv" if mode == "induced" else "none", keep_psi=1,
-              relax=a.relax, max_iter=a.max_iter, tol=a.tol, **box_settings(a))
+              relax=a.relax, max_iter=a.max_iter, tol=a.tol, **box_settings(a), **plan_box(dev))
+    if lay.get("vessel_resistivity") is not None:
+        st["vessel_resistivity"] = lay["vessel_resistivity"]
     if zc is not None:
         st["zc_anchor"] = zc
     else:
@@ -890,9 +1032,11 @@ def run_march(lib, case, dev, lay, times, where, a, mode, zc, passive0=None, pre
     pulse = {"fylite:time": times, "fylite:channel_aturns": at, "fylite:ip": ip}
     if mode == "induced" and passive0 is not None:
         pulse["fylite:passive_current"] = passive0
+    inputs = {"device": dev, "equilibrium": eq_inputs(case, profile=profile), "pulse": pulse}
+    if lay.get("passive_model"):
+        inputs["passive_model"] = lay["passive_model"]
     t0 = time.time()
-    fa, fi, notes = lib.door("code/evolve_free_boundary", st,
-                             {"device": dev, "equilibrium": eq_inputs(case, profile=profile), "pulse": pulse})
+    fa, fi, notes = lib.door("code/evolve_free_boundary", st, inputs)
     return {"facts": fa, "fields": fi, "notes": notes, "seconds": time.time() - t0, "aturns": at, "ip": ip,
             "settings": st}
 
@@ -915,7 +1059,8 @@ def summarize(lib, dev, case, grid_r, grid_z, psi_flat, facts: dict, a, profile=
                               "magnetic_axis": {"r": facts["axis_r"], "z": facts["axis_z"]}},
         "profiles_1d": {"psi_norm": p["psi_norm"], "dpressure_dpsi": p["dpressure_dpsi"], "f_df_dpsi": p["f_df_dpsi"]}}}
     st = {"jc": facts["jc"], "f_edge": f_edge_of(case), "r_centre": case["gfile"]["rcentr"], "inset": 1e-3,
-          "n_boundary": 181, "n_q": 41, "x_lo": 0.02, "x_hi": 0.995, "n_segments": 0, **box_settings(a)}
+          "n_boundary": 181, "n_q": 41, "x_lo": 0.02, "x_hi": 0.995, "n_segments": 0,
+          **box_settings(a), **plan_box(dev)}
     sf, sfi, _ = lib.door("code/summary", st, {"device": dev, "equilibrium": eq})
     lc = flat(sfi["lcfs"])
     bnd = [[lc[2 * i], lc[2 * i + 1]] for i in range(len(lc) // 2)]
@@ -1402,8 +1547,14 @@ def cmd_run(a) -> None:
 def cmd_wall(a) -> None:
     case = json.loads(Path(a.case).read_text(encoding="utf-8"))
     lib = Lib(Path(a.lib))
-    dev, _ = build_device(lib.device("east", case["shot"], "east"), case, "induced")
-    fa, fi, _ = lib.door("code/wall", {"passive": "efb_vv", "nu": 8, "nv": 8, "responses": 0}, {"device": dev})
+    dev, lay = build_device(lib.device("east", case["shot"], "east"), case, "induced")
+    ws = {"passive": "efb_vv", "nu": 8, "nv": 8, "responses": 0, **plan_box(dev)}
+    if lay.get("vessel_resistivity") is not None:
+        ws["vessel_resistivity"] = lay["vessel_resistivity"]
+    inputs = {"device": dev}
+    if lay.get("passive_model"):
+        inputs["passive_model"] = lay["passive_model"]
+    fa, fi, _ = lib.door("code/wall", ws, inputs)
     r = flat(fi["r"])
     res = case["filaments"]["resistance"]
     _, info = filament_strips(case["filaments"]["r"], case["filaments"]["z"], res,
@@ -1508,7 +1659,7 @@ def _ic_rz(s):
 
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(prog="fb_evolution.py", description=__doc__.splitlines()[0])
-    ap.add_argument("--lib", default=str(DEFAULT_LIB), help="libfylite.so（缺省：本文件旁边那一份）")
+    ap.add_argument("--lib", default=str(DEFAULT_LIB), help="libfylite_kernel.so（缺省：本文件旁边那一份；数据层 libsp.so 在它旁边）")
     sp = ap.add_subparsers(dest="cmd", required=True)
 
     p = sp.add_parser("prepare", help="数据目录 → 输入文档")

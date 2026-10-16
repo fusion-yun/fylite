@@ -1,0 +1,66 @@
+spdata — NOTICE
+===============
+
+spdata: the Sp platform data layer — the Rust library `sp-data`, the tool `sp`,
+and the C ABI `libsp` (`sp-ffi`).
+Copyright 2019-2026 Institute of Plasma Physics, Chinese Academy of Sciences
+(ASIPP), and the spdata contributors.
+
+This project's own code is licensed under the Apache License, Version 2.0 (see
+`LICENSE`).
+
+
+Third-party libraries redistributed in the `_full` builds
+---------------------------------------------------------
+
+The `_full` variants of a release — the file `sp_full-<version>-linux-<arch>`,
+`libsp_full.so.<version>` and `libsp_full.a` — have the following libraries
+compiled in.  The THIN variants (`sp-<version>-linux-<arch>`, `libsp.so.<version>`
+and `libsp.a`) do NOT contain them: they use the copies installed on the host, so
+no third-party code is redistributed in those.
+
+The complete licence texts travel with the release in `licenses/`, each copied
+verbatim from the source tree it was built from.
+
+1. HDF5 (Hierarchical Data Format 5) 2.2.0
+   Built from the `ext/hdf5` source tree vendored by the `hdf5-metno-src` 0.10.4
+   crate (through `hdf5-metno` / `hdf5-metno-sys`).
+   Copyright 2006 by The HDF Group.
+   NCSA HDF5 Copyright 1998-2006 by The Board of Trustees of the University of
+   Illinois.  All rights reserved.
+   Covered by the 3-clause BSD License.  The full notice — including the
+   statements for the portions developed with support from LBNL, from
+   LLNL/UC under Contract 48, and from the NSF — is in
+   `licenses/HDF5-LICENSE.txt`, and those statements must be retained in any
+   redistribution.
+   ★ The HDF Group asks that use of HDF5 be acknowledged; see
+   https://www.hdfgroup.org.
+
+2. netCDF-C 4.10.1
+   Built from the `source/` tree vendored by the `netcdf-src` 0.5.3 crate.
+   Copyright 2025 Unidata.
+   Covered by the 3-clause BSD License; full text in
+   `licenses/netCDF-COPYRIGHT.txt`.
+
+3. zlib 1.3.2
+   Built from the `src/zlib` tree vendored by the `libz-sys` 1.1.29 crate
+   (compiled in statically; used by HDF5's compression and by netCDF).
+   (C) 1995-2026 Jean-loup Gailly and Mark Adler.
+   Covered by the zlib licence; full text in `licenses/zlib-LICENSE.txt`.
+
+
+Rust dependencies
+-----------------
+
+The Rust crates this project depends on are consumed unmodified, each under the
+licence its own manifest declares (Apache-2.0 / MIT / ISC / BSD-3-Clause); the
+exact set and versions are those pinned in `rust/Cargo.lock` at the released
+commit.  No Rust dependency is patched in this tree.
+
+
+Data
+----
+
+Device facts and experimental data used by tests and examples are not part of
+the published artefacts.  Where such a corpus is redistributable it carries its
+own licence and rights statement beside the data, not here.

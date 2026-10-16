@@ -1,0 +1,1209 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>动理学反演阶梯</title>
+<meta name="description" content="动理学平衡重构的阶梯视图：输入 · 边界 · 输出三区，约束阶梯逐档叠一块，多片批量。读 kinetic_recon.py 的结果 JSON。">
+<style>
+:root {
+  --bg: #f4f5f7; --panel: #ffffff; --fg: #1c2128; --muted: #666f7a; --grid: #d8dce2; --line: #e3e6ea;
+  --accent: #1668c8; --warn: #a75909; --ok: #10897a; --bad: #c0392b; --sel: #e7f0fb; --head: #eceff3; --wall: #8a929c;
+  --flux: #1baf7a; --ref: #1c2128;
+  --tier-m: #2a78d6; --tier-k: #eb6834; --tier-p: #1baf7a; --tier-s: #eda100; --tier-j: #e87ba4; --tier-x: #4a3aa7; --tier-q: #008300;
+  --warnbg: #fff7ed; --okbg: #eef8f5; --badbg: #fdf0ee;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111519; --panel: #181d23; --fg: #e6eaee; --muted: #8d97a2; --grid: #2c343d; --line: #242b33;
+    --accent: #5aa2ec; --warn: #e0a458; --ok: #4fc3a9; --bad: #ef7b6e; --sel: #1c2a3b; --head: #202730; --wall: #7d8793;
+    --flux: #199e70; --ref: #e6eaee;
+    --tier-m: #3987e5; --tier-k: #d95926; --tier-p: #199e70; --tier-s: #c98500; --tier-j: #d55181; --tier-x: #9085e9; --tier-q: #008300;
+    --warnbg: #2a2118; --okbg: #142824; --badbg: #2c1a18;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111519; --panel: #181d23; --fg: #e6eaee; --muted: #8d97a2; --grid: #2c343d; --line: #242b33;
+  --accent: #5aa2ec; --warn: #e0a458; --ok: #4fc3a9; --bad: #ef7b6e; --sel: #1c2a3b; --head: #202730; --wall: #7d8793;
+  --flux: #199e70; --ref: #e6eaee;
+  --tier-m: #3987e5; --tier-k: #d95926; --tier-p: #199e70; --tier-s: #c98500; --tier-j: #d55181; --tier-x: #9085e9; --tier-q: #008300;
+  --warnbg: #2a2118; --okbg: #142824; --badbg: #2c1a18;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 13px/1.5 "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums; }
+button, select, input { font: inherit; color: var(--fg); }
+button { border: 1px solid var(--grid); background: var(--panel); border-radius: 5px; padding: 3px 10px; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.file { border: 1px solid var(--grid); background: var(--panel); border-radius: 5px; padding: 3px 10px; cursor: pointer; }
+.file input { display: none; }
+select, input[type="number"], input[type="text"] { background: var(--panel); border: 1px solid var(--grid); border-radius: 4px; padding: 2px 5px; }
+input[type="number"] { width: 72px; }
+.top { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 10px 16px;
+  background: var(--panel); border-bottom: 1px solid var(--grid); }
+.top h1 { font-size: 16px; margin: 0; font-weight: 700; }
+.top .shot { font-weight: 600; }
+.chip { background: var(--sel); border-radius: 12px; padding: 2px 10px; font-size: 12px; }
+.spacer { flex: 1; }
+.seg { display: inline-flex; border: 1px solid var(--grid); border-radius: 5px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.wrap { padding: 12px 16px 40px; display: grid; gap: 12px; }
+.card { background: var(--panel); border: 1px solid var(--grid); border-radius: 6px; padding: 10px 12px; min-width: 0; }
+.card h2 { font-size: 13px; margin: 0 0 6px; font-weight: 600; display: flex; justify-content: space-between; gap: 8px; align-items: baseline;
+  border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+.card h2 small, .s { font-weight: 400; color: var(--muted); font-size: 11.5px; }
+.zlab { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .08em; margin: 0 0 4px; }
+.zones { display: grid; grid-template-columns: 320px minmax(0, 1fr) 340px; gap: 12px; align-items: start; }
+.zone { display: grid; gap: 10px; min-width: 0; }
+.outgrid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 10px; }
+.profgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; }
+@media (max-width: 1280px) { .zones { grid-template-columns: 320px minmax(0, 1fr); } .zones > .zbd { grid-column: 2; } }
+@media (max-width: 960px) { .zones { grid-template-columns: minmax(0, 1fr); } .zones > .zbd { grid-column: auto; } .outgrid { grid-template-columns: minmax(0, 1fr); } }
+svg { width: 100%; height: auto; display: block; }
+svg text { font-size: 10.5px; fill: var(--muted); }
+table { border-collapse: collapse; width: 100%; }
+th, td { padding: 3px 6px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { background: var(--head); font-weight: 600; }
+td.l, th.l { text-align: left; }
+.d { display: block; font-size: 10px; color: var(--muted); line-height: 1.1; }
+.scroll { overflow-x: auto; }
+.tchip { display: inline-block; min-width: 18px; padding: 0 4px; border-radius: 3px; color: #fff; font-weight: 700; font-size: 11px; text-align: center; line-height: 16px; }
+.tchip.hatch { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.45) 0 2px, transparent 2px 5px); }
+.row { display: grid; grid-template-columns: 18px 76px 70px minmax(0, 1fr); gap: 4px; align-items: baseline; padding: 1px 0; }
+.kv { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 2px 8px; }
+.kv > :nth-child(odd) { color: var(--muted); }
+.lad { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 2px 8px; align-items: center; margin: 3px 0; }
+.lad .note { grid-column: 2 / 4; }
+.st { font-weight: 700; display: inline-block; width: 14px; text-align: center; }
+.st.ok { color: var(--ok); } .st.unph { color: var(--warn); } .st.err { color: var(--bad); } .st.skip { color: var(--muted); } .st.stale { color: var(--warn); }
+.ok-t { color: var(--ok); } .warn-t { color: var(--warn); } .bad-t { color: var(--bad); } .mut { color: var(--muted); }
+.box { border-radius: 5px; padding: 6px 8px; margin: 4px 0; }
+.box.ok { background: var(--okbg); border: 1px solid var(--ok); } .box.warn { background: var(--warnbg); border: 1px solid var(--warn); }
+.box.bad { background: var(--badbg); border: 1px solid var(--bad); } .box.info { background: var(--sel); }
+.q0 { font-size: 18px; font-weight: 700; }
+.fieldrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 3px 0; }
+.fieldrow label { color: var(--muted); min-width: 70px; }
+details > summary { cursor: pointer; color: var(--muted); }
+pre.cmd { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 6px; font: 11px/1.45 ui-monospace, Menlo, Consolas, monospace;
+  white-space: pre-wrap; word-break: break-all; margin: 4px 0; }
+tr.cur td { background: var(--sel); }
+tr[data-i] { cursor: pointer; }
+.batch { display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 12px; }
+@media (max-width: 1280px) { .batch { grid-template-columns: minmax(0, 1fr); } }
+.tracegrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.strip { position: relative; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+.legend i { display: inline-block; width: 18px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 4px; }
+.empty { max-width: 900px; }
+.empty li { margin: 3px 0; }
+.drop { border: 2px dashed var(--grid); border-radius: 8px; padding: 18px; text-align: center; color: var(--muted); }
+.tag { display: inline-block; border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; margin: 1px 2px 1px 0; font-size: 11.5px; }
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>动理学平衡重构 · 阶梯</h1>
+  <span class="shot" id="shot">—</span>
+  <span class="chip" id="cfgchip">未载入结果</span>
+  <label class="file">打开文件…<input id="files" type="file" multiple accept=".json,.jsonld,application/json,*"></label>
+  <button id="srvbtn" hidden>服务目录…</button>
+  <select id="srvsel" hidden aria-label="服务目录里的文件"></select>
+  <button id="dlcfg">下载配置</button>
+  <span class="spacer"></span>
+  <span class="s">主显示档</span>
+  <select id="mainsel" aria-label="主显示档"></select>
+  <span class="seg" id="themeseg"><button data-theme="auto">自动</button><button data-theme="light">浅</button><button data-theme="dark">深</button></span>
+</div>
+
+<div class="wrap">
+  <section class="card" id="empty">
+    <h2>这一页读什么 <small>单文件 · 不联网 · 不上传</small></h2>
+    <div class="empty">
+      <div class="drop" id="drop">把文件拖到这里，或点上面「打开文件…」（可多选）</div>
+      <ul>
+        <li><b>结果 JSON</b>（<code>fylite:KineticReconResult</code>，<code>kinetic_recon.py run</code> / <code>kinetic_input.py run</code> 的输出）——一份是一片；同一炮的多份按时刻排成批量表。</li>
+        <li><b>时间序列 JSON</b>（<code>fylite:KineticReconSeries</code>）——逐片只有档 M，进批量表与时间迹。</li>
+        <li><b>比较 JSON</b>（<code>fylite:KineticReconComparison</code>，<code>compare</code> 的输出）——对照平衡的同尺量，挂在同一时刻那片上。</li>
+        <li><b>g-file</b>（G-EQDSK 文本，如带 MSE 的 EFIT）——对照平衡的 LCFS · 磁轴 · q · p；<b>只作对照，不进任何一档</b>。</li>
+        <li><b>输入文件</b>（<code>fylite:KineticReconInput</code> v1 / v2）——填进「输入」区（预设 · 基）。</li>
+      </ul>
+      <p class="s">三区：<b>输入</b>（这一次打算收什么）· <b>边界</b>（这一片的解能声称什么、不能声称什么）· <b>输出</b>（解是什么）。
+        约束阶梯 M → K → P（D 顶替）→ S（MSE）→ J（自举），每档比上一档多一块约束，差值对上一档，读数不跨档比较。</p>
+    </div>
+  </section>
+
+  <section class="card strip" id="stripcard" hidden>
+    <h2>时间条 <small id="stripnote">点片 = 当前片 · ← → 走片</small></h2>
+    <div id="strip"></div>
+  </section>
+
+  <div class="zones" id="zones" hidden>
+    <div class="zone zin">
+      <p class="zlab">输入 INPUT</p>
+      <section class="card"><h2>数据源 <small>这一片 · 逐诊断</small></h2><div id="src"></div></section>
+      <section class="card"><h2>约束阶梯 <small>M → K → P → S → J</small></h2><div id="lad"></div></section>
+      <section class="card"><h2>预设 <small>缺省全关 · 带依据</small></h2><div id="pre"></div></section>
+      <section class="card"><h2>基（源函数）<small>预设多项式</small></h2><div id="bas"></div></section>
+      <section class="card"><h2>留出校验 <small>进了拟合的自动除名</small></h2><div id="valin"></div></section>
+      <section class="card"><h2>片与命令 <small>填入，不自动运行</small></h2><div id="cmd"></div></section>
+    </div>
+
+    <div class="zone zout">
+      <p class="zlab">输出 OUTPUT</p>
+      <div class="outgrid">
+        <section class="card"><h2>极向截面 <small id="xsnote"></small></h2><div id="xs"></div><div class="legend" id="xslegend"></div></section>
+        <section class="card"><h2>剖面 <small>共用 ψ_N 轴 · 线端标档名</small></h2><div class="profgrid" id="prof"></div><div class="legend" id="proflegend"></div></section>
+      </div>
+      <section class="card"><h2>阶梯表 <small id="ltabnote">差对上一档 · 读数不跨档比较</small></h2><div class="scroll" id="ltab"></div><div class="s" id="ltabfoot"></div></section>
+    </div>
+
+    <div class="zone zbd">
+      <p class="zlab">边界 · 这一片能声称什么</p>
+      <section class="card"><div id="conv"></div>
+        <h2>约束清单 <small id="consnote"></small></h2><div id="cons"></div>
+        <h2 style="margin-top:8px">边界条件</h2><div id="bc"></div>
+        <h2 style="margin-top:8px">能定 / 不能定</h2><div id="can"></div>
+      </section>
+      <section class="card"><h2>q₀ 与 q=1 面</h2><div id="q0card"></div></section>
+      <section class="card"><h2>校验结论 <small>留出集</small></h2><div id="vals"></div></section>
+      <section class="card"><h2>告警 <small>来自记录</small></h2><div id="warns"></div></section>
+    </div>
+  </div>
+
+  <div class="batch" id="batchwrap" hidden>
+    <section class="card"><h2>批量 <small id="batchnote">单片是一行的批量 · 点行 = 当前片 · 失败原因写在行里</small></h2><div class="scroll" id="btab"></div></section>
+    <section class="card"><h2>逐片时间迹 <small>每档一线 · 对照空心 · 不物理空心琥珀</small></h2><div class="tracegrid" id="traces"></div></section>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const ORDER = ["M", "K", "P", "D", "Q", "S", "J", "X"];
+const TCOL = { M: "var(--tier-m)", K: "var(--tier-k)", P: "var(--tier-p)", D: "var(--tier-p)", S: "var(--tier-s)", J: "var(--tier-j)", X: "var(--tier-x)", Q: "var(--tier-q)" };
+const TNAME = { M: "磁测量", K: "+ POINT 法拉第", P: "+ Thomson 压强", D: "W_dia 标度（顶 P）", S: "+ MSE", J: "+ 自举电流（先验）", X: "输入文件档 X", Q: "+ 锯齿 q=1 面（约束）" };
+const REFDASH = ["3 3", "8 3 2 3", "1.5 2.5"];
+//: 能定 / 不能定（按档）
+const CAN = {
+  M: ["边界 · 磁轴 · q₉₅ · β_p + l_i/2", "p′ 与 FF′ 的分配 · q₀ · 单独的 β_p 与 l_i"],
+  K: ["+ 芯部 B_R → q₀、l_i 有约束", "局部 q 剖面细节（11 弦、密度单参数族）"],
+  P: ["+ p′ 形状与标度 → p′ / FF′ 分配、β_p", "Tᵢ 假设 · 快粒子压强 · 台基内细节"],
+  D: ["+ 压强标度", "压强形状（沿用底档）· 非热 / 各向异性份额"],
+  S: ["+ 局部 q(R) → q₀ · q=1 面 · 芯部 j∥", "MSE 视场外（边缘、台基）"],
+  J: ["+ 台基 j∥ 的边缘峰 → 边缘 q · FF′ 台基", "公式本身的误差（σ 待定）"],
+  X: ["按输入文件开的项（台基基 · q₀ 目标 · 自举 · 外加电流）", "开了的预设不能再当校验"],
+  Q: ["+ q=1 面落在锯齿反转半径上 → 芯部电流 · q₀", "反转半径只有低场侧一个数；锯齿校验对这一档作废（约束过）"],
+};
+//: 基的命名预设
+const BASIS = {
+  "efit-1-2": { npp: 1, nff: 2, min: "M", note: "离线 EFIT 交付的基（KPPCUR 1 / KFFCUR 2）" },
+  "kefit-2-2": { npp: 2, nff: 2, min: "K", note: "KEFIT GUI 缺省；档 M 上 #137985 39 片里 32 片芯部压强为负" },
+  "kin-3-2": { npp: 3, nff: 2, min: "P", note: "压强行定形后放开 p′ 的阶数" },
+  "kin-3-3-ped": { npp: 3, nff: 3, min: "P", ped: true, note: "H 模：sech² 台基基 + 自举电流（kinetic_input.py 档 X）" },
+  "spline-4": { npp: null, nff: null, min: "S", spline: true, note: "样条（EFIT KPPFNC = 6）；EAST 上常被内核拒，只有 kinetic_input.py 支持" },
+  "fixed-p": { npp: null, nff: 2, min: "P", fixed: true, note: "给定 p′（消融用）；只有 kinetic_input.py 支持" },
+};
+const RANK = { M: 0, K: 1, P: 2, D: 2, Q: 3, S: 3, J: 4, X: 4 };
+
+const S = { slices: [], cur: -1, refs: [], main: "auto", cfg: null, cfgBase: null, cmp: {}, inputs: [] };
+
+const fin = (v) => typeof v === "number" && isFinite(v);
+function f(v, d) { return fin(v) ? v.toFixed(d) : "—"; }
+function sgn(v, d) { return fin(v) ? (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(d) : "—"; }
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function ok(t) { return !!t && (t.status === "ok" || t.status === "unphysical"); }
+function chip(k, extra) { return `<span class="tchip${k === "D" ? " hatch" : ""}" style="background:${TCOL[k]}"${extra || ""}>${k}</span>`; }
+function glyph(kind, title) {
+  const g = { ok: "✓", unph: "⚠", err: "×", skip: "○", stale: "◌", none: "·" }[kind] || "·";
+  return `<span class="st ${kind}" title="${esc(title || "")}">${g}</span>`;
+}
+const VGL = { pass: ["✓", "ok-t"], fail: ["×", "bad-t"], inconclusive: ["◐", "mut"], unevaluated: ["○", "mut"], reading: ["·", "mut"] };
+function sawOf(r) { return (r && r.sawtooth) || null; }
+function sawLine(sa) {
+  if (!sa) return "结果里没有锯齿判读（旧版应用写的）";
+  const inv = sa.inversion || {}, cr = sa.crashes || {};
+  if (sa.status === "ok") return `R_inv ${f(inv.r_inv, 3)} ± ${f(inv.r_inv_stat, 3)} m（系统 ±${f(inv.r_inv_sys, 2)}）· ${cr.n} 次崩塌，周期 ${f(cr.period_ms, 1)} ms`;
+  if (sa.status === "no_sawteeth") return `窗里没有锯齿（${esc(sa.why || "")}）`;
+  return esc(sa.why || "unevaluated");
+}
+function tstat(t) { if (!t) return "none"; return { ok: "ok", unphysical: "unph", error: "err", skipped: "skip" }[t.status] || "none"; }
+
+// ---------------------------------------------------------------------------------------------- charts
+function scale(d0, d1, r0, r1) { const k = (r1 - r0) / ((d1 - d0) || 1); return (v) => r0 + (v - d0) * k; }
+function nice(lo, hi, n) {
+  if (!(hi > lo)) hi = lo + 1;
+  const s0 = (hi - lo) / n, p = Math.pow(10, Math.floor(Math.log10(s0))), m = s0 / p;
+  const st = (m < 1.5 ? 1 : m < 3 ? 2 : m < 7 ? 5 : 10) * p, out = [];
+  for (let v = Math.ceil(lo / st) * st; v <= hi + st * 1e-9; v += st) out.push(+v.toPrecision(12));
+  return out;
+}
+let CID = 0;
+/** 线图：series [{x, y, color, dash, width, label, band:{lo,hi}, points:[{x,y,err,fill,stroke,title,r}]}]。 */
+function chart(series, o) {
+  o = Object.assign({ w: 300, h: 170, title: "", xlab: "", xlim: null, ylim: null, hlines: [], vlines: [], xbands: [], zero: false }, o || {});
+  const L = 38, R = 14, T = 16, B = 22, W = o.w, H = o.h;
+  const xs = [], ys = [];
+  for (const s of series) {
+    (s.x || []).forEach((x, i) => { if (fin(x) && fin(s.y[i])) { xs.push(x); ys.push(s.y[i]); } });
+    if (s.band) s.band.lo.forEach((v, i) => { if (fin(v) && fin(s.band.hi[i])) { ys.push(v, s.band.hi[i]); } });
+    (s.points || []).forEach((p) => { if (fin(p.x) && fin(p.y)) { xs.push(p.x); ys.push(p.y); } });
+  }
+  o.hlines.forEach((h) => ys.push(h.y));
+  if (o.zero) ys.push(0);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.title)}">`;
+  s += `<text x="4" y="11" style="fill:var(--fg);font-weight:600">${esc(o.title)}</text>`;
+  if (!xs.length) return s + `<text x="${W / 2}" y="${H / 2}" text-anchor="middle">没有数据</text></svg>`;
+  const [x0, x1] = o.xlim || [Math.min(...xs), Math.max(...xs)];
+  let [y0, y1] = o.ylim || [Math.min(...ys), Math.max(...ys)];
+  if (!o.ylim) { const pad = (y1 - y0) * 0.08 || Math.abs(y0) * 0.1 || 1; y0 -= pad; y1 += pad; }
+  const X = scale(x0, x1, L, W - R), Y = scale(y0, y1, H - B, T);
+  for (const t of nice(y0, y1, 4)) { const y = Y(t); if (y < T - 1 || y > H - B + 1) continue;
+    s += `<line x1="${L}" x2="${W - R}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)"/><text x="${L - 4}" y="${(y + 3.5).toFixed(1)}" text-anchor="end">${+t.toPrecision(3)}</text>`; }
+  for (const t of nice(x0, x1, 4)) { const x = X(t); if (x < L - 1 || x > W - R + 1) continue;
+    s += `<text x="${x.toFixed(1)}" y="${H - B + 13}" text-anchor="middle">${+t.toPrecision(4)}</text>`; }
+  s += `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="none" stroke="var(--grid)"/>`;
+  if (o.xlab) s += `<text x="${W - R}" y="${H - 1}" text-anchor="end">${esc(o.xlab)}</text>`;
+  const cid = "lc" + (++CID);
+  s += `<defs><clipPath id="${cid}"><rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}"/></clipPath></defs><g clip-path="url(#${cid})">`;
+  for (const b of o.xbands) { const xa = X(b.x0), xb = X(b.x1); if (fin(xa) && fin(xb) && xb > xa)
+    s += `<rect x="${xa.toFixed(1)}" y="${T}" width="${(xb - xa).toFixed(1)}" height="${H - T - B}" fill="${b.color || "var(--fg)"}" opacity="${b.opacity || 0.08}"><title>${esc(b.title || "")}</title></rect>`; }
+  for (const h of o.hlines) { const y = Y(h.y); s += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="${h.color || "var(--muted)"}" stroke-dasharray="3 3"/>`
+    + (h.label ? `<text x="${W - R - 3}" y="${y - 3}" text-anchor="end">${esc(h.label)}</text>` : ""); }
+  for (const v of o.vlines) { if (!fin(v.x)) continue; const x = X(v.x);
+    s += `<line x1="${x}" x2="${x}" y1="${T}" y2="${H - B}" stroke="${v.color || "var(--accent)"}" stroke-dasharray="${v.dash || "2 2"}"/>`; }
+  const ends = [];
+  for (const se of series) {
+    if (se.band) {
+      const up = [], dn = [];
+      se.x.forEach((x, i) => { const lo = se.band.lo[i], hi = se.band.hi[i]; if (fin(x) && fin(lo) && fin(hi)) { up.push(`${X(x).toFixed(1)},${Y(hi).toFixed(1)}`); dn.unshift(`${X(x).toFixed(1)},${Y(lo).toFixed(1)}`); } });
+      if (up.length) s += `<polygon points="${up.concat(dn).join(" ")}" fill="${se.color}" opacity="0.18"><title>${esc(se.band.title || "")}</title></polygon>`;
+    }
+    if (se.x && se.y) {
+      let d = "", pen = false, last = null;
+      se.x.forEach((x, i) => { const y = se.y[i]; if (fin(x) && fin(y)) { d += (pen ? "L" : "M") + X(x).toFixed(1) + "," + Y(y).toFixed(1); pen = true; last = [X(x), Y(y)]; } else pen = false; });
+      if (d) s += `<path d="${d}" fill="none" stroke="${se.color}" stroke-width="${se.width || 1.6}"${se.dash ? ` stroke-dasharray="${se.dash}"` : ""}/>`;
+      if (last && se.label) ends.push({ x: last[0], y: last[1], label: se.label, color: se.color });
+    }
+    for (const p of se.points || []) {
+      if (!fin(p.x) || !fin(p.y)) continue;
+      const cx = X(p.x), cy = Y(p.y);
+      if (fin(p.err)) s += `<line x1="${cx}" x2="${cx}" y1="${Y(p.y - p.err)}" y2="${Y(p.y + p.err)}" stroke="${p.stroke || se.color}" opacity="0.5"/>`;
+      s += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${p.r || 2.6}" fill="${p.fill || se.color}" stroke="${p.stroke || se.color}" stroke-width="1.2"><title>${esc(p.title || "")}</title></circle>`;
+    }
+  }
+  s += "</g>";
+  //: 线端直接标档名（浅色底上 P · S · J 对底的对比度 < 3:1，颜色不能是唯一的识别通道）
+  ends.sort((a, b) => a.y - b.y);
+  let prev = -1e9;
+  for (const e of ends) { const y = Math.max(e.y, prev + 10); prev = y;
+    s += `<text x="${(e.x + 2).toFixed(1)}" y="${(y + 3).toFixed(1)}" style="fill:${e.color};font-weight:700;font-size:10px">${esc(e.label)}</text>`; }
+  return s + "</svg>";
+}
+
+// ---------------------------------------------------------------------------------------------- geometry
+function contour(gr, gz, F, lev) {
+  const segs = [], nr = gr.length, nz = gz.length;
+  const lerp = (a, b, fa, fb) => a + (b - a) * ((lev - fa) / ((fb - fa) || 1e-30));
+  for (let i = 0; i < nr - 1; i++) for (let j = 0; j < nz - 1; j++) {
+    const f00 = F[i][j], f10 = F[i + 1][j], f11 = F[i + 1][j + 1], f01 = F[i][j + 1];
+    if (![f00, f10, f11, f01].every(fin)) continue;
+    const p = [];
+    if ((f00 < lev) !== (f10 < lev)) p.push([lerp(gr[i], gr[i + 1], f00, f10), gz[j]]);
+    if ((f10 < lev) !== (f11 < lev)) p.push([gr[i + 1], lerp(gz[j], gz[j + 1], f10, f11)]);
+    if ((f11 < lev) !== (f01 < lev)) p.push([lerp(gr[i], gr[i + 1], f01, f11), gz[j + 1]]);
+    if ((f01 < lev) !== (f00 < lev)) p.push([gr[i], lerp(gz[j], gz[j + 1], f00, f01)]);
+    if (p.length === 2) segs.push(p); else if (p.length === 4) { segs.push([p[0], p[1]]); segs.push([p[2], p[3]]); }
+  }
+  return segs;
+}
+function inside(poly, r, z) {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [ri, zi] = poly[i], [rj, zj] = poly[j];
+    if ((zi > z) !== (zj > z) && r < (rj - ri) * (z - zi) / (zj - zi) + ri) c = !c;
+  }
+  return c;
+}
+function psinOf(t) { const a = t.facts.psi_axis, b = t.facts.psi_bnd; return t.psi.map((row) => row.map((v) => (a - v) / (a - b))); }
+/** 边界之间的距离：A 的每一点到 B 这条折线的最近距离 → {mean, max}（m）。 */
+function polyDist(A, B) {
+  if (!A || !B || A.length < 3 || B.length < 3) return null;
+  const segd = (p, a, b) => { const dx = b[0] - a[0], dz = b[1] - a[1], l2 = dx * dx + dz * dz || 1e-30;
+    const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / l2));
+    return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dz); };
+  let sum = 0, mx = 0;
+  for (const p of A) { let m = Infinity; for (let i = 0; i < B.length; i++) m = Math.min(m, segd(p, B[i], B[(i + 1) % B.length])); sum += m; mx = Math.max(mx, m); }
+  return { mean: sum / A.length, max: mx };
+}
+/** X 点：偏滤器窗（R 1.30–1.90 m、|Z| 0.50–1.05 m，与 compare 的 xpoint_balance 同窗）里 |∇ψ| 最小的网格点。 */
+function xpoints(gr, gz, P) {
+  const out = [];
+  for (const up of [true, false]) {
+    let best = null;
+    for (let i = 1; i < gr.length - 1; i++) for (let j = 1; j < gz.length - 1; j++) {
+      const r = gr[i], z = gz[j];
+      if (r < 1.30 || r > 1.90 || Math.abs(z) < 0.50 || Math.abs(z) > 1.05 || (z > 0) !== up) continue;
+      const dr = (P[i + 1][j] - P[i - 1][j]) / (gr[i + 1] - gr[i - 1]), dz = (P[i][j + 1] - P[i][j - 1]) / (gz[j + 1] - gz[j - 1]);
+      const gm = Math.hypot(dr, dz);
+      if (fin(gm) && (!best || gm < best.g)) best = { r, z, g: gm, psin: P[i][j] };
+    }
+    if (best) out.push(best);
+  }
+  return out;
+}
+/** q=1 面：q(ψ_N) − 1 的根；中平面 R 由 ψ_N 网格在磁轴高度上的插值给。 */
+function qRoots(psin, q) {
+  const roots = [];
+  for (let i = 0; i + 1 < psin.length; i++) {
+    const a = q[i] - 1, b = q[i + 1] - 1;
+    if (fin(a) && fin(b) && (a === 0 || a * b < 0)) roots.push(psin[i] + (psin[i + 1] - psin[i]) * (a / (a - b || 1e-30)));
+  }
+  return roots;
+}
+function midplaneR(t, lev) {
+  const P = psinOf(t), gr = t.grid.r, gz = t.grid.z, za = t.facts.axis_z;
+  let j = 0; while (j + 1 < gz.length - 1 && gz[j + 1] < za) j++;
+  const w = (za - gz[j]) / (gz[j + 1] - gz[j]);
+  const row = gr.map((_, i) => P[i][j] * (1 - w) + P[i][j + 1] * w);
+  const out = [];
+  for (let i = 0; i + 1 < gr.length; i++) {
+    const a = row[i] - lev, b = row[i + 1] - lev;
+    if (fin(a) && fin(b) && a * b < 0 && Math.abs(gr[i] - t.facts.axis_r) < 0.6) out.push(gr[i] + (gr[i + 1] - gr[i]) * (a / (a - b)));
+  }
+  return out;
+}
+function interp(xs, ys, x) {
+  for (let i = 0; i + 1 < xs.length; i++) if ((xs[i] - x) * (xs[i + 1] - x) <= 0) {
+    const w = (x - xs[i]) / ((xs[i + 1] - xs[i]) || 1e-30); return ys[i] * (1 - w) + ys[i + 1] * w; }
+  return NaN;
+}
+
+// ---------------------------------------------------------------------------------------------- G-EQDSK
+/** G-EQDSK 文本 → 对照平衡。数可以连写（1.0E+00-2.0E-01），按 E 格式逐个抽。 */
+function parseG(text, name) {
+  const lines = text.split(/\r?\n/);
+  const hd = lines[0], hn = hd.trim().split(/\s+/), nh = +hn[hn.length - 1], nw = +hn[hn.length - 2];
+  if (!(nw > 2 && nh > 2)) throw new Error("不是 G-EQDSK（首行末尾不是 nw nh）");
+  const re = /[+-]?\d\.\d+[eE][+-]\d+/g;
+  const need = 20 + 5 * nw + nw * nh;
+  const v = []; let li = 1;
+  while (v.length < need && li < lines.length) { const m = lines[li++].match(re); if (m) for (const x of m) v.push(+x); }
+  if (v.length < need) throw new Error("g-file 截断");
+  let k = 0; const take = (n) => { const a = v.slice(k, k + n); k += n; return a; };
+  const [rdim, zdim, , rleft, zmid, rmaxis, zmaxis, simag, sibry] = take(20);
+  take(nw); const pres = take(nw); take(nw); take(nw);
+  const flat = take(nw * nh), qpsi = take(nw);
+  while (li < lines.length && !lines[li].trim()) li++;
+  const ints = (lines[li++] || "").trim().split(/\s+/).map(Number);
+  const nb = ints[0] || 0, nl = ints[1] || 0, bl = [];
+  while (bl.length < 2 * (nb + nl) && li < lines.length) { const m = lines[li++].match(re); if (m) for (const x of m) bl.push(+x); }
+  const boundary = []; for (let i = 0; i < nb; i++) boundary.push([bl[2 * i], bl[2 * i + 1]]);
+  const gr = Array.from({ length: nw }, (_, i) => rleft + rdim * i / (nw - 1));
+  const gz = Array.from({ length: nh }, (_, j) => zmid - zdim / 2 + zdim * j / (nh - 1));
+  const psin = gr.map((_, i) => gz.map((_, j) => (flat[j * nw + i] - simag) / (sibry - simag)));
+  const x = Array.from({ length: nw }, (_, i) => i / (nw - 1));
+  const mt = hd.match(/#?\s*(\d{4,6})\s+(\d+)\s*ms/);
+  return { kind: "gfile", name, label: labelFromName(name), shot: mt ? +mt[1] : null, time_s: mt ? +mt[2] / 1000 : null,
+    axis: [rmaxis, zmaxis], boundary, gr, gz, psin, x, q: qpsi, p: pres, q0: qpsi[0], q95: interp(x, qpsi, 0.95) };
+}
+function labelFromName(n) { const m = /_([A-Za-z][\w+-]*)$/.exec(n || ""); return m ? "EFIT+" + m[1].toUpperCase() : (n || "g-file"); }
+
+// ---------------------------------------------------------------------------------------------- config (fylite:KineticReconInput v2)
+//: 与 kinetic_config.py 的 DEFAULTS 逐键相同（test/test_config.py 核对）
+function cfgDefault() {
+  return { "@type": "fylite:KineticReconInput", version: 2,
+    data: { device: "east", shot: null, chain: "east", server: null, window_ms: 10, file: null, thomson_file: null },
+    slices: { times_s: [], range: null, align: "none", window: null, overrides: {} },
+    ladder: { tiers: ["M", "K", "P"], fallback: { P: "D" }, x: "auto" },
+    magnetics: { loops_start: "B+readmit", reject_sigma: 5.0, loops: {}, probes: {} },
+    point: { on: true, dead_sigma: 8.0 },
+    pressure: { source: "thomson", sigma_floor: 0.05, psin_max: 0.98, fast_frac: 0.0, wdia: { value_J: null, sigma_rel: 0.01, relax: 1.0 } },
+    mse: { channels: {}, er_correction: "off" },
+    currents: { bootstrap: { role: "prior", formula: "redl2021", sigma_rel: null, x: [0.9, 0.925, 0.95, 0.97, 0.99], zeff: 2.0, tite: 1.0, profiles: "fit" } },
+    presets: { core: { q0: { mode: "free", target: 1.0, sigma: 0.05, basis: "assumed" }, q1: { on: false, from: "ece_inversion" }, p0: { on: false }, flat_j: false },
+      pedestal: { on: false, x: 0.95, w: 0.03, ffprime: false, p_ped: null, te_sep_eV: null } },
+    basis: { preset: "efit-1-2", npp: 1, nff: 2 },
+    profiles: { fit: "legendre-gcv" },
+    validation: { checks: ["physics", "cross_tier", "wdia", "sawtooth_q1", "ece_hfs_lfs"], bounds: {} },
+    reference: [], run: { jobs: 8, scan: "coarse", physics_select: false }, output: { dir: "out", keep_psi: true, gfile: false }, tier_x: {} };
+}
+/** 由一份结果的 settings 回推配置——于是刚载入时什么都不过期。 */
+function cfgFromResult(res) {
+  const c = cfgDefault(), st = res.settings || {};
+  c.data.shot = res.shot; c.data.chain = res.measurement_chain || "east";
+  c.ladder.tiers = ORDER.filter((k) => k !== "D" && k !== "X" && res.tiers && res.tiers[k] && !(k === "P" && res.tiers.P.status === "skipped" && !res.tiers.D));
+  if (res.tiers && res.tiers.P) { if (!c.ladder.tiers.includes("P")) c.ladder.tiers.push("P"); }
+  c.ladder.tiers = ORDER.filter((k) => c.ladder.tiers.includes(k));
+  if (fin(st.reject_sigma)) c.magnetics.reject_sigma = st.reject_sigma;
+  if (st.loops) c.magnetics.loops_start = st.loops;
+  if (fin(st.dead_sigma)) c.point.dead_sigma = st.dead_sigma;
+  if (fin(st.psin_max)) c.pressure.psin_max = st.psin_max;
+  if (fin(st.p_fast_frac)) c.pressure.fast_frac = st.p_fast_frac;
+  if (fin(st.wdia_sigma)) c.pressure.wdia.sigma_rel = st.wdia_sigma;
+  if (fin(st.npp)) c.basis.npp = st.npp;
+  if (fin(st.nff)) c.basis.nff = st.nff;
+  c.basis.preset = Object.keys(BASIS).find((k) => BASIS[k].npp === c.basis.npp && BASIS[k].nff === c.basis.nff && !BASIS[k].ped) || "custom";
+  const X = res.tiers && res.tiers.X, inp = X && X.input;
+  if (inp) applyInputV1(c, inp);
+  return c;
+}
+function applyInputV1(c, inp) {
+  if (inp.pedestal) Object.assign(c.presets.pedestal, { on: !!inp.pedestal.on, x: inp.pedestal.x, w: inp.pedestal.w, ffprime: !!inp.pedestal.ffprime });
+  if (inp.q0) c.presets.core.q0 = Object.assign(c.presets.core.q0, { mode: inp.q0.on ? "prior" : "free", target: inp.q0.target, sigma: inp.q0.sigma });
+  const pp = inp.basis && inp.basis.pprime, ff = inp.basis && inp.basis.ffprime;
+  if (pp && pp.mode === "poly" && ff && ff.mode === "poly") { c.basis.npp = pp.n; c.basis.nff = ff.n; }
+  const bs = inp.currents && inp.currents.bootstrap;
+  if (bs && bs.on && !c.ladder.tiers.includes("J")) c.ladder.tiers.push("J");
+}
+/** 这一片 × 各档，在当前配置下是否过期（依赖：基 · 剔道 → 全部档；W_dia σ → D；psin_max · 快离子 → P、D）。 */
+function staleOf(sl) {
+  const out = {}, st = (sl.res && sl.res.settings) || {}, c = S.cfg;
+  if (!c || !sl.res) return out;
+  const all = (fin(st.npp) && st.npp !== c.basis.npp) || (fin(st.nff) && st.nff !== c.basis.nff) || (fin(st.reject_sigma) && st.reject_sigma !== c.magnetics.reject_sigma)
+    || (st.loops && st.loops !== c.magnetics.loops_start);
+  const pd = (fin(st.psin_max) && st.psin_max !== c.pressure.psin_max) || (fin(st.p_fast_frac) && st.p_fast_frac !== c.pressure.fast_frac);
+  const d = fin(st.wdia_sigma) && st.wdia_sigma !== c.pressure.wdia.sigma_rel;
+  for (const k of ORDER) {
+    const t = sl.res.tiers[k];
+    if (!t) { if (c.ladder.tiers.includes(k) && k !== "S") out[k] = "want"; continue; }
+    if (all || ((k === "P" || k === "D") && pd) || (k === "D" && d)) out[k] = "stale";
+  }
+  return out;
+}
+function cfgDiffCount() {
+  if (!S.cfg || !S.cfgBase) return 0;
+  const a = JSON.stringify(S.cfg), b = JSON.stringify(S.cfgBase);
+  if (a === b) return 0;
+  let n = 0; const walk = (x, y) => { if (typeof x !== "object" || x === null || typeof y !== "object" || y === null) { if (JSON.stringify(x) !== JSON.stringify(y)) n++; return; }
+    for (const k of new Set([...Object.keys(x), ...Object.keys(y)])) walk(x[k], y[k]); };
+  walk(S.cfg, S.cfgBase); return n;
+}
+function getp(o, path) { return path.split(".").reduce((v, k) => (v == null ? undefined : v[k]), o); }
+function setp(o, path, v) { const ks = path.split("."), last = ks.pop(); let t = o; for (const k of ks) { if (t[k] == null || typeof t[k] !== "object") t[k] = {}; t = t[k]; } t[last] = v; }
+
+// ---------------------------------------------------------------------------------------------- loading
+function slice() { return S.slices[S.cur] || null; }
+function res() { const s = slice(); return s && s.res; }
+function mainTier(r) {
+  if (!r) return null;
+  if (S.main !== "auto" && ok(r.tiers[S.main])) return S.main;
+  let best = null; for (const k of ORDER) if (ok(r.tiers[k])) best = k;
+  return best;
+}
+function onOf(r, k) {
+  const t = r.tiers[k];
+  if (t && t.on) return t.on;
+  const i = ORDER.indexOf(k); for (let j = i - 1; j >= 0; j--) { const kk = ORDER[j]; if (kk === "D" || (kk === "P" && k === "D")) continue; if (ok(r.tiers[kk])) return kk; }
+  return null;
+}
+function loadText(text, name) {
+  let doc = null;
+  try { doc = JSON.parse(text); } catch (e) { /* 不是 JSON：试 g-file */ }
+  if (!doc) {
+    const g = parseG(text, name); S.refs.push(g); return "gfile";
+  }
+  const ty = doc["@type"];
+  if (ty === "fylite:KineticReconResult") {
+    const i = S.slices.findIndex((s) => s.kind === "result" && s.res.shot === doc.shot && Math.abs(s.t - doc.time_s) < 5e-4);
+    const sl = { kind: "result", t: doc.time_s, res: doc, name };
+    if (i >= 0) S.slices[i] = sl; else S.slices.push(sl);
+    S.slices.sort((a, b) => a.t - b.t);
+    if (!S.cfg) { S.cfg = cfgFromResult(doc); S.cfgBase = JSON.parse(JSON.stringify(S.cfg)); }
+    S.cur = S.slices.indexOf(sl);
+    return "result";
+  }
+  if (ty === "fylite:KineticReconSeries") {
+    for (const s of doc.slices || []) {
+      if (S.slices.some((x) => x.kind === "result" && Math.abs(x.t - s.time_s) < 5e-4)) continue;
+      S.slices.push({ kind: "series", t: s.time_s, ser: s, shot: doc.shot, name, limiter: doc.device && doc.device.limiter });
+    }
+    S.slices.sort((a, b) => a.t - b.t);
+    if (S.cur < 0) S.cur = 0;
+    return "series";
+  }
+  if (ty === "fylite:KineticReconComparison") { S.cmp[String(Math.round(doc.time_s * 1000))] = doc; return "compare"; }
+  if (ty === "fylite:KineticReconInput") {
+    S.inputs.push(doc);
+    if (!S.cfg) { S.cfg = cfgDefault(); S.cfgBase = JSON.parse(JSON.stringify(S.cfg)); }
+    if (doc.version === 2) S.cfg = Object.assign(cfgDefault(), doc); else applyInputV1(S.cfg, doc);
+    return "input";
+  }
+  throw new Error(`不认识的文件：${name}（@type = ${ty || "无"}）。收：结果 · 时间序列 · 比较 · 输入文件 · g-file`);
+}
+function refsFor(sl) {
+  if (!sl) return [];
+  const shot = sl.res ? sl.res.shot : sl.shot;
+  return S.refs.filter((g) => (g.shot == null || g.shot === shot) && (g.time_s == null || Math.abs(g.time_s - sl.t) < 0.0055));
+}
+function cmpFor(sl) { return sl ? S.cmp[String(Math.round(sl.t * 1000))] || null : null; }
+/** 比较 JSON 里对方的同尺量：{label → {q0, q95, li1, betap, w}}（成对的量取 [我们, 对方] 的对方）。 */
+function cmpRefs(sl) {
+  const c = cmpFor(sl), out = {};
+  if (!c) return out;
+  for (const row of c.rows || []) {
+    const src = (c.sources || {})[row.source] || {}, lab = src.label || row.source;
+    if (out[lab]) continue;
+    const th = (p) => (Array.isArray(p) ? p[1] : NaN);
+    out[lab] = { source: row.source, file: src.file, q0: th(row.q0), q95: th(row.q95), li1: th(row.li1_same_ruler), betap: th(row.betap_same_ruler),
+      w: th(row.w_mhd_same_ruler_J), axis_r: th(row.axis_r), axis_z: th(row.axis_z), config: th(row.xpoint_config) };
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------------------------- per-tier numbers
+function tierNums(t) {
+  if (!ok(t)) return null;
+  const F = t.facts || {}, sr = (t.physics_check && t.physics_check.same_ruler) || {};
+  const li1 = sr.li1, bp = sr.betap;
+  return { q0: F.q0, q0s: F.q0_sigma, q95: F.q95, li1, li3: sr.li3, betap: bp, w: sr.w_mhd_J, lam: fin(li1) && fin(bp) ? bp + li1 / 2 : NaN,
+    chi: F.chi2_per_dof, chim: F.chi2_mag_per_row, compat: F.compat_mag_vs_M, ar: F.axis_r, az: F.axis_z, vol: sr.volume_m3 };
+}
+const LROWS = [["q0", "q₀", 3], ["q0s", "σ(q₀) 近轴 1σ", 3, 1, true], ["q95", "q₉₅", 3], ["li1", "l_i(1) 同尺", 3], ["betap", "β_p 同尺", 3], ["lam", "β_p + l_i(1)/2", 3],
+  ["w", "W 同尺 [kJ]", 1, 1e-3], ["chi", "χ²/dof", 2], ["chim", "χ²_mag / 行（只数磁测量）", 2], ["compat", "磁相容性：χ²_mag/行 对 M 之比", 3, 1, true], ["ar", "磁轴 R [m]", 4], ["az", "磁轴 Z [m]", 4]];
+
+// ---------------------------------------------------------------------------------------------- render: strip
+function renderStrip() {
+  const n = S.slices.length;
+  const ts = S.slices.map((s) => s.t);
+  const t0 = Math.min(...ts), t1 = Math.max(...ts), pad = Math.max((t1 - t0) * 0.06, 0.05);
+  const W = 1200, H = 74, X = scale(t0 - pad, t1 + pad, 40, W - 12);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="时间条">`;
+  //: 有时间序列的测量就画 I_p 与 W_dia 的迹（逐片的 measured）
+  const ser = S.slices.filter((x) => x.kind === "series" && x.ser.measured);
+  const ipv = S.slices.map((x) => (x.kind === "series" ? (x.ser.measured || {}).ip_A : (x.res.inputs || {}).ip));
+  const wv = S.slices.map((x) => (x.kind === "series" ? (x.ser.measured || {}).w_dia_J : (x.res.inputs || {}).w_dia_J));
+  const trace = (vals, color, dash, lab, y0) => {
+    const ok2 = vals.map((v, i) => [ts[i], v]).filter((p) => fin(p[1]));
+    if (ok2.length < 2) return "";
+    const lo = Math.min(...ok2.map((p) => p[1])), hi = Math.max(...ok2.map((p) => p[1]));
+    const Y = scale(lo - (hi - lo) * 0.1 - 1e-9, hi + (hi - lo) * 0.1 + 1e-9, 50, 14);
+    return `<path d="${ok2.map((p, i) => (i ? "L" : "M") + X(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1)).join("")}" fill="none" stroke="${color}" stroke-width="1.2"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`
+      + `<text x="4" y="${y0}">${lab}</text>`;
+  };
+  s += trace(ipv, "var(--fg)", null, "I_p", 22) + trace(wv, "var(--muted)", "4 3", "W_dia", 36);
+  for (const t of nice(t0 - pad, t1 + pad, 8)) s += `<line x1="${X(t)}" x2="${X(t)}" y1="56" y2="59" stroke="var(--muted)"/><text x="${X(t)}" y="71" text-anchor="middle">${+t.toPrecision(4)} s</text>`;
+  s += `<line x1="40" x2="${W - 12}" y1="56" y2="56" stroke="var(--grid)"/>`;
+  S.slices.forEach((sl, i) => {
+    const st = sliceStatus(sl), col = { ok: "var(--ok)", unph: "var(--warn)", err: "var(--bad)", skip: "var(--muted)", none: "var(--muted)" }[st];
+    if (i === S.cur) s += `<line x1="${X(sl.t)}" x2="${X(sl.t)}" y1="8" y2="60" stroke="var(--accent)" stroke-width="1.6"/><text x="${X(sl.t) + 4}" y="12" style="fill:var(--accent)">${f(sl.t, 3)} s</text>`;
+    s += `<circle data-i="${i}" cx="${X(sl.t).toFixed(1)}" cy="56" r="${i === S.cur ? 5.5 : 4.5}" fill="${col}" stroke="var(--panel)" stroke-width="1.5" style="cursor:pointer"><title>${f(sl.t, 4)} s · ${esc(sl.name)}</title></circle>`;
+  });
+  $("strip").innerHTML = s + "</svg>";
+  $("stripnote").textContent = `${n} 片${ser.length ? `（其中时间序列 ${ser.length} 片，只有档 M）` : ""} · 点片 = 当前片 · ← → 走片`;
+}
+function sliceStatus(sl) {
+  if (sl.kind === "series") return { ok: "ok", unphysical: "unph", error: "err" }[sl.ser.status] || "none";
+  const k = mainTier(sl.res); const M = sl.res.tiers.M;
+  if (!ok(M)) return "err";
+  return k ? tstat(sl.res.tiers[k]) : "err";
+}
+
+// ---------------------------------------------------------------------------------------------- render: input zone
+function renderInput() {
+  const sl = slice(), r = res(), c = S.cfg;
+  //: 数据源
+  let h = "";
+  if (r) {
+    const M = r.tiers.M, ch = ok(M) && M.channels, ex = (r.inputs && r.inputs.excluded) || [];
+    const rule = (kind) => ex.filter((e) => e.kind === kind && /read rule/.test(e.why || ""));
+    const used = (list) => (list || []).filter((x) => x.used).length;
+    const K = r.tiers.K, P = r.tiers.P, pt = ok(K) && K.point;
+    const nPol = pt ? (pt.fwtpol || []).filter((w) => w > 0).length : 0, nNel = pt ? (pt.fwtnel || []).filter((w) => w > 0).length : 0;
+    const nDead = pt ? (pt.dead || []).length : 0, nCh = pt ? (pt.fwtpol || []).length : 11;
+    const rows = [
+      [ch ? "ok" : "err", "磁通环", ch ? `${used(ch.loops)} / ${(ch.loops || []).length}` : "—", rule("loop").length ? `取数规则丢 ${rule("loop").map((e) => e.name).join(" ")}` : ""],
+      [ch ? "ok" : "err", "磁探针", ch ? `${used(ch.probes)} / ${(ch.probes || []).length}` : "—", rule("probe").length ? `取数规则丢 ${rule("probe").length} 道` : ""],
+      [r.inputs.has_point ? (ok(K) ? "ok" : "err") : "skip", "POINT", r.inputs.has_point ? (pt ? `${nPol} / ${nCh} 弦` : "有") : "—", r.inputs.has_point ? (pt ? `法拉第 ${nPol} · 干涉 ${nNel} 弦进；零假设死道 ${nDead} 行` : (K && !ok(K) ? (K.why || K.error || "") : "")) : "无此炮"],
+      [!r.inputs.has_thomson ? "skip" : (ok(P) ? "ok" : "err"), "Thomson", r.inputs.has_thomson ? (ok(P) ? `${(P.thomson.points || []).filter((p) => p.used).length} 点` : "不可用") : "—",
+        !r.inputs.has_thomson ? "无此炮 / 没取" : (r.thomson_points ? `Tₑ 门 ${r.thomson_points.te_ok.filter(Boolean).length} · nₑ 门 ${r.thomson_points.ne_ok.filter(Boolean).length} / ${r.thomson_points.te.length} 道过` + (P && !ok(P) ? "；压强要两门都过 → P 不可用" : "") : "")
+          + (P && !ok(P) && !r.thomson_points ? (P.why || P.error || "") : "")],
+      [fin(r.inputs.w_dia_J) ? "ok" : "skip", "W_dia", fin(r.inputs.w_dia_J) ? f(r.inputs.w_dia_J / 1e3, 1) + " kJ" : "—", fin(r.inputs.w_dia_J) ? "±10 ms 均值" : "取不到"],
+      ["skip", "MSE", "—", "无绑定"],
+      ((sa) => !sa || sa.status === "unevaluated" ? ["skip", "ECE · SXR", "—", sa ? (sa.why || "") : "测量文档没有锯齿窗（新版 pull 会取）"]
+        : ["ok", "ECE · SXR", `${(sa.inversion || {}).profile ? sa.inversion.profile.length + " 道" : "—"}`, sa.status === "ok" ? `${sa.crashes.n} 次崩塌；只作锯齿校验` : "窗里没有锯齿"])(sawOf(r)),
+      ["skip", "Mirnov", "—", "未绑定 → 有理面校验不可算"],
+    ];
+    h = rows.map(([st, n, v, why]) => `<div class="row">${glyph(st)}<span>${esc(n)}</span><span>${esc(v)}</span><span class="s">${esc(why)}</span></div>`).join("");
+  } else if (sl && sl.kind === "series") {
+    h = `<p class="s">这一片来自时间序列（只有档 M 的标量与边界）：数据源逐道状态在结果 JSON 里，时间序列不带。</p>`;
+  }
+  $("src").innerHTML = h || '<p class="s">—</p>';
+
+  //: 约束阶梯
+  const lt = c ? c.ladder.tiers : [];
+  const tog = (k, dis, note) => `<div class="lad">${chip(k)}<span>${esc(TNAME[k])}</span><input type="checkbox" data-tier="${k}"${lt.includes(k) || k === "M" ? " checked" : ""}${dis ? " disabled" : ""} aria-label="档 ${k}">`
+    + (note ? `<span class="note s">${note}</span>` : "") + "</div>";
+  const J = r && r.tiers.X && r.tiers.X.kinetic && r.tiers.X.kinetic.currents;
+  $("lad").innerHTML = tog("M", true, "总是跑（阶段 0）") + tog("K", false) + tog("P", false, "跑不成而有 W_dia 时自动 → " + chip("D") + " 顶替（σ_rel " + f(c ? c.pressure.wdia.sigma_rel * 100 : 1, 0) + " %）")
+    + tog("Q", false, "锯齿反转半径（ECE）当约束：一行 q=1 面内电流，叠在 K 上；进了拟合，这一档的锯齿校验作废")
+    + tog("S", true, "内核无 MSE 行族：没法跑；带 MSE 的 EFIT 只作对照（g-file 拖进来）")
+    + tog("J", false, "阶梯里的档 J 还没有（要作带 σ 的先验块）；今天的自举电流在 kinetic_input.py 的档 X" + (J ? "——这一片的档 X 用了它" : "") + "。J 不叠在 D 上（D 无剖面形状）");
+
+  //: 预设
+  if (c) {
+    const q = c.presets.core.q0, pd = c.presets.pedestal;
+    $("pre").innerHTML = `<div class="fieldrow"><label>芯部 q₀</label><span class="seg" id="q0seg">${["free", "prior", "hard"].map((m) =>
+        `<button data-q0="${m}" aria-pressed="${q.mode === m}"${m === "hard" ? ' title="硬约束要第二条等式，今天不支持"' : ""}>${m}</button>`).join("")}</span></div>`
+      + (q.mode !== "free" ? `<div class="fieldrow"><label>目标 · σ</label><input type="number" step="0.01" data-path="presets.core.q0.target" value="${q.target}">
+          <input type="number" step="0.01" data-path="presets.core.q0.sigma" value="${q.sigma}"><span class="s">依据 assumed</span></div>` : "")
+      + (q.mode === "hard" ? '<div class="box warn">hard 档今天不支持（要第二条等式）：导出时按 prior 写，记为 assumed。</div>' : "")
+      + `<div class="fieldrow"><label>q=1 面</label><input type="checkbox" disabled><span class="s">需 ECE / SXR 反转半径</span></div>`
+      + `<div class="fieldrow"><label>芯部 p(0) · 展平</label><input type="checkbox" disabled><span class="s">无 code</span></div>`
+      + `<div class="fieldrow"><label>台基 sech²</label><input type="checkbox" data-path="presets.pedestal.on"${pd.on ? " checked" : ""}>
+          <span class="s">x</span><input type="number" step="0.005" data-path="presets.pedestal.x" value="${pd.x}"><span class="s">w</span><input type="number" step="0.005" data-path="presets.pedestal.w" value="${pd.w}"></div>`
+      + `<div class="fieldrow"><label>台基高度 · Tₑ,sep</label><input type="checkbox" disabled><span class="s">无 code</span></div>`
+      + (pd.on ? '<p class="s">台基基今天只有 kinetic_input.py 的档 X 收；阶梯 run 不收，导出的命令分两条。</p>' : "");
+    //: 基
+    const bp = BASIS[c.basis.preset];
+    const top = Math.max(...c.ladder.tiers.map((k) => RANK[k] ?? 0));
+    const low = bp && RANK[bp.min] > top;
+    $("bas").innerHTML = `<div class="fieldrow"><select id="basissel" aria-label="基预设">${Object.keys(BASIS).map((k) => `<option value="${k}"${k === c.basis.preset ? " selected" : ""}>${k}</option>`).join("")}
+        <option value="custom"${c.basis.preset === "custom" ? " selected" : ""}>自定义</option></select>
+        <span class="s">p′ poly</span><input type="number" min="1" max="6" data-path="basis.npp" value="${c.basis.npp ?? ""}"><span class="s">FF′ poly</span><input type="number" min="1" max="6" data-path="basis.nff" value="${c.basis.nff ?? ""}"></div>`
+      + (bp ? `<p class="s">${esc(bp.note)}；建议最低档 ${chip(bp.min)}</p>` : '<p class="s">自定义阶数：没有「建议最低档」。</p>')
+      + (low ? `<div class="box warn">⚠ 所开的最高档低于这个基的建议最低档：多出的系数定不住，照跑、结果加注。</div>` : "");
+    //: 校验
+    const usedW = c.ladder.tiers.includes("P") && r && ok(r.tiers.D);
+    const V = [["physics", "解的物理校验（15 条）", ""], ["cross_tier", "跨档 β_p + l_i(1)/2", ""], ["wdia", "W_dia 对 W", usedW ? "档 D 用了 → 在 D 及其上除名" : ""],
+      ["sawtooth_q1", "锯齿 q=1 面", sawOf(r) ? { ok: "ECE + SXR 有数", no_sawteeth: "窗里没有锯齿", unevaluated: "unevaluated" }[sawOf(r).status] || "" : "测量文档没有锯齿数据"],
+      ["ece_hfs_lfs", "ECE 高低场侧", "ECE 只有低场侧的道 → unevaluated"]];
+    $("valin").innerHTML = V.map(([k, lab, note]) => `<div class="fieldrow"><input type="checkbox" data-check="${k}"${c.validation.checks.includes(k) ? " checked" : ""}><span>${lab}</span><span class="s">${note}</span></div>`).join("");
+    //: 片与命令
+    renderCmd();
+  }
+}
+function sliceSpec() {
+  const ts = S.slices.map((s) => s.t);
+  return ts.length ? ts.map((t) => +t.toFixed(4)).join(",") : "";
+}
+function renderCmd() {
+  const c = S.cfg, r = res();
+  if (!c) { $("cmd").innerHTML = ""; return; }
+  const tiers = c.ladder.tiers.filter((k) => "MKP".includes(k));
+  const withD = c.ladder.tiers.includes("P");
+  const sh = c.data.shot || "SHOT";
+  const today = [];
+  const times = S.slices.map((s) => s.t);
+  const tlist = times.length ? times : [NaN];
+  for (const t of tlist.slice(0, 3)) {
+    const tm = fin(t) ? Math.round(t * 1000) : "TMS";
+    today.push(`python kinetic_recon.py pull --shot ${sh} --time ${fin(t) ? +t.toFixed(4) : "T"} -o pull_${sh}_${tm}.json`);
+    let run = `python kinetic_recon.py run pull_${sh}_${tm}.json --tiers ${tiers.join("")}${c.ladder.tiers.includes("D") ? "D" : ""}`
+      + ` --npp ${c.basis.npp} --nff ${c.basis.nff} --reject-sigma ${c.magnetics.reject_sigma} --psin-max ${c.pressure.psin_max}`
+      + (withD ? ` --wdia-sigma ${c.pressure.wdia.sigma_rel}` : "") + (c.pressure.fast_frac ? ` --p-fast-frac ${c.pressure.fast_frac}` : "")
+      + (c.magnetics.loops_start !== "B+readmit" ? ` --loops ${c.magnetics.loops_start}` : "") + ` -o result_${sh}_${tm}.json`;
+    today.push(run);
+    for (const g of refsFor(S.slices.find((s) => s.t === t)).slice(0, 1)) today.push(`python kinetic_recon.py compare result_${sh}_${tm}.json --gfile ${g.name} --label ${g.label} -o cmp_${sh}_${tm}.json`);
+  }
+  if (times.length > 3) today.push(`# …另 ${times.length - 3} 片同形（今天多片要逐片写；series 只跑档 M）`);
+  const needX = c.presets.pedestal.on || c.presets.core.q0.mode !== "free" || c.ladder.tiers.includes("J");
+  if (needX) today.push(`# 预设 / 自举电流今天走档 X：`, `python kinetic_input.py template pull_${sh}_*.json -o input.json   # 再把「下载配置」里的 presets 抄进去`, `python kinetic_input.py run input.json -o result_X.json`);
+  const sets = [];
+  const walk = (a, b, pre) => { for (const k of Object.keys(a)) { const p = pre ? pre + "." + k : k;
+    if (a[k] && typeof a[k] === "object" && !Array.isArray(a[k]) && b && typeof b[k] === "object") walk(a[k], b[k], p);
+    else if (JSON.stringify(a[k]) !== JSON.stringify(b ? b[k] : undefined) && !p.startsWith("ladder") && !p.startsWith("slices")) sets.push(`--set ${p}=${JSON.stringify(a[k]).replace(/"/g, "")}`); } };
+  walk(c, S.cfgBase, "");
+  const design = `python kinetic_recon.py run k${sh}.json --tiers ${c.ladder.tiers.join(",")} --slices ${sliceSpec() || "T"}${sets.length ? " \\\n    " + sets.join(" ") : ""} -o out/`;
+  $("cmd").innerHTML = `<div class="fieldrow"><label>片</label><span>${S.slices.length} 片</span><span class="s">${esc(sliceSpec().slice(0, 60))}${sliceSpec().length > 60 ? "…" : ""}</span></div>`
+    + `<h2 style="margin-top:6px">今天能跑的 <small>应用现有的命令</small></h2><pre class="cmd" id="cmdtoday">${esc(today.join("\n"))}</pre>`
+    + `<h2>配置 v2 的写法 <small>「下载配置」存的文件；run 按片 × 阶梯批量跑</small></h2><pre class="cmd">${esc(design)}</pre>`
+    + '<p class="s">改了输入的片 × 档标「◌ 过期」，不自动重跑。</p>';
+}
+
+// ---------------------------------------------------------------------------------------------- render: output zone
+function renderSection() {
+  const sl = slice(), r = res(), mk = mainTier(r);
+  const lim = r ? r.device && r.device.limiter : sl && sl.limiter;
+  const refs = refsFor(sl);
+  let rs = [], zs = [];
+  if (lim) { rs = lim.r; zs = lim.z; } else if (r && ok(r.tiers.M)) { rs = r.tiers.M.grid.r; zs = r.tiers.M.grid.z; }
+  else if (sl && sl.ser && sl.ser.boundary) { rs = sl.ser.boundary.map((p) => p[0]); zs = sl.ser.boundary.map((p) => p[1]); }
+  if (!rs.length) { $("xs").innerHTML = '<p class="s">没有几何</p>'; return; }
+  const r0 = Math.min(...rs) - 0.06, r1 = Math.max(...rs) + 0.06, z0 = Math.min(...zs) - 0.06, z1 = Math.max(...zs) + 0.06;
+  const W = 300, H = Math.round(W * (z1 - z0) / (r1 - r0)), X = scale(r0, r1, 0, W), Y = scale(z0, z1, H, 0);
+  const path = (pts, a) => `<path d="${pts.map((p, i) => (i ? "L" : "M") + X(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1)).join("")}Z" ${a}/>`;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="极向截面">`;
+  if (lim) s += path(lim.r.map((x, i) => [x, lim.z[i]]), 'fill="none" stroke="var(--wall)" stroke-width="1.2"');
+  const legend = [];
+  if (r && mk) {
+    const t = r.tiers[mk], P = psinOf(t), bnd = t.boundary || [];
+    for (let lev = 0.1; lev < 0.95; lev += 0.1) for (const sg of contour(t.grid.r, t.grid.z, P, lev)) {
+      const mid = [(sg[0][0] + sg[1][0]) / 2, (sg[0][1] + sg[1][1]) / 2];
+      if (bnd.length > 3 && !inside(bnd, mid[0], mid[1])) continue;
+      s += `<line x1="${X(sg[0][0]).toFixed(1)}" y1="${Y(sg[0][1]).toFixed(1)}" x2="${X(sg[1][0]).toFixed(1)}" y2="${Y(sg[1][1]).toFixed(1)}" stroke="${TCOL[mk]}" stroke-width="0.75" opacity="0.5"/>`;
+    }
+    //: q=1 面（主显示档）：点线环
+    const pr = t.profiles || {}, roots = pr.psin ? qRoots(pr.psin, pr.qpsi) : [];
+    for (const lv of roots) for (const sg of contour(t.grid.r, t.grid.z, P, lv)) {
+      const mid = [(sg[0][0] + sg[1][0]) / 2, (sg[0][1] + sg[1][1]) / 2];
+      if (bnd.length > 3 && !inside(bnd, mid[0], mid[1])) continue;
+      s += `<line x1="${X(sg[0][0]).toFixed(1)}" y1="${Y(sg[0][1]).toFixed(1)}" x2="${X(sg[1][0]).toFixed(1)}" y2="${Y(sg[1][1]).toFixed(1)}" stroke="${TCOL[mk]}" stroke-width="1.8" stroke-dasharray="1.5 2"/>`;
+    }
+    if (roots.length) legend.push(`<span><i style="border-color:${TCOL[mk]};border-top-style:dotted"></i>q = 1 面（档 ${mk}）</span>`);
+    //: X 点（主显示档）
+    //: 锯齿反转半径（ECE，低场侧）：中平面上的短刻度（墨色）
+    const inv = (sawOf(r) || {}).inversion;
+    if (inv && fin(inv.r_inv)) {
+      const zi = fin(inv.z) ? inv.z : t.facts.axis_z;
+      s += `<line x1="${X(inv.r_inv)}" x2="${X(inv.r_inv)}" y1="${Y(zi) - 7}" y2="${Y(zi) + 7}" stroke="var(--fg)" stroke-width="2"><title>锯齿反转半径 R_inv ${f(inv.r_inv, 3)} m（ECE）</title></line>`;
+      legend.push(`<span><i style="border-color:var(--fg);width:3px;border-top-width:10px"></i>锯齿反转半径（ECE）</span>`);
+    }
+    for (const xp of xpoints(t.grid.r, t.grid.z, P)) {
+      const on = Math.abs(xp.psin - 1) < 0.01;
+      s += `<text x="${X(xp.r)}" y="${Y(xp.z) + 4}" text-anchor="middle" style="fill:${TCOL[mk]};font-size:11px">${on ? "◆" : "◇"}<title>X 点 ψ_N ${f(xp.psin, 3)}${on ? "（在分离面上）" : ""}</title></text>`;
+    }
+    //: 磁测量按残差着色（发散：蓝负 · 灰 · 橙正），空心未用
+    if (t.channels) for (const [kind, list] of [["loop", t.channels.loops], ["probe", t.channels.probes]]) for (const c of list || []) {
+      if (!c.rz) continue;
+      const a = Math.min(Math.abs(c.sigma || 0) / 5, 1), col = !fin(c.sigma) ? "var(--muted)" : a < 0.2 ? "var(--wall)" : c.sigma > 0 ? "var(--tier-k)" : "var(--tier-m)";
+      const x = X(c.rz[0]), y = Y(c.rz[1]);
+      s += kind === "loop" ? `<rect x="${(x - 2.5).toFixed(1)}" y="${(y - 2.5).toFixed(1)}" width="5" height="5" fill="${c.used ? col : "var(--panel)"}" stroke="${col}"><title>${esc(c.name)} ${f(c.sigma, 2)} σ${c.used ? "" : "（未用）"}</title></rect>`
+        : `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.3" fill="${c.used ? col : "var(--panel)"}" stroke="${col}"><title>${esc(c.name)} ${f(c.sigma, 2)} σ${c.used ? "" : "（未用）"}</title></circle>`;
+    }
+  }
+  if (r) for (const k of ORDER) {
+    const t = r.tiers[k];
+    if (!ok(t) || !(t.boundary || []).length) continue;
+    const main = k === mk;
+    s += path(t.boundary, `fill="none" stroke="${TCOL[k]}" stroke-width="${main ? 2.2 : 1.3}"${k === "D" ? ' stroke-dasharray="7 3"' : ""}`);
+    s += `<text x="${X(t.facts.axis_r)}" y="${Y(t.facts.axis_z) + 4}" text-anchor="middle" style="fill:${TCOL[k]};font-size:${main ? 13 : 9}px;font-weight:700">+<title>档 ${k} 磁轴 (${f(t.facts.axis_r, 3)}, ${f(t.facts.axis_z, 3)})</title></text>`;
+    legend.push(`<span><i style="border-color:${TCOL[k]}${k === "D" ? ";border-top-style:dashed" : ""}"></i>${k}${main ? "（主显示）" : ""}</span>`);
+  }
+  if (sl && sl.kind === "series" && sl.ser.boundary) {
+    s += path(sl.ser.boundary, `fill="none" stroke="var(--tier-m)" stroke-width="2"`);
+    legend.push(`<span><i style="border-color:var(--tier-m)"></i>M（时间序列）</span>`);
+  }
+  refs.forEach((g, i) => {
+    if (g.boundary.length) s += path(g.boundary, `fill="none" stroke="var(--ref)" stroke-width="1.3" stroke-dasharray="${REFDASH[i % 3]}"`);
+    s += `<text x="${X(g.axis[0])}" y="${Y(g.axis[1]) + 4}" text-anchor="middle" style="fill:var(--ref);font-size:10px">×</text>`;
+    legend.push(`<span><i style="border-color:var(--ref);border-top-style:dashed"></i>${esc(g.label)}（对照）</span>`);
+  });
+  $("xs").innerHTML = s + "</svg>";
+  $("xsnote").textContent = mk ? `等值线 = 档 ${mk} 的 ψ_N 0.1…0.9` : "";
+  $("xslegend").innerHTML = legend.join("") + '<span>■ 环 ● 探针：灰 &lt; 1σ，橙 / 蓝 = 正 / 负残差，空心 = 未用 · ◆ X 点在分离面上</span>';
+}
+function renderProfiles() {
+  const sl = slice(), r = res(), mk = mainTier(r), refs = refsFor(sl);
+  const tiers = r ? ORDER.filter((k) => ok(r.tiers[k]) && r.tiers[k].profiles) : [];
+  const line = (k, key, sc) => { const p = r.tiers[k].profiles; return { x: p.psin, y: p[key].map((v) => (fin(v) ? v * (sc || 1) : NaN)), color: TCOL[k], dash: k === "D" ? "7 3" : null, width: k === mk ? 2.2 : 1.3, label: k }; };
+  const refl = (g, i, key, sc) => ({ x: g.x, y: g[key].map((v) => v * (sc || 1)), color: "var(--ref)", dash: REFDASH[i % 3], width: 1.2, label: g.label });
+  const W = 250, H = 175;
+  const q95s = tiers.map((k) => r.tiers[k].facts.q95).concat(refs.map((g) => g.q95)).filter(fin);
+  const qTop = q95s.length ? Math.ceil(Math.max(...q95s) * 1.5) : 6;
+  let q = [], p = [], pp = [], ff = [];
+  for (const k of tiers) { q.push(line(k, "qpsi")); p.push(line(k, "pres", 1e-3)); ff.push(line(k, "ffprim")); }
+  refs.forEach((g, i) => { q.push(refl(g, i, "q")); p.push(refl(g, i, "p", 1e-3)); });
+  //: q=1 参考线；Thomson / D 的压强行作点
+  const pts = [];
+  if (r) {
+    const P = r.tiers.P, D = r.tiers.D;
+    if (ok(P) && P.thomson) pts.push({ x: [], y: [], color: TCOL.P, points: P.thomson.points.filter((x) => x.used && fin(x.psin_final)).map((x) => ({ x: x.psin_final, y: x.p * 1e-3, err: fin(x.sigma) ? x.sigma * 1e-3 : NaN, title: `Thomson ψ_N ${f(x.psin_final, 3)} p ${f(x.p / 1e3, 2)} kPa` })) });
+    if (ok(D) && D.pressure_rows) pts.push({ x: [], y: [], color: TCOL.D, points: (D.pressure_rows.points || []).map((x) => ({ x: x.psin, y: x.p * 1e-3, fill: "var(--panel)", r: 2.2, title: `档 D 压强行 ψ_N ${f(x.psin, 2)}` })) });
+  }
+  const band = (t, key, skey, lab) => (t[skey] ? { lo: t[key].map((v, i) => v - t[skey][i]), hi: t[key].map((v, i) => v + t[skey][i]), title: lab } : null);
+  if (mk && r) {
+    const t = r.tiers[mk].profiles;
+    pp.push({ x: t.psin, y: t.pprime, color: TCOL[mk], dash: mk === "D" ? "7 3" : null, width: 2, label: mk,
+      band: band(t, "pprime", "pprime_sigma", "p′ 的后验 1σ：只含系数的统计误差") });
+    const fm = ff.find((x) => x.label === mk);
+    if (fm) fm.band = band(t, "ffprim", "ffprim_sigma", "FF′ 的后验 1σ：只含系数的统计误差");
+  }
+  //: ⟨J_φ⟩：ψ_N 分箱的面平均（LCFS 内的格电流 / 箱面积），每档一线，主显示档粗
+  const jj = [];
+  for (const k of tiers) { const t = r.tiers[k].profiles; if (t.jphi && t.jphi_psin) jj.push({ x: t.jphi_psin, y: t.jphi.map((v) => (fin(v) ? v * 1e-6 : NaN)), color: TCOL[k], dash: k === "D" ? "7 3" : null, width: k === mk ? 2.2 : 1.3, label: k }); }
+  //: Tₑ(ψ_N)：同一组 Thomson 道经每一档（与对照 g-file）的 ψ 映射；只画过了 Tₑ 门、落在 LCFS 内的道
+  const te = [], tp = r && r.thomson_points;
+  let teNote = "";
+  if (tp) {
+    const nT = tp.te_ok.filter(Boolean).length, nN = tp.ne_ok.filter(Boolean).length;
+    for (const k of tiers) {
+      const m = r.tiers[k].thomson_map; if (!m) continue;
+      const pts = [];
+      m.psin.forEach((x, i) => { if (fin(x) && m.in_lcfs[i] && tp.te_ok[i]) pts.push({ x, y: tp.te[i] * 1e-3, r: k === mk ? 3 : 2.3, fill: k === mk ? TCOL[k] : "var(--panel)", stroke: TCOL[k],
+        err: k === mk && tp.te_err && fin(tp.te_err[i]) ? tp.te_err[i] * 1e-3 : NaN, title: `档 ${k} · 道 ${i + 1} · ψ_N ${f(x, 3)} · Tₑ ${f(tp.te[i] / 1e3, 2)} keV${tp.ne_ok[i] ? "" : " · nₑ 没过门"}` }); });
+      te.push({ x: [], y: [], color: TCOL[k], points: pts });
+    }
+    refs.forEach((g, gi) => {
+      const pts = [];
+      tp.r.forEach((rr, i) => { const x = gPsin(g, rr, tp.z[i]); if (fin(x) && x >= 0 && x <= 1 && tp.te_ok[i]) pts.push({ x, y: tp.te[i] * 1e-3, r: 2.6, fill: "var(--panel)", stroke: "var(--ref)", title: `${g.label} · 道 ${i + 1} · ψ_N ${f(x, 3)}` }); });
+      te.push({ x: [], y: [], color: "var(--ref)", points: pts });
+    });
+    teNote = `Thomson ${f(tp.sample_time_s, 3)} s：${tp.te.length} 道，Tₑ 门过 ${nT}、nₑ 门过 ${nN}（两门分开判；nₑ 没过门时 Tₑ 照画）`;
+  }
+  const sq = sl && sl.kind === "series" ? '<p class="s">时间序列的片不带剖面。</p>' : "";
+  const noJ = r && tiers.length && !jj.length, noT = r && !tp;
+  $("prof").innerHTML = sq || [
+    chart(q, { w: W, h: H, title: "q（纵轴截到 1.5 q₉₅）", xlim: [0, 1], ylim: [0, qTop], hlines: [{ y: 1, label: "q = 1" }], xlab: "ψ_N",
+      vlines: (((sawOf(r) || {}).tiers || {})[mk] || {}).psin_inv != null ? [{ x: sawOf(r).tiers[mk].psin_inv, color: "var(--fg)", dash: "5 3", title: "锯齿反转半径按主显示档映到 ψ_N" }] : [] }),
+    chart(p.concat(pts), { w: W, h: H, title: "p  [kPa]", xlim: [0, 1], zero: true, xlab: "ψ_N" }),
+    chart(jj, { w: W, h: H, title: "⟨J_φ⟩ 面平均  [MA/m²]", xlim: [0, 1], zero: true, xlab: "ψ_N" }),
+    chart(te, { w: W, h: H, title: "Tₑ  [keV]（Thomson 经各档 ψ 映射）", xlim: [0, 1], zero: true, xlab: "ψ_N" }),
+    chart(pp, { w: W, h: H, title: `p′（档 ${mk || "—"}，带 = 后验 1σ）`, xlim: [0, 1], zero: true, xlab: "ψ_N" }),
+    chart(ff, { w: W, h: H, title: `FF′（带 = 档 ${mk || "—"} 后验 1σ）`, xlim: [0, 1], zero: true, xlab: "ψ_N" }),
+  ].join("");
+  $("proflegend").innerHTML = (r && !(ok(r.tiers.P)) ? `<span>p 图的 Thomson 压强点：档 P ${r.tiers.P ? "没跑成" : "没点名"}，不画</span>` : "")
+    + (teNote ? `<span>${esc(teNote)}；实心 = 主显示档，空心 = 其余档 / 对照</span>` : "")
+    + (refs.length ? "<span>虚线 / 空心灰 = 对照（g-file；p 为其总压强）</span>" : "")
+    + (noJ ? "<span>这份结果没有 ⟨J_φ⟩（旧版应用写的）</span>" : "") + (noT ? "<span>这份结果没有 Thomson 道（没取到，或旧版应用写的）</span>" : "");
+}
+/** 对照 g-file 的 ψ_N 在 (R, Z) 上的双线性插值（网格外为 NaN）。 */
+function gPsin(g, r, z) {
+  const gr = g.gr, gz = g.gz;
+  if (!(fin(r) && fin(z)) || r < gr[0] || r > gr[gr.length - 1] || z < gz[0] || z > gz[gz.length - 1]) return NaN;
+  let i = 0; while (i < gr.length - 2 && gr[i + 1] < r) i++;
+  let j = 0; while (j < gz.length - 2 && gz[j + 1] < z) j++;
+  const a = (r - gr[i]) / (gr[i + 1] - gr[i]), b = (z - gz[j]) / (gz[j + 1] - gz[j]), P = g.psin;
+  return (1 - a) * (1 - b) * P[i][j] + a * (1 - b) * P[i + 1][j] + (1 - a) * b * P[i][j + 1] + a * b * P[i + 1][j + 1];
+}
+function renderLadderTable() {
+  const sl = slice(), r = res(), refs = refsFor(sl), cr = cmpRefs(sl);
+  if (!r) {
+    if (sl && sl.kind === "series") {
+      const o = sl.ser.ours || {};
+      $("ltab").innerHTML = `<table><thead><tr><th class="l">量</th><th>${chip("M")}</th></tr></thead><tbody>`
+        + [["q₀", o.q0, 3], ["q₉₅", o.q95, 3], ["l_i(1) 同尺", o.li1, 3], ["β_p 同尺", o.betap, 3], ["W 同尺 [kJ]", fin(o.w_mhd_J) ? o.w_mhd_J / 1e3 : NaN, 1], ["χ²/dof", o.chi2_per_dof, 2]]
+          .map(([l, v, d]) => `<tr><td class="l">${l}</td><td>${f(v, d)}</td></tr>`).join("") + "</tbody></table>";
+      $("ltabfoot").textContent = "时间序列的片只有档 M（series 今天只跑档 M）。";
+    } else $("ltab").innerHTML = "";
+    return;
+  }
+  const mk = mainTier(r), stale = staleOf(sl);
+  const cols = ORDER.filter((k) => r.tiers[k] || (S.cfg && S.cfg.ladder.tiers.includes(k)) || k === "S" || k === "J");
+  const nums = {}; for (const k of cols) nums[k] = tierNums(r.tiers[k]);
+  //: 差对上一档：这一档 on 的那一档（记录里的 on；没有就取序列里前一个成立的档）
+  const prevOf = (k) => { const o = onOf(r, k); return o && nums[o] ? o : null; };
+  let h = `<table><thead><tr><th class="l">量</th>` + cols.map((k) => {
+    const t = r.tiers[k], st = stale[k];
+    return `<th>${chip(k)}${k === "D" && t && t.fallback_for ? ' <span class="s">顶 P</span>' : ""}${st === "stale" ? " " + glyph("stale", "输入改过：待重算") : ""}${k === mk ? ' <span class="s">主</span>' : ""}</th>`;
+  }).join("");
+  const refCols = [];
+  refs.forEach((g) => refCols.push({ label: g.label, g, c: cr[g.label] || Object.values(cr).find((x) => x.file && g.name && x.file.endsWith(g.name)) }));
+  for (const [lab, c] of Object.entries(cr)) if (!refCols.some((x) => x.c === c)) refCols.push({ label: lab, c });
+  h += refCols.map((x) => `<th>${esc(x.label)}<span class="d">对照</span></th>`).join("") + "</tr></thead><tbody>";
+  const skipRow = (k) => { const t = r.tiers[k];
+    if (t && t.why && (k === "S" || k === "J")) return "没跑：" + t.why;
+    if (k === "S") return "没跑：内核无 MSE";
+    if (k === "J") return "没跑：待落地" + (ok(r.tiers.D) && !ok(r.tiers.P) ? "（D 无剖面形状）" : "");
+    if (!t) return stale[k] === "want" ? "点名了，没跑" : "没点名";
+    return (t.status === "skipped" ? "没跑：" : "失败：") + (t.why || t.error || ""); };
+  let first = true;
+  for (const [key, lab, d, sc, nodelta] of LROWS) {
+    h += `<tr><td class="l">${lab}</td>`;
+    for (const k of cols) {
+      const n = nums[k];
+      if (!n) { if (first) { const why = skipRow(k); h += `<td rowspan="${LROWS.length + 1}" class="l s" title="${esc(why)}" style="white-space:normal;word-break:break-all;min-width:64px;max-width:96px;vertical-align:middle;border-left:1px dashed var(--grid);border-right:1px dashed var(--grid)">${esc(why.length > 42 ? why.slice(0, 40) + "…" : why)}</td>`; } continue; }
+      const v = n[key] * (sc || 1), pk = prevOf(k), pv = pk ? nums[pk][key] * (sc || 1) : NaN;
+      const un = r.tiers[k].status === "unphysical";
+      h += `<td${k === mk ? ' style="font-weight:600"' : ""}${un ? ' class="warn-t"' : ""}>${f(v, d)}${pk && !nodelta ? `<span class="d">${sgn(v - pv, d)} 对 ${pk}</span>` : ""}</td>`;
+    }
+    for (const x of refCols) {
+      const g = x.g, c = x.c || {};
+      const v = key === "q0" ? (fin(c.q0) ? c.q0 : g && g.q0) : key === "q95" ? (fin(c.q95) ? c.q95 : g && g.q95) : key === "li1" ? c.li1 : key === "betap" ? c.betap
+        : key === "lam" ? (fin(c.li1) && fin(c.betap) ? c.betap + c.li1 / 2 : NaN) : key === "w" ? c.w : key === "ar" ? (fin(c.axis_r) ? c.axis_r : g && g.axis[0]) : key === "az" ? (fin(c.axis_z) ? c.axis_z : g && g.axis[1]) : NaN;
+      h += `<td class="mut">${f(fin(v) ? v * (sc || 1) : NaN, d)}</td>`;
+    }
+    h += "</tr>"; first = false;
+  }
+  //: 边界距离对上一档
+  h += `<tr><td class="l">LCFS 距离 平均 / 最大 [mm]</td>`;
+  for (const k of cols) { if (!nums[k]) continue; const pk = prevOf(k); const dd = pk ? polyDist(r.tiers[k].boundary, r.tiers[pk].boundary) : null;
+    h += `<td>${dd ? f(dd.mean * 1e3, 1) + " / " + f(dd.max * 1e3, 1) : ""}${pk ? `<span class="d">对 ${pk}</span>` : ""}</td>`; }
+  for (const x of refCols) { const dd = x.g && mk ? polyDist(r.tiers[mk].boundary, x.g.boundary) : null;
+    h += `<td class="mut">${dd ? f(dd.mean * 1e3, 1) + " / " + f(dd.max * 1e3, 1) : "—"}${dd ? `<span class="d">对 ${mk}</span>` : ""}</td>`; }
+  h += "</tr></tbody></table>";
+  $("ltab").innerHTML = h;
+  const un = cols.filter((k) => r.tiers[k] && r.tiers[k].status === "unphysical");
+  $("ltabfoot").innerHTML = (un.length ? `<b class="warn-t">档 ${un.join("、")} 物理校验没过</b>：数照留、照画。` : "")
+    + " χ²/dof 按各档自己的行数算，行数不同不可直接比大小。β_p + l_i(1)/2 由磁测量定，各档之间应当不变（第二层校验）。";
+}
+
+// ---------------------------------------------------------------------------------------------- render: boundary zone
+function renderBoundary() {
+  const sl = slice(), r = res();
+  const blank = (id, t) => { $(id).innerHTML = `<p class="s">${t || "—"}</p>`; };
+  $("consnote").textContent = "";
+  if (!r) { ["conv", "cons", "bc", "can", "q0card", "vals", "warns"].forEach((id) => blank(id, sl && sl.kind === "series" ? "时间序列的片：只有档 M 的标量与边界" : "")); return; }
+  const mk = mainTier(r), t = mk && r.tiers[mk];
+  //: 收敛（第一行）
+  if (!t) { $("conv").innerHTML = `<div class="box bad">× 没有一档出解：${esc((r.tiers.M || {}).error || (r.tiers.M || {}).why || "")}</div>`; }
+  else {
+    const F = t.facts || {}, un = t.status === "unphysical";
+    let extra = "";
+    if (mk === "D" && t.wdia) extra = ` · W_dia 外环 ${t.wdia.passes.length} 遍${t.wdia.converged ? "" : "（未定）"}`;
+    if (mk === "P" && t.certificate) { const c = t.certificate, rp = c.returned_pass || c.best_pass; extra = ` · 映射移动 ${f(c.map_shift[rp - 1], 4)}`; }
+    if (mk === "K" && t.passes) extra = ` · 弦迭代 ${t.passes.length} 轮${t.settled ? "" : "（未定）"}`;
+    const s4c = t.s4 && t.s4.convergence;
+    if (s4c && s4c.status !== "converged") extra += ` · 外环跑满 ${s4c.passes_run} 遍<b>未收敛</b>（${esc(s4c.reason)}）`;
+    const conv = F.converged !== false && !(t.wdia && !t.wdia.converged) && !(mk === "K" && t.settled === false)
+      && !(t.s4 && t.s4.convergence && t.s4.convergence.status !== "converged");
+    const cls = un ? "warn" : conv ? "ok" : "warn";
+    $("conv").innerHTML = `<div class="box ${cls}"><b>${un ? "⚠ 不物理" : conv ? "✓ 收敛" : "⚠ 未收敛"}</b> · 档 ${mk}${extra}`
+      + ` · 物理校验${t.physics_check ? (t.physics_check.passed ? "过" : "<b>没过</b>：" + esc(t.physics_check.failed.join("、"))) : "没做"}</div>`;
+  }
+  //: 约束清单
+  if (t) {
+    const ch = t.channels || {}, used = (l) => (l || []).filter((x) => x.used).length;
+    const ex = (r.inputs.excluded || []).filter((e) => /read rule/.test(e.why || ""));
+    const rules = [...new Set(ex.map((e) => (/read rule (\S+)/.exec(e.why) || [])[1]).filter(Boolean))];
+    const FAM = { mag: "磁", chord: "弦", local: "局域", global: "整体", prior: "先验", basis: "基", forcing: "强迫项" };
+    const blk = (t.blocks || []).map((b) => `<div><span class="tag">${esc(FAM[b.family] || b.family)} · ${esc(b.role)}</span>${esc(b.name)}`
+      + `${b.rows != null ? ` · ${b.rows} 行` : ""}${b.sigma != null ? `<span class="s"> · σ ${esc(String(b.sigma))}</span>` : ""}${b.basis ? `<span class="s"> · 依据 ${esc(b.basis)}</span>` : ""}</div>`).join("");
+    $("cons").innerHTML = (blk || (t.constraints || []).map((c) => `<div>${esc(c)}</div>`).join(""))
+      + `<div class="s">用上：环 ${used(ch.loops)} · 探针 ${used(ch.probes)} · I_p 等式</div>`
+      + (ex.length ? `<div class="s">取数规则丢：${esc(ex.map((e) => e.name).join(" "))}<br>规则 ${esc(rules.join(" · "))}</div>` : "");
+    $("consnote").textContent = `档 ${mk}` + (onOf(r, mk) && mk !== "M" ? ` · 叠在 ${onOf(r, mk)} 上` : "");
+  } else blank("cons");
+  //: 边界条件
+  const st = r.settings || {}, lim = r.device && r.device.limiter, c = S.cfg;
+  const pre = [];
+  const X = r.tiers.X, inp = X && X.input;
+  if (inp && inp.pedestal && inp.pedestal.on) pre.push(`台基 sech²（x ${inp.pedestal.x}, w ${inp.pedestal.w}）· assumed`);
+  if (inp && inp.q0 && inp.q0.on) pre.push(`q₀ 目标 ${inp.q0.target} ± ${inp.q0.sigma} · assumed`);
+  $("bc").innerHTML = `<div class="kv"><span>PF 电流</span><span>${(r.inputs.pf_aturns || []).length} 路取实测、固定</span>`
+    + `<span>F_vac</span><span>${esc(r.inputs.b_tor_from || "—")}${st.fvac ? "（--fvac 声明）" : ""}</span>`
+    + `<span>限制器</span><span>${lim ? lim.r.length + " 点" : "—"}</span>`
+    + `<span>边缘值</span><span>p′(1) = FF′(1) = 0（poly ${st.npp} / ${st.nff}，边缘零）</span>`
+    + `<span>预设</span><span>${pre.length ? pre.map(esc).join("<br>") : "无（q₀ free）"}</span>`
+    + `<span>σ 约定</span><span>SERROR ${f(st.serror, 2)} · 环下限 ${st.loop_floor} · 探针下限 ${f(st.probe_floor * 1e4, 2)}e-4</span></div>`;
+  //: 能定 / 不能定（按主显示档与其底档累积）
+  if (mk) {
+    const chain = []; let k = mk; while (k) { chain.unshift(k); k = k === "M" ? null : onOf(r, k); }
+    $("can").innerHTML = `<div class="kv"><span class="ok-t"><b>能定</b></span><span>${chain.map((x) => esc(CAN[x][0])).join("<br>")}</span>`
+      + `<span class="warn-t"><b>不能定</b></span><span>${esc(CAN[mk][1])}</span></div>`;
+  } else blank("can");
+  //: q0 与 q=1
+  if (t) {
+    const F = t.facts, pr = t.profiles || {}, roots = pr.psin ? qRoots(pr.psin, pr.qpsi) : [];
+    const basis = mk === "Q" ? `锯齿反转半径定的 q=1 面（${((t.q1 || {}).pull_sigma != null) ? "q(ψ_s) 离 1 " + f(t.q1.pull_sigma, 1) + " σ" : ""}）+ 底档 ${onOf(r, "Q")}`
+      : mk === "M" ? "基函数外推（磁测量几乎看不见芯部）" : mk === "K" ? "POINT 法拉第（芯部 B_R）" : mk === "P" ? "压强行 + 磁（Tᵢ 假设）"
+      : mk === "D" ? `底档 ${onOf(r, "D")} 的约束 + W_dia 标度` : inp && inp.q0 && inp.q0.on ? "q₀ 目标（assumed）" : "输入文件档 X";
+    let q1 = roots.length ? roots.map((lv) => { const rr = midplaneR(t, lv); return `ψ_N ${f(lv, 3)}${rr.length >= 2 ? ` · 中平面 R ${f(Math.min(...rr), 3)}–${f(Math.max(...rr), 3)} m` : ""}`; }).join("<br>") : "无 q=1 面（q₀ > 1）";
+    $("q0card").innerHTML = `<div class="box info"><span class="q0" title="${esc(F.q0_sigma_note || "")}">q₀ = ${f(F.q0, 3)}${fin(F.q0_sigma) ? " ± " + f(F.q0_sigma, 3) : ""}</span> <span class="s">档 ${mk} · 依据：${esc(basis)}</span>`
+      + (fin(F.q0_sigma) ? `<div class="s">± ${f(F.q0_sigma, 3)}（1σ）：系数后验协方差经近轴 J_φ(0) 线性传播，几何不动；只含统计误差</div>`
+        : `<div class="s">带：${esc(F.q0_sigma_note || "这份结果没有 q₀ 的带（旧版应用写的）")}</div>`) + `</div>`
+      + `<div class="kv"><span>q=1 面</span><span>${q1}</span><span>锯齿反转半径</span><span>${sawLine(sawOf(r))}</span>`
+      + ((sa1) => sa1 ? `<span>判读（档 ${mk}）</span><span class="${VGL[sa1.verdict][1]}">${VGL[sa1.verdict][0]} ${esc(sa1.verdict)}：${esc(sa1.why || "")}</span>` : "")(((sawOf(r) || {}).tiers || {})[mk])
+      + `</div>`;
+  } else blank("q0card");
+  //: 校验结论
+  const V = [];
+  const on = (k) => !c || c.validation.checks.includes(k);
+  if (on("physics")) {
+    const pcs = ORDER.filter((k) => r.tiers[k] && r.tiers[k].physics_check);
+    const bad = pcs.filter((k) => !r.tiers[k].physics_check.passed);
+    V.push([bad.length ? "fail" : pcs.length ? "pass" : "unevaluated", "解的物理校验", pcs.length ? (bad.length ? `档 ${bad.join("、")} 没过：${bad.map((k) => r.tiers[k].physics_check.failed.join(",")).join("；")}` : `${pcs.join(" · ")} 全过`) : "没做"]);
+  }
+  if (on("cross_tier")) {
+    const lam = ORDER.map((k) => tierNums(r.tiers[k])).filter((n) => n && fin(n.lam)).map((n) => n.lam);
+    V.push([lam.length >= 2 ? "reading" : "unevaluated", "跨档 β_p + l_i(1)/2", lam.length >= 2 ? `跨 ${lam.length} 档极差 ${f(Math.max(...lam) - Math.min(...lam), 3)}（阈值 [TBD]）` : "不足两档"]);
+  }
+  if (on("wdia")) {
+    const n = t && tierNums(t), wd = r.inputs.w_dia_J;
+    const usedD = mk === "D" || (mk && onOf(r, mk) === "D");
+    V.push([!fin(wd) || !n ? "unevaluated" : usedD ? "inconclusive" : "reading", "W_dia 对 W",
+      !fin(wd) ? "没有 W_dia" : !n ? "—" : `W/W_dia = ${f(n.w / wd, 3)}` + (usedD ? "（档 D 用它定了标度：除名）" : "（阈值 [TBD]；档 P 只含热压，可低于 W_dia）")]);
+  }
+  if (on("sawtooth_q1")) {
+    const sa = sawOf(r), tv = sa && (sa.tiers || {})[mk];
+    V.push(tv ? [tv.verdict, "锯齿 q=1 面", (tv.why || "") + " · 各档 " + Object.entries(sa.tiers).map(([k, v]) => k + " " + VGL[v.verdict][0]).join(" ")]
+      : ["unevaluated", "锯齿 q=1 面", sa ? (sa.why || "") : "结果里没有锯齿判读"]);
+  }
+  if (on("ece_hfs_lfs")) V.push(["unevaluated", "ECE 高低场侧", "ECE 未绑定"]);
+  if (t && fin((t.facts || {}).compat_mag_vs_M) && mk !== "M") V.push(["reading", "磁相容性（这一档对 M）", `χ²_mag/行 × ${f(t.facts.compat_mag_vs_M, 2)}（阈值 [TBD]；> 1 = 加的块把磁测量拉开了）`]);
+  const GL = { pass: ["✓", "ok-t"], fail: ["×", "bad-t"], inconclusive: ["◐", "mut"], unevaluated: ["○", "mut"], reading: ["·", "mut"] };
+  let vh = V.map(([v, lab, why]) => `<div class="fieldrow" data-verdict="${v}"><span class="st ${GL[v][1]}">${GL[v][0]}</span><span>${esc(lab)}</span><span class="s" style="margin-left:auto;text-align:right">${esc(why)} · ${v === "reading" ? "读数" : v}</span></div>`).join("");
+  const cr = cmpRefs(sl), refs = refsFor(sl), n = t && tierNums(t);
+  const cmpLines = [];
+  if (n) {
+    for (const [lab, x] of Object.entries(cr)) cmpLines.push(`${esc(lab)}：Δq₀ ${sgn(n.q0 - x.q0, 3)} · Δl_i ${sgn(n.li1 - x.li1, 3)}${fin(x.li1) ? ` (${sgn((n.li1 / x.li1 - 1) * 100, 0)} %)` : ""} · ΔW ${sgn((n.w - x.w) / 1e3, 1)} kJ`);
+    for (const g of refs) if (!cr[g.label]) cmpLines.push(`${esc(g.label)}：Δq₀ ${sgn(n.q0 - g.q0, 3)} · Δq₉₅ ${sgn(n.q95 - g.q95, 3)}`);
+  }
+  if (cmpLines.length) vh += `<h2 style="margin-top:8px">与对照之差 <small>对照不是判据</small></h2><div class="s">${cmpLines.join("<br>")}</div>`;
+  if (t && t.held_out && t.held_out.length) vh += `<h2 style="margin-top:8px">留作校验 <small>没进档 ${mk} 的拟合</small></h2><div class="s">`
+    + t.held_out.map((h) => `${esc({ w_dia: "W_dia", thomson: "Thomson", point: "POINT", ece_sxr_mirnov: "ECE · SXR · Mirnov", ece_sxr: "ECE · SXR", mirnov: "Mirnov", mse: "MSE" }[h.diag] || h.diag)}：${esc(h.why)}`).join("<br>") + "</div>";
+  $("vals").innerHTML = vh || '<p class="s">没勾校验项</p>';
+  //: 告警（来自记录）
+  const W = [];
+  for (const k of ORDER) {
+    const tk = r.tiers[k]; if (!ok(tk)) continue;
+    if (tk.status === "unphysical") W.push(["bad", `档 ${k} 不物理：${(tk.physics_check.failed || []).join("、")}`]);
+    if (k === "P" && tk.sigma_scale > 1) W.push(["warn", `档 P 的 Thomson σ × ${tk.sigma_scale} 放宽后才收：约束力比名义上弱`]);
+    if (k === "P" && tk.certificate && tk.certificate.cleaning_suspect) W.push(["warn", "档 P 的 Thomson 清洗可疑"]);
+    if (k === "D") for (const nt of tk.notes || []) W.push(["warn", nt]);
+    if ((tk.facts || {}).converged === false) W.push(["warn", `档 ${k} 内层未收敛`]);
+  }
+  for (const k of ORDER) { const tk = r.tiers[k]; if (tk && tk.status === "error") W.push(["bad", `档 ${k} 失败：${tk.error || ""}`]); }
+  const stl = staleOf(sl), sk = Object.keys(stl).filter((k) => stl[k] === "stale");
+  if (sk.length) W.push(["warn", `输入改过：档 ${sk.join("、")} 过期，待重算（不自动重跑）`]);
+  $("warns").innerHTML = W.length ? W.map(([c2, m]) => `<div class="box ${c2}">${c2 === "bad" ? "×" : "⚠"} ${esc(m)}</div>`).join("") : '<p class="s">没有告警</p>';
+}
+
+// ---------------------------------------------------------------------------------------------- render: batch
+function rowNums(sl) {
+  if (sl.kind === "series") { const o = sl.ser.ours || {}; return { mk: "M", q0: o.q0, q95: o.q95, li1: o.li1, betap: o.betap, w: o.w_mhd_J, wd: (sl.ser.measured || {}).w_dia_J, chi: o.chi2_per_dof, sec: sl.ser.seconds }; }
+  const r = sl.res, mk = mainTier(r), n = mk ? tierNums(r.tiers[mk]) : null, t = mk && r.tiers[mk];
+  const pr = t && t.profiles, roots = pr && pr.psin ? qRoots(pr.psin, pr.qpsi) : [];
+  return n ? Object.assign({ mk, wd: r.inputs.w_dia_J, sec: r.seconds, q1: roots }, n) : { mk: null, sec: r.seconds };
+}
+function renderBatch() {
+  const cols = ["M", "K", "P", "Q", "S", "J"];
+  let h = `<table><thead><tr><th class="l">时刻 ms</th>${cols.map((k) => `<th>${chip(k)}</th>`).join("")}<th>主档</th><th>q₀</th><th>q₉₅</th><th>l_i(1)</th><th>β_p</th><th>W / W_dia [kJ]</th><th>χ²/dof</th><th>q=1</th><th>用时</th><th class="l">备注</th></tr></thead><tbody>`;
+  S.slices.forEach((sl, i) => {
+    const n = rowNums(sl), stl = sl.res ? staleOf(sl) : {};
+    let marks = "";
+    for (const k of cols) {
+      if (sl.kind === "series") { marks += `<td>${k === "M" ? glyph({ ok: "ok", unphysical: "unph", error: "err" }[sl.ser.status] || "none", sl.ser.why) : glyph("none")}</td>`; continue; }
+      let t = sl.res.tiers[k], kk = k;
+      if (k === "P" && !ok(t) && ok(sl.res.tiers.D)) { t = sl.res.tiers.D; kk = "D"; }
+      const st = stl[kk] === "stale" ? "stale" : (k === "S" || k === "J") && !ok(t) ? "skip" : tstat(t);
+      marks += `<td>${glyph(st, t ? (t.why || t.error || t.status) : k === "S" ? "内核无 MSE" : "没跑")}${kk === "D" ? '<span class="s">D</span>' : ""}</td>`;
+    }
+    const un = sliceStatus(sl) === "unph";
+    const notes = [];
+    if (sl.kind === "series" && sl.ser.status === "error") notes.push(`<span class="bad-t">× ${esc(sl.ser.why || "")}</span>`);
+    if (sl.res && !ok(sl.res.tiers.M)) notes.push(`<span class="bad-t">× 档 M：${esc(sl.res.tiers.M.error || sl.res.tiers.M.why || "")} → 其上各档不跑</span>`);
+    if (un) { const t = sl.res ? sl.res.tiers[n.mk] : null; notes.push(`<span class="warn-t">⚠ 不物理：${esc(((t ? t.physics_check : sl.ser.physics_check) || {}).failed ? ((t ? t.physics_check : sl.ser.physics_check).failed || []).join("、") : "")}（数照留）</span>`); }
+    const sk = Object.keys(stl).filter((k) => stl[k] === "stale");
+    if (sk.length) notes.push(`<span class="warn-t">◌ 过期：${sk.join("")}</span>`);
+    if (sl.kind === "series") notes.push('<span class="s">时间序列</span>');
+    const c = un ? ' class="warn-t"' : "";
+    h += `<tr data-i="${i}"${i === S.cur ? ' class="cur"' : ""}><td class="l"><b>${Math.round(sl.t * 1000)}</b></td>${marks}<td>${n.mk ? chip(n.mk) : "—"}</td>`
+      + `<td${c}>${f(n.q0, 3)}</td><td${c}>${f(n.q95, 2)}</td><td${c}>${f(n.li1, 2)}</td><td${c}>${f(n.betap, 2)}</td>`
+      + `<td>${fin(n.w) ? f(n.w / 1e3, 0) : "—"} / ${fin(n.wd) ? f(n.wd / 1e3, 0) : "—"}</td><td>${f(n.chi, 1)}</td>`
+      + `<td>${n.q1 ? (n.q1.length ? "ψ_N " + f(n.q1[0], 2) : "无") : "—"}${((tv) => tv ? " " + `<span class="${VGL[tv.verdict][1]}" title="${esc(tv.why || "")}">${VGL[tv.verdict][0]}</span>` : "")(sl.res && sl.res.sawtooth && (sl.res.sawtooth.tiers || {})[n.mk])}</td><td class="mut">${fin(n.sec) ? f(n.sec, 0) + " s" : "—"}</td><td class="l">${notes.join(" ")}</td></tr>`;
+  });
+  $("btab").innerHTML = h + "</tbody></table>";
+  $("batchnote").textContent = `${S.slices.length} 片 · 单片是一行的批量 · 点行 = 当前片 · 失败原因写在行里`;
+  //: 时间迹：每档一条线（结果片）；时间序列片进档 M；对照作空心点；不物理作空心琥珀点
+  const tr = [["q0", "q₀", 1], ["li1", "l_i(1)", 1], ["betap", "β_p", 1], ["w", "W [kJ]", 1e-3]];
+  const cur = S.slices[S.cur];
+  $("traces").innerHTML = tr.map(([key, lab, sc]) => {
+    const series = [];
+    for (const k of ["M", "K", "P", "D", "Q", "X"]) {
+      const xs = [], ys = [], bad = [];
+      for (const sl of S.slices) {
+        let v = NaN, un = false;
+        if (sl.res) { const n = tierNums(sl.res.tiers[k]); if (n) { v = n[key]; un = sl.res.tiers[k].status === "unphysical"; } }
+        else if (k === "M" && sl.ser.ours) { const o = sl.ser.ours; v = { q0: o.q0, li1: o.li1, betap: o.betap, w: o.w_mhd_J }[key]; un = sl.ser.status === "unphysical"; }
+        if (un) { bad.push({ x: sl.t, y: v * sc, fill: "var(--panel)", stroke: "var(--warn)", r: 3.2, title: `${k} 不物理 ${f(sl.t, 3)} s` }); xs.push(sl.t); ys.push(NaN); }
+        else { xs.push(sl.t); ys.push(fin(v) ? v * sc : NaN); }
+      }
+      if (ys.some(fin) || bad.length) series.push({ x: xs, y: ys, color: TCOL[k], dash: k === "D" ? "7 3" : null, label: k, points: bad.concat(xs.length === 1 ? [{ x: xs[0], y: ys[0] }] : []) });
+    }
+    const refPts = [];
+    for (const sl of S.slices) {
+      for (const [lab2, c] of Object.entries(cmpRefs(sl))) { const v = { q0: c.q0, li1: c.li1, betap: c.betap, w: c.w }[key]; if (fin(v)) refPts.push({ x: sl.t, y: v * sc, fill: "var(--panel)", stroke: "var(--ref)", r: 3.2, title: `${lab2} ${f(sl.t, 3)} s` }); }
+      if (key === "q0") for (const g of refsFor(sl)) refPts.push({ x: sl.t, y: g.q0, fill: "var(--panel)", stroke: "var(--ref)", r: 3.2, title: g.label });
+      if (key === "w" && sl.res && fin(sl.res.inputs.w_dia_J)) refPts.push({ x: sl.t, y: sl.res.inputs.w_dia_J * sc, fill: "var(--muted)", stroke: "var(--muted)", r: 1.8, title: "W_dia" });
+    }
+    if (refPts.length) series.push({ x: [], y: [], color: "var(--ref)", points: refPts });
+    const ts = S.slices.map((s) => s.t), pad = Math.max((Math.max(...ts) - Math.min(...ts)) * 0.08, 0.02);
+    return chart(series, { w: 210, h: 130, title: lab, xlim: [Math.min(...ts) - pad, Math.max(...ts) + pad], vlines: cur ? [{ x: cur.t }] : [] });
+  }).join("");
+}
+
+// ---------------------------------------------------------------------------------------------- top & dispatch
+function renderTop() {
+  const sl = slice(), r = res();
+  $("shot").textContent = sl ? `EAST #${r ? r.shot : sl.shot} · ${f(sl.t, 3)} s` : "—";
+  const nd = cfgDiffCount();
+  let nst = 0, nsl = 0;
+  for (const s of S.slices) { if (!s.res) continue; const st = staleOf(s), k = Object.keys(st).filter((x) => st[x] === "stale").length; if (k) { nst += k; nsl++; } }
+  $("cfgchip").textContent = S.cfg ? `配置${nd ? ` · 改过 ${nd} 键` : " · 未改"}${nst ? ` · ${nsl} 片 × ${nst} 档过期` : ""}` : "未载入结果";
+  const tiers = r ? ORDER.filter((k) => ok(r.tiers[k])) : [];
+  $("mainsel").innerHTML = `<option value="auto"${S.main === "auto" ? " selected" : ""}>自动（最高成立档）</option>` + tiers.map((k) => `<option value="${k}"${S.main === k ? " selected" : ""}>${k} · ${TNAME[k]}</option>`).join("");
+}
+function render() {
+  const has = S.slices.length > 0;
+  $("empty").hidden = has;
+  $("stripcard").hidden = !has; $("zones").hidden = !has; $("batchwrap").hidden = !has;
+  if (!has) { renderTop(); return; }
+  renderTop(); renderStrip(); renderInput(); renderSection(); renderProfiles(); renderLadderTable(); renderBoundary(); renderBatch();
+}
+function go(i) { if (i >= 0 && i < S.slices.length && i !== S.cur) { S.cur = i; render(); } }
+
+function onInputChange(ev) {
+  const el = ev.target; if (!S.cfg || !el) return;
+  if (el.dataset && el.dataset.tier) {
+    const k = el.dataset.tier, lt = S.cfg.ladder.tiers.filter((x) => x !== k);
+    if (el.checked) lt.push(k);
+    S.cfg.ladder.tiers = ORDER.filter((x) => lt.includes(x));
+  } else if (el.dataset && el.dataset.check) {
+    const k = el.dataset.check, cs = S.cfg.validation.checks.filter((x) => x !== k);
+    if (el.checked) cs.push(k);
+    S.cfg.validation.checks = cs;
+  } else if (el.dataset && el.dataset.path) {
+    const v = el.type === "checkbox" ? el.checked : el.value === "" ? null : +el.value;
+    setp(S.cfg, el.dataset.path, v);
+    if (el.dataset.path === "basis.npp" || el.dataset.path === "basis.nff")
+      S.cfg.basis.preset = Object.keys(BASIS).find((k) => BASIS[k].npp === S.cfg.basis.npp && BASIS[k].nff === S.cfg.basis.nff && !BASIS[k].ped) || "custom";
+  } else if (el.id === "basissel") {
+    const b = BASIS[el.value]; S.cfg.basis.preset = el.value;
+    if (b) { if (b.npp != null) S.cfg.basis.npp = b.npp; if (b.nff != null) S.cfg.basis.nff = b.nff; if (b.ped) S.cfg.presets.pedestal.on = true; }
+  } else return;
+  render();
+}
+function onInputClick(ev) {
+  const el = ev.target; if (!S.cfg || !el || !el.dataset) return;
+  if (el.dataset.q0) { S.cfg.presets.core.q0.mode = el.dataset.q0; render(); }
+}
+function exportConfig() {
+  if (!S.cfg) return null;
+  const c = JSON.parse(JSON.stringify(S.cfg));
+  c.slices.times_s = S.slices.map((s) => +s.t.toFixed(4));
+  c.reference = S.refs.map((g) => ({ gfile: g.name, label: g.label }));
+  return c;
+}
+function download(name, text) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+  a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function loadFiles(list) {
+  const fs = Array.from(list || []); let left = fs.length; const errs = [];
+  for (const fl of fs) {
+    const rd = new FileReader();
+    rd.onload = () => { try { loadText(String(rd.result), fl.name); } catch (e) { errs.push(e.message); } if (--left === 0) { render(); if (errs.length) alert(errs.join("\n")); } };
+    rd.readAsText(fl);
+  }
+}
+const MODES = ["auto", "light", "dark"];
+function applyTheme(m) {
+  if (m === "auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", m);
+  try { localStorage.setItem("kl-theme", m); } catch (e) { /* 无存储也照常 */ }
+  $("themeseg").innerHTML = MODES.map((x) => `<button data-theme="${x}" aria-pressed="${x === m}">${{ auto: "自动", light: "浅", dark: "深" }[x]}</button>`).join("");
+}
+
+// ---------------------------------------------------------------------------------------------- wiring
+$("files").addEventListener("change", (ev) => loadFiles(ev.target.files));
+$("dlcfg").addEventListener("click", () => { const c = exportConfig(); if (c) download(`k${c.data.shot || ""}.json`, JSON.stringify(c, null, 1) + "\n"); });
+$("mainsel").addEventListener("change", (ev) => { S.main = ev.target.value; render(); });
+$("themeseg").addEventListener("click", (ev) => { const m = ev.target && ev.target.dataset && ev.target.dataset.theme; if (m) applyTheme(m); });
+for (const id of ["lad", "pre", "bas", "valin"]) { $(id).addEventListener("change", onInputChange); $(id).addEventListener("click", onInputClick); }
+$("strip").addEventListener("click", (ev) => { const i = ev.target && ev.target.getAttribute && ev.target.getAttribute("data-i"); if (i != null) go(+i); });
+$("btab").addEventListener("click", (ev) => { let el = ev.target; while (el && el.getAttribute && el.getAttribute("data-i") == null) el = el.parentNode; if (el && el.getAttribute) go(+el.getAttribute("data-i")); });
+document.addEventListener("keydown", (ev) => {
+  if (ev.target && /INPUT|SELECT|TEXTAREA/.test(ev.target.tagName || "")) return;
+  if (ev.key === "ArrowLeft") go(S.cur - 1); else if (ev.key === "ArrowRight") go(S.cur + 1);
+});
+$("drop").addEventListener("dragover", (ev) => ev.preventDefault());
+$("drop").addEventListener("drop", (ev) => { ev.preventDefault(); loadFiles(ev.dataTransfer.files); });
+//: 经 kinetic_input.py serve 打开时：从服务目录挑文件（只读；运行仍在命令行）
+if (typeof location !== "undefined" && /^http/.test(location.protocol || "")) {
+  fetch("/api/files").then((r) => r.json()).then((d) => {
+    const fsl = (d.files || []).filter((n) => /result|series|compare|cmp|input|\.json$/.test(n));
+    if (!fsl.length) return;
+    $("srvsel").innerHTML = '<option value="">服务目录里的文件…</option>' + fsl.map((n) => `<option>${esc(n)}</option>`).join("");
+    $("srvsel").hidden = false;
+    $("srvsel").addEventListener("change", (ev) => { const n = ev.target.value; if (!n) return;
+      fetch("/api/file?name=" + encodeURIComponent(n)).then((r) => r.text()).then((t) => { try { loadText(t, n); render(); } catch (e) { alert(e.message); } }); });
+  }).catch(() => {});
+}
+let THEME0 = "auto"; try { THEME0 = localStorage.getItem("kl-theme") || "auto"; } catch (e) { /* 同上 */ }
+applyTheme(MODES.includes(THEME0) ? THEME0 : "auto");
+render();
+</script>
+</body>
+</html>

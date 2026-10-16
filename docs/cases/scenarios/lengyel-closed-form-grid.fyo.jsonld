@@ -1,0 +1,19 @@
+{
+  "@context": [
+    "../context.jsonld",
+    {
+      "@base": "../"
+    }
+  ],
+  "id": "scenario/lengyel-closed-form-grid",
+  "type": "fyo:ScenarioSpecification",
+  "title": "extended Lengyel 闭式的自变量网格",
+  "abstract": "不是一次放电，是**闭式的自变量空间**：4 组装置形状 × 3 组(场, 电流) × 3 个分界面温度 × 3 个 Z_eff = 108 点，问分界面几何、alpha_t、q_parallel 与 kappa_e。中间没有任何迭代。",
+  "caveat": [
+    "★没有输运、没有时间演化：这是一族闭式，网格是它的自变量空间。用它做 validation 是范畴错误。",
+    "★★**刻意包含 Z_eff = 1**：`alpha_t` 的电荷修正里 `(Z_eff-1+eps)` 只在那里由正则化项主导，网格避开它就会漏掉一个 1.78e-7 的偏移。",
+    "★★**T_e 与 Z_eff 独立变化**：否则不存在「只差 alpha_t」的点对，而那是见证「更宽的通量管携带更少平行通量」所必需的。",
+    "★与同一份记录里的二十个收敛算例**不是一回事**：那些是留给尚未移植的求解器的 oracle。",
+    "上游可重取（github.com/google-deepmind/torax，Apache-2.0），存的是数值 + 出处 + 复现配方。"
+  ]
+}

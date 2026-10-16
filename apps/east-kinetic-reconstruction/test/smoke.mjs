@@ -86,6 +86,11 @@ for (const resultPath of resultPaths) {
   check(els.title.textContent.includes(String(res.shot)), "标题带炮号");
   check(els.empty.hidden === true, "空状态收起");
 
+  //: 外环未收敛（结果顶层 fylite:convergence）在页面第一行
+  const cv = res["fylite:convergence"];
+  if (cv && cv.status === "not_converged") check(els.convbanner.hidden === false && els.convbanner.innerHTML.includes("外环未收敛"), "外环未收敛写在第一行");
+  else check(els.convbanner.hidden === true, "外环收敛（或没有外环）时第一行不报");
+
   lastType = ctx.KR.state.type;
   if (ty === "fylite:KineticReconResult" && res.tiers && res.tiers.X) kinxChecks(text, res);
   else if (ty === "fylite:KineticReconResult") reconChecks(text, res);
@@ -151,7 +156,7 @@ function reconChecks(text, res) {
   check(els.docview.hidden === false && els.resview.hidden === true, "点「原理与过程」切回去");
   els["tab-res"].fire("click");
   check(els.resview.hidden === false, "点「结果」再切回来");
-  const okTiers = ["M", "K", "P"].filter((k) => res.tiers[k] && res.tiers[k].status === "ok");
+  const okTiers = ["M", "K", "P", "D"].filter((k) => res.tiers[k] && res.tiers[k].status === "ok");
   check(count(els.ladder.innerHTML, /<tr>/g) >= 1 + Object.keys(res.tiers).length, `阶梯表每档一行（${Object.keys(res.tiers).join("")}）`);
   for (const k of okTiers) {
     ctx.KR.state.main = k;
@@ -168,11 +173,15 @@ function reconChecks(text, res) {
     check(els.pbody.innerHTML.includes("<svg"), "档 P：外环证书图");
     check(count(els.pbody.innerHTML, /<tr/g) >= res.tiers.P.thomson.points.length, "档 P：逐点表");
   }
+  if (res.tiers.D && res.tiers.D.status === "ok") {
+    check(els.ladder.innerHTML.includes("D · 磁"), "档 D：阶梯表有一行");
+    check(els.ladnote.innerHTML.includes("data-tier-d") && els.ladnote.innerHTML.includes("各向同性"), "档 D：阶梯注写出 W_dia 标度与各向同性假定");
+  }
   check(els.foot.innerHTML.includes(res.app), "页脚带出处");
   physReconChecks(text, res);
   //: 缺档也得画得出来：只留 M
   const onlyM = JSON.parse(text);
-  delete onlyM.tiers.K; delete onlyM.tiers.P;
+  delete onlyM.tiers.K; delete onlyM.tiers.P; delete onlyM.tiers.D;
   check(ctx.KR.load(JSON.stringify(onlyM), "only-M.json") === true, "只有档 M 的结果也能载入");
   check(els.kbody.innerHTML.includes("没跑档 K") && els.pbody.innerHTML.includes("没跑档 P"), "缺的档说「没跑」，不报错");
 }
@@ -184,14 +193,14 @@ function physReconChecks(text, res) {
   if (!res.physics_check) {
     check(els.phys.innerHTML.includes("没做物理校验"), "物理校验：旧结果（没有 physics_check）说「没做物理校验」");
   } else {
-    for (const k of ["M", "K", "P"]) {
+    for (const k of ["M", "K", "P", "D"]) {
       const t = res.tiers[k];
       if (!has(t)) continue;
       const want = t.status === "unphysical" ? "unphysical" : "pass";
       check(new RegExp(`data-tier-phys="${k}"[^]*?data-phys="${want}"`).test(els.phys.innerHTML), `物理校验：档 ${k} 的徽章是「${want === "pass" ? "物理 ✓" : "不物理"}」`);
       if (want === "unphysical") check(t.physics_check.failed.every((id) => els.phys.innerHTML.includes(id)), `物理校验：档 ${k} 没过的条目都列出（${t.physics_check.failed.join(",")}）`);
     }
-    check(count(els.ladder.innerHTML, /data-phys="(pass|unphysical)"/g) === ["M", "K", "P"].filter((k) => has(res.tiers[k])).length, "阶梯表每个有解的档带一枚物理校验徽章");
+    check(count(els.ladder.innerHTML, /data-phys="(pass|unphysical)"/g) === ["M", "K", "P", "D", "Q"].filter((k) => has(res.tiers[k])).length, "阶梯表每个有解的档带一枚物理校验徽章");
     const main = res.tiers[ctx.KR.state.main];
     check(count(els.phys.innerHTML, /data-check="/g) === main.physics_check.checks.length, `主显示档 ${ctx.KR.state.main} 逐条 ${main.physics_check.checks.length} 行（值 · 界 · 结论）`);
     check(els.phys.innerHTML.includes("界值与理由") && Object.keys(res.physics_check.bounds).every((b) => els.phys.innerHTML.includes(b)), "界值与理由逐条列出");

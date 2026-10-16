@@ -13,13 +13,14 @@
 进程内的同一件事：``reconstruct(meas, thomson, **开关)`` · ``compare(result, refs=…)`` ·
 ``series(shot, t0, t1, **开关)`` · ``kfile_measurements(lib, path)``（README §5）。
 
-★★独立发行：只用 Python 标准库（ctypes · json · math）与**一个** ``libfylite.so``——不 import
-fylite 的 Python 包，也不要 numpy。库里有三样本应用要的东西：
+★★独立发行：只用 Python 标准库（ctypes · json · math）与**两份库**（内核 ``libfylite_kernel.so`` · 数据层
+``libsp.so``，各自的版本号）——不 import fylite 的 Python 包，也不要 numpy。两份库里有三样本应用要的东西：
 
-* 内核的文档门 ``fylite_runtime_case_tree_json``——每一次物理计算（线圈份额、反演、弦积分、剖面拟合）；
-* 编进库里的装置事实 ``fylite_runtime_facts_*`` 与解析规则 ``fylite_runtime_device_resolve``——
-  EAST 在这一炮、这条测量链上的装置描述，不读盘上的装置文件；
-* mdsip 客户端 ``fylite_runtime_mds_*``——取数。
+* 内核的文档门 ``fylite_rs_fyo_json``——每一次物理计算（线圈份额、反演、弦积分、剖面拟合）；
+* 数据层（``libsp``，``sp_call``）的装置事实（``facts``）与解析规则（``resolve_device``）——EAST 在这一炮、这条
+  测量链上的装置描述，从 facts 目录读：本文件旁边的 ``facts/``，或 ``$FY_FACTS_PATH``（EAST 的装置事实不公开，
+  自己放进来）；
+* 数据层的 mdsip 读（``mds_read_many``）——取数；与 g-file 读者（``read`` 带 ``raw``）。
 
 ``pull`` 从原始树（``east`` 测量链：磁探针 · 磁通环 · PF 罗氏线圈 · Ip · TF 线圈电流 · POINT
 11 弦）与 ``ts_east``（芯部 Thomson）取一个时刻，归约成一份测量文档。``run`` 也收
@@ -31,11 +32,12 @@ Thomson 可另给 ``--thomson``（``pull --thomson-only`` 的输出）。
     M   磁测量：环 + 探针 + Ip + 实测 PF 电流；竖直设定点扫描取 chi2 极小；坏道由拟合自己剔
     K   M + POINT：先在 M 的平衡上前向算 11 弦（零假设），再把法拉第角作行加进拟合，逐轮重建行
     P   + Thomson 压强点（实空间 R, Z，逐点实测 sigma），自洽外环逐遍把测点重映到 psi_N
+    D   K（或 M）+ 实测逆磁储能只定压强标度（Thomson 不可用时 P 的替代；假定各向同性热压；--tiers 点名才跑）
 
 ★★实验数据不入仓：测量文档、结果 JSON 都写在调用方给的路径；服务器地址在写出的文件里
 一律记作 ``mds.invalid``。
 
-库在哪：缺省是本文件旁边的 ``libfylite.so``（一个位置，不搜索）；``--lib`` 显式给另一份。
+库在哪：缺省是本文件旁边的 ``libfylite_kernel.so``，数据层 ``libsp.so`` 在它旁边（一个位置，不搜索）；``--lib`` 显式给另一份内核（数据层仍在它旁边）。
 取数另要 ``$FYLITE_MDSIP_SERVER=主机:端口``（或 ``--server``）。
 """
 from __future__ import annotations
@@ -43,6 +45,7 @@ from __future__ import annotations
 import argparse
 import bisect
 import concurrent.futures
+import copy
 import ctypes
 import datetime
 import itertools
@@ -59,7 +62,11 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 APP = "east-kinetic-reconstruction"
 VERSION = "0.3.1"
-DEFAULT_LIB = HERE / "libfylite.so"
+#: ★★两份库、各自的版本号，放在同一处：内核 ``libfylite_kernel.so``（物理，文档门）与数据层 ``libsp.so``（spdata：
+#: 装置事实 · 解析 · mdsip · g-file）。2026-09-26..27 数据层是 ``libfylite_runtime.so``。
+KERNEL_LIB_NAME = "libfylite_kernel.so"
+SP_LIB_NAME = "libsp.so"
+DEFAULT_LIB = HERE / KERNEL_LIB_NAME
 
 #: sigma = max(SERROR·|读数|, 位下限)——KEFIT / EFIT 的 data_input 约定（B-06 §7.1 两个代码同用）
 SERROR = 0.05
@@ -75,19 +82,10 @@ TS_MAX_DT = 0.5
 DRIFT_WINDOW = (-6.9, -6.1)  #: 炮前线性漂移的拟合窗 [s]
 WINDOW_MS = 5.0              #: 磁测量窗口均值的半宽 [ms]
 FRINGE_GATE = 0.15           #: POINT 干涉条纹闸
-POINT_NEL_MIN = 0.1          #: POINT 在用弦的线密度最大值低于它 [1e19 m⁻²] = 节点只有噪声，档 K 不跑
 E_CHARGE = 1.602176634e-19
 
 SETTINGS = {"npp": 2, "nff": 2, "relax": 0.3, "max_iter": 4000, "tol": 1e-8, "fb_gain": 8.0, "warmup": 40,
             "n_profile": 201, "n_q": 20, "n_theta": 121, "x_lo": 0.06, "x_hi": 0.995}
-ZC_SCAN = [round(-0.030 + 0.004 * k, 3) for k in range(16)]
-#: 竖直设定点扫描的做法（``--scan``）。``full``：每轮每个设定点都在 65² 上冷启动解，取收敛者中 chi2 最小的。
-#: ``coarse``：每轮先把全部设定点在 ``grid``² 的粗网格上解一遍、按粗 chi2 排序，只把最好的 ``top`` 个在 65² 上冷启动
-#: 复核，再从其中最好的往两侧邻点走（65²），直到两侧都不更好；粗网格上收敛的不到 ``min_converged``（份额），或复核的
-#: 无一收敛，这一轮退回全扫。粗网格只用来排序——报出的解与剔道依据总是 65² 上的冷启动解。
-#: ★门槛与 top=4 是在 12 片上量出来的：top=3、不走邻点、不设门槛时 12 片里 3 片的答案与全扫不同（README §3.3）。
-SCAN_FULL = {"mode": "full"}
-SCAN_COARSE = {"mode": "coarse", "grid": 33, "top": 4, "min_converged": 0.5}
 #: 档 M 反演外迭代的 Anderson 混合深度（``--anderson``；内核 ``code/reconstruction`` 的 ``anderson``，0 = 纯 Picard）。
 #: 只加速日程之后的 Picard 尾巴，终点是同一个不动点（内核 docs/note/gs-anderson.md）；粗扫的粗网格、65² 复核与全扫
 #: 三种调用都带它。只用在档 M——K / P 的反演照旧（没有在它们上面验过）。0 时不写这个键，与旧库逐位相同。
@@ -102,7 +100,7 @@ ANDERSON = 0
 #: 22 / 24 片、33 / 35 片相同（不同的片都是它救活了纯 Picard 解不出的设定点），三者里最快（README §3.2）。
 NEWTON_KRYLOV = 10
 #: 一轮里互相独立的反演调用（粗扫的全部粗网格点、65² 复核的前几名、邻点的两侧、热启动的 5 点扫、全扫的 16 点）
-#: 同时交给几个工作进程（``--jobs``；1 = 串行，与旧版逐位相同）。每个工作进程自己载一份 libfylite.so（ctypes 句柄
+#: 同时交给几个工作进程（``--jobs``；1 = 串行，与旧版逐位相同）。每个工作进程自己载一份库（ctypes 句柄
 #: 不能跨进程传）：传过去的是请求（code + settings + inputs），传回来的是门的记录（或拒绝）。门是确定的、单线程的，
 #: 结果按串行的次序归并——读数、选中的解、剔道与串行**逐位相同**（README §3.3 · §6.1）。
 JOBS = max(1, min(16, os.cpu_count() or 1))
@@ -179,7 +177,7 @@ def _r(x, n=6):
     return float(f"{x:.{n}g}") if math.isfinite(x) else None
 
 
-# ================================================================================================ libfylite.so
+# ================================================================================================ libfylite_kernel.so · libsp.so
 
 class KernelError(RuntimeError):
     """库或它的门本身出错（不是物理上的拒绝）。"""
@@ -198,72 +196,136 @@ def _bytes(text: str):
     return ctypes.cast(buf, _U8P), len(raw), buf
 
 
+def kernel_identity(kpath: Path) -> dict:
+    """算这些数的**内核是哪一份**，问内核库自己：版本（``fylite_rs_kernel_version``，内核自己的版本号）·
+    ABI · 文件的 sha256。★2026-09-26 起内核与中间层是两份库、各自的版本号；中间层不再链内核，
+    所以这一格不能再问中间层（``fylite_runtime_linked_kernel`` 在那里答空）。取不到的格留空，不编。"""
+    import hashlib
+    out: dict = {"lib": kpath.name}
+    try:
+        out["sha256"] = hashlib.sha256(Path(kpath).resolve().read_bytes()).hexdigest()
+        k = ctypes.CDLL(str(kpath))
+        k.fylite_rs_abi_version.restype = ctypes.c_uint32
+        out["abi"] = int(k.fylite_rs_abi_version())
+        fn = getattr(k, "fylite_rs_kernel_version", None)
+        if fn is not None:
+            fn.restype = ctypes.c_uint64
+            fn.argtypes = [ctypes.c_char_p, ctypes.c_uint64]
+            buf = ctypes.create_string_buffer(64)
+            n = int(fn(buf, 64))
+            out["kernel_version"] = buf.raw[: min(n, 64)].decode("utf-8", "replace")
+    except (OSError, AttributeError):
+        pass
+    return out
+
+
 class Lib:
-    """``libfylite.so`` 的三扇门：内核文档门、装置事实、mdsip 客户端。"""
+    """两份库的三扇门：内核文档门、装置事实（数据层）、mdsip 读（数据层）。``path`` 是内核 ``libfylite_kernel.so``；
+    数据层 ``libsp.so`` 在它旁边。"""
 
     def __init__(self, path: Path):
-        if not path.is_file():
-            raise SystemExit(f"找不到 {path}：把 libfylite.so 放在 {HERE} 下，或用 --lib 指一份"
-                             "（取法见 README〈八 · 库与分发〉）")
-        self.path = path
-        self.lib = ctypes.CDLL(str(path))
-        L = self.lib
-        L.fylite_runtime_case_tree_json.argtypes = [ctypes.c_char_p, ctypes.c_uint64] * 3 + [
-            ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_uint64)]
-        L.fylite_runtime_case_tree_json.restype = ctypes.c_int32
-        L.fylite_runtime_case_free.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
-        L.fylite_runtime_case_free.restype = None
-        for n in ("fylite_runtime_facts_ids", "fylite_runtime_facts_doc", "fylite_runtime_facts_resolution",
-                  "fylite_runtime_device_resolve"):
-            getattr(L, n).restype = ctypes.c_int64
-        L.fylite_runtime_device_resolve.argtypes = [ctypes.c_char_p, ctypes.c_uint64] * 4 + [_U8P, ctypes.c_uint64]
-        L.fylite_runtime_mds_open.argtypes = [_U8P, ctypes.c_uint64, ctypes.c_uint16, _U8P, ctypes.c_uint64,
-                                              ctypes.c_int32, ctypes.POINTER(ctypes.c_void_p), _U8P, ctypes.c_uint64]
-        L.fylite_runtime_mds_open.restype = ctypes.c_int32
-        L.fylite_runtime_mds_open_tree.argtypes = [ctypes.c_void_p, _U8P, ctypes.c_uint64, ctypes.c_int64]
-        L.fylite_runtime_mds_open_tree.restype = ctypes.c_int32
-        L.fylite_runtime_mds_read.argtypes = [ctypes.c_void_p, ctypes.c_int32, _U8P, ctypes.c_uint64,
-                                              ctypes.POINTER(ctypes.c_int64), ctypes.c_uint64, ctypes.c_int32,
-                                              ctypes.POINTER(ctypes.c_uint64)]
-        L.fylite_runtime_mds_read.restype = ctypes.c_int32
-        L.fylite_runtime_mds_last_f64.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_double), ctypes.c_uint64]
-        L.fylite_runtime_mds_last_f64.restype = ctypes.c_int32
-        L.fylite_runtime_mds_last_dims.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint64), ctypes.c_uint64,
-                                                   ctypes.POINTER(ctypes.c_uint64)]
-        L.fylite_runtime_mds_last_dims.restype = ctypes.c_int32
-        L.fylite_runtime_mds_last_error.argtypes = [ctypes.c_void_p, _U8P, ctypes.c_uint64]
-        L.fylite_runtime_mds_last_error.restype = ctypes.c_int64
-        L.fylite_runtime_mds_close.argtypes = [ctypes.c_void_p]
-        L.fylite_runtime_mds_close.restype = None
+        path = Path(path)
+        if path.is_dir():
+            path = path / KERNEL_LIB_NAME
+        self.kernel_path = path
+        self.path = path.parent / SP_LIB_NAME
+        for p in (path, self.path):
+            if not p.is_file():
+                raise SystemExit(f"找不到 {p}：把 libfylite_kernel.so 与 libsp.so 放在 {HERE} 下，"
+                                 "或用 --lib 指内核那一份（数据层在它旁边；取法见 README〈八 · 库与分发〉）")
+        k = ctypes.CDLL(str(path))
+        fn = getattr(k, "fylite_rs_fyo_json", None)
+        if fn is None:
+            raise SystemExit(f"{path.name} 没有文档门 fylite_rs_fyo_json（内核 ABI 161 之前的构建）——换一份新构建的库")
+        fn.argtypes = [ctypes.c_char_p, ctypes.c_uint64] * 2 + [ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_uint64)]
+        fn.restype = ctypes.c_int32
+        k.fylite_rs_free.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
+        k.fylite_rs_free.restype = None
+        self._k = k
+        self.door_name = "fylite_rs_fyo_json"
+        L = ctypes.CDLL(str(self.path))
+        L.sp_call.argtypes = [_U8P, ctypes.c_uint64, _U8P, ctypes.c_uint64]
+        L.sp_call.restype = ctypes.c_void_p
+        L.sp_result_status.argtypes = [ctypes.c_void_p]
+        L.sp_result_status.restype = ctypes.c_int32
+        for n in ("sp_result_json", "sp_result_error"):
+            getattr(L, n).argtypes = [ctypes.c_void_p, _U8P, ctypes.c_uint64]
+            getattr(L, n).restype = ctypes.c_uint64
+        L.sp_result_array_count.argtypes = [ctypes.c_void_p]
+        L.sp_result_array_count.restype = ctypes.c_uint32
+        L.sp_result_array.argtypes = [ctypes.c_void_p, ctypes.c_uint32, _U8P, ctypes.c_uint64]
+        L.sp_result_array.restype = ctypes.c_uint64
+        L.sp_result_free.argtypes = [ctypes.c_void_p]
+        L.sp_version.argtypes = [_U8P, ctypes.c_uint64]
+        L.sp_version.restype = ctypes.c_uint64
+        self.lib = L
+        #: facts：本文件旁边的 ``facts/``（有就用）；否则由数据层按 ``$FY_FACTS_PATH`` / ``$SP_FACTS_PATH`` 找
+        self.facts = [str(HERE / "facts")] if (HERE / "facts").is_dir() else None
 
-    # ---- 两段式读：先问长度，再给缓冲 ----
+    # ---- 数据层：一次调用（``sp_call``；大数组经旁路回来，放回原处成列表） ----
     @staticmethod
-    def _ask(fn, *args):
-        n = fn(*args, None, 0)
-        if n < 0:
-            return int(n)
-        if n == 0:
-            return ""
-        buf = (ctypes.c_uint8 * int(n))()
-        got = fn(*args, ctypes.cast(buf, _U8P), n)
-        if got < 0:
-            return int(got)
-        return bytes(buf)[: min(int(got), int(n))].decode("utf-8", "replace")
+    def _text(fn, h) -> str:
+        n = fn(h, None, 0)
+        buf = (ctypes.c_uint8 * max(int(n), 1))()
+        fn(h, ctypes.cast(buf, _U8P), n)
+        return bytes(buf)[:int(n)].decode("utf-8", "replace")
+
+    def call(self, op: str, req: dict):
+        """数据层的一次调用 → 答案（数组放回成嵌套列表）。失败：请求本身不对 / 操作失败都抛 :class:`KernelError`。"""
+        import struct
+        if self.facts is not None and "facts" not in req:
+            req = dict(req, facts=self.facts)
+        ob, on, _k1 = _bytes(op)
+        rb, rn, _k2 = _bytes(json.dumps(req, allow_nan=True))
+        h = self.lib.sp_call(ob, on, rb, rn)
+        try:
+            st = int(self.lib.sp_result_status(h))
+            if st != 0:
+                raise KernelError(f"libsp {op}: {self._text(self.lib.sp_result_error, h)}")
+            ans = json.loads(self._text(self.lib.sp_result_json, h) or "null")
+            blobs = []
+            for k in range(int(self.lib.sp_result_array_count(h))):
+                size = int(self.lib.sp_result_array(h, k, None, 0))
+                buf = (ctypes.c_uint8 * max(size, 1))()
+                self.lib.sp_result_array(h, k, ctypes.cast(buf, _U8P), size)
+                blobs.append(bytes(buf)[:size])
+        finally:
+            self.lib.sp_result_free(h)
+
+        def back(n):
+            if isinstance(n, dict):
+                if "@array" in n and "dtype" in n and "shape" in n:
+                    raw = blobs[int(n["@array"])]
+                    flat = list(struct.unpack(f"<{len(raw) // 8}{'d' if n['dtype'] == 'f64' else 'q'}", raw))
+                    shape = [int(d) for d in n["shape"]]
+                    for d in reversed(shape[1:]):
+                        flat = [flat[i:i + d] for i in range(0, len(flat), d)]
+                    return flat
+                return {k: back(v) for k, v in n.items()}
+            if isinstance(n, list):
+                return [back(v) for v in n]
+            return n
+        return back(ans) if blobs else ans
 
     # ---- 内核文档门 ----
-    def door(self, code: str, settings: dict, inputs: dict):
-        """一份请求进、一份记录出：(facts{key: 数}, fields{key: 列表}, notes)。"""
+    def _case(self, code: str, plan: dict) -> tuple[int, str]:
+        """一次文档门：(返回码, 记录或拒绝的 JSON 文本)。返回码：0 记录 · 1 拒绝 · 负数 出错。"""
         cb = code.encode()
-        jb = json.dumps({"settings": settings, "inputs": inputs}, allow_nan=True).encode()
+        jb = json.dumps(plan, allow_nan=True).encode()
         out, n = ctypes.c_void_p(), ctypes.c_uint64(0)
-        rc = self.lib.fylite_runtime_case_tree_json(cb, len(cb), jb, len(jb), b"", 0, ctypes.byref(out), ctypes.byref(n))
+        rc = self._k.fylite_rs_fyo_json(cb, len(cb), jb, len(jb), ctypes.byref(out), ctypes.byref(n))
         try:
             text = ctypes.string_at(out, n.value).decode("utf-8", "replace") if out.value and n.value else ""
         finally:
             if out.value and n.value:
-                self.lib.fylite_runtime_case_free(out, n)
+                self._k.fylite_rs_free(out, n)
+        return int(rc), text
+
+    def door(self, code: str, settings: dict, inputs: dict):
+        """一份请求进、一份记录出：(facts{key: 数}, fields{key: 列表}, notes)。"""
+        rc, text = self._case(code, {"settings": settings, "inputs": inputs})
         if rc < 0:
-            raise KernelError(f"{code}: fylite_runtime_case_tree_json 返回 {rc}：{text[:300]}")
+            raise KernelError(f"{code}: {self.door_name} 返回 {rc}：{text[:300]}")
         rec = json.loads(text) if text else {}
         if rc == 1:
             ref = rec.get("refusal") or {}
@@ -281,126 +343,122 @@ class Lib:
         walk(rec.get("fields") or {}, "")
         return fa, fi, list(rec.get("notes") or [])
 
-    def linked_kernel(self) -> dict:
-        out, n = ctypes.c_void_p(), ctypes.c_uint64(0)
-        fn = self.lib.fylite_runtime_linked_kernel
-        fn.argtypes = [ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_uint64)]
-        fn.restype = ctypes.c_int32
-        info = {}
-        if fn(ctypes.byref(out), ctypes.byref(n)) == 0 and out.value and n.value:
-            try:
-                info = json.loads(ctypes.string_at(out, n.value).decode("utf-8", "replace")) or {}
-            finally:
-                self.lib.fylite_runtime_case_free(out, n)
-        try:
-            self.lib.fylite_rs_abi_version.restype = ctypes.c_uint32
-            info["abi"] = int(self.lib.fylite_rs_abi_version())
-        except AttributeError:
-            pass
-        return info
+    def kinetic(self, inputs: dict) -> tuple[dict, list]:
+        """``code/kinetic``：整条约束阶梯在内核里跑，一份计划进、一份结果记录出 → (记录, 日志行)。
+        内核按名拒绝（缺 TF、认不出的开关、输入文件里认不出的道 …）即 ``SystemExit``——与这些检查还在本应用里时同一种失败。"""
+        rc, text = self._case("code/kinetic", {"settings": {}, "inputs": inputs})
+        if rc < 0:
+            raise KernelError(f"code/kinetic: {self.door_name} 返回 {rc}：{text[:300]}")
+        rec = json.loads(text) if text else {}
+        if rc == 1:
+            ref = rec.get("refusal") or {}
+            msg = str(ref.get("message", text[:300]))
+            if "no code `kinetic`" in msg or "no code `code/kinetic`" in msg:
+                raise SystemExit(f"{self.path.name} 没有 code/kinetic（2026-09-26 之前的库）——换一份新构建的库")
+            raise SystemExit(msg)
+        if "record" not in rec:
+            raise KernelError("code/kinetic 没有交回 record（库太旧？）")
+        return rec["record"], list(rec.get("notes") or [])
 
-    # ---- g-file：库里的 G-EQDSK 读者（``fylite_runtime_gfile_json``，页面读 g-file 走的也是它） ----
+    def linked_kernel(self) -> dict:
+        """算这些数的内核：问内核库自己（:func:`kernel_identity`）。"""
+        return kernel_identity(self.kernel_path)
+
+    def runtime_version(self) -> str | None:
+        """数据层自己的版本号（``sp_version``：``<版本>+<提交>``；与内核的相互独立）。"""
+        n = self.lib.sp_version(None, 0)
+        buf = (ctypes.c_uint8 * max(int(n), 1))()
+        self.lib.sp_version(ctypes.cast(buf, _U8P), n)
+        return bytes(buf)[:int(n)].decode("utf-8", "replace")
+
+    # ---- g-file：数据层的 G-EQDSK 读者（``read`` 带 ``raw``：与内核的 ``GFile`` 同样的字段） ----
     def gfile(self, text: str) -> dict:
         """一份 G-EQDSK 文本 → 字典（键名同内核的 ``GFile``：nw · nh · rdim … · psirz 平铺 · rbbbs …）。"""
-        fn = getattr(self.lib, "fylite_runtime_gfile_json", None)
-        if fn is None:
-            raise SystemExit(f"{self.path.name} 没有 g-file 读者（fylite_runtime_gfile_json，abi_gfile 特性）——换一份新构建的库")
-        fn.argtypes = [ctypes.c_char_p, ctypes.c_uint64, ctypes.c_void_p, ctypes.c_uint64]
-        fn.restype = ctypes.c_int64
-        raw = text.encode("utf-8")
-        n = fn(raw, len(raw), None, 0)
-        if n == -2:                                      #: 读不动：原因写进缓冲（两段式问不出它的长度，给足）
-            buf = ctypes.create_string_buffer(4096)
-            fn(raw, len(raw), buf, 4096)
-            raise SystemExit(f"g-file 读不进来：{buf.value.decode('utf-8', 'replace')}")
-        if n < 0:
-            raise KernelError(f"fylite_runtime_gfile_json 返回 {n}")
-        buf = ctypes.create_string_buffer(max(int(n), 1))
-        fn(raw, len(raw), buf, int(n))
-        return json.loads(buf.raw[:int(n)].decode("utf-8", "replace"))
+        try:
+            g = self.call("read", {"input": {"text": text, "format": "geqdsk"}, "raw": True})
+        except KernelError as e:
+            raise SystemExit(f"g-file 读不进来：{e}")
+        return {k: (flat(v) if isinstance(v, list) else v) for k, v in g.items()}
 
-    # ---- 装置：编进库里的事实 + 运行时的解析规则 ----
+    # ---- 装置：数据层的事实 + 解析规则 ----
     def device(self, device_id: str, shot: int, chain: str) -> tuple[dict, dict]:
         """(这一炮、这条测量链上的装置文档, 解析文档)。"""
-        d, i = b"device", device_id.encode()
-        doc = self._ask(self.lib.fylite_runtime_facts_doc, d, len(d), i, len(i))
-        res = self._ask(self.lib.fylite_runtime_facts_resolution, d, len(d), i, len(i))
-        if not isinstance(doc, str) or not doc or not isinstance(res, str) or not res:
-            have = self._ask(self.lib.fylite_runtime_facts_ids, d, len(d))
-            raise SystemExit(f"这份 libfylite.so 没有编进装置 {device_id!r}（它有：{have}）——"
-                             "要的是含 EAST 的内部版构建")
-        q = json.dumps({"shot": int(shot), "measurement_chain": chain, "strict": False}).encode()
-        c, r = doc.encode(), res.encode()
-        text = self._ask(self.lib.fylite_runtime_device_resolve, c, len(c), r, len(r), q, len(q), b"document", 8)
-        if not isinstance(text, str):
-            raise KernelError(f"fylite_runtime_device_resolve 失败（{text}）")
-        out = json.loads(text)
-        if "error" in out:
-            raise SystemExit(f"装置解析：{out['error']}")
-        return out["document"], json.loads(res)
+        try:
+            card = self.call("facts", {"doc": ["device", device_id]})
+            res = self.call("facts", {"resolution": ["device", device_id]})
+        except KernelError as e:
+            try:
+                have = self.call("facts", {"list": "device"}).get("ids")
+            except KernelError:
+                have = []
+            raise SystemExit(f"facts 里没有装置 {device_id!r} 的卡片与解析文档（有：{have}）——把 EAST 的装置事实放进 "
+                             f"{HERE / 'facts'}，或 export FY_FACTS_PATH=…（{e}）")
+        try:
+            out = self.call("resolve_device", {"card": card, "resolution": res, "shot": int(shot),
+                                               "measurement_chain": chain, "strict": False, "form": "document"})
+        except KernelError as e:
+            raise SystemExit(f"装置解析：{e}")
+        return out["document"], res
 
-    # ---- mdsip ----
+    # ---- mdsip：数据层的批量读 ----
+    def mds_read_many(self, server: str, items: list, *, parallel: int = 8, timeout_s: float = 10.0) -> list:
+        """一批只读 mdsip 读：每项 ``{tree, shot, verb, node, [index]}`` → ``{"value": …}`` 或 ``{"error": …}``；
+        一个节点不在不会让整批失败。"""
+        ans = self.call("mds_read_many", {"server": server, "items": items, "parallel": int(parallel),
+                                          "user": os.environ.get("USER") or "fylite",
+                                          "timeout_ms": int(timeout_s * 1000)})
+        return ans["items"]
+
     def mds_open(self, host: str, port: int, timeout_s: float) -> "Mds":
         return Mds(self, host, port, timeout_s)
 
 
-class Mds:
-    """一条只读 mdsip 会话（``fylite_runtime_mds_*``）。"""
+def flat(v) -> list:
+    """嵌套列表 → 行主序的一维列表。"""
+    if not isinstance(v, list):
+        return [v]
+    out = []
+    for x in v:
+        out.extend(flat(x)) if isinstance(x, list) else out.append(x)
+    return out
 
-    VERBS = {"raw": 0, "data": 1, "dim_of": 2}
+
+def dims_of(v) -> list:
+    """嵌套列表的形状，按线上约定**最快变化的轴在前**。"""
+    shape = []
+    while isinstance(v, list):
+        shape.append(len(v))
+        v = v[0] if v else None
+    return list(reversed(shape))
+
+
+class Mds:
+    """一条只读 mdsip「会话」：服务器 · 树 · 炮号，逐个节点读（数据层的 ``mds_read_many``，每次一项；多项时用
+    :meth:`Lib.mds_read_many` 成批读）。调用无状态——每一读都带上本会话记下的树与炮号，``close`` 无可放。"""
 
     def __init__(self, lib: Lib, host: str, port: int, timeout_s: float):
-        self.L = lib.lib
-        h = ctypes.c_void_p()
-        err = (ctypes.c_uint8 * 512)()
-        hb, hn, _k1 = _bytes(host)
-        ub, un, _k2 = _bytes(os.environ.get("USER") or "fylite")
-        rc = self.L.fylite_runtime_mds_open(hb, hn, int(port), ub, un, int(timeout_s * 1000), ctypes.byref(h),
-                                            ctypes.cast(err, _U8P), len(err))
-        if rc != 0:
-            why = bytes(err).split(b"\x00", 1)[0].decode("utf-8", "replace")
-            raise KernelError(f"mdsip open failed ({rc}): {why}")
-        self.h = h
-        self.tree = None
-
-    def _fail(self, what, rc):
-        n = self.L.fylite_runtime_mds_last_error(self.h, None, 0)
-        buf = (ctypes.c_uint8 * max(int(n), 1))()
-        self.L.fylite_runtime_mds_last_error(self.h, ctypes.cast(buf, _U8P), len(buf))
-        raise KernelError(f"{what} returned {rc}: {bytes(buf)[:max(int(n), 0)].decode('utf-8', 'replace')}")
+        self.lib, self.server, self.timeout_s = lib, f"{host}:{int(port)}", timeout_s
+        self.tree, self.shot = None, None
 
     def open_tree(self, tree: str, shot: int) -> None:
-        tb, tn, _k = _bytes(tree)
-        rc = self.L.fylite_runtime_mds_open_tree(self.h, tb, tn, int(shot))
-        if rc != 0:
-            self._fail(f"open_tree({tree!r}, {shot})", rc)
-        self.tree = tree
+        self.tree, self.shot = tree, int(shot)
 
-    #: 下标里的「整条轴」（``*``）：库的 ABI 常量（c_api.rs ``mds_abi::ALL`` = i64::MIN）
+    #: 下标里的「整条轴」（``*``）
     ALL = -(2 ** 63)
 
     def read(self, verb: str, node: str, sub=None):
         """(一维值, dims)；dims 按线上约定**最快变化的轴在前**。``sub``：对**值**取的整数下标
         （``data(\\X)[*,*,k]``；每一维一个整数或 ``Mds.ALL``）——大数组只取一片时用，节点路径与下标之外不拼任何 TDI。"""
-        nb, nn, _k = _bytes(node)
-        n = ctypes.c_uint64()
-        idx = [int(x) for x in (sub or [])]
-        sub = (ctypes.c_int64 * max(len(idx), 1))(*idx)
-        rc = self.L.fylite_runtime_mds_read(self.h, self.VERBS[verb], nb, nn, sub, len(idx), 0, ctypes.byref(n))
-        if rc != 0:
-            self._fail(f"read({verb!r}, {node!r})", rc)
-        out = (ctypes.c_double * max(int(n.value), 1))()
-        rc = self.L.fylite_runtime_mds_last_f64(self.h, out, int(n.value))
-        if rc != 0:
-            self._fail("last_f64", rc)
-        nd = ctypes.c_uint64()
-        self.L.fylite_runtime_mds_last_dims(self.h, None, 0, ctypes.byref(nd))
-        dims = []
-        if nd.value:
-            db = (ctypes.c_uint64 * int(nd.value))()
-            self.L.fylite_runtime_mds_last_dims(self.h, db, int(nd.value), ctypes.byref(nd))
-            dims = [int(v) for v in db]
-        return list(out[: int(n.value)]), dims
+        if self.tree is None:
+            raise KernelError(f"read({verb!r}, {node!r})：还没有 open_tree")
+        item = {"tree": self.tree, "shot": self.shot, "verb": verb, "node": node}
+        if sub:
+            item["index"] = ["*" if int(x) == self.ALL else int(x) for x in sub]
+        (got,) = self.lib.mds_read_many(self.server, [item], parallel=1, timeout_s=self.timeout_s)
+        if "error" in got:
+            raise KernelError(f"read({verb!r}, {node!r}) returned an error: {got['error']}")
+        v = got["value"]
+        return [float(x) for x in flat(v)], dims_of(v)
 
     def rows(self, node: str) -> list:
         """二维节点按行（慢轴）取出：a[i][j]。★线上 dims 快轴在前，所以行长是 dims[0]。"""
@@ -411,9 +469,77 @@ class Mds:
         return [v[i * w:(i + 1) * w] for i in range(len(v) // w)]
 
     def close(self) -> None:
-        if self.h is not None:
-            self.L.fylite_runtime_mds_close(self.h)
-            self.h = None
+        pass
+
+
+class _CachedMds:
+    """One mdsip session shared by a whole batch that **remembers every answer** (``ShotCache``).
+
+    Same interface as :class:`Mds` (``open_tree`` · ``read`` · ``rows`` · ``close``), so the pull functions run on
+    it unchanged. ``open_tree`` only records which tree is wanted; the real one is opened on the first read that
+    misses. A read's answer — or its ``KernelError`` — is kept by (tree, shot, verb, node, subscript), and a caller
+    gets a copy, so what it does with the lists cannot leak into the next slice. ``close`` is a no-op: the session
+    lives as long as the cache (FYL-REPORT-11 O-1a)."""
+
+    def __init__(self, real: "Mds"):
+        self.real, self.tree, self._shot, self._opened, self.memo = real, None, None, None, {}
+
+    def open_tree(self, tree: str, shot: int) -> None:
+        self.tree, self._shot = tree, int(shot)
+
+    def read(self, verb: str, node: str, sub=None):
+        key = (self.tree, self._shot, verb, node, tuple(int(x) for x in (sub or ())))
+        if key not in self.memo:
+            try:
+                if self._opened != (self.tree, self._shot):
+                    self.real.open_tree(self.tree, self._shot)
+                    self._opened = (self.tree, self._shot)
+                self.memo[key] = self.real.read(verb, node, sub)
+            except KernelError as e:
+                self._opened = None
+                self.memo[key] = e
+        got = self.memo[key]
+        if isinstance(got, KernelError):
+            raise got
+        return list(got[0]), list(got[1])
+
+    rows = Mds.rows
+
+    def close(self) -> None:
+        pass
+
+
+class ShotCache:
+    """Stands in for :class:`Lib` in the per-slice pulls of a batch (W_dia · sawtooth · Thomson): one shared,
+    remembering mdsip session per server, and the device document resolved once per (device, shot, chain).
+
+    ★★Why (FYL-REPORT-11 O-1a): a batch used to open a fresh session for each of those three pulls on every slice
+    and re-read the same whole-shot arrays each time — about half of a slice's wall time on #164437. Every call the
+    pulls make is the same call as before, answered from the first time it was made, so the measurement documents
+    (and the records) are unchanged; only the repeat reads are gone. Everything else is :class:`Lib`'s."""
+
+    def __init__(self, lib: "Lib"):
+        self.lib, self.sessions, self.devices = lib, {}, {}
+
+    def __getattr__(self, name):
+        return getattr(self.lib, name)
+
+    def device(self, device_id: str, shot: int, chain: str):
+        key = (device_id, int(shot), chain)
+        if key not in self.devices:
+            self.devices[key] = self.lib.device(device_id, shot, chain)
+        return copy.deepcopy(self.devices[key])
+
+    def mds_open(self, host: str, port: int, timeout_s: float) -> _CachedMds:
+        key = (host, int(port))
+        if key not in self.sessions:
+            self.sessions[key] = _CachedMds(self.lib.mds_open(host, port, timeout_s))
+        return self.sessions[key]
+
+    def close(self) -> None:
+        for s in self.sessions.values():
+            s.real.close()
+        self.sessions.clear()
 
 
 def server_of(spec: str | None) -> tuple[str, int]:
@@ -425,6 +551,82 @@ def server_of(spec: str | None) -> tuple[str, int]:
 
 
 # ================================================================================================ device names
+#: ★★数据层标在各道上的取数规则（libsp ``resolve_device``；fyo FYO-ADR-17 的词），与中间层写过的旧拼法——读一个发布周期。
+READ_MARKS = {"sign": ("fyo:reading_sign_factor", "fylite:sign"), "drop": ("fyo:excluded_channel", "fylite:drop"),
+              "read_rule": ("fyo:applied_read_rule", "fylite:read_rule"),
+              "geometry_was": ("fyo:original_geometry", "fylite:geometry_was"),
+              "geometry_source": ("fyo:geometry_source", "fylite:geometry_source")}
+#: fyo 的取数规则算子（``fyo:read_rule_operator/<名>``，SP-9 PR-5）→ 测量文档一直用的 op 名
+_OP_NAMES = {"sign": "sign", "exclude_channel": "drop", "replace_geometry": "geometry"}
+
+
+def _rule_value(k: str, v):
+    """一个 ``ReadRuleApplication`` 字段换成测量文档自己的写法：算子 IRI 换成 op 名（``sign`` · ``drop`` ·
+    ``geometry``，别的用 fyo 的名），开区间 ``[first]``（fyo KD-1）写回 ``[first, None]``。"""
+    if k == "rule_operation" and isinstance(v, str):
+        name = v.rsplit("/", 1)[-1]
+        return _OP_NAMES.get(name, name)
+    if k == "applied_shot_range" and isinstance(v, list) and len(v) == 1:
+        return [v[0], None]
+    return v
+
+
+_RULE_FIELDS = {"read_rule_id": "id", "addressed_dataset": "ids", "rule_operation": "op",
+                "reading_sign_factor": "factor", "addressed_quantity": "quantity", "rule_status": "status",
+                "matched_channel": "channels", "absent_channel": "absent", "channel_without_data": "no_data",
+                "applied_to_source": "source", "applied_shot_range": "applies_shots"}
+
+
+def read_mark(c, name: str, default=None):
+    """一道上的取数规则标记（``sign`` · ``drop`` · ``read_rule`` · ``geometry_was`` · ``geometry_source``），两种拼法都认。"""
+    if not isinstance(c, dict):
+        return default
+    return next((c[k] for k in READ_MARKS[name] if k in c), default)
+
+
+def _authored_deg(q):
+    """书里写的角（fyo ``QuantityValue``）换成度：QUDT ``DEG`` 原样，``RAD`` 换算；没有单位是旧形（度）；别的单位不认（``None``）。"""
+    if not isinstance(q, dict) or q.get("numeric_value") is None:
+        return None
+    v, u = q["numeric_value"], str(q.get("has_unit") or "")
+    tail = u.rsplit("/", 1)[-1].rsplit(":", 1)[-1].upper()
+    return v if tail in ("", "DEG") else math.degrees(v) if tail == "RAD" else None
+
+
+def _geometry_values(g: dict) -> dict:
+    """一道替换几何（fyo ``ChannelGeometryRecord``）→ 测量文档里的形：``r · z · poloidal_angle · poloidal_angle_deg ·
+    source``；``poloidal_angle_deg`` 取书里写的原数（fyo ``authored_poloidal_angle``，按它的单位换成度）。"""
+    pos = (g.get("position") or [{}])[0]
+    e = {"r": pos.get("r"), "z": pos.get("z"), "poloidal_angle": g.get("poloidal_angle")}
+    deg = _authored_deg(g.get("authored_poloidal_angle"))
+    if deg is not None:
+        e["poloidal_angle_deg"] = deg
+    if "geometry_source" in g:
+        e["source"] = g["geometry_source"]
+    return e
+
+
+def read_rules(doc: dict) -> list:
+    """解析后的装置文档施加过的取数规则，逐条写成**测量文档**的形（``{id, ids, op, factor, quantity, applies_shots,
+    status, channels, absent, no_data, source, values}``）——测量文档（含冻结的奇偶件）照旧是这个形。数据层按 fyo
+    ``ReadRuleApplication`` 记（``provenance/fyo:provider_resolution/read_rule_application``）；旧的 ``read_rules`` 也认。"""
+    prov = doc.get("provenance") or {}
+    rec = prov.get("fyo:provider_resolution") or prov.get("fylite:resolution") or {}
+    out = []
+    for r in rec.get("read_rule_application") or []:
+        m = {}
+        for k, v in r.items():
+            if k in _RULE_FIELDS:
+                m[_RULE_FIELDS[k]] = _rule_value(k, v)
+            elif k == "replacement_geometry":
+                m["values"] = {g.get("channel_name"): _geometry_values(g) for g in v or []}
+            elif not k.startswith("@"):
+                m[k] = v
+        out.append(m)
+    out.extend(dict(r) for r in rec.get("read_rules") or [] if isinstance(r, dict))
+    return out
+
+
 #: 取数要的几样名字，从解析后的装置文档里取（与 fylite.device._derive 同一套规则，只取本应用用到的）。
 
 def _aos(node, legacy: str = "channel") -> list:
@@ -448,7 +650,14 @@ def _is_fast_coil(coil) -> bool:
 def device_names(doc: dict, resolution: dict) -> dict:
     mag, pf = doc["magnetics"], doc["pf_active"]
     chain = mag.get("measurement_chain")
-    table = (resolution.get("manifest") or {}).get("measurement_chains") or {}
+    #: spdata SP-9 PR-6（fyo FYO-ADR-20）起解析文档是 T-Box 形：``embedded_manifest.measurement_chain_definition[]``
+    #: （``chain_id`` · ``chain_kind`` · ``tree_name``）；旧形 ``manifest.measurement_chains`` 仍认
+    man = resolution.get("embedded_manifest") or resolution.get("manifest") or {}
+    if isinstance(man.get("measurement_chain_definition"), list):
+        table = {c.get("chain_id"): {"kind": c.get("chain_kind"), "tree": c.get("tree_name")}
+                 for c in man["measurement_chain_definition"] if isinstance(c, dict)}
+    else:
+        table = man.get("measurement_chains") or {}
     tree = (table.get(chain) or {}).get("tree")
     if not tree:
         raise SystemExit(f"测量链 {chain!r} 在解析文档里没有 tree（有：{sorted(table)}）")
@@ -458,17 +667,27 @@ def device_names(doc: dict, resolution: dict) -> dict:
     need = [k for k in ("turns", "efit_index") if not all(k in c for c in coils)]
     if not coils or need:
         raise SystemExit(f"这份装置文档没有 PF 通道的 {need or '条目'}——取 PF 电流要它们；"
-                         "要一份带 pf_active/fylite:channel 的 libfylite.so（2026-09-18 之后的构建）")
+                         "要一份带 pf_active/fylite:channel 的 EAST 装置卡片（tools/abox-to-facts.py east，2026-09-18 之后）")
     mds = (doc.get("data_source") or {}).get("mdsplus") or {}
     itf, pol = doc.get("interferometer") or {}, doc.get("polarimeter") or {}
     gui = (doc.get("operational") or {}).get("gui_v5_fig") or {}
     probes = _aos(mag.get("b_field_pol_probe"))
+    loops = _aos(mag.get("flux_loop"))
+    #: ★取数规则（装置书 ``bindings.mdsplus.read_rules``，2026-09-25）：按炮解析的装置文档把覆盖本炮的
+    #: ``sign`` / ``drop`` 规则**按道名**标在环上（``fylite:sign`` · ``fylite:drop`` · ``fylite:read_rule``，
+    #: 运行时 ``read_rules.rs``），逐条记录在 ``provenance/fylite:resolution/read_rules``。归约时乘上符号，
+    #: 丢弃的环在拟合里权为 0（``Case``）。
+    rules = [r for r in read_rules(doc) if r.get("op") in ("sign", "drop", "geometry")]
     return {
         "chain": chain, "tree": tree, "pcs_tree": mds.get("pcs_tree"), "ip_node": mds.get("ip_node"),
-        "loops": [c["name"] for c in _aos(mag.get("flux_loop"))],
+        "loops": [c["name"] for c in loops],
+        "loop_sign": [float(read_mark(c, "sign", 1.0)) for c in loops],
+        "loop_drop": [bool(read_mark(c, "drop")) for c in loops],
+        "read_rules": rules,
         "probes": [c["name"] for c in probes],
         "probe_weights": ([float(c["weight"]) for c in probes]
                           if probes and all(isinstance(c, dict) and "weight" in c for c in probes) else None),
+        "probe_drop": [bool(read_mark(c, "drop")) for c in probes],
         "pf_nodes": [c.get("fylite:mds_node") or c["name"] for c in coils],
         "pf_turns": [int(c["turns"]) for c in coils],
         "pf_order": [int(c["efit_index"]) for c in coils],
@@ -552,12 +771,20 @@ def reduce_series(get, shot: int, t: float, names: dict, *, source: str) -> dict
                 return mean([s[k] - (a * tb[k] + b) for k in sel]) * scale
         return mean([s[k] for k in sel]) * scale
 
-    coils = [avg(nd, tree, 1.0 / (2.0 * math.pi)) for nd in names["loops"]]
+    #: 取数规则：环读数乘上它的符号（``fylite:sign``）；丢弃的环照读（不在也不算缺），拟合里权为 0（``Case``）
+    sign = names.get("loop_sign") or [1.0] * len(names["loops"])
+    drop = names.get("loop_drop") or [False] * len(names["loops"])
+    coils = []
+    for i, nd in enumerate(names["loops"]):
+        v = avg(nd, tree, 1.0 / (2.0 * math.pi), required=not drop[i])
+        coils.append(0.0 if v is None else v * sign[i])
     expmp2, fwtmp2 = [], []
+    pdrop = names.get("probe_drop") or [False] * len(names["probes"])
     for i, nd in enumerate(names["probes"]):
         v = avg(nd, tree, required=False)
         expmp2.append(0.0 if v is None else v)
-        fwtmp2.append(0.0 if v is None else (names["probe_weights"][i] if names["probe_weights"] else 1.0))
+        #: 取数规则 drop 的探针：照读，权为 0（``Case`` 另记进 ``excluded``）
+        fwtmp2.append(0.0 if (v is None or pdrop[i]) else (names["probe_weights"][i] if names["probe_weights"] else 1.0))
     raw_pf = [avg(nd, tree, names["pf_turns"][i], drift=False) for i, nd in enumerate(names["pf_nodes"])]
     brsp = [raw_pf[i] for i in names["pf_order"]]
     plasma = avg(names["ip_node"], tree, 1000.0, required=False, drift=False) if names["ip_node"] else None
@@ -570,7 +797,9 @@ def reduce_series(get, shot: int, t: float, names: dict, *, source: str) -> dict
     meas = {"shot": int(shot), "time_s": float(t), "itime_ms": int(round(t * 1000)),
             "plasma": abs(plasma), "brsp": brsp, "coils": coils, "expmp2": expmp2, "fwtmp2": fwtmp2,
             "n_probe_active": sum(1 for v in fwtmp2 if v > 0), "measurement_chain": names["chain"],
-            "probe_weight_rule": "device" if names["probe_weights"] else "unit", "source": source}
+            "probe_weight_rule": "device" if names["probe_weights"] else "unit", "source": source,
+            #: 施加了哪几条取数规则（逐条：id · op · factor · 道名）；没有覆盖本炮的规则时为空表
+            "read_rules": [dict(r) for r in names.get("read_rules") or []]}
 
     if names["point_ne"] and names["point_window_ms"]:
         pw = names["point_window_ms"] / 1e3
@@ -608,6 +837,11 @@ def reduce_series(get, shot: int, t: float, names: dict, *, source: str) -> dict
     return meas
 
 
+#: mdsip sessions a whole-shot magnetics prefetch reads over (``$EKR_FETCH_WORKERS``): 8 measured best on the EAST
+#: server (#164437, 190 nodes: 1 → 60.6 s · 4 → 33.7 s · 8 → 26.9 s · 16 → 40.5 s)
+FETCH_WORKERS = 8
+
+
 class MagneticsSource:
     """一炮的磁测量原始序列：**取**与**归约**分开。``get`` 按 (树, 节点) 记住读过的整条序列（每条只读一次）；
     ``at(t)`` 在一个时刻上归约成平坦测量字典（``reduce_series`` + TF）。``pull`` 取一个时刻（边归约边按需读，
@@ -623,6 +857,7 @@ class MagneticsSource:
         self.cache: dict = {}
         self.fetch_s = 0.0
         host, port = server_of(server)
+        self.lib, self.host, self.port, self.timeout_s = lib, host, port, timeout_s
         self.s = lib.mds_open(host, port, timeout_s)
 
     def get(self, leaf, where):
@@ -645,20 +880,45 @@ class MagneticsSource:
         self.fetch_s += time.time() - t0
         return r
 
-    def prefetch(self, point: bool = False) -> None:
+    def prefetch(self, point: bool = False, workers: int | None = None) -> None:
         """把归约可能读的节点全读进缓存：环 · 探针 · PF · Ip（+ PCS 树的回退 Ip）· TF（+ 旧炮的 ``btor_node``）；
-        ``point`` 时另读 POINT 的弦（每条几百万个采样——档 M 用不到，``series`` 不读）。"""
+        ``point`` 时另读 POINT 的弦（每条几百万个采样——档 M 用不到，``series`` 不读）。
+        ★★``workers`` 条会话**并行**读（缺省 ``FETCH_WORKERS``，``$EKR_FETCH_WORKERS`` 改；1 = 原来的单会话逐个读）。
+        各会话各读一份节点，答案按与 ``get`` 相同的键进同一个缓存，所以缓存的内容与逐个读的逐位相同，只是快
+        （FYL-REPORT-11 O-1：#164437 连 POINT 190 个节点 60.6 s → 8 路 26.9 s；16 路反而 40.5 s，服务器那一端先饱和）。"""
         n = self.names
-        for nd in n["loops"] + n["probes"] + n["pf_nodes"] + [n["ip_node"]]:
-            if nd:
-                self.get(nd, n["tree"])
+        todo = [(nd, n["tree"]) for nd in n["loops"] + n["probes"] + n["pf_nodes"] + [n["ip_node"]] if nd]
         if n["pcs_tree"]:
-            self.get(r"\pcrl01", n["pcs_tree"])
+            todo.append((r"\pcrl01", n["pcs_tree"]))
+        todo.append((TF_NODE, n["tree"]))
+        if point:
+            todo += [(nd, n["tree"]) for nd in list(n["point_ne"] or []) + list(n["point_fr"] or [])]
+        w = int(os.environ.get("EKR_FETCH_WORKERS") or workers or FETCH_WORKERS)
+        todo = [(nd, where) for nd, where in todo if (where, nd if nd.startswith("\\") else "\\" + nd) not in self.cache]
+        if w > 1 and len(todo) > 1:
+            self._fetch_parallel(todo, min(w, len(todo)))
+        else:
+            for nd, where in todo:
+                self.get(nd, where)
         if self.get(TF_NODE, n["tree"]) is None and self.mds.get("btor_node"):
             self.get(self.mds["btor_node"], n["tree"])
-        if point:
-            for nd in list(n["point_ne"] or []) + list(n["point_fr"] or []):
-                self.get(nd, n["tree"])
+
+    def _fetch_parallel(self, todo: list, w: int) -> None:
+        """``todo`` 一批读完（数据层的 ``mds_read_many``，``w`` 条连接并行），答案进 ``self.cache``。"""
+        t0 = time.time()
+        items, keys = [], []
+        for nd, where in todo:
+            key = (where, nd if nd.startswith("\\") else "\\" + nd)
+            keys.append(key)
+            for verb in ("data", "dim_of"):
+                items.append({"tree": where, "shot": int(self.shot), "verb": verb, "node": key[1]})
+        got = self.lib.mds_read_many(f"{self.host}:{int(self.port)}", items, parallel=w, timeout_s=self.timeout_s)
+        for n, key in enumerate(keys):
+            d, t = got[2 * n], got[2 * n + 1]
+            #: 节点不在：是数据，不是故障（同 ``get``）
+            self.cache[key] = None if ("error" in d or "error" in t) else (
+                [float(x) for x in flat(d["value"])], [float(x) for x in flat(t["value"])])
+        self.fetch_s += time.time() - t0
 
     def at(self, t: float, point: bool = True) -> dict:
         """一个时刻的平坦测量字典（``pull_magnetics`` 的形）；``point=False`` 时不归约 POINT（没有 ``point`` 块）。"""
@@ -683,6 +943,8 @@ def pull_magnetics(lib: Lib, shot: int, t: float, chain: str, server, timeout_s:
     一个时刻：``MagneticsSource`` 边归约边读（时间序列见 ``series``：先整段读一次，再逐时刻归约）。"""
     src = MagneticsSource(lib, shot, chain, server, timeout_s)
     try:
+        #: ★prefetch in parallel, then reduce: the same nodes, the same answers (the class's own guarantee), faster
+        src.prefetch(point=True)
         return src.at(t)
     finally:
         src.close()
@@ -776,6 +1038,27 @@ def cmd_pull(a) -> int:
         except Exception as e:                           # noqa: BLE001 — 取不到就说取不到
             doc["errors"]["measurements"] = sanitize(str(e))[:400]
             log(f"magnetics FAILED: {doc['errors']['measurements']}")
+        if doc["measurements"] is not None:              #: 实测逆磁储能（档 D 用；compare 同一个 ±10 ms 窗）
+            try:
+                wd, wsrc = pull_w_dia(lib, a.shot, a.time, a.chain, a.server, a.timeout)
+                doc["measurements"].update(w_dia_J=wd, w_dia_source=wsrc)
+                log(f"W_dia: {'—' if wd is None else f'{wd / 1e3:.1f} kJ'} ({wsrc.get('node', wsrc.get('why'))})")
+            except Exception as e:                       # noqa: BLE001 — 取不到只记下，不影响磁测量
+                doc["errors"]["w_dia"] = sanitize(str(e))[:200]
+                log(f"W_dia FAILED: {doc['errors']['w_dia']}")
+        if doc["measurements"] is not None and not a.no_sawtooth:   #: 锯齿校验用：ECE 整阵 + SXR 触发弦的 t ± 0.3 s 窗
+            import kinetic_sawtooth
+            t0 = time.time()
+            try:
+                saw = kinetic_sawtooth.pull_sawtooth(lib, a.shot, a.time, a.chain, a.server, a.timeout)
+                doc["measurements"]["sawtooth"] = saw
+                log(f"sawtooth window: ECE {len((saw.get('ece') or {}).get('t') or [])} × {len((saw.get('ece') or {}).get('r') or [])}"
+                    f"{' (' + saw['ece']['why'] + ')' if 'why' in (saw.get('ece') or {}) else ''}, "
+                    f"SXR {len((saw.get('sxr') or {}).get('t') or [])} bins"
+                    f"{' (' + saw['sxr']['why'] + ')' if 'why' in (saw.get('sxr') or {}) else ''} ({time.time() - t0:.1f} s)")
+            except Exception as e:                       # noqa: BLE001
+                doc["errors"]["sawtooth"] = sanitize(str(e))[:300]
+                log(f"sawtooth FAILED: {doc['errors']['sawtooth']}")
     if not a.no_thomson:
         t0 = time.time()
         try:
@@ -997,60 +1280,6 @@ def kfile_fit(k: dict, inwant: dict, name: str) -> dict:
     return fit
 
 
-def efit_request(fit: dict, parts: set, override: dict | None) -> tuple[dict, dict, dict]:
-    """``efit_fit`` 块 → (内核设定, discharge 行, 记录)。``parts`` ⊆ ``EFIT_PARTS``；``override`` 是 ``--efit-override``
-    的 JSON（键：``pprime`` / ``ffprime``（整块替换）· ``tension_scale`` · ``q0_weight`` · ``j_weight`` · ``lincon_weight``
-    · ``ip_sigma``）。"""
-    ov = dict(override or {})
-    st: dict = {}
-    disc: dict = {}
-    rec = {"parts": sorted(parts), "override": ov, "source": fit.get("source"),
-           "not_reproduced": list(fit.get("not_reproduced") or [])}
-    if "basis" in parts:
-        for which in ("pprime", "ffprime"):
-            b = ov.get(which) or fit.get(which)
-            if not b:
-                continue
-            if b["basis"] == "spline":
-                st[f"{which}_basis"] = "spline"
-                st[f"{which}_knots"] = " ".join(repr(float(v)) for v in b["knots"])
-                st[f"{which}_tension"] = float(b.get("tension", 0.0))
-                st[f"{which}_edge"] = b.get("edge", "free")
-            else:
-                st[f"{which}_basis"] = b["basis"]
-                st["npp" if which == "pprime" else "nff"] = int(b["n"])
-            rec[which] = b
-        if any(v == "spline" for k_, v in st.items() if k_.endswith("_basis")):
-            st["spline_tension_scale"] = ov.get("tension_scale", "mean_interval")
-            rec["tension_scale"] = st["spline_tension_scale"]
-    if "q0" in parts and fit.get("q0"):
-        st["q0_target"] = fit["q0"]["target"]
-        st["q0_weight"] = float(ov.get("q0_weight", fit["q0"]["weight"]))
-        rec["q0"] = {"target": st["q0_target"], "weight": st["q0_weight"]}
-    if "j" in parts and fit.get("zeroj"):
-        zj = fit["zeroj"]
-        w = float(ov.get("j_weight", zj["weight"]))
-        if zj["fsa"]["x"]:
-            st["fsa_norm"] = "ip_area"
-            disc.update({"fylite:fsa_x": zj["fsa"]["x"], "fylite:fsa_shape": zj["fsa"]["value"],
-                         "fylite:fsa_weight": [w] * len(zj["fsa"]["x"])})
-        if zj["local"]["r"]:
-            st.update(jlocal_r=" ".join(map(repr, zj["local"]["r"])), jlocal_x=" ".join(map(repr, zj["local"]["x"])),
-                      jlocal_value=" ".join(map(repr, zj["local"]["value"])),
-                      jlocal_weight=" ".join([repr(w)] * len(zj["local"]["r"])))
-        rec["j"] = {"weight": w, "fsa_rows": len(zj["fsa"]["x"]), "local_rows": len(zj["local"]["r"])}
-    if "lincon" in parts and fit.get("lincon"):
-        for which, lc in fit["lincon"].items():
-            if st.get(f"{which}_basis") != "spline":
-                continue
-            st[f"{which}_lincon"] = ";".join(" ".join(repr(v) for v in row) for row in lc["rows"])
-            st[f"{which}_lincon_rhs"] = " ".join(repr(v) for v in lc["rhs"])
-            st[f"{which}_lincon_weight"] = float(ov.get("lincon_weight", lc["weight"]))
-            rec.setdefault("lincon", {})[which] = {"rows": lc["rows"], "weight": st[f"{which}_lincon_weight"]}
-    if "ip" in parts and fit.get("ip"):
-        st["ip_sigma"] = float(ov.get("ip_sigma", fit["ip"]["sigma"]))
-        rec["ip_sigma"] = st["ip_sigma"]
-    return st, disc, rec
 
 
 #: k-file 里本应用读了的键（其余记进 ``unused_keys``，一眼看到哪些对方的设定没有搬过来）
@@ -1130,7 +1359,7 @@ def eq_signals(doc: dict, override_path: str | None) -> dict:
         o = o.get("equilibrium", o)
         sig.update(o.get("fylite:signal", o))
     if not sig:
-        raise SystemExit("装置文档里没有 equilibrium/fylite:signal（这份 libfylite.so 编进的事实早于 fydoc 的平衡绑定）——"
+        raise SystemExit("装置文档里没有 equilibrium/fylite:signal（这份装置卡片早于 fydoc 的平衡绑定）——"
                          "用 --signals 给一份 tools/abox-to-facts.py east 编出的 east.jsonld")
     return sig
 
@@ -1552,24 +1781,48 @@ def _fetch_trees(lib, doc, sig, srcs, shot, t, signals, server, timeout, theirs,
             _their_integrals(e, False)
             theirs[src] = e
             log(f"compare: {src} 第 {e['slice_index']}/{e['n_slices']} 片 t = {e['slice_time_s']:.4f} s（{time.time() - t0:.1f} s）")
-        #: 实测逆磁储能（装置文档 magnetics/fylite:signal 的 w_dia；树不在的炮记为取不到）：±10 ms 均值
         w_dia = None
-        m = ((doc.get("magnetics") or {}).get("fylite:signal") or {}).get("w_dia") or (
-            json.loads(Path(signals).read_text(encoding="utf-8")).get("magnetics", {}).get("fylite:signal", {})
-            .get("w_dia") if signals else None)
-        if m:
-            try:
-                s.tree = None
-                s.open_tree(m["tree"], shot)
-                v, tbw = s.read("data", m["node"])[0], s.read("dim_of", m["node"])[0]
-                sel = [v[i] for i in range(min(len(v), len(tbw))) if abs(tbw[i] - t) <= 0.010]
-                if sel and any(v):
-                    w_dia = mean(sel) * m.get("scale", 1.0)
-            except KernelError as err:
-                errors["w_dia"] = sanitize(str(err))[:200]
+        try:
+            w_dia = read_w_dia(s, doc, shot, t, signals)[0]
+        except KernelError as err:
+            errors["w_dia"] = sanitize(str(err))[:200]
     finally:
         s.close()
     return w_dia
+
+
+#: 实测逆磁储能取 ±10 ms 均值（compare · pull · 档 D 同一个窗）
+W_DIA_HALF_S = 0.010
+
+
+def read_w_dia(s: "Mds", doc: dict, shot: int, t: float, signals: str | None = None) -> tuple:
+    """实测逆磁储能（装置文档 magnetics/fylite:signal 的 w_dia，或 ``signals`` 节点名表里的）在 t ± 10 ms 的均值 × scale。
+    返回 (W_dia [J] 或 None, 出处 {tree, node, window_s, n_samples})；节点名缺 / 窗里没数 / 整条为零 → None。
+    树打不开、节点读不出抛 ``KernelError``（调用方记进取不到）。"""
+    m = ((doc.get("magnetics") or {}).get("fylite:signal") or {}).get("w_dia") or (
+        json.loads(Path(signals).read_text(encoding="utf-8")).get("magnetics", {}).get("fylite:signal", {})
+        .get("w_dia") if signals else None)
+    if not m:
+        return None, {"why": "装置文档没有 w_dia 节点名"}
+    s.tree = None
+    s.open_tree(m["tree"], shot)
+    v, tbw = s.read("data", m["node"])[0], s.read("dim_of", m["node"])[0]
+    sel = [v[i] for i in range(min(len(v), len(tbw))) if abs(tbw[i] - t) <= W_DIA_HALF_S]
+    src = {"tree": m["tree"], "node": m["node"], "window_s": _r([t - W_DIA_HALF_S, t + W_DIA_HALF_S], 9), "n_samples": len(sel)}
+    if not (sel and any(v)):
+        return None, dict(src, why="窗里没有采样，或整条为零")
+    return mean(sel) * m.get("scale", 1.0), src
+
+
+def pull_w_dia(lib: "Lib", shot: int, t: float, chain: str, server, timeout_s: float) -> tuple:
+    """``pull`` 用：自己开一条 mdsip 会话读 ``read_w_dia``（装置文档按炮、测量链解析）。"""
+    doc, _ = lib.device("east", shot, chain)
+    host, port = server_of(server)
+    s = lib.mds_open(host, port, timeout_s)
+    try:
+        return read_w_dia(s, doc, shot, t)
+    finally:
+        s.close()
 
 
 def our_integrals(res: dict) -> dict:
@@ -1690,7 +1943,8 @@ def compare(res: dict, *, lib: "Lib | None" = None, time_s: float | None = None,
                                              "empty", "psirz_first_axis", "boundary_psin_spread", "file", "afile", "header", "shot_in_file",
                                              "shot_mismatch", "afile_scalars") if x in v} | {"integrals": v.get("int")}
                        for k, v in theirs.items()},
-           "unavailable": errors, "measured": {"w_dia_J": w_dia},
+           "unavailable": errors, "measured": {"w_dia_J": w_dia, **({"w_dia_in_result_J": (res.get("inputs") or {})["w_dia_J"]}
+                                                    if (res.get("inputs") or {}).get("w_dia_J") is not None else {})},
            "ours": {k: {"facts": {x: v["fa"].get(x) for x in ("q0", "q95", "li3", "axis_r", "axis_z", "ip")},
                         "integrals": v["int"],
                         **({"status": "unphysical", "physics_failed": (res["tiers"][k].get("physics_check") or {}).get("failed")}
@@ -1736,7 +1990,9 @@ def print_comparison(out: dict) -> None:
             "—" if pm is None else f"{pm['rms']:.4f} / {pm['max_abs']:.4f}",
             f"{f(r['xpoint_dpsin'][0], 4)} {r['xpoint_config'][0] or '—'} / {f(r['xpoint_dpsin'][1], 4)} {r['xpoint_config'][1] or '—'}"]))
     wd = (out.get("measured") or {}).get("w_dia_J")
-    print(f"  实测逆磁储能 W_dia：{f(None if wd is None else wd / 1e3, 1)} kJ")
+    wr = (out.get("measured") or {}).get("w_dia_in_result_J")
+    print(f"  实测逆磁储能 W_dia：{f(None if wd is None else wd / 1e3, 1)} kJ"
+          + ("" if wr is None else f"（结果里档 D 用的 {wr / 1e3:.1f} kJ；档 D 假定各向同性热压、只定压强标度）"))
     print("  对方自报（AEQDSK）与同尺自检：")
     for src, e in out["sources"].items():
         sc, ti = e["scalars"], e.get("integrals") or {}
@@ -1776,6 +2032,22 @@ def load_input(path: str, t: float | None, thomson_path: str | None) -> tuple[di
     return meas, th, origin
 
 
+def load_profiles(path: str | None, input_path: str | None = None) -> dict | None:
+    """动理学剖面（``fylite:KineticProfiles``，README §2.4d）：``--profiles`` 给的文件，否则测量文档自带的 ``profiles`` 块。
+    文件可以是整份文档（有 ``profiles`` 键）或裸的 ``{species: …}``。没有就 ``None``（档 P 照旧走 Thomson / k-file）。"""
+    for src in (path, input_path):
+        if not src:
+            continue
+        d = json.loads(Path(src).read_text(encoding="utf-8"))
+        if isinstance(d, dict) and isinstance(d.get("profiles"), dict):
+            return d["profiles"]
+        if src == path:
+            if not (isinstance(d, dict) and isinstance(d.get("species"), dict)):
+                raise SystemExit(f"{src}：不是动理学剖面文件（没有 species 块，见 README §2.4d）")
+            return d
+    return None
+
+
 # ================================================================================================ geometry helpers
 
 def _name(x: dict) -> str:
@@ -1809,678 +2081,69 @@ def psin_at(fa: dict, fi: dict, r: float, z: float) -> float:
     return (fa["psi_axis"] - psi_at(fi, r, z)) / (fa["psi_axis"] - fa["psi_bnd"])
 
 
-FACT_KEYS = ("q0", "q95", "li3", "axis_r", "axis_z", "ip", "psi_axis", "psi_bnd", "chi2", "chi2_mag", "chi2_kin",
-             "chi2_per_dof", "dof", "worst_channel_sigma", "iterations", "residual", "converged", "kinetic_rows",
-             "kinetic_passes_run", "kinetic_best_pass", "kinetic_best_chi2_per_dof", "kinetic_map_shift",
-             "p_fast_max", "curv_p", "curv_f", "npp", "nff",
-             #: 内核 profile-fit 扩展（只在 efit_fit 生效时出现）
-             "pprime_basis", "ffprime_basis", "spline_tension_scale", "q0_target", "q0_weight", "q0_axis_row",
-             "q0_minus_target", "jzero_rows", "jzero_rms", "jzero_max_abs", "jlocal_rows",
-             "lincon_rows", "ip_sigma", "ip_measured")
 
 
-def tier_view(fa: dict, fi: dict, zc: float, extra: dict | None = None) -> dict:
-    v = {"status": "ok", "zc_anchor": zc,
-         "facts": {k: _r(fa[k]) for k in FACT_KEYS if k in fa},
-         "grid": {"r": _r(fi["grid_r"]), "z": _r(fi["grid_z"])},
-         "psi": _r(fi["psi"], 5),
-         "boundary": _r(fi.get("boundary") or [], 5),
-         "profiles": {"psin": _r(fi["psin_1d"], 5), "pres": _r(fi["pres"], 5), "pprime": _r(fi["pprime"], 5),
-                      "ffprim": _r(fi["ffprim"], 5), "qpsi": _r(fi["qpsi"], 5),
-                      "pprime_sigma": _r(fi.get("pprime_sigma") or [float("nan")] * len(fi["pprime"]), 5)},
-         "q": {"x": _r(fi["q_x"], 5), "q": _r(fi["q"], 5)}}
-    if extra:
-        v.update(extra)
-    return v
+MU0 = 4e-7 * math.pi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ================================================================================================ ladder annotation
+
+
+
+
 
 
 # ================================================================================================ physics check
-#: ★★物理校验（2026-09-22）：一档解出来、状态 ok，不等于物理上成立——#115672 7.95 s 之后档 M 解出负储能 W、q0 ≈ 0.1
-#: 仍记 ok，下游会照单全收。每一档（M · K · P）解完都对这张表逐条过一遍；任一条不过，这一档**数照留**，状态改记
-#: ``unphysical``（有别于 error / skipped），``physics_check.failed`` 列出没过的条目。
-#: 界值一处定（这张表），每条带理由；``--phys-bounds 键=值,…`` 覆盖，``--no-physics-check`` 整个不做。
-#: 储能 · β_p · l_i 用**同一把尺**（``map_integrals``：ψ 图 + 边界 + p(ψ_N) 在网格上积，与 compare / series 同一段程序），
-#: 不用内核报的 li3（它把 LCFS 外 0 ≤ ψ_N ≤ 1 的格子也算进去——私有通量区等，见 README §7）。
-PHYS_BOUNDS = {
-    "w_min_J": {"value": 0.0, "kind": "physical",
-                "why": "储能 W = 3/2∫p dV 必须为正：负 W 即拟合出的压强整体为负"},
-    "betap_min": {"value": 0.0, "kind": "physical", "why": "β_p = 2μ₀⟨p⟩/B_pa² 必须为正（同 W）"},
-    "betap_max": {"value": 5.0, "kind": "physical",
-                  "why": "平衡极限 β_p ≲ R₀/a ≈ 1.85/0.45 ≈ 4（EAST）；高 β_p 放电实测 ≲ 3，取 5 留余量"},
-    "p_neg_frac": {"value": 0.05, "kind": "physical",
-                   "why": "p(ψ_N) 在 [0, 1] 上的最小值不得低于 −该份额 × 峰值：比压强行的相对 σ 下限（--sigma-floor 0.05）"
-                          "还小的负值数据分辨不出，只当基函数的下冲；更深的负压强不是物理"},
-    "q0_min": {"value": 0.3, "kind": "physical",
-               "why": "q0 < 0.3 在托卡马克上没有观测过（锯齿把 q0 钳在 ≈ 0.7–1，MSE 实测最低 ≈ 0.6）"},
-    "q0_max": {"value": 20.0, "kind": "physical", "why": "反剪切 / 电流空穴放电 q0 可到 10 上下，取 20 留余量"},
-    "q95_min": {"value": 1.0, "kind": "physical", "why": "q95 ≤ 1 时外扭曲模必然失稳（Kruskal–Shafranov），放电不能维持"},
-    "q_min": {"value": 0.0, "kind": "physical", "why": "q(ψ_N) 处处与 I_p · B_T 同号（本应用两者都取正），q ≤ 0 即剖面坏了"},
-    "li_min": {"value": 0.3, "kind": "physical",
-               "why": "内感 l_i(3)（同尺）：极端空心电流才低到 ≈ 0.4，取 0.3"},
-    "li_max": {"value": 3.0, "kind": "physical", "why": "l_i(3) 极端峰化的放电 ≈ 2，取 3；更高是电流挤到磁轴上的坏解"},
-    "limiter_tol_m": {"value": 0.01, "kind": "physical",
-                      "why": "边界点可以贴着限制器（限制器位形），允许越出 1 cm（65² 网格间距 ≈ 2.5 cm 的插值误差量级）"},
-    "psin_inside_tol": {"value": 0.02, "kind": "physical",
-                        "why": "LCFS 内网格点的 ψ_N 应在 [0, 1]：低于 −容差 = 有比磁轴更极端的点（磁轴不是极值），"
-                               "高于 1 + 容差 = 边界不是 ψ 的等值线；容差吸收双线性插值"},
-    "ip_rel_tol": {"value": 0.05, "kind": "physical",
-                   "why": "I_p 作等式约束时拟合值就是实测值；差过 5 % = 解没守住它"},
-    "ip_sigma_mult": {"value": 5.0, "kind": "physical",
-                      "why": "I_p 作带权测量（k-file 设定的 ip_sigma）时，差不超过这么多个 σ——与剔道阈 --reject-sigma 5 同一把尺"},
-    "chi2_dof_max": {"value": 20.0, "kind": "statistical",
-                     "why": "统计校验，不是物理：χ²/dof > 20 = 模型离数据几倍于误差棒，剔道也没救回来"},
-}
-#: 条目 id → 用到的界（页面按它画）；次序即报告次序
-PHYS_CHECKS = ("w_positive", "betap_range", "p_nonnegative", "q0_range", "q95_min", "q_positive", "li3_range",
-               "boundary_closed", "boundary_in_limiter", "axis_inside", "psi_sign", "axis_extremum", "ip_match",
-               "chi2_dof", "base_tier")
-PHYS_NOTE = ("物理校验：每档解完逐条核；任一条不过 → status = unphysical（数照留，failed 列出条目）。"
-             "unphysical 有别于 error（没有解）与 skipped（没跑）。K / P 叠在哪一档上（K 在 M 上，P 在 on 那一档上），"
-             "那一档 unphysical 时自己也记 unphysical（base_tier 条）——它们的设定点、ψ_N 映射都取自那一档。"
-             "W · β_p · l_i(3) 用同尺积分（map_integrals），不用内核报的 li3。")
 
 
-def phys_bounds(over) -> dict:
-    """``PHYS_BOUNDS`` + 覆盖（``{"q0_min": 0.5}`` 或 ``"q0_min=0.5,chi2_dof_max=10"``）→ {键: {value, kind, why}}。"""
-    out = {k: dict(v) for k, v in PHYS_BOUNDS.items()}
-    if isinstance(over, str):
-        pairs = [x.split("=", 1) for x in over.split(",") if x.strip()]
-        if any(len(p) != 2 for p in pairs):
-            raise SystemExit(f"--phys-bounds：要 键=值,…（得到 {over!r}）")
-        over = {k.strip(): v for k, v in pairs}
-    for k, v in (over or {}).items():
-        if k not in out:
-            raise SystemExit(f"--phys-bounds：不认识 {k!r}（可用 {', '.join(PHYS_BOUNDS)}）")
-        try:
-            out[k]["value"] = float(v)
-        except (TypeError, ValueError):
-            raise SystemExit(f"--phys-bounds：{k} 的值 {v!r} 不是数") from None
-        out[k]["overridden"] = True
-    return out
 
 
-def _poly_area(p: list) -> float:
-    return 0.5 * sum(p[i][0] * p[(i + 1) % len(p)][1] - p[(i + 1) % len(p)][0] * p[i][1] for i in range(len(p)))
 
 
-def physics_check(view: dict, *, ip_meas: float, limiter: dict | None, bounds: dict | None = None,
-                  base: tuple | None = None) -> dict:
-    """一档的视图（``tier_view`` 的返回值，或结果 JSON 里的一档）→ ``physics_check`` 块：
-    {passed, failed: [id], checks: [{id, value, bound, pass, kind, why}], same_ruler}。
-    ``ip_meas`` = 实测 |I_p| [A]；``limiter`` = {r: [...], z: [...]}（装置事实的限制器，None = 这条不核）；
-    ``base`` = (这一档叠在的档名, 那一档的 status)——那一档 unphysical 则这一档的 base_tier 条不过。
-    每条的 ``why`` 是一行中文：过了说量了什么，没过说为什么不物理。"""
-    B = {k: v["value"] for k, v in (bounds or phys_bounds(None)).items()}
-    fa, checks = view.get("facts") or {}, []
-
-    def add(cid, value, bound, ok, why, kind="physical"):
-        checks.append({"id": cid, "value": _rt(value) if isinstance(value, (float, list)) else value, "bound": bound,
-                       "pass": None if ok is None else bool(ok), "kind": kind, "why": why})
-
-    bnd = view.get("boundary") or []
-    grid = view.get("grid") or {}
-    pa, pb, ip = fa.get("psi_axis"), fa.get("psi_bnd"), fa.get("ip")
-    it = None
-    if len(bnd) >= 8 and fin(pa) and fin(pb) and pa != pb and fin(ip) and ip and view.get("psi"):
-        try:
-            eq = {"grid_r": grid["r"], "grid_z": grid["z"], "psi": view["psi"], "boundary": bnd}
-            pr = view["profiles"]
-            it = _same_ruler(eq, pa, pb, pr["psin"], pr["pres"], abs(ip))
-        except (ZeroDivisionError, ValueError, KeyError, IndexError):
-            it = None
-    no_int = "同尺积分做不出（边界 / ψ 两端值 / I_p 缺或退化）"
-    # ---- 储能 · β_p（同尺）
-    w = it["w_mhd_J"] if it else None
-    add("w_positive", w, f"> {B['w_min_J']:g} J", it is not None and w > B["w_min_J"],
-        no_int if it is None else (f"同尺储能 W = {w / 1e3:.1f} kJ" if w > B["w_min_J"] else
-                                   f"同尺储能 W = {w / 1e3:.1f} kJ ≤ {B['w_min_J']:g}：压强整体为负，不是物理解"))
-    bp = it["betap"] if it else None
-    okb = it is not None and B["betap_min"] < bp < B["betap_max"]
-    add("betap_range", bp, [B["betap_min"], B["betap_max"]], okb,
-        no_int if it is None else (f"同尺 β_p = {bp:.3f}" if okb else
-                                   f"同尺 β_p = {bp:.3f} 不在 ({B['betap_min']:g}, {B['betap_max']:g}) 内"))
-    # ---- 压强剖面 p(ψ_N) ≥ 0
-    pres = [v for v in ((view.get("profiles") or {}).get("pres") or []) if fin(v)]
-    if pres:
-        pmin, pmax = min(pres), max(pres)
-        lim = -B["p_neg_frac"] * max(pmax, 0.0)
-        okp = pmax > 0 and pmin >= lim
-        xs = (view.get("profiles") or {}).get("psin") or []
-        at = xs[pres.index(pmin)] if len(xs) == len(pres) else None
-        add("p_nonnegative", [pmin, pmax], f"min p ≥ −{B['p_neg_frac']:g} × max p", okp,
-            (f"p(ψ_N) 最小 {pmin:.4g} Pa（峰值 {pmax:.4g} Pa）" + ("" if pmin >= 0 else "——下冲在分辨率以内"))
-            if okp else f"p(ψ_N) 在 ψ_N ≈ {at if at is not None else '?'} 处低到 {pmin:.4g} Pa（峰值 {pmax:.4g} Pa）：负压强不是物理")
-    else:
-        add("p_nonnegative", None, f"min p ≥ −{B['p_neg_frac']:g} × max p", False, "结果里没有压强剖面")
-    # ---- q
-    q0, q95 = fa.get("q0"), fa.get("q95")
-    okq = fin(q0) and B["q0_min"] <= q0 <= B["q0_max"]
-    add("q0_range", q0, [B["q0_min"], B["q0_max"]], okq,
-        f"q0 = {q0:.3f}" if okq else f"q0 = {q0 if q0 is None else round(q0, 4)} 不在 [{B['q0_min']:g}, {B['q0_max']:g}] 内")
-    ok95 = fin(q95) and q95 > B["q95_min"]
-    add("q95_min", q95, f"> {B['q95_min']:g}", ok95,
-        f"q95 = {q95:.3f}" if ok95 else f"q95 = {q95} ≤ {B['q95_min']:g}：外扭曲模必然失稳")
-    qs = [v for v in ((view.get("profiles") or {}).get("qpsi") or []) + ((view.get("q") or {}).get("q") or []) if fin(v)]
-    qmin = min(qs) if qs else None
-    okqp = qmin is not None and qmin > B["q_min"]
-    add("q_positive", qmin, f"> {B['q_min']:g}", okqp,
-        f"q(ψ_N) 最小 {qmin:.3f}" if okqp else ("结果里没有 q 剖面" if qmin is None else f"q(ψ_N) 最小 {qmin:.4g} ≤ {B['q_min']:g}"))
-    # ---- l_i(3)（同尺）
-    li = it["li3"] if it else None
-    okl = it is not None and B["li_min"] <= li <= B["li_max"]
-    add("li3_range", li, [B["li_min"], B["li_max"]], okl,
-        no_int if it is None else (f"同尺 l_i(3) = {li:.3f}（内核报 {fa.get('li3', float('nan')):.3f}，口径不同）" if okl
-                                   else f"同尺 l_i(3) = {li:.3f} 不在 [{B['li_min']:g}, {B['li_max']:g}] 内"))
-    # ---- 边界：闭合 · 在限制器内 · 磁轴在内
-    closed = False
-    if len(bnd) >= 8:
-        seg = sorted(math.hypot(bnd[i + 1][0] - bnd[i][0], bnd[i + 1][1] - bnd[i][1]) for i in range(len(bnd) - 1))
-        gap = math.hypot(bnd[0][0] - bnd[-1][0], bnd[0][1] - bnd[-1][1])
-        med = seg[len(seg) // 2]
-        area = abs(_poly_area(bnd))
-        closed = gap <= 3 * med + 1e-9 and area > 0.01
-        add("boundary_closed", {"gap_m": _r(gap, 4), "median_segment_m": _r(med, 4), "area_m2": _r(area, 4)},
-            "首尾间隙 ≤ 3 × 段长中位，面积 > 0.01 m²", closed,
-            f"边界 {len(bnd)} 点，首尾间隙 {gap * 1e3:.1f} mm，截面积 {area:.3f} m²" if closed
-            else f"边界不闭合或退化（{len(bnd)} 点，首尾间隙 {gap * 1e3:.1f} mm，截面积 {area:.3f} m²）")
-    else:
-        add("boundary_closed", len(bnd), "≥ 8 点", False, f"边界只有 {len(bnd)} 点")
-    if limiter and limiter.get("r") and len(bnd) >= 8:
-        lp = list(zip(limiter["r"], limiter["z"]))
-        worst = 0.0
-        for p in bnd:
-            if not _inside(lp, p[0], p[1]):
-                worst = max(worst, min(_seg_dist(p, lp[i], lp[(i + 1) % len(lp)]) for i in range(len(lp))))
-        okl = worst <= B["limiter_tol_m"]
-        add("boundary_in_limiter", _r(worst, 4), f"越出限制器 ≤ {B['limiter_tol_m']:g} m", okl,
-            "边界全在限制器内" + (f"（最远贴出 {worst * 1e3:.1f} mm）" if worst > 0 else "") if okl
-            else f"边界越出限制器 {worst * 1e3:.1f} mm：等离子体不能在真空室壁外")
-    else:
-        add("boundary_in_limiter", None, f"越出限制器 ≤ {B['limiter_tol_m']:g} m", None,
-            "没有限制器（装置事实里缺）或边界退化：这条没核")
-    ar, az = fa.get("axis_r"), fa.get("axis_z")
-    oka = len(bnd) >= 8 and fin(ar) and fin(az) and _inside(bnd, ar, az)
-    add("axis_inside", [ar, az], "磁轴在边界内", oka,
-        f"磁轴 ({ar:.3f}, {az:+.3f}) m 在边界内" if oka else f"磁轴 ({ar}, {az}) 不在边界内")
-    # ---- ψ 的次序：符号与电流方向 · 磁轴是极值
-    oks = fin(pa) and fin(pb) and fin(ip) and (pb - pa) * ip < 0
-    add("psi_sign", _r(pb - pa, 6) if fin(pa) and fin(pb) else None, "sign(ψ_bnd − ψ_axis) = −sign(I_p)（COCOS 17）", oks,
-        (f"ψ 由磁轴 {pa:.4f} 降到边界 {pb:.4f} Wb，I_p > 0：与内核的 COCOS 17 一致" if oks else
-         f"ψ_axis = {pa}、ψ_bnd = {pb}、I_p = {ip}：ψ 的走向与电流方向不合（COCOS 17 下 I_p > 0 时 ψ 由磁轴向外减）"))
-    lo = hi = None
-    if len(bnd) >= 8 and fin(pa) and fin(pb) and pa != pb and view.get("psi"):
-        xs = [(pa - view["psi"][i][j]) / (pa - pb) for i, r in enumerate(grid["r"]) for j, z in enumerate(grid["z"])
-              if _inside(bnd, r, z)]
-        if xs:
-            lo, hi = min(xs), max(xs)
-    tol = B["psin_inside_tol"]
-    oke = lo is not None and lo >= -tol and hi <= 1 + tol
-    add("axis_extremum", None if lo is None else [lo, hi], f"LCFS 内 ψ_N ∈ [−{tol:g}, 1 + {tol:g}]", oke,
-        (f"LCFS 内网格点 ψ_N ∈ [{lo:.3f}, {hi:.3f}]" if oke else
-         "LCFS 内没有网格点" if lo is None else
-         f"LCFS 内网格点 ψ_N ∈ [{lo:.3f}, {hi:.3f}]：" + ("有比磁轴更极端的点，磁轴不是 ψ 的极值" if lo < -tol
-                                                        else "边界不是 ψ 的等值线")))
-    # ---- I_p：同号、差在容差内
-    sig = fa.get("ip_sigma")
-    ipm = abs(float(ip_meas)) if fin(ip_meas) else None
-    if fin(sig) and sig > 0:
-        tol_ip, how = B["ip_sigma_mult"] * sig, f"≤ {B['ip_sigma_mult']:g} σ（σ = {sig:.4g} A，I_p 作带权测量）"
-        ipm = abs(fa["ip_measured"]) if fin(fa.get("ip_measured")) else ipm
-    else:
-        tol_ip, how = (B["ip_rel_tol"] * ipm if ipm else None), f"≤ {B['ip_rel_tol'] * 100:g} % × |I_p 实测|"
-    okip = fin(ip) and ipm is not None and ip > 0 and abs(ip - ipm) <= tol_ip
-    add("ip_match", [ip, ipm], how, okip,
-        (f"拟合 I_p {ip / 1e3:.1f} kA · 实测 {ipm / 1e3:.1f} kA（差 {(ip - ipm) / ipm * 100:+.2f} %"
-         + (f"，{abs(ip - ipm) / sig:.2f} σ" if fin(sig) and sig > 0 else "") + "）" if okip else
-         "没有实测 I_p 或拟合 I_p" if not (fin(ip) and ipm) else
-         f"拟合 I_p {ip / 1e3:.1f} kA 与实测 |I_p| {ipm / 1e3:.1f} kA " + ("异号" if ip <= 0 else f"差 {(ip - ipm) / ipm * 100:+.2f} %，超容差")))
-    # ---- χ²/dof（统计）
-    c2 = fa.get("chi2_per_dof")
-    okc = fin(c2) and c2 <= B["chi2_dof_max"]
-    add("chi2_dof", c2, f"≤ {B['chi2_dof_max']:g}", okc,
-        (f"χ²/dof = {c2:.3f}（统计校验）" if okc else f"χ²/dof = {c2} > {B['chi2_dof_max']:g}：统计上拟合不成立（不是物理判据）"),
-        kind="statistical")
-    if base is not None:
-        name, st = base
-        add("base_tier", st, f"档 {name} 物理", st != "unphysical",
-            f"叠在档 {name} 上，档 {name} 过了" if st != "unphysical"
-            else f"叠在档 {name} 上，档 {name} 物理校验没过：设定点与 ψ_N 映射都取自它")
-    failed = [c["id"] for c in checks if c["pass"] is False]
-    out = {"passed": not failed, "failed": failed, "checks": checks}
-    if it is not None:
-        out["same_ruler"] = {k: it[k] for k in ("w_mhd_J", "betap", "li1", "li3", "volume_m3", "ip_ampere_A", "r_geo_m")}
-    return out
 
 
-def apply_physics_check(out: dict, bounds: dict, select: bool) -> None:
-    """``reconstruct`` 的结果（就地）：每个 status == ok 的档过 ``physics_check``；没过的改记 unphysical。
-    顶层另写 ``physics_check``：{enabled, select, bounds（值 + 理由）, tiers: {档: status}, note}。次序 M → K → P，
-    K / P 叠在哪一档上，那一档的状态（此刻已定）传进去。"""
-    ipm = (out.get("inputs") or {}).get("ip")
-    lim = (out.get("device") or {}).get("limiter")
-    summary = {}
-    for name in ("M", "K", "P", "X"):
-        t = out["tiers"].get(name)
-        if not t or t.get("status") != "ok":
-            if t:
-                summary[name] = t.get("status")
-            continue
-        on = "M" if name == "K" else (t.get("on") or "M") if name in ("P", "X") else None
-        base = (on, (out["tiers"].get(on) or {}).get("status")) if on else None
-        pc = physics_check(t, ip_meas=ipm, limiter=lim, bounds=bounds, base=base)
-        t["physics_check"] = pc
-        if not pc["passed"]:
-            t["status"] = "unphysical"
-            bad = [c for c in pc["checks"] if c["pass"] is False]
-            log(f"{name}: ★★ UNPHYSICAL — " + "；".join(c["why"] for c in bad)
-                + " — the numbers are kept but this tier is NOT a valid equilibrium")
-        summary[name] = t["status"]
-    out["physics_check"] = {"enabled": True, "select": bool(select), "bounds": bounds, "tiers": summary, "note": PHYS_NOTE}
 
 
-class PhysSelect:
-    """``--physics-select``：档 M 扫描里，收敛的设定点要过物理校验才能当选（χ² 最小者之中）。
-    懒求值——只在一个候选的 χ² 比当前最好的还小时才核它（核一次 ≈ 1.5 s：同尺积分是纯 Python）。
-    ``any`` 记这一轮收敛者中 χ² 最小的（不论物理与否），给「一个都不过」时的退路。
-    ★只看 kind == physical 的条目：χ²/dof 是统计校验，剔道的前几轮坏道还在、χ² 本来就大——拿它挑设定点是循环论证
-    （实测 #63948 · #137985 第 0 轮每个收敛点都因 χ²/dof 不过）。"""
-
-    def __init__(self, c: "Case", bounds: dict):
-        self.ipm, self.bounds = _r(c.meas["plasma"]), bounds
-        self.any, self.evaluated, self.rejected, self.fallback = None, 0, 0, False
-
-    def seen(self, cand) -> None:
-        if self.any is None or cand[0] < self.any[0]:
-            self.any = cand
-
-    def ok(self, cand, entry: dict) -> bool:
-        _, zc, fa, fi, _ = cand
-        lim = {"r": _r(fi["limiter_r"], 5), "z": _r(fi["limiter_z"], 5)} if fi.get("limiter_r") else None
-        pc = physics_check(tier_view(fa, fi, zc), ip_meas=self.ipm, limiter=lim, bounds=self.bounds)
-        self.evaluated += 1
-        bad = [c["id"] for c in pc["checks"] if c["pass"] is False and c["kind"] == "physical"]
-        entry["physics"] = not bad
-        if bad:
-            self.rejected += 1
-            entry["physics_failed"] = bad
-        return not bad
 
 
 # ================================================================================================ parallel doors
 
-_POOL: dict = {"jobs": 1, "ex": None, "pid": None, "lib": None}
-_WORKER_LIB: dict = {}
 
 
-def set_jobs(jobs: int) -> None:
-    """档 M 一轮里的独立反演调用最多同时跑几路（1 = 串行）。已开的工作进程池在路数变时关掉重开。"""
-    jobs = max(1, int(jobs))
-    if jobs != _POOL["jobs"]:
-        close_jobs()
-    _POOL["jobs"] = jobs
 
 
-def close_jobs() -> None:
-    ex = _POOL["ex"]
-    if ex is not None and _POOL["pid"] == os.getpid():
-        ex.shutdown(wait=True)
-    _POOL.update(ex=None, pid=None, lib=None)
 
 
-def _door_worker_init(path: str) -> None:
-    _WORKER_LIB["lib"] = Lib(Path(path))
 
 
-def _door_worker(req):
-    code, settings, inputs = req
-    try:
-        return _WORKER_LIB["lib"].door(code, settings, inputs)
-    except (Refused, KernelError) as e:              #: 拒绝是读数：当作值传回，由调用方照串行的次序处理
-        return e
 
 
-def run_doors(lib: Lib, code: str, reqs: list) -> list:
-    """一批互不依赖的门调用 [(settings, inputs), …] → 按原次序的 [(facts, fields, notes) 或 Refused/KernelError, …]。
-    ``set_jobs`` > 1 且不止一个请求时交给工作进程池（fork；每个进程自己载库），否则就在本进程里逐个调。"""
-    #: daemon 进程（mp.Pool 的工作进程）不许再开子进程：那里照串行
-    if _POOL["jobs"] <= 1 or len(reqs) <= 1 or multiprocessing.current_process().daemon:
-        out = []
-        for settings, inputs in reqs:
-            try:
-                out.append(lib.door(code, settings, inputs))
-            except (Refused, KernelError) as e:
-                out.append(e)
-        return out
-    #: 池是本进程开的、载的是同一份库才复用（wei2026 的切片工作进程由 fork 而来，不能用父进程的池）
-    if _POOL["ex"] is None or _POOL["pid"] != os.getpid() or _POOL["lib"] != str(lib.path):
-        if _POOL["pid"] == os.getpid():
-            close_jobs()
-        _POOL.update(ex=concurrent.futures.ProcessPoolExecutor(
-            _POOL["jobs"], mp_context=multiprocessing.get_context("fork"),
-            initializer=_door_worker_init, initargs=(str(lib.path),)), pid=os.getpid(), lib=str(lib.path))
-    return list(_POOL["ex"].map(_door_worker, [(code, s, i) for s, i in reqs]))
 
 
 # ================================================================================================ tiers
 
-class Case:
-    """一个时刻的全部输入，以及三档共用的那几样（线圈份额、装置文档、权重）。"""
-
-    def __init__(self, lib: Lib, meas: dict, card: dict, loops: str, fvac: float | None = None):
-        self.lib, self.meas, self.card = lib, meas, card
-        self.brsp = [float(v) for v in meas["brsp"]]
-        self.coils = [float(v) for v in meas["coils"]]
-        self.probes = [float(v) for v in meas["expmp2"]]
-        mag = card["magnetics"]
-        fl, bp = _aos(mag.get("flux_loop")), _aos(mag.get("b_field_pol_probe"))
-        self.loop_names = [_name(x) for x in fl][:len(self.coils)]
-        self.probe_names = [_name(x) for x in bp][:len(self.probes)]
-        self.loop_rz = [_rz(x) for x in fl][:len(self.coils)]
-        self.probe_rz = [_rz(x) for x in bp][:len(self.probes)]
-        r0 = float(card["tf"]["r0"])
-        tf = meas.get("tf") or {}
-        if fvac:                                         #: 调用方声明的真空 F（run --fvac）：压过测量文档里的
-            self.b_tor, self.bt_from = abs(float(fvac)) / r0, f"声明的真空 F = {abs(float(fvac)):g} T·m（run --fvac）"
-        elif "f_vac_Tm" in tf:
-            self.b_tor, self.bt_from = abs(float(tf["f_vac_Tm"])) / r0, f"TF 线圈电流 {tf.get('node', '')}（F = μ₀NI/2π）"
-        elif "btor" not in meas:
-            raise SystemExit("测量文档里没有 TF 电流（旧炮的 east 树可能没有 TF 节点），也没有 btor——"
-                             "用 run --fvac 声明真空 F = R·B_T [T·m]")
-        else:
-            self.b_tor, self.bt_from = abs(float(meas["btor"])), "归约件的 btor（B_T 节点，#97286 起单位存疑）"
-        _, share, _ = lib.door("code/coilshare", {"nu_loops": 8, "nu_probes": 3, "grid_psi": 1, "nu_grid": 4},
-                               {"device": card, "discharge": {"fylite:channel_aturns": self.brsp}})
-        self.loop_coil, self.probe_coil, self.psi_ext = share["loop_coil"], share["probe_coil"], share["psi_ext"]
-        #: 选道：探针 = 归约器判在用 − 名字重复的后几处槽。
-        #: ★同名的槽树里只有一个节点，按名取数读到的是**第一处**那一道：EAST 新命名代的 HBPL1T–5T 在注册表里既是
-        #: BP.H 组的槽 16–20、又是 BP.HBPLT 限制器组的槽 74–78，装置绑定（fydoc ``magnetics_east_new``）只把节点绑在
-        #: 槽 16–20、槽 74–78 不带取值式。所以第一处照用，后几处（读的不是它们自己）不用。自检（#137985 4.0–4.3 s 档 M）：
-        #: 用第一处的几何 χ²/dof 1.07 / 1.15 / 1.00，用第二处 1.25 / 1.28 / 1.15。2026-09-22 之前两处都不用——外侧上半的
-        #: 五道探针白白丢掉。
-        self.excluded = []
-        fwt = [float(v) for v in meas["fwtmp2"]]
-        seen: dict = {}
-        for i, nm in enumerate(self.probe_names):
-            seen.setdefault(nm, []).append(i)
-        for nm, idx in seen.items():
-            if nm and len(idx) > 1:
-                for i in idx[1:]:
-                    if fwt[i] > 0:
-                        self.excluded.append({"kind": "probe", "index": i, "name": nm,
-                                              "why": f"名字重复：树里只有一个节点，读的是槽 {idx[0]}（本槽无可区分节点）"})
-                    fwt[i] = 0.0
-        #: ★★起步环组（实测 2026-09-18，#137985 4.041 s）：75 个环全进，16 个竖直设定点一个都不收敛；
-        #: 只用 FL*B 组起步则收敛。起步用 B 组，其余环在第一个收敛解上**按残差回收**（readmit）。
-        self.loop_start = [1.0] * len(self.coils)
-        if loops in ("B", "B+readmit"):
-            self.loop_start = [1.0 if re.fullmatch(r"FL\d+B", nm or "") else 0.0 for nm in self.loop_names]
-        #: ★旧炮（#63948 · #81481 一代）的排布只有 35 个 FL<n>A 环、没有 B 组：B 组规则一个环都选不到，
-        #: 这时回退到全部环起步（记在结果里），不在没有环的情况下起步。
-        self.loop_start_rule = "all" if loops == "all" else "FL*B"
-        if not any(self.loop_start):
-            self.loop_start = [1.0] * len(self.coils)
-            self.loop_start_rule = "all（本排布没有 FL*B 组）"
-        #: k-file 的 FWTSI = 0（kfile 命令写进 ``fwtsi``）：这个环对方没用，我们也不用、也不回收
-        self.loop_off = {i for i, w in enumerate(meas.get("fwtsi") or []) if not float(w) > 0}
-        for i in sorted(self.loop_off):
-            if i < len(self.loop_start):
-                self.loop_start[i] = 0.0
-                self.excluded.append({"kind": "loop", "index": i, "name": self.loop_names[i], "why": "k-file FWTSI = 0"})
-        self.loop_sigma = [max(SERROR * abs(v), LOOP_FLOOR) for v in self.coils]
-        self.probe_sigma = [max(SERROR * abs(v), PROBE_FLOOR) for v in self.probes]
-        self.probe_fwt = fwt
-        self.loop_conf = [1.0] * len(self.coils)
-        self.probe_conf = [1.0] * len(self.probes)
-        self.lw = [s / sg for s, sg in zip(self.loop_start, self.loop_sigma)]
-        self.pw = [f / sg if f > 0 else 0.0 for f, sg in zip(fwt, self.probe_sigma)]
-
-    def apply_confidence(self, loops: dict | None, probes: dict | None) -> list:
-        """逐道置信度 c（输入文件 ``magnetics.loops`` / ``probes``，键 = 道名或槽号）：σ_eff = σ / c，c = 0 即关掉这道
-        （同 k-file 的 FWT = 0）；没写的道 c = 1。返回认不出的键（写错的道名不静默地不起作用）。"""
-        unknown = []
-        for which, table, names in (("loop", loops, self.loop_names), ("probe", probes, self.probe_names)):
-            conf = self.loop_conf if which == "loop" else self.probe_conf
-            for key, v in (table or {}).items():
-                idx = [int(key)] if str(key).isdigit() else [i for i, n in enumerate(names) if n == key]
-                idx = [i for i in idx if 0 <= i < len(names)]
-                if not idx:
-                    unknown.append(f"{which}:{key}")
-                for i in idx:
-                    conf[i] = max(float(v), 0.0)
-        for i, cf in enumerate(self.loop_conf):
-            if cf == 1.0:
-                continue
-            if cf <= 0.0:
-                self.loop_off.add(i)
-                self.loop_start[i] = 0.0
-                self.excluded.append({"kind": "loop", "index": i, "name": self.loop_names[i], "why": "置信度 0（输入文件）"})
-            else:
-                self.loop_sigma[i] /= cf
-        for i, cf in enumerate(self.probe_conf):
-            if cf == 1.0:
-                continue
-            if cf <= 0.0:
-                if self.probe_fwt[i] > 0:
-                    self.excluded.append({"kind": "probe", "index": i, "name": self.probe_names[i], "why": "置信度 0（输入文件）"})
-                self.probe_fwt[i] = 0.0
-            else:
-                self.probe_sigma[i] /= cf
-        self.lw = [s / sg for s, sg in zip(self.loop_start, self.loop_sigma)]
-        self.pw = [f / sg if f > 0 else 0.0 for f, sg in zip(self.probe_fwt, self.probe_sigma)]
-        return unknown
-
-    def base_disc(self) -> dict:
-        return {"fylite:channel_aturns": self.brsp, "fylite:ip": [float(self.meas["plasma"])],
-                "fylite:b_tor": [self.b_tor], "fylite:loop_weight": self.lw, "fylite:probe_weight": self.pw}
-
-    def full_disc(self) -> dict:
-        return dict(self.base_disc(), **{"fylite:flux_loop": self.coils, "fylite:probe_field": self.probes})
-
-    def rows_disc(self) -> dict:
-        """行给定档：量值扣掉线圈份额，外场随行（POINT 的法拉第行只能走这一档）。"""
-        return dict(self.base_disc(), **{"fylite:psi_ext": self.psi_ext,
-                                         "fylite:loop_plasma": [m - c for m, c in zip(self.coils, self.loop_coil)],
-                                         "fylite:probe_plasma": [m - c for m, c in zip(self.probes, self.probe_coil)]})
-
-    def residuals(self, fi: dict, *, all_channels: bool = False):
-        """(model − measured)/sigma per channel; weighted (0 for unused) unless ``all_channels``."""
-        rl = [(lm + lc - m) / sg for lm, lc, m, sg in zip(fi["loop_model"], self.loop_coil, self.coils, self.loop_sigma)]
-        rp = [(pm - m) / sg for pm, m, sg in zip(fi["probe_model"], self.probes, self.probe_sigma)]
-        if all_channels:
-            return rl, rp
-        return ([v if w > 0 else 0.0 for v, w in zip(rl, self.lw)],
-                [v if w > 0 else 0.0 for v, w in zip(rp, self.pw)])
-
-    def channel_table(self, fi: dict) -> dict:
-        rl, rp = self.residuals(fi, all_channels=True)
-        return {"loops": [{"name": n, "rz": rz, "sigma": _r(v, 4), "used": w > 0}
-                          for n, rz, v, w in zip(self.loop_names, self.loop_rz, rl, self.lw)],
-                "probes": [{"name": n, "rz": rz, "sigma": _r(v, 4), "used": w > 0}
-                           for n, rz, v, w in zip(self.probe_names, self.probe_rz, rp, self.pw)]}
 
 
-def tier_m(c: Case, reject_sigma: float, max_rounds: int, per_round: int, settings: dict,
-           readmit: bool, scan: dict | None = None, sel: "PhysSelect | None" = None) -> tuple[dict, tuple | None]:
-    """档 M：扫描 + 剔道几轮；``readmit`` 时把起步组之外、在收敛解上残差不超阈值的环收回来，再扫几轮。
-    ``scan``：竖直设定点扫描的做法（``SCAN_FULL`` 缺省 / ``SCAN_COARSE``，见其注释）。"""
-    scan = dict(SCAN_COARSE, **scan) if (scan or {}).get("mode") == "coarse" else dict(SCAN_FULL)
-    rounds, rejected, readmitted = [], [], []
-    best = _m_rounds(c, reject_sigma, max_rounds, per_round, settings, rounds, rejected, 0, scan, sel)
-    if best is not None and readmit:
-        _, _, _, fi, _ = best
-        rl, _ = c.residuals(fi, all_channels=True)
-        gone = {r["index"] for r in rejected if r["kind"] == "loop"}
-        for i in range(len(c.coils)):
-            if (c.lw[i] == 0 and c.loop_start[i] == 0 and i not in gone and i not in c.loop_off
-                    and abs(rl[i]) <= reject_sigma):
-                c.lw[i] = 1.0 / c.loop_sigma[i]
-                readmitted.append({"kind": "loop", "index": i, "name": c.loop_names[i], "sigma": _r(rl[i], 3)})
-        if readmitted:
-            log(f"M readmit: {len(readmitted)} loop(s) predicted within {reject_sigma:g} sigma")
-            fb0 = sel is not None and sel.fallback
-            again = _m_rounds(c, reject_sigma, max_rounds, per_round, settings, rounds, rejected, len(rounds), scan, sel)
-            if sel is not None and sel.fallback and not fb0:   #: 回收之后只剩不物理的解：与解不出同样退回
-                again, sel.fallback = None, False
-                log("M readmit: every converged set point after readmission is unphysical (--physics-select): reverted")
-            if again is not None:
-                best = again
-            else:                                        #: 回收之后反而解不出：退回，照实记
-                for r in readmitted:
-                    c.lw[r["index"]] = 0.0
-                readmitted = [dict(r, reverted=True) for r in readmitted]
-    if best is None:
-        return {"status": "error", "error": "没有一个竖直设定点收敛", "rounds": rounds, "rejected": rejected,
-                "scan": scan}, None
-    chi2, zc, fa, fi, notes = best
-    summary = _scan_summary(scan, rounds, settings)
-    if sel is not None:
-        summary["physics_select"] = {"evaluated": sel.evaluated, "rejected": sel.rejected, "fallback": sel.fallback}
-    if settings.get("anderson") and "anderson" not in fa:  #: 2026-09-19 之前的内核不认这个键，也不报错：照实记
-        summary["anderson_ignored"] = True
-        log("this libfylite.so ignores `anderson` (kernel before 2026-09-19): tier M ran pure Picard")
-    if settings.get("newton_krylov") and "newton_krylov" not in fa:  #: 没有 JFNK 的内核同样不认、不报错：照实记
-        summary["newton_krylov_ignored"] = True
-        log("this libfylite.so ignores `newton_krylov` (kernel without feat/gs-newton-krylov): "
-            "tier M ran without the Newton–Krylov accelerator")
-    view = tier_view(fa, fi, zc, {"label": "M · 磁测量", "scan": summary,
-                                  "rounds": rounds, "rejected": rejected,
-                                  "readmitted": readmitted, "channels": c.channel_table(fi), "notes": notes,
-                                  "constraints": ["磁通环", "磁探针", "Ip", "实测 PF 电流（固定）"]})
-    return view, (fa, fi, zc)
 
 
-def _fine_scan(c: Case, settings: dict, zcs: list, scan: list, best, sel: "PhysSelect | None" = None):
-    """在 65²（``settings`` 本身的网格）上逐个设定点冷启动反演；读数记进 ``scan``，返回收敛者中 chi2 最小的。"""
-    inputs = {"device": c.card, "discharge": c.full_disc()}
-    got = run_doors(c.lib, "code/reconstruction", [(dict(settings, zc_anchor=zc), inputs) for zc in zcs])
-    for zc, rec in zip(zcs, got):                        #: 各点互不依赖：可并行解，按原次序归并（与串行逐位相同）
-        if isinstance(rec, Exception):                   #: 一个解不出的设定点也是读数
-            scan.append({"zc": zc, "error": str(rec)[-60:]})
-            continue
-        fa, fi, notes = rec
-        rl, rp = c.residuals(fi)
-        chi2 = sum(v * v for v in rl) + sum(v * v for v in rp)
-        scan.append({"zc": zc, "chi2": _r(chi2, 5), "q0": _r(fa["q0"], 4), "converged": bool(fa["converged"])})
-        if fa["converged"]:
-            cand = (chi2, zc, fa, fi, notes)
-            if sel is not None:
-                sel.seen(cand)
-            if (best is None or chi2 < best[0]) and (sel is None or sel.ok(cand, scan[-1])):
-                best = cand
-    return best
 
 
-def _coarse_scan(c: Case, settings: dict, how: dict, sel: "PhysSelect | None" = None):
-    """粗扫一轮（做法见 ``SCAN_COARSE`` 的注释）。返回 (粗网格读数, 65² 读数, 是否退回全扫, 最好的 65² 解)。"""
-    n = int(how["grid"])
-    coarse, ranked = [], []
-    inputs = {"device": c.card, "discharge": c.full_disc()}
-    got = run_doors(c.lib, "code/reconstruction", [(dict(settings, zc_anchor=zc, nw=n, nh=n), inputs) for zc in ZC_SCAN])
-    for zc, rec in zip(ZC_SCAN, got):
-        if isinstance(rec, Exception):
-            coarse.append({"zc": zc, "error": str(rec)[-60:]})
-            continue
-        fa, fi, _ = rec
-        rl, rp = c.residuals(fi)
-        chi2 = sum(v * v for v in rl) + sum(v * v for v in rp)
-        coarse.append({"zc": zc, "chi2": _r(chi2, 5), "q0": _r(fa["q0"], 4), "converged": bool(fa["converged"])})
-        if fa["converged"]:
-            ranked.append((chi2, zc))
-    fine: list = []
-    if len(ranked) < how["min_converged"] * len(ZC_SCAN):  #: 粗网格上收敛的太少，排序不可信：这一轮照全扫
-        return coarse, fine, True, _fine_scan(c, settings, ZC_SCAN, fine, None, sel)
-    top = [zc for _, zc in sorted(ranked)[: max(1, int(how["top"]))]]
-    best = _fine_scan(c, settings, top, fine, None, sel)
-    if best is None:                                     #: 粗排的前几名在 65² 上都不收敛（或都没过物理校验）：这一轮照全扫
-        return coarse, fine, True, _fine_scan(c, settings, [zc for zc in ZC_SCAN if zc not in top], fine, None, sel)
-    while True:                                          #: 65² 上从最好的点往两侧邻点走，直到两侧都不更好
-        k, tried = ZC_SCAN.index(best[1]), {x["zc"] for x in fine}
-        nxt = [ZC_SCAN[j] for j in (k - 1, k + 1) if 0 <= j < len(ZC_SCAN) and ZC_SCAN[j] not in tried]
-        if not nxt:
-            break
-        was = best[1]
-        best = _fine_scan(c, settings, nxt, fine, best, sel)
-        if best[1] == was:
-            break
-    return coarse, fine, False, best
 
 
-def _scan_summary(scan: dict, rounds: list, settings: dict) -> dict:
-    """结果 JSON 里记下跑的是哪种扫法、加速器深度、并行路数，以及 65² / 粗网格各解了几次。"""
-    out = dict(scan, anderson=int(settings.get("anderson", 0)), newton_krylov=int(settings.get("newton_krylov", 0)),
-               jobs=_POOL["jobs"], solves_fine=sum(len(r.get("scan", [])) for r in rounds))
-    if scan.get("mode") == "coarse":
-        out.update(solves_coarse=sum(len(r.get("coarse", [])) for r in rounds),
-                   fallback_rounds=[r["round"] for r in rounds if r.get("fallback")])
-    return out
 
 
-def _m_rounds(c: Case, reject_sigma, max_rounds, per_round, settings, rounds, rejected, rnd0, scan_opts=None,
-              sel: "PhysSelect | None" = None):
-    """One run of scan + reject rounds.  Returns the last round that converged; if a round after a
-    rejection converges nothing, that rejection is undone (so the mask and the answer always agree).
-    With ``sel`` (``--physics-select``) a candidate that fails the physics check counts as not converged:
-    a round after a rejection whose every converged candidate is unphysical is undone the same way; only
-    when the very first round has no physical candidate does it fall back to the smallest χ² (noted)."""
-    how = dict(SCAN_COARSE, **(scan_opts or SCAN_FULL))
-    #: 设定点少（热启动的 5 点扫）时粗排省不下什么：照全扫
-    coarse_mode = how["mode"] == "coarse" and len(ZC_SCAN) > 2 * how["top"]
-    last_good, last_batch = None, []
-    for rnd in range(rnd0, rnd0 + max_rounds):
-        scan, extra = [], {}
-        if sel is not None:
-            sel.any = None
-        if coarse_mode:                                  #: ``scan`` 记 65² 的读数（页面按它数收敛），粗网格读数另记
-            coarse, scan, fallback, best = _coarse_scan(c, settings, how, sel)
-            extra = {"strategy": "coarse", "coarse": coarse, "fallback": fallback,
-                     "coarse_converged": sum(1 for s in coarse if s.get("converged"))}
-        else:
-            best = _fine_scan(c, settings, ZC_SCAN, scan, None, sel)
-            if how["mode"] == "coarse":
-                extra = {"strategy": "full", "why": f"only {len(ZC_SCAN)} set points"}
-        n_used = sum(1 for v in c.lw if v > 0) + sum(1 for v in c.pw if v > 0)
-        if sel is not None:
-            extra["physics_rejected"] = sum(1 for s in scan if s.get("physics") is False)
-            if best is None and sel.any is not None:
-                if last_good is None:                    #: 第一轮就一个都不过：退回 χ² 最小者（这一档会记 unphysical）
-                    best, sel.fallback = sel.any, True
-                    extra["physics_select"] = "fallback: no converged set point passes the physics check; smallest chi2 kept"
-                    log(f"M round {rnd}: ★ --physics-select: no converged set point passes the physics check — "
-                        "falling back to the smallest chi2 (this tier will be marked unphysical)")
-                else:                                    #: 剔道之后收敛的全不物理：与「全不收敛」同样撤回这一批
-                    extra["physics_select"] = "every converged set point unphysical: this round's rejections undone"
-                    log(f"M round {rnd}: --physics-select: every converged set point is unphysical — "
-                        f"undoing the {len(last_batch)} rejection(s) of the previous round and keeping its solution")
-        if best is None:
-            rounds.append({"round": rnd, "scan": scan, "converged": sum(1 for s in scan if s.get("converged")),
-                           "n_used": n_used, **extra})
-            for r in last_batch:                         #: 这一批剔完反而解不出：撤回
-                if r["kind"] == "loop":
-                    c.lw[r["index"]] = 1.0 / c.loop_sigma[r["index"]]
-                else:
-                    c.pw[r["index"]] = 1.0 / c.probe_sigma[r["index"]]
-                r["reverted"] = True
-            break
-        last_good, last_batch = best, []
-        chi2, zc, fa, fi, _ = best
-        rl, rp = c.residuals(fi)
-        cand = sorted([(abs(v), "loop", i) for i, v in enumerate(rl) if abs(v) > reject_sigma]
-                      + [(abs(v), "probe", i) for i, v in enumerate(rp) if abs(v) > reject_sigma], reverse=True)
-        rounds.append({"round": rnd, "scan": scan, "converged": sum(1 for s in scan if s.get("converged")),
-                       "n_used": n_used, "zc": zc, "chi2": _r(chi2, 5), "chi2_per_channel": _r(chi2 / n_used, 4),
-                       "q0": _r(fa["q0"], 4), **extra})
-        said = (f"coarse {extra['coarse_converged']}/{len(ZC_SCAN)}, fine {rounds[-1]['converged']}/{len(scan)}"
-                + (" (fallback)" if extra["fallback"] else "") if "coarse" in extra else f"{rounds[-1]['converged']}/{len(ZC_SCAN)}")
-        log(f"M round {rnd}: {said} converged, zc {zc * 1e3:+.0f} mm, "
-            f"chi2/channel {chi2 / n_used:.2f}, q0 {fa['q0']:.3f}, {len(cand)} channel(s) > {reject_sigma:g} sigma")
-        if not cand or rnd == rnd0 + max_rounds - 1:
-            break                                        #: 最后一轮只量，不剔——剔了就没有对应的解了
-        for v, kind, i in cand[:per_round]:
-            names = c.loop_names if kind == "loop" else c.probe_names
-            (c.lw if kind == "loop" else c.pw)[i] = 0.0
-            rejected.append({"kind": kind, "index": int(i), "name": names[i], "sigma": _r(v, 3), "round": rnd})
-            last_batch.append(rejected[-1])
-    return last_good
 
 
 def _eq_doc(fa, fi):
@@ -2488,499 +2151,79 @@ def _eq_doc(fa, fi):
                            "global_quantities": {"psi_axis": [fa["psi_axis"]], "psi_boundary": [fa["psi_bnd"]]}}}
 
 
-def point_arrays(meas: dict, off: list):
-    p = meas["point"]
-    nel, bp = [float(v) for v in p["bnel"]], [float(v) for v in p["bpolar"]]
-    fwtnel, fwtpol = [float(v) for v in p["fwtnel"]], [float(v) for v in p["fwtpol"]]
-    for k in off:
-        if 1 <= k <= len(bp):
-            fwtnel[k - 1] = fwtpol[k - 1] = 0.0
-    return nel, bp, fwtnel, fwtpol
 
 
-def chords(c: Case, fa, fi, nel, fwtnel):
-    eq = _eq_doc(fa, fi)
-    fit, _, _ = c.lib.door("code/chords", {"ne0": 3e19, "rows": 0},
-                           {"device": c.card, "equilibrium": eq,
-                            "discharge": {"fylite:chord_nel": [v * 1e19 for v in nel], "fylite:chord_nel_weight": fwtnel}})
-    _, fi2, _ = c.lib.door("code/chords", {"ne0": fit["fit_ne0"], "peaking": fit["fit_peaking"], "rows": 1},
-                           {"device": c.card, "equilibrium": eq,
-                            "discharge": {"fylite:psi_ext": c.psi_ext, "fylite:current_cells": fi["current"]}})
-    return fit, fi2
 
 
-def point_resid(fi2, nel, bp, fwtnel, fwtpol):
-    rb = [(m - b) / SIGPOL for m, b in zip(fi2["chord_bpolar"], bp)]
-    rn = [(m - n) / math.sqrt(SIGNEL ** 2 + (0.03 * n) ** 2) for m, n in zip(fi2["chord_nel19"], nel)]
-
-    def rms(r, w):
-        u = [v * v for v, x in zip(r, w) if x > 0]
-        return math.sqrt(sum(u) / len(u)) if u else float("nan")
-    return rb, rn, rms(rb, fwtpol), rms(rn, fwtnel)
 
 
-def faraday_extra(fi2, bp, fwtpol) -> dict:
-    use = [i for i, w in enumerate(fwtpol) if w > 0]
-    rows = fi2["faraday_rows"]
-    return {"fylite:row_extra": flat([rows[i] for i in use]),
-            "fylite:meas_extra": [(bp[i] - fi2["chord_coil"][i] / 1e19) * 1e19 for i in use],
-            "fylite:weight_extra": [fwtpol[i] / (SIGPOL * 1e19) for i in use]}
 
 
-def tier_k(c: Case, base, off: list, dead_sigma: float, settings: dict):
-    """档 K：零假设（M 的平衡上前向 11 弦）→ 法拉第行进拟合，逐轮重建行至 |Δq0|/q0 < 1e-3。"""
-    if not (c.meas.get("point") or {}).get("bpolar"):
-        return {"status": "skipped", "why": "输入里没有 POINT 块"}, None, None
-    fa_m, fi_m, zc = base
-    nel, bp, fwtnel, fwtpol = point_arrays(c.meas, off)
-    #: ★节点在、读数近零（#52340 实测 2026-09-22：五弦线密度 ~4e16 m⁻²，是噪声不是等离子体）：不拿噪声当约束
-    live = [abs(v) for v, w in zip(nel, fwtnel) if w > 0]
-    if not live or max(live) < POINT_NEL_MIN:
-        return {"status": "skipped", "why": f"POINT 线密度读数近零（最大 {max(live or [0.0]):.3g}e19 m⁻² < {POINT_NEL_MIN}e19）："
-                                             "这一炮的 POINT 节点没有等离子体信号"}, None, None
-    fit, fi2 = chords(c, fa_m, fi_m, nel, fwtnel)
-    rb0, rn0, rbs0, rns0 = point_resid(fi2, nel, bp, fwtnel, fwtpol)
-    dead = []
-    for i in range(len(bp)):
-        if fwtpol[i] > 0 and abs(rb0[i]) > dead_sigma:
-            fwtpol[i] = 0.0
-            dead.append({"chord": i + 1, "row": "faraday", "sigma": _r(rb0[i], 3)})
-        if fwtnel[i] > 0 and abs(rn0[i]) > dead_sigma:
-            fwtnel[i] = 0.0
-            dead.append({"chord": i + 1, "row": "density", "sigma": _r(rn0[i], 3)})
-    if dead:
-        fit, fi2 = chords(c, fa_m, fi_m, nel, fwtnel)
-        rb0, rn0, rbs0, rns0 = point_resid(fi2, nel, bp, fwtnel, fwtpol)
-    null = {"ne0": _r(fit["fit_ne0"]), "peaking": _r(fit["fit_peaking"]), "faraday_rms": _r(rbs0, 4),
-            "density_rms": _r(rns0, 4), "faraday_sigma": _r(rb0, 4), "density_sigma": _r(rn0, 4)}
-    log(f"K null hypothesis: Faraday {rbs0:.3f} sigma, density {rns0:.3f} sigma, dead {[d['chord'] for d in dead]}")
-    st = dict(settings, zc_anchor=zc)
-    passes = []
-    try:
-        fa, fi, _ = c.lib.door("code/reconstruction", st, {"device": c.card, "discharge": c.rows_disc()})
-        for _ in range(6):
-            _, fi2 = chords(c, fa, fi, nel, fwtnel)
-            disc = dict(c.rows_disc(), **faraday_extra(fi2, bp, fwtpol))
-            fa_n, fi_n, _ = c.lib.door("code/reconstruction", st, {"device": c.card, "discharge": disc})
-            dq = abs(fa_n["q0"] - fa["q0"]) / max(abs(fa["q0"]), 1e-12)
-            passes.append({"q0": _r(fa_n["q0"], 5), "dq0_rel": _r(dq, 3), "converged": bool(fa_n["converged"])})
-            fa, fi = fa_n, fi_n
-            if dq < 1e-3:
-                break
-    except (Refused, KernelError) as e:                  # 记下，不藏
-        return {"status": "error", "error": str(e)[-300:], "null": null, "dead": dead, "passes": passes}, None, None
-    fit2, fi2 = chords(c, fa, fi, nel, fwtnel)
-    rb1, rn1, rbs1, rns1 = point_resid(fi2, nel, bp, fwtnel, fwtpol)
-    log(f"K fitted: q0 {fa['q0']:.3f}, Faraday {rbs0:.3f} -> {rbs1:.3f} sigma, {len(passes)} pass(es)")
-    chord_geo = [{"name": _name(ch), "los": ch.get("line_of_sight")} for ch in _aos(c.card.get("polarimeter"))]
-    view = tier_view(fa, fi, zc, {
-        "label": "K · 磁 + POINT", "constraints": ["磁（同 M）", f"POINT 法拉第行 × {sum(1 for w in fwtpol if w > 0)}"],
-        "channels": c.channel_table(fi), "passes": passes, "settled": bool(passes and passes[-1]["dq0_rel"] < 1e-3),
-        "point": {"measured_bpolar": _r(bp, 5), "measured_nel19": _r(nel, 5), "fwtpol": _r(fwtpol), "fwtnel": _r(fwtnel),
-                  "off_by_user": off, "dead": dead, "null": null,
-                  "fitted": {"ne0": _r(fit2["fit_ne0"]), "peaking": _r(fit2["fit_peaking"]), "faraday_rms": _r(rbs1, 4),
-                             "density_rms": _r(rns1, 4), "faraday_sigma": _r(rb1, 4), "density_sigma": _r(rn1, 4),
-                             "model_bpolar": _r(fi2["chord_bpolar"], 5), "model_nel19": _r(fi2["chord_nel19"], 5)},
-                  "chords": chord_geo}})
-    return view, (fa, fi, zc), {"nel": nel, "bp": bp, "fwtnel": fwtnel, "fwtpol": fwtpol}
 
 
-def pressure_from_thomson(th: dict, *, sigma_floor: float, te_floor=50.0, te_ceiling=8000.0,
-                          ne_range=(1e18, 2e21), sigma_cap=2.0, zeff_dilution=1.0, conf: list | None = None) -> dict:
-    """Thomson（+ TXCS）→ 压强点 p = e·n_e·T_e·(1 + dilution·T_i0/T_e0)，逐点 σ 由诊断自报的
-    相对误差传播，相对下限 ``sigma_floor``、绝对下限 100 Pa。质量闸：50 eV < T_e < 8 keV，n_e 在量程内，
-    自报误差可用。（与 fylite.io.mds.pressure_from_thomson 同一规则。）"""
-    te, ne, r, z = th["te"], th["ne"], th["r"], th["z"]
-    n = len(te)
-    rel = None
-    if th.get("te_err") is not None and th.get("ne_err") is not None:
-        rel = []
-        for k in range(n):
-            a = abs(th["te_err"][k]) / te[k] if te[k] != 0 else float("nan")
-            b = abs(th["ne_err"][k]) / ne[k] if ne[k] != 0 else float("nan")
-            rel.append(math.sqrt(a * a + b * b))
-    ok = [(te_floor < te[k] < te_ceiling) and (ne_range[0] < ne[k] < ne_range[1]) and fin(te[k]) and fin(ne[k])
-          and (rel is None or (fin(rel[k]) and 0 < rel[k] <= sigma_cap)) for k in range(n)]
-    #: 逐道置信度（输入文件 ``pressure.thomson``，按 Thomson 原始道序）：c = 0 关掉这道，其余 σ_eff = σ / c
-    cf = [1.0] * n if conf is None else [max(float(conf[k]), 0.0) if k < len(conf) else 1.0 for k in range(n)]
-    n_off = sum(1 for k in range(n) if ok[k] and cf[k] <= 0.0)
-    idx = [k for k in range(n) if ok[k] and cf[k] > 0.0]
-    if not idx:
-        raise RuntimeError("pressure_from_thomson: no Thomson point passed the quality gate")
-    t_i0 = float(th.get("ti0") or 0.0)
-    te0 = median(sorted(te[k] for k in idx)[-5:])
-    ion = 1.0 + zeff_dilution * (t_i0 / te0 if te0 > 0 else 0.0)
-    p = [E_CHARGE * ne[k] * te[k] * ion for k in idx]
-    if rel is not None:
-        sig = [max(max(rel[k], sigma_floor) * pk, 100.0) for k, pk in zip(idx, p)]
-        source = "measured"
-    else:
-        sig = [max(0.2 * pk, 100.0) for pk in p]
-        source = "flat_fraction"
-    sig = [sg / cf[k] for k, sg in zip(idx, sig)]
-    return {"r": [r[k] for k in idx], "z": [z[k] for k in idx], "pressr": p, "sigpre": sig,
-            "te": [te[k] for k in idx], "ne": [ne[k] for k in idx],
-            "sigma_source": source, "n_points": len(idx), "n_dropped": n - len(idx) - n_off, "n_off": n_off,
-            "index": idx, "conf": [cf[k] for k in idx],
-            "ti0": t_i0, "te0": te0, "ion_factor": ion,
-            "assumptions": {"ti_shape": "Ti(x) = Ti0*Te(x)/Te0 (TXCS core value only; Te0 = median of top-5 accepted Te)",
-                            "ni": f"ni = {zeff_dilution}*ne (no Zeff correction)",
-                            "fast_ion": "fast-ion pressure NOT included",
-                            "sigpre": (f"measured per-point sqrt((dne/ne)^2+(dTe/Te)^2), floor {sigma_floor}, "
-                                       f"failed-channel cap {sigma_cap}" if source == "measured"
-                                       else "flat 0.2 of p (no error nodes)")}}
 
 
-def clip_profile(lib: Lib, x, p, sig, keep, clip: float, min_left: int = 6):
-    """逐点剔离群：对 p(psi_N) 做一次带 GCV 定阶的光滑拟合（``code/profile_fit``），把离拟合最远、且超过
-    ``clip`` 个 sigma 的那一点剔掉，重拟，直到没有这样的点。"""
-    keep = list(keep)
-    dropped = []
-    while sum(keep) > min_left:
-        idx = [i for i, k in enumerate(keep) if k]
-        xs, ys, ss = [x[i] for i in idx], [p[i] for i in idx], [sig[i] for i in idx]
-        fa, fi, _ = lib.door("code/profile_fit", {"max_order": 6.0, "n_curve": 2.0},
-                             {"discharge": {"fylite:fit_x": xs, "fylite:fit_y": ys, "fylite:fit_sigma": ss,
-                                            "fylite:fit_eval_x": xs}})
-        r = [(y - f) / s for y, f, s in zip(ys, fi["eval"], ss)]
-        j = max(range(len(r)), key=lambda k: abs(r[k]))
-        if abs(r[j]) <= clip:
-            break
-        keep[idx[j]] = False
-        dropped.append({"index": idx[j], "sigma": _r(r[j], 3), "order": int(fa.get("order", 0))})
-    return keep, dropped
 
 
-#: 档 P 局部清洗对 ``wei_profiles.CLEAN_DEFAULTS`` 的覆盖。★``mirror`` 关：对 ρ = 0 的偶延拓预设磁轴定得准，而档 P 的
-#: 测点是挂在**档 M**（纯磁测量）的平衡上的，磁轴可偏数厘米，轴两侧的测点折到 ρ 上会交错；#63948 5.022 s 实测：
-#: 延拓开着时轴端参照塌到 2.1 keV（数据 4.1–4.6 keV），夹在中间的坏道（0.15 keV）因此不过尺度判据、留了下来。
-P_CLEAN_OPTS = {"mirror": False}
-CLEAN_MAX_FRAC = 0.3        #: 清洗剔掉的点超过候选点的这个份额 → 清洗可疑
-CLEAN_CORE_PSIN = 0.5       #: 「芯部」= ψ_N 小于它
-CLEAN_CORE_RUN = 3          #: 芯部连续（按 ψ_N 相邻）剔掉这么多个点 → 清洗可疑
 
 
-def clean_local(x, te, ne, cand, opts: dict | None = None):
-    """``wei_profiles.clean_profile``（Wei 2026 §II.B 的局部 MAD 清洗，与 ``wei2026.py`` 同一份代码）**分别**作用在
-    T_e(ρ) 与 n_e(ρ) 上，ρ = √ψ_N；任一剖面判为离群的道整道不用。
-
-    ★为什么不在 p 上做：坏道是**一个量**坏（TS 常见的是 T_e 拟谱失败、n_e 正常，或反过来），在那个量上它是孤立的、
-    幅度大的离群；乘成 p 之后两个量的涨落叠在一起、局部尺度变粗，峰化剖面上 p ∝ n_e·T_e 的梯度又比单个量陡，
-    「低于邻点连线的一半」这条趋势判据更容易被真梯度触发。文献也是逐量清洗。
-    返回 (keep, dropped, params)；``dropped`` 每条记 index · 哪个量 · 哪一侧 · 局部标度分。
-    """
-    try:                                                 #: 伴随模块（同目录、同样只用标准库）；smooth 档不需要它
-        import wei_profiles as W
-    except ImportError:
-        sys.path.insert(0, str(HERE))
-        try:
-            import wei_profiles as W
-        except ImportError as e:
-            raise RuntimeError("--thomson-clean local 要同目录的 wei_profiles.py（与本文件一起发行）；"
-                               "没有它就用 --thomson-clean smooth") from e
-    o = dict(P_CLEAN_OPTS, **(opts or {}))
-    order = sorted((i for i, ok in enumerate(cand) if ok), key=lambda i: x[i])
-    keep = list(cand)
-    dropped = []
-    if len(order) >= 5:
-        xs = [math.sqrt(max(x[i], 0.0)) for i in order]
-        for k in range(1, len(xs)):                      #: clean_profile 要严格递增；重合的横坐标错开一个可忽略的量
-            if xs[k] <= xs[k - 1]:
-                xs[k] = xs[k - 1] + 1e-9
-        for name, y in (("T_e", te), ("n_e", ne)):
-            res = W.clean_profile(xs, [y[i] for i in order], o)
-            for k, score, side in res["removed"]:
-                keep[order[k]] = False
-                dropped.append({"index": order[k], "quantity": name, "side": side, "score": _r(score, 3)})
-            if len(res["removed"]) >= max(1, math.ceil(res["params"]["max_frac"] * len(xs))):
-                dropped.append({"index": None, "quantity": name, "hit_cap": True})
-    return keep, dropped, dict(W.CLEAN_DEFAULTS, **o)
 
 
-def cleaning_verdict(x, cand, keep) -> dict:
-    """清洗自检：剔得太多、或把芯部连着剔掉一串，首先是**清洗错了**的征兆（其次才是这一脉冲整个不可用）
-    （#63948 5.022 s 实测：全局光滑拟合把 7 个真实的芯部点当离群剔光，档 P 储能 13.8 kJ 对实测 W_dia 68 kJ）。"""
-    order = sorted((i for i, ok in enumerate(cand) if ok), key=lambda i: x[i])
-    n, n_rej = len(order), sum(1 for i in order if not keep[i])
-    run = best = 0
-    for i in order:
-        run = run + 1 if (not keep[i] and x[i] < CLEAN_CORE_PSIN) else 0
-        best = max(best, run)
-    reasons = []
-    if n and n_rej / n > CLEAN_MAX_FRAC:
-        reasons.append(f"剔掉 {n_rej} / {n} 个候选点（{n_rej / n:.0%} > {CLEAN_MAX_FRAC:.0%}）")
-    if best >= CLEAN_CORE_RUN:
-        reasons.append(f"芯部（ψ_N < {CLEAN_CORE_PSIN}）连续剔掉 {best} 个相邻点（≥ {CLEAN_CORE_RUN}）")
-    return {"n_candidates": n, "n_rejected": n_rej, "rejected_fraction": _r(n_rej / n, 4) if n else None,
-            "longest_core_run": best, "max_fraction": CLEAN_MAX_FRAC, "core_psin": CLEAN_CORE_PSIN,
-            "core_run_limit": CLEAN_CORE_RUN, "suspect": bool(reasons), "reasons": reasons}
 
 
-def _p_solve(c: Case, st: dict, disc0: dict, rows: dict, scales: list):
-    """档 P 的 σ 续延：依次按 ``scales`` 放宽压强行的 σ 进反演，取第一个不被拒的。返回 (fa, fi, notes, attempts)，
-    全被拒时 fa 为 None。"""
-    attempts = []
-    for scale in scales:
-        rows_s = dict(rows, **{"fylite:pressure_weight": [w / scale for w in rows["fylite:pressure_weight"]]})
-        try:
-            fa, fi, notes = c.lib.door("code/reconstruction", st, {"device": c.card, "discharge": dict(disc0, **rows_s)})
-            attempts.append({"sigma_scale": scale, "ok": True})
-            return fa, fi, notes, attempts
-        except (Refused, KernelError) as e:              # 拒绝也是读数
-            attempts.append({"sigma_scale": scale, "ok": False, "error": str(e)[-40:]})
-    return None, None, None, attempts
 
 
-def _p_base_disc(c: Case, base, kin) -> dict:
-    """档 P 叠在 M 上（全测量档）还是叠在 K 上（行给定档 + POINT 法拉第行）。"""
-    if kin is None:
-        return c.full_disc()
-    fa_k, fi_k, _ = base
-    _, fi2 = chords(c, fa_k, fi_k, kin["nel"], kin["fwtnel"])
-    return dict(c.rows_disc(), **faraday_extra(fi2, kin["bp"], kin["fwtpol"]))
 
 
-def tier_p_psin(c: Case, base, kin, kp: dict, a, settings: dict, extra: dict | None = None,
-                hold: dict | None = None) -> dict:
-    """档 P 的另一种输入：压强已经给在 ψ_N 上（k-file 的 RPRESS < 0 · PRESSR · SIGPRE，EFIT 的约定）。行钉在 ψ_N 上、
-    没有 (R, Z) 可重映，所以外环只一遍——这正是 EFIT 对 RPRESS < 0 的做法。σ 取 k-file 的 SIGPRE（续延同 Thomson 路）。
-    ★k-file 的压强是**总**压强（ONETWO：热 + 快离子），原样进行，不扣快离子（``--p-fast-frac`` 在这条路上不用）。"""
-    fa_b, fi_b, zc = base
-    x, pres, sig = kp["psin"], kp["pressr"], kp["sigpre"]
-    fw = kp.get("fwtpre") or [1.0] * len(x)
-    ex = extra or {}
-    if ex.get("conf") is not None:                       #: 逐行置信度：σ_eff = σ / c，c = 0 关掉
-        cf = [max(float(v), 0.0) for v in ex["conf"]] + [1.0] * len(x)
-        fw = [f * (1.0 if cf[i] > 0 else 0.0) for i, f in enumerate(fw)]
-        sig = [sg / cf[i] if cf[i] > 0 else sg for i, sg in enumerate(sig)]
-    use = [i for i in range(len(x)) if fw[i] > 0 and sig[i] > 0 and 0.0 <= x[i] < a.psin_max]
-    if len(use) < 3:
-        return {"status": "error", "error": f"k-file 压强只有 {len(use)} 行可用"}
-    rows = {"fylite:pressure": [pres[i] for i in use], "fylite:pressure_x": [x[i] for i in use],
-            "fylite:pressure_weight": [1.0 / sig[i] for i in use]}
-    st = dict(settings, zc_anchor=zc, kinetic_passes=1, kinetic_tol=a.kinetic_tol, curv_p=a.curv, curv_f=a.curv)
-    disc0 = _p_base_disc(c, base, kin)
-    efit = None
-    if "P" in efit_mode(a, c.meas):
-        e_st, e_disc, efit = efit_request(c.meas["efit_fit"], efit_parts(a), a.efit_override)
-        st.update(e_st)
-        disc0 = dict(disc0, **e_disc)
-        if a.nk:                                         #: I_p 作测量之后纯 Picard 在一格掩膜上来回（实测），JFNK 收得住
-            st["newton_krylov"] = int(a.nk)
-    st.update(ex.get("st") or {})
-    disc0 = dict(disc0, **(ex.get("disc") or {}))
-    fa, fi, notes, attempts = _p_solve(c, st, disc0, rows, a.sigma_scales)
-    if hold is not None and fa is not None:
-        hold.update(fa=fa, fi=fi, st=st, disc=dict(disc0, **rows))
-    if efit and fa is not None and "pprime_basis" not in fa:
-        #: ★2026-09-22 之前的内核不认这些键、也不报错——读数就是没有这些约束的解，说出来而不是冒充
-        efit["ignored"] = True
-        log("this libfylite.so ignores the k-file fit settings (kernel without feat/recon-spline-constraints): "
-            "tier P ran without them")
-    if fa is None:
-        return {"status": "error", "error": "每一档 sigma 放宽都被拒", "attempts": attempts}
-    scale = attempts[-1]["sigma_scale"]
-    pts = []
-    for i in range(len(x)):
-        mv = interp(min(max(x[i], 0.0), 1.0), fi["psin_1d"], fi["pres"])
-        used = i in use
-        pts.append({"r": None, "z": None, "p": _r(pres[i], 5), "sigma": _r(sig[i], 4), "psin_initial": _r(x[i], 4),
-                    "psin_final": _r(x[i], 4), "model_p": _r(mv, 5), "used": used,
-                    "resid_sigma": _r((mv - pres[i]) / sig[i], 4) if used else None,
-                    "resid_sigma_entered": _r((mv - pres[i]) / (sig[i] * scale), 4) if used else None,
-                    "why": "" if used else (f"psi_N ≥ {a.psin_max}（不收）" if x[i] >= a.psin_max
-                                            else "k-file FWTPRE = 0 / σ ≤ 0")})
-    stacked = kin is not None
-    log(f"P (psi_N rows): q0 {fa['q0']:.3f}, {len(use)} rows at sigma x {scale:g}, chi2_kin {fa.get('chi2_kin', float('nan')):.2f}")
-    return tier_view(fa, fi, zc, {
-        "label": "P · 磁" + (" + POINT" if stacked else "") + " + ψ_N 上给定的压强（k-file）",
-        "constraints": ["磁（同 M）"] + (["POINT 法拉第行（同 K）"] if stacked else [])
-                       + [f"ψ_N 上给定的压强行 × {len(use)}（k-file SIGPRE；总压强，不扣快离子）"]
-                       + ([f"曲率正则 λ = {a.curv:g}"] if a.curv > 0 else [])
-                       + (efit_constraints(efit) if efit else []) + list(ex.get("constraints") or []),
-        "channels": c.channel_table(fi), "notes": list(notes or []),
-        "certificate": {"chi2_per_dof": _r(fi.get("kinetic_pass_chi2_per_dof") or [], 5),
-                        "map_shift": _r(fi.get("kinetic_pass_map_shift") or [], 4),
-                        "best_pass": int(fa.get("kinetic_best_pass", 1)), "tol": a.kinetic_tol,
-                        "rows_on": "psi_N (not remapped)"},
-        "sigma_scale": scale, "attempts": attempts, "on": "K" if stacked else "M",
-        "passes_note": "行钉在 ψ_N 上：没有 (R, Z) 可重映，只跑一遍",
-        "pressure_rows": {"source": kp.get("source"), "note": kp.get("note"), "points": pts},
-        **({"efit_fit": efit, "jzero_residual": _r(fi.get("jzero_residual") or [], 5),
-            "lincon_residual": _r(fi.get("lincon_residual") or [], 6)} if efit else {}),
-        #: 页面按 thomson.points 画压强点：同一份点，r / z 为空（剖面图照画，截面图上没有位置）
-        "thomson": {"points": pts, "sample_time_s": None, "ti0": None, "te0": None, "ion_factor": None,
-                    "n_dropped_quality": 0, "sigma_source": "k-file SIGPRE",
-                    "assumptions": {"source": kp.get("source"), "rows": "psi_N, total pressure (ONETWO)"},
-                    "psin_max": a.psin_max}})
 
 
-def efit_mode(a, meas: dict) -> str:
-    """``--efit-fit`` 解析成档名串：``auto`` = 测量文档带 ``efit_fit``（kfile 读出的）时 ``P``，否则不用。"""
-    m = getattr(a, "efit_fit", "auto") or "auto"
-    if m == "auto":
-        return "P" if meas.get("efit_fit") else ""
-    if m == "off":
-        return ""
-    if not meas.get("efit_fit"):
-        raise SystemExit(f"--efit-fit {m}：测量文档里没有 efit_fit 块（只有 kfile 读出的测量文档带它）")
-    return m
 
 
-def efit_parts(a) -> set:
-    parts = {x for x in (getattr(a, "efit_parts", None) or ",".join(EFIT_PARTS)).split(",") if x}
-    bad = parts - set(EFIT_PARTS)
-    if bad:
-        raise SystemExit(f"--efit-parts：不认识 {sorted(bad)}（可用 {','.join(EFIT_PARTS)}）")
-    return parts
 
 
-def efit_constraints(rec: dict) -> list:
-    out = []
-    for which in ("pprime", "ffprime"):
-        b = rec.get(which)
-        if b:
-            out.append(f"{which}：" + (f"张力样条 结点 {b['knots']} τ {b.get('tension', 0):g}（{rec.get('tension_scale')}）"
-                                       if b["basis"] == "spline" else f"{b['basis']} × {b['n']}"))
-    if rec.get("q0"):
-        out.append(f"磁轴 q = {rec['q0']['target']:g}（权 {rec['q0']['weight']:g}）")
-    if rec.get("j"):
-        out.append(f"电流密度行 × {rec['j']['fsa_rows'] + rec['j']['local_rows']}（权 {rec['j']['weight']:g}）")
-    if rec.get("lincon"):
-        out.append("样条结点参数线性约束：" + "、".join(rec["lincon"]))
-    if rec.get("ip_sigma"):
-        out.append(f"I_p 作测量（σ {rec['ip_sigma']:.4g} A）")
-    return out
 
 
-def tier_p(c: Case, base, kin, th: dict, a, settings: dict, extra: dict | None = None,
-           hold: dict | None = None) -> dict:
-    """档 P：Thomson 压强点（R, Z，逐点实测 sigma）作动理学行，自洽外环逐遍重映 psi_N。
-    ``extra``（输入文件的档 X 用）：``st`` / ``disc`` 并进内核设定与 discharge 行，``conf`` 是逐道置信度，
-    ``constraints`` 追加到约束清单；``hold`` 收下解 (fa, fi)。"""
-    fa_b, fi_b, zc = base
-    ex = extra or {}
-    p = pressure_from_thomson(th, sigma_floor=a.sigma_floor, conf=ex.get("conf"))
-    r, z, pres, sig = p["r"], p["z"], p["pressr"], p["sigpre"]
-    gr, gz = fi_b["grid_r"], fi_b["grid_z"]
-    x0 = [psin_at(fa_b, fi_b, ri, zi) if (gr[0] <= ri <= gr[-1] and gz[0] <= zi <= gz[-1]) else float("nan")
-          for ri, zi in zip(r, z)]
-    inside = [fin(v) and 0.0 <= v < a.psin_max for v in x0]
-    xs0 = [v if ok else 0.0 for v, ok in zip(x0, inside)]
-    why: dict = {}
-    if a.thomson_clean == "smooth":                      #: 旧法（2026-09-20 之前的缺省）：留着，为了能复现过去的读数
-        keep, clipped = clip_profile(c.lib, xs0, pres, sig, inside, a.thomson_clip)
-        why = {d["index"]: f"离光滑拟合 {d['sigma']} σ（剔）" for d in clipped}
-        cleaning = {"cleaner": "smooth", "method": "global smooth fit of p(psi_N) (code/profile_fit, GCV order), "
-                    "worst point beyond the threshold removed one at a time", "clip_sigma": a.thomson_clip}
-    else:
-        keep, clipped, params = clean_local(xs0, p["te"], p["ne"], inside, a.thomson_clean_opts)
-        for d in clipped:
-            if d["index"] is not None:
-                why[d["index"]] = (why.get(d["index"], "") + "；" if d["index"] in why else "") + \
-                    f"{d['quantity']} 局部离群（{'低' if d['side'] == 'low' else '高'}侧，标度分 {d['score']}；剔）"
-        cleaning = {"cleaner": "local", "method": "wei_profiles.clean_profile (Wei 2026 sec. II.B local-MAD, one point at a "
-                    "time) on T_e(rho) and n_e(rho) separately, rho = sqrt(psi_N); a channel flagged in either is dropped",
-                    "params": params}
-    cleaning["rejected"] = clipped
-    cleaning.update(cleaning_verdict(xs0, inside, keep))
-    points = [{"r": _r(ri, 5), "z": _r(zi, 5), "p": _r(pi, 5), "sigma": _r(si, 4), "te": _r(tei, 5), "ne": _r(nei, 5),
-               "psin_initial": _r(xi, 4), "channel": p["index"][i], "conf": p["conf"][i],
-               "used": bool(k), "why": (why.get(i) or ("" if ins else f"psi_N ≥ {a.psin_max}（不收）"))}
-              for i, (ri, zi, pi, si, tei, nei, xi, k, ins) in enumerate(zip(r, z, pres, sig, p["te"], p["ne"], x0, keep, inside))]
-    if cleaning["n_rejected"]:
-        log(f"P: {cleaning['cleaner']} cleaning rejected {cleaning['n_rejected']} of {cleaning['n_candidates']} Thomson point(s)")
-    if cleaning["suspect"]:
-        log("P: ★★ CLEANING SUSPECT — " + "；".join(cleaning["reasons"]) + " — either the cleaner is wrong or this pulse is unusable; this tier's reading is not trustworthy")
-    use = [i for i, k in enumerate(keep) if k]
-    if len(use) < 3:
-        return {"status": "error", "error": f"只有 {len(use)} 个 Thomson 点落在 psi_N < {a.psin_max} 内", "points": points,
-                "cleaning": cleaning}
-    rows = {"fylite:pressure": [pres[i] for i in use], "fylite:pressure_x": [x0[i] for i in use],
-            "fylite:pressure_weight": [1.0 / sig[i] for i in use],
-            "fylite:pressure_r": [r[i] for i in use], "fylite:pressure_z": [z[i] for i in use]}
-    if a.p_fast_frac > 0:                                #: 声明的快离子份额：峰值热压的 f 倍 × (1 − x²)
-        pk = max(pres[i] for i in use)
-        rows["fylite:p_fast_profile"] = [a.p_fast_frac * pk * (1.0 - (k / 40) ** 2) for k in range(41)]
-    stacked = kin is not None
-    #: ★★叠在 K 上（行给定档）时外环不重映（实测 2026-09-18：逐遍 chi2/dof 在 47.5 与 2.72 之间来回跳、
-    #: 映射移动每遍 0.994）。所以叠放时只跑一遍；要外环，就用缺省的「P 叠在 M 上」。
-    passes = 1 if stacked else a.kinetic_passes
-    st = dict(settings, zc_anchor=zc, kinetic_passes=passes, kinetic_tol=a.kinetic_tol, curv_p=a.curv, curv_f=a.curv)
-    disc0 = _p_base_disc(c, base, kin)
-    st.update(ex.get("st") or {})
-    disc0 = dict(disc0, **(ex.get("disc") or {}))
-    #: ★★sigma 续延（实测 2026-09-18）：把档 M 自己的压强剖面原样当动理学行喂回去，sigma 取峰值 5 % 时
-    #: 内核仍把等离子体拟丢，20 % 时一步收敛——求解器对紧约束行的稳健性上限。先按实测 sigma 进，
-    #: 拒了就整体放宽，放宽倍数写进结果。
-    fa, fi, notes, attempts = _p_solve(c, st, disc0, rows, a.sigma_scales)
-    if fa is None:
-        return {"status": "error", "error": "每一档 sigma 放宽都被拒", "attempts": attempts, "points": points,
-                "cleaning": cleaning}
-    sigma_scale = attempts[-1]["sigma_scale"]
-    if hold is not None:
-        hold.update(fa=fa, fi=fi, st=st, disc=dict(disc0, **rows))
-    log(f"P: kinetic rows entered at sigma x {sigma_scale:g} ({len(attempts)} attempt(s))")
-    xf = [psin_at(fa, fi, ri, zi) for ri, zi in zip(r, z)]
-    for pt, xv in zip(points, xf):
-        mv = interp(min(max(xv, 0.0), 1.0), fi["psin_1d"], fi["pres"])
-        pt["psin_final"] = _r(xv, 4)
-        pt["model_p"] = _r(mv, 5)
-        pt["resid_sigma"] = _r((mv - pt["p"]) / pt["sigma"], 4) if pt["used"] else None
-        pt["resid_sigma_entered"] = _r((mv - pt["p"]) / (pt["sigma"] * sigma_scale), 4) if pt["used"] else None
-    log(f"P: q0 {fa['q0']:.3f}, {int(fa.get('kinetic_passes_run', 1))} pass(es), best {int(fa.get('kinetic_best_pass', 1))}, "
-        f"map shift {fa.get('kinetic_map_shift', float('nan')):.2e}, chi2_kin {fa.get('chi2_kin', float('nan')):.2f}")
-    return tier_view(fa, fi, zc, {
-        "label": "P · 磁" + (" + POINT" if stacked else "") + " + Thomson 压强",
-        "constraints": ["磁（同 M）"] + (["POINT 法拉第行（同 K）"] if stacked else [])
-                       + [f"Thomson 压强点 × {len(use)}（逐点实测 σ）"]
-                       + ([f"快离子份额 {a.p_fast_frac:g}（声明）"] if a.p_fast_frac > 0 else [])
-                       + ([f"曲率正则 λ = {a.curv:g}"] if a.curv > 0 else []) + list(ex.get("constraints") or []),
-        "channels": c.channel_table(fi),
-        "notes": list(notes or []) + (["★★Thomson 清洗可疑（" + cleaning["cleaner"] + "）：" + "；".join(cleaning["reasons"])
-                                       + "——要么清洗错了，要么这一脉冲本身不可用；哪一种这一档的读数都不可信，"
-                                         "不能读成「数据里恰好有这么多坏道」。逐点核对（thomson.points 的 te · ne · why）"] if cleaning["suspect"] else []),
-        "certificate": {"chi2_per_dof": _r(fi.get("kinetic_pass_chi2_per_dof") or [], 5),
-                        "map_shift": _r(fi.get("kinetic_pass_map_shift") or [], 4),
-                        "best_pass": int(fa.get("kinetic_best_pass", 1)), "tol": a.kinetic_tol,
-                        "cleaner": cleaning["cleaner"], "cleaning_suspect": cleaning["suspect"],
-                        "cleaning_reasons": cleaning["reasons"],
-                        "cleaning_rejected_fraction": cleaning["rejected_fraction"],
-                        "cleaning_longest_core_run": cleaning["longest_core_run"]},
-        "sigma_scale": sigma_scale, "attempts": attempts, "on": "K" if stacked else "M",
-        "passes_note": ("叠在 K 上：外环在行给定档不重映，只跑一遍" if stacked else ""),
-        "thomson": {"points": points, "sample_time_s": th.get("sample_time_s"), "ti0": th.get("ti0"),
-                    "te0": p.get("te0"), "ion_factor": p.get("ion_factor"), "n_dropped_quality": p.get("n_dropped"),
-                    "sigma_source": p.get("sigma_source"), "assumptions": p.get("assumptions"),
-                    "psin_max": a.psin_max, "cleaning": cleaning}})
+
+
+# ================================================================================================ tier D
+#: ★档 D（2026-09-25）：Thomson 不能用（#164437：n_e 未标定、读成负的）时档 P 做不成，档 M / K 的几何与 q 对、储能却比
+#: 实测逆磁储能高 18–27 %。档 D 把**一个标量**——实测逆磁储能 W_dia——当压强的标度约束：取底档（K 跑了取 K，否则 M）的
+#: p(ψ_N)，乘 λ 使同尺 W = 3/2∫p dV（``map_integrals``，compare 的同一把尺）等于 W_dia，作 ψ_N 均匀格上的压强行
+#: （``fylite:pressure`` + ``fylite:pressure_x``，同档 P 的 ψ_N 路）进反演；解出的平衡改了 V(ψ) 与 p，外环再标定、再解，
+#: 直到相邻两遍的 W 差 < tol × W_dia 或跑满遍数。
+#: ★行的 σ：所有行共用一个绝对 σ = σ_rel × ‖p_行‖₂（缺省 σ_rel = 1 %，2026-09-25 用户裁定「用 W_dia 作压强约束」：
+#: 10 % 时一个标量敌不过 ~150 道磁测量，#164437 6.72 s 上 W 只由 308 降到 300 kJ、等于没约束；1 % 时 W 收到 W_dia，
+#: q0 · q95 · β_p · 边界与 MSE 约束的平衡一致，代价是磁 χ² 增大——结果里照记）。这样整组行对「把目标整体
+#: 乘 μ」的 χ² 恰为 (μ − 1)² / σ_rel²——合起来只相当于**一个** σ_rel 的标度测量，不是 N 个独立测点，不钉形状。
+#: ★假定：W_dia 量的是垂直能量 3/2∫p_⊥ dV；没有快离子与各向异性的信息，本档当作各向同性的热压 W = 3/2∫p dV 用。
+#: 只约束压强的标度、不约束形状（形状取自底档、逐遍沿用解出的）。它是 Thomson 不可用时档 P 的替代；P 能跑时以 P 为准。
+WDIA_SIGMA = 0.01
+WDIA_PASSES = 6
+WDIA_TOL = 0.01
+#: 档 D 外环的阻尼 α：整步来回振荡后 λ 改按 W̃ ← W̃^(1−α)·W^α 定；1 = 不阻尼
+WDIA_RELAX = 1.0
+
+
+
+
+
+
+
+
 
 
 # ================================================================================================ run
 
-def scan_from_args(a) -> dict:
-    """``--scan`` / ``--scan-grid`` / ``--scan-top`` → ``tier_m`` 的 ``scan``。"""
-    if a.scan == "coarse":
-        return dict(SCAN_COARSE, grid=a.scan_grid, top=a.scan_top)
-    return dict(SCAN_FULL)
 
 
-def m_settings(settings: dict, anderson: int, nk: int = 0) -> dict:
-    """档 M 的反演设定：``anderson`` / ``nk`` > 0 时加上内核的 ``anderson`` / ``newton_krylov``；
-    0 时不写这个键（与旧库逐位相同，旧库也认）。"""
-    out = dict(settings)
-    if anderson:
-        out["anderson"] = int(anderson)
-    if nk:
-        out["newton_krylov"] = int(nk)
-    return out
 
 
 def add_scan_args(p, default: str) -> None:
     p.add_argument("--scan", choices=("full", "coarse"), default=default,
                    help="档 M 竖直设定点扫描：full 全部在 65² 上解；coarse 先在粗网格上扫、只把最好的几个在 65² 上复核"
                         f"（缺省 {default}）")
-    p.add_argument("--scan-grid", type=int, default=SCAN_COARSE["grid"], help="coarse 的粗网格边长（缺省 33）")
-    p.add_argument("--scan-top", type=int, default=SCAN_COARSE["top"], help="coarse 在 65² 上复核几个设定点（缺省 4）")
+    p.add_argument("--scan-grid", type=int, default=33, help="coarse 的粗网格边长（缺省 33）")
+    p.add_argument("--scan-top", type=int, default=4, help="coarse 在 65² 上复核几个设定点（缺省 4）")
     p.add_argument("--anderson", type=int, default=ANDERSON, metavar="M",
                    help=f"档 M 反演外迭代的 Anderson 混合深度（0 = 不用；缺省 {ANDERSON}）")
     p.add_argument("--nk", type=int, default=NEWTON_KRYLOV, metavar="M",
@@ -2994,121 +2237,80 @@ def run_options(**overrides) -> argparse.Namespace:
     不认识的键抛 ``TypeError``——写错的开关不静默地不起作用。"""
     a = _parser().parse_args(["run", "-", "-o", "-"])
     for k, v in overrides.items():
-        if k not in vars(a) or k in ("cmd", "lib", "input", "out", "time", "thomson"):
+        if k not in vars(a) or k in ("cmd", "lib", "input", "out", "time", "thomson", "profiles"):
             raise TypeError(f"run_options: no such option {k!r} (see `kinetic_recon.py run --help`)")
         setattr(a, k, v)
     return a
 
 
+#: ``run`` 的开关里交给内核的那些（其余是本应用自己的：库路径、输入输出文件、时刻）
+KERNEL_OPTIONS = ("anderson", "curv", "dead_sigma", "efit_fit", "efit_override", "efit_parts", "fvac", "jobs",
+                  "kinetic_passes", "kinetic_tol", "loops", "max_rounds", "nff", "nk", "npp", "p_fast_frac", "p_on",
+                  "p_basis", "p_knots", "p_tension", "p_edge", "per_round", "phys_bounds", "physics_check", "physics_select", "point_off", "psin_max", "reject_sigma",
+                  "scan", "scan_grid", "scan_top", "sigma_floor", "sigma_scales", "thomson_clean", "thomson_clean_opts",
+                  "thomson_clip", "tiers", "wdia", "wdia_passes", "wdia_relax", "wdia_sigma", "wdia_tol")
+
+
 def reconstruct(meas: dict, thomson: dict | None = None, *, lib: "Lib | None" = None, origin: dict | None = None,
-                kinetic_input: dict | None = None, **options) -> dict:
+                kinetic_input: dict | None = None, kernel_options: dict | None = None, profiles: dict | None = None,
+                **options) -> dict:
     """``run`` 的进程内形：平坦测量字典（``pull_magnetics`` 的返回值 = 测量文档的 ``measurements`` 块）
     + 可选的 Thomson 块（``pull_thomson`` 的返回值）→ 结果字典（与 ``run -o`` 写出的 JSON 同一份，见 README §4.4）。
-    ``options`` 同 :func:`run_options`；``lib`` 缺省载本文件旁的 ``libfylite.so``。
+    ``options`` 同 :func:`run_options`；``lib`` 缺省载本文件旁的 ``libfylite_kernel.so``（数据层 ``libsp.so`` 在它旁边）。
+    ★★2026-09-26 起整条约束阶梯在**内核**里（``code/kinetic``，用户裁定「收敛动理学平衡重构进 rust 内核」）：本函数只装
+    一份计划（装置文档 · 测量 · Thomson · 开关 · 输入文件）交给库，再添上本应用自己的几行（何时跑的、哪份库、数据从哪来）。
     档 M 一个设定点都不收敛时不抛：``tiers["M"]["status"] == "error"``（K / P 不跑）；K、P 的失败同样记在各自的 ``status`` 里。
-    物理校验（缺省开，``physics_check=False`` 关）没过的档 ``status == "unphysical"``，数照留（README §3.9）。"""
-    kin_in = kinetic_input
-    if kin_in is not None:                               #: 输入文件（kinetic_input.py）：逐道置信度 · 档 X 代替档 P
-        import kinetic_input as KI
-        options = dict(options, efit_fit="off", psin_max=kin_in["pressure"]["psin_max"],
-                       sigma_floor=kin_in["pressure"]["sigma_floor"], p_fast_frac=kin_in["pressure"]["fast_frac"],
-                       tiers="MK" if kin_in["point"]["on"] else "M")
-        meas = KI.apply_point(meas, kin_in)
+    物理校验（缺省开，``physics_check=False`` 关）没过的档 ``status == "unphysical"``，数照留（README §3.9）。
+    ``profiles``：动理学剖面（Tₑ · nₑ · T_i · v_tor 各自的诊断与坐标，README §2.4d）→ 档 P 由它们构压强，优先于 Thomson。
+    ``kinetic_input``：规范化过的输入文件（``kinetic_input.normalize``）→ 档 X。``kernel_options``：``run`` 没有的内核开关
+    （``zc_scan`` · ``readmit`` · ``warm_rejected`` · ``warm_readmitted`` · ``keep_solve``，``wei2026`` 的逐片热启动用）。"""
     a = run_options(**options)
     lib = lib or Lib(DEFAULT_LIB)
-    set_jobs(a.jobs)
-    th = thomson
     origin = dict(origin or {"kind": "in-process"})
     shot, t = int(meas["shot"]), float(meas["time_s"])
     chain = meas.get("measurement_chain", "east")
     card, _ = lib.device("east", shot, chain)
     t0 = time.time()
-    c = Case(lib, meas, card, a.loops, a.fvac)
-    conf_unknown = c.apply_confidence(kin_in["magnetics"]["loops"], kin_in["magnetics"]["probes"]) if kin_in else []
-    if conf_unknown:
-        raise SystemExit(f"输入文件的逐道置信度里有认不出的道：{conf_unknown}")
-    settings = dict(SETTINGS, npp=a.npp, nff=a.nff)
+    opts = dict({k: getattr(a, k) for k in KERNEL_OPTIONS}, **(kernel_options or {}))
+    inputs = {"device": card, "measurements": meas, "options": opts}
+    if thomson is not None:
+        inputs["thomson"] = thomson
+    if kinetic_input is not None:
+        inputs["kinetic_input"] = kinetic_input
+    if profiles is not None:
+        inputs["profiles"] = profiles
+    rec, notes = lib.kinetic(inputs)
+    for line in notes:
+        log(line)
     k = lib.linked_kernel()
-    out = {"@type": "fylite:KineticReconResult", "app": APP, "version": VERSION,
+    out = {"@type": rec.pop("@type", "fylite:KineticReconResult"), "app": APP, "version": VERSION,
            "created": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-           "shot": shot, "time_s": t, "measurement_chain": chain, "origin": origin,
+           "shot": rec.pop("shot", shot), "time_s": rec.pop("time_s", t),
+           "measurement_chain": rec.pop("measurement_chain", chain), "origin": origin,
            "source": sanitize(meas.get("source")),
            "fylite": {"version": k.get("kernel_version") or k.get("version"), "kernel_abi": k.get("abi"),
-                      "library": lib.path.name, "kernel_built": k.get("built"), "kernel_sha256": k.get("sha256"),
-                      "rustc": (k.get("toolchain") or {}).get("rustc")},
-           "settings": {"npp": a.npp, "nff": a.nff, "loops": a.loops, "loop_start_rule": c.loop_start_rule,
-                        "reject_sigma": a.reject_sigma, "scan": scan_from_args(a), "anderson": a.anderson, "nk": a.nk,
-                        "jobs": a.jobs,
-                        "point_off": a.point_off, "p_on": a.p_on, "dead_sigma": a.dead_sigma,
-                        "kinetic_passes": a.kinetic_passes, "kinetic_tol": a.kinetic_tol, "thomson_clip": a.thomson_clip,
-                        "thomson_clean": a.thomson_clean, "thomson_clean_opts": a.thomson_clean_opts,
-                        "sigma_scales": a.sigma_scales, "curv": a.curv, "p_fast_frac": a.p_fast_frac,
-                        "psin_max": a.psin_max, "fvac": a.fvac, "serror": SERROR, "loop_floor": LOOP_FLOOR, "probe_floor": PROBE_FLOOR,
-                        "sigpol": SIGPOL, "signel": SIGNEL},
-           "inputs": {"ip": _r(meas["plasma"]), "b_tor": _r(c.b_tor), "b_tor_from": c.bt_from, "r0": card["tf"]["r0"],
-                      "pf_aturns": _r(c.brsp), "n_loops": len(c.coils), "n_probes": len(c.probes),
-                      "excluded": c.excluded, "has_point": bool((meas.get("point") or {}).get("bpolar")),
-                      "has_thomson": th is not None, "has_kinetic_pressure": bool(meas.get("kinetic_pressure")),
-                      **({"kfile": meas["kfile"], "point_source": meas.get("point_source")} if meas.get("kfile") else {})},
-           "device": {"limiter": None,
-                      "loops": [{"name": n, "rz": rz} for n, rz in zip(c.loop_names, c.loop_rz)],
-                      "probes": [{"name": n, "rz": rz} for n, rz in zip(c.probe_names, c.probe_rz)],
-                      "chords": [{"name": _name(ch), "los": ch.get("line_of_sight")} for ch in _aos(card.get("polarimeter"))]},
-           "tiers": {}}
-    tiers = set(a.tiers.upper())
-    emode = efit_mode(a, meas)
-    if emode:
-        out["settings"]["efit_fit"] = {"on": emode, "parts": sorted(efit_parts(a)), "override": a.efit_override}
-    ms = m_settings(settings, a.anderson, a.nk)
-    m_efit = None
-    if "M" in emode:
-        e_st, e_disc, m_efit = efit_request(meas["efit_fit"], efit_parts(a), a.efit_override)
-        if e_disc:
-            raise SystemExit("--efit-fit M：档 M 的扫描不带 discharge 行——电流密度行（j）只在档 P 上用；给 --efit-parts 去掉 j")
-        ms = dict(ms, **e_st)
-    bounds = phys_bounds(a.phys_bounds) if (a.physics_check or a.physics_select) else None
-    sel = PhysSelect(c, bounds) if a.physics_select else None
-    m_view, base_m = tier_m(c, a.reject_sigma, a.max_rounds, a.per_round, ms,
-                            a.loops == "B+readmit", scan_from_args(a), sel)
-    if m_efit and m_view.get("status") == "ok":
-        if "pprime_basis" not in (base_m[0] if base_m else {}):
-            m_efit["ignored"] = True
-            log("this libfylite.so ignores the k-file fit settings (kernel without feat/recon-spline-constraints): "
-                "tier M ran without them")
-        m_view["efit_fit"] = m_efit
-        m_view["constraints"] = list(m_view.get("constraints") or []) + efit_constraints(m_efit)
-    close_jobs()                                         #: 并行只用在档 M 的扫描上；K / P 照旧串行
-    out["tiers"]["M"] = m_view
-    if base_m is not None:
-        out["device"]["limiter"] = {"r": _r(base_m[1]["limiter_r"], 5), "z": _r(base_m[1]["limiter_z"], 5)}
-    base_k, kin = None, None
-    if "K" in tiers and base_m is not None:
-        k_view, base_k, kin = tier_k(c, base_m, a.point_off, a.dead_sigma, settings)
-        out["tiers"]["K"] = k_view
-    if kin_in is not None and base_m is not None:
-        out["tiers"]["X"] = KI.tier_x(c, base_m, base_k, kin, th, a, settings, kin_in)
-    elif "P" in tiers and base_m is not None:
-        kp = meas.get("kinetic_pressure")
-        if th is None and kp:                            #: ψ_N 上给定的压强（kfile 命令读的 k-file NPRESS 段）
-            use_k = base_k is not None and a.p_on == "K"
-            out["tiers"]["P"] = tier_p_psin(c, base_k if use_k else base_m, kin if use_k else None, kp, a, settings)
-        elif th is None:
-            out["tiers"]["P"] = {"status": "skipped", "why": "没有 Thomson（pull 时没取到，或没给 --thomson）"}
-        else:
-            use_k = base_k is not None and a.p_on == "K"
-            out["tiers"]["P"] = tier_p(c, base_k if use_k else base_m, kin if use_k else None, th, a, settings)
-    if a.physics_check:
-        apply_physics_check(out, bounds, a.physics_select)
+                      "runtime_version": lib.runtime_version(), "library": lib.path.name, "kernel_built": k.get("built"), "kernel_sha256": k.get("sha256"),
+                      "rustc": (k.get("toolchain") or {}).get("rustc")}}
+    out.update(rec)
     out["seconds"] = round(time.time() - t0, 1)
     return out
 
 
 def cmd_run(a) -> int:
     meas, th, origin = load_input(a.input, a.time, a.thomson)
-    opts = {k: v for k, v in vars(a).items() if k not in ("cmd", "lib", "input", "out", "time", "thomson")}
-    out = reconstruct(meas, th, lib=Lib(Path(a.lib) if a.lib else DEFAULT_LIB), origin=origin, **opts)
+    opts = {k: v for k, v in vars(a).items() if k not in ("cmd", "lib", "input", "out", "time", "thomson", "profiles")}
+    prof = load_profiles(a.profiles, a.input)
+    if prof is not None:
+        origin["profiles"] = Path(a.profiles).name if a.profiles else "input"
+        log(f"动理学剖面：{', '.join(sorted(prof.get('species') or {}))} → 档 P 由剖面构压强（不用 Thomson 块）")
+    out = reconstruct(meas, th, lib=Lib(Path(a.lib) if a.lib else DEFAULT_LIB), origin=origin, profiles=prof, **opts)
     m_view = out["tiers"]["M"]
     Path(a.out).write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+    cv = out.get("fylite:convergence") or {}
+    if cv.get("status") == "not_converged":
+        mv = cv.get("moves") or {}
+        log(f"★★外环未收敛（档 {cv.get('tier')}，{cv.get('reason')}）：末遍移动 ψ_N {mv.get('psin')} · "
+            f"j_bs {mv.get('j_bs')} · p_fast {mv.get('p_fast')}——交出的是末遍，不自洽")
     log(f"-> {a.out} ({Path(a.out).stat().st_size / 1e3:.0f} kB, {out['seconds']} s)")
     st = m_view.get("status")
     return 0 if st == "ok" else 3 if st == "unphysical" else 1
@@ -3194,6 +2396,7 @@ def series_slice(lib: Lib, t: float, meas: dict | None, w_dia, refs: dict, opts:
     M = res["tiers"]["M"]
     out["measured"]["b_tor_T"] = res["inputs"]["b_tor"]
     out["_limiter"] = res["device"].get("limiter")
+    out["_physics"] = {k: v for k, v in (res.get("physics_check") or {}).items() if k in ("bounds", "note")}
     if M.get("status") not in ("ok", "unphysical"):
         out.update(why=M.get("error") or "档 M 没有解", rounds=len(M.get("rounds") or []),
                    refs=_ref_entries(refs, t, None), seconds=round(time.time() - t_start, 2))
@@ -3298,10 +2501,7 @@ def _series_init(path: str) -> None:
 
 
 def _series_job(args):
-    try:
-        return series_slice(_SERIES_WORKER["lib"], *args)
-    finally:
-        close_jobs()
+    return series_slice(_SERIES_WORKER["lib"], *args)
 
 
 def series_summary(slices: list, sources: list) -> dict:
@@ -3498,7 +2698,6 @@ def series(shot: int, t0: float, t1: float, *, lib: "Lib | None" = None, dt: flo
         slices = []
         for i, args in enumerate(jobs_args):
             slices.append(series_slice(lib, *args))
-            close_jobs()
             _series_log(i, len(times), slices[-1])
     else:
         with concurrent.futures.ProcessPoolExecutor(nw, mp_context=multiprocessing.get_context("fork"),
@@ -3511,8 +2710,10 @@ def series(shot: int, t0: float, t1: float, *, lib: "Lib | None" = None, dt: flo
             slices = [fu.result() for fu in futs]
     slices_s = time.time() - t_p
     limiter = next((s_.get("_limiter") for s_ in slices if s_.get("_limiter")), None)
+    phys = next((s_.get("_physics") for s_ in slices if s_.get("_physics")), None) or {}
     for s_ in slices:
         s_.pop("_limiter", None)
+        s_.pop("_physics", None)
     k = lib.linked_kernel()
     per = [s_["seconds"] for s_ in slices if fin(s_.get("seconds"))]
     ro = run_options(**options)
@@ -3544,8 +2745,8 @@ def series(shot: int, t0: float, t1: float, *, lib: "Lib | None" = None, dt: flo
                                          "note": "同一组原始测量、档 M 最后的掩码、同式误差、同基交给本机 KEFIT（README §6.6）；它是另一份实现，不是真值"}}
                               if kcfg else {})),
            "unavailable": unavailable,
-           "physics_check": ({"enabled": True, "select": bool(ro.physics_select), "bounds": phys_bounds(ro.phys_bounds),
-                              "note": PHYS_NOTE + "序列：unphysical 的片数照留、照画，不进 summary 的均值 / rms（summary.unphysical 记几片、哪几条）。"}
+           "physics_check": ({"enabled": True, "select": bool(ro.physics_select), "bounds": phys.get("bounds"),
+                              "note": (phys.get("note") or "") + "序列：unphysical 的片数照留、照画，不进 summary 的均值 / rms（summary.unphysical 记几片、哪几条）。"}
                              if ro.physics_check else {"enabled": False}),
            "device": {"limiter": limiter},
            "timing": {"fetch_references_s": round(fetch_refs_s, 1), "fetch_magnetics_s": round(fetch_mag_s, 1),
@@ -3653,7 +2854,7 @@ class _RefAction(argparse.Action):
 
 def _parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="kinetic_recon.py", description=__doc__.split("\n")[0])
-    ap.add_argument("--lib", help=f"libfylite.so 的路径（缺省 {DEFAULT_LIB.name}，与本文件同目录）")
+    ap.add_argument("--lib", help=f"libfylite_kernel.so 的路径，数据层 libsp.so 在它旁边（缺省 {DEFAULT_LIB.name}，与本文件同目录）")
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("pull", help="取数：原始树 + Thomson → 测量文档")
     p.add_argument("--shot", type=int, required=True)
@@ -3663,14 +2864,20 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument("--timeout", type=float, default=120.0, help="mdsip 读超时 [s]（east 树打开可能要一分钟）")
     p.add_argument("--no-thomson", action="store_true")
     p.add_argument("--thomson-only", action="store_true", help="只取 Thomson（与已有的磁测量件配合用）")
+    p.add_argument("--no-sawtooth", action="store_true", help="不取锯齿校验用的 ECE 与 SXR 窗（缺省取：t ± 0.3 s）")
     p.add_argument("--ts-max-dt", type=float, default=TS_MAX_DT,
                    help=f"Thomson 脉冲离 --time 最远几秒还收（缺省 {TS_MAX_DT}；更远就拒，不当这一片的测量）")
     p.add_argument("-o", "--out", required=True)
-    r = sub.add_parser("run", help="反演：测量文档 → 结果 JSON")
+    sub.add_parser("init", help="配置文件 v2：写一份全部缺省键的配置（kinetic_recon.py init --help）", add_help=False)
+    sub.add_parser("validate", help="配置文件 v2：重写 out/<炮号> 每片的 validation.json（validate --help）", add_help=False)
+    r = sub.add_parser("run", help="反演：测量文档 → 结果 JSON；给配置文件（fylite:KineticReconInput）则按片 × 阶梯批量跑"
+                                   "（run <配置> --help）")
     r.add_argument("input", help="pull 的输出 · 原始树归约件 raw_slices_*.json · 或裸测量字典")
     r.add_argument("--time", type=float, help="归约件里取哪一片（取最近）")
     r.add_argument("--thomson", help="另给的 Thomson（pull --thomson-only 的输出）")
-    r.add_argument("--tiers", default="MKP", help="跑哪几档（缺省 MKP；M 总是跑）")
+    r.add_argument("--profiles", help="动理学剖面文件（kinetic_profiles.py 生成；Tₑ · nₑ · T_i · v_tor 各自的诊断与坐标）："
+                                      "档 P 由它们构压强，不用 Thomson 块（README §2.4d）")
+    r.add_argument("--tiers", default="MKP", help="跑哪几档（缺省 MKP；M 总是跑；D = 逆磁储能定压强标度，Q = 锯齿反转半径定 q=1 面，点名才跑）")
     add_tier_m_args(r)
     r.add_argument("--jobs", type=int, default=JOBS, metavar="N",
                    help=f"档 M 一轮里的独立反演同时跑几路（工作进程；1 = 串行；缺省 min(16, CPU 数) = {JOBS}）")
@@ -3700,9 +2907,26 @@ def _parser() -> argparse.ArgumentParser:
                    help=f"efit_fit 里用哪几样（逗号分隔，缺省全部：{','.join(EFIT_PARTS)}）")
     r.add_argument("--efit-override", type=json.loads, default=None, metavar="JSON",
                    help="换算的覆盖（键：pprime · ffprime 整块替换，tension_scale · q0_weight · j_weight · lincon_weight · ip_sigma）")
+    r.add_argument("--p-basis", choices=("auto", "spline", "spline_p", "poly"), default="auto",
+                   help="档 P（--profiles）的 p′ · FF′ 基：auto / spline（缺省：两者张力样条 → 拒则 p′ 样条 + FF′ 多项式 → "
+                        "再拒则多项式，逐级记明）· spline_p（只 p′ 样条）· poly（README §2.4d）")
+    r.add_argument("--p-knots", type=lambda s: [float(x) for x in s.split(",")], default=[0.0, 0.5, 1.0],
+                   metavar="0,0.5,1", help="样条结点（ψ_N，0 起 1 止，缺省 0,0.5,1——五结点在 #164437 上都被内核拒）")
+    r.add_argument("--p-tension", type=float, default=10.0, help="样条张力（按平均结点间距标定，缺省 10）")
+    r.add_argument("--p-edge", choices=("free", "zero"), default="free", help="样条在 ψ_N = 1 处：free（缺省）· zero")
     r.add_argument("--p-on", choices=("M", "K"), default="M",
                    help="档 P 叠在哪一档上：M（缺省，外环照常）· K（叠 POINT 行；外环在那一档不重映，只跑一遍）")
     add_phys_args(r)
+    r.add_argument("--wdia", type=float, default=None, metavar="J",
+                   help="档 D 用的实测逆磁储能 [J]（缺省取测量文档的 measurements.w_dia_J，pull 时取的 ±10 ms 均值）")
+    r.add_argument("--wdia-sigma", type=float, default=WDIA_SIGMA,
+                   help=f"W_dia 的相对不确定度：档 D 全部压强行合起来的标度 σ（缺省 {WDIA_SIGMA:g}）")
+    r.add_argument("--wdia-passes", type=int, default=WDIA_PASSES, help=f"档 D 外环最多几遍（缺省 {WDIA_PASSES}）")
+    r.add_argument("--wdia-tol", type=float, default=WDIA_TOL,
+                   help=f"档 D 外环停止：相邻两遍同尺 W 之差 < tol × W_dia（缺省 {WDIA_TOL:g}）")
+    r.add_argument("--wdia-relax", type=float, default=WDIA_RELAX, metavar="ALPHA",
+                   help=f"档 D 外环的阻尼 α ∈ (0, 1]：整步来回振荡（ΔW 变号且缩不到一半）起，λ = W_dia / W̃，"
+                        f"W̃ ← W̃^(1−α)·W^α；自行收敛的外环不受影响，收敛点不动（缺省 {WDIA_RELAX:g} = 不阻尼）")
     r.add_argument("-o", "--out", required=True)
     k = sub.add_parser("kfile", help="同输入：EFIT k-file（&IN1）→ 测量文档（道序按装置事实对位，对不上就拒）")
     k.add_argument("kfile", help="EFIT k-file（名单 &IN1：COILS · EXPMP2 · BRSP · PLASMA · BTOR · NPRESS 段）")
@@ -3796,6 +3020,10 @@ def add_fvac_arg(p) -> None:
 
 
 def main(argv=None) -> int:
+    import kinetic_config                                #: 配置文件 v2：init · validate · run <配置>（kinetic_config.py）
+    routed = kinetic_config.route(sys.argv[1:] if argv is None else argv)
+    if routed is not None:
+        return routed
     a = _parser().parse_args(argv)
     return {"pull": cmd_pull, "kfile": cmd_kfile, "run": cmd_run, "compare": cmd_compare, "series": cmd_series}[a.cmd](a)
 

@@ -10,7 +10,7 @@
   --paper: #F3F4EF; --sheet: #FBFBF8; --ink: #17212B; --ink2: #475463; --muted: #7A8592;
   --rule: #DADDD4; --hair: rgba(23, 33, 43, 0.08); --accent: #0E6E68; --accent-soft: #D7EAE7;
   --wall: #5B6570; --warn: #A33A2E; --pos: #C0522B; --neg: #2C6BA8; --ok: #2F7D4A;
-  --tM: #3A4654; --tK: #2F6DB5; --tP: #C0522B; --unph: #A86A00; --tX: #7B4FA8;
+  --tM: #3A4654; --tK: #2F6DB5; --tP: #C0522B; --unph: #A86A00; --tX: #7B4FA8; --tD: #1F7F6E; --tQ: #2E7D32;
   --flux: #78B9B1; --zebra: rgba(23, 33, 43, 0.028); --lift: 0 1px 2px rgba(23, 33, 43, 0.05);
 }
 @media (prefers-color-scheme: dark) {
@@ -18,7 +18,7 @@
     --paper: #11171D; --sheet: #172028; --ink: #E6EAEE; --ink2: #B3BDC7; --muted: #7F8B97;
     --rule: #2A3540; --hair: rgba(230, 234, 238, 0.08); --accent: #4FB8AE; --accent-soft: #1C3634;
     --wall: #9AA5B0; --warn: #EE8A7E; --pos: #F08A5B; --neg: #6FA8E0; --ok: #6BCB85;
-    --tM: #C5CED6; --tK: #7DB3F0; --tP: #F08A5B; --unph: #E7B44C; --tX: #C3A3EE;
+    --tM: #C5CED6; --tK: #7DB3F0; --tP: #F08A5B; --unph: #E7B44C; --tX: #C3A3EE; --tD: #5CC8B2; --tQ: #81C784;
     --flux: #38766B; --zebra: rgba(230, 234, 238, 0.03); --lift: 0 1px 2px rgba(0, 0, 0, 0.25);
   }
 }
@@ -26,7 +26,7 @@
   --paper: #11171D; --sheet: #172028; --ink: #E6EAEE; --ink2: #B3BDC7; --muted: #7F8B97;
   --rule: #2A3540; --hair: rgba(230, 234, 238, 0.08); --accent: #4FB8AE; --accent-soft: #1C3634;
   --wall: #9AA5B0; --warn: #EE8A7E; --pos: #F08A5B; --neg: #6FA8E0; --ok: #6BCB85;
-  --tM: #C5CED6; --tK: #7DB3F0; --tP: #F08A5B; --unph: #E7B44C; --tX: #C3A3EE;
+  --tM: #C5CED6; --tK: #7DB3F0; --tP: #F08A5B; --unph: #E7B44C; --tX: #C3A3EE; --tD: #5CC8B2; --tQ: #81C784;
   --flux: #38766B; --zebra: rgba(230, 234, 238, 0.03); --lift: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 * { box-sizing: border-box; }
@@ -139,6 +139,7 @@ footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
   <div class="eyebrow">EAST · 实验数据动理学平衡反演 · 约束阶梯 M / K / P</div>
   <h1 id="title">动理学反演结果</h1>
   <p class="lede" id="lede">导入 <code>kinetic_recon.py run</code> 的结果 JSON——同一时刻的三档反演并排：只用磁测量（M）、加 POINT 偏振干涉（K）、加 Thomson 压强（P）；档不同，能声称的东西不同。也收 <code>kinetic_recon.py series</code> 的时间序列（档 M 逐时刻与离线 EFIT 比），以及 <code>wei2026.py</code> 的两种输出：逐片的 <var>n</var><sub>e</sub> · <var>T</var><sub>e</sub> · <var>T</var><sub>i</sub> 拟合（<code>profiles</code>），一个时刻的 χ<sub>e</sub> · χ<sub>i</sub> 与 LH · EC 沉积（<code>transport</code>）。</p>
+  <div class="banner warn" id="convbanner" hidden></div>
   <div class="banner" id="banner">这是反演的结果，不是测量。真实放电上没有 q₀ 的真值：能判的只有各档把测量预测得多好（残差），以及档与档之间差多少。</div>
   <div class="tabs" role="tablist">
     <button type="button" role="tab" id="tab-doc" aria-pressed="true">原理与过程</button>
@@ -246,14 +247,22 @@ footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
 <h3>自洽外环</h3>
 <div class="key">压强测在<b>位置</b> (<var>R</var>, <var>Z</var>) 上，而行要的是 ψ<sub>N</sub>——把位置变成 ψ<sub>N</sub> 要一个平衡，而平衡正是待解的东西。
 单遍反演是在<b>别人的平衡</b>给出的横坐标上拟合，且从不说明这一点。</div>
-<p>外环（<code>kinetic_passes</code>）把这个圈闭上：解一次 → 在刚解出的 ψ 上把每个测点重映到 ψ<sub>N</sub> → 再解。每一遍报两条迹，合称<b>证书</b>：</p>
+<p>外环（<code>--kinetic-passes</code>）把这个圈闭上：在上一遍的平衡上把每个测点映射到 ψ<sub>N</sub>（叠在档 K 上时同时重建法拉第行）→ 解一次 → 量映射挪了多少。每一遍报的读数合称<b>证书</b>：</p>
 <ul>
-  <li>χ²/dof——这一遍对全部测量的拟合；</li>
+  <li>χ²/dof 与逐块 χ²（磁 · 压强 · 法拉第）——这一遍对测量的拟合；</li>
   <li><b>映射移动</b> max|Δψ<sub>N</sub>|——测点的标签这一遍又挪了多少。它低于阈值（缺省 10<sup>−3</sup>），才叫「自洽」。</li>
 </ul>
-<p>交替不保证单调，所以内核<b>按 χ² 取最优遍收官</b>，不取最后一遍。页面另把「收官那一遍的映射是否已经不动」单独判出来：按 χ² 最小取到的，可能恰是映射还在走的那一遍——
-那时的解对它自己的磁面并不自洽。</p>
-<p>★这个外环<b>只重映</b>：不重算自举电流、不重算快离子。完整的 kinetic-EFIT 外环（新平衡 → 重映剖面 → 重算 <var>j</var><sub>bs</sub> 与快离子 → 回到反演）本应用不做。</p>
+<p>★外环<b>交出末遍</b>，不按 χ² 挑一遍：按 χ² 挑会把「停在不自洽处」的那一遍报成最好的（2026-09-26 前的结果是按 χ² 收官的，页面照旧读）。
+跑满遍数映射还在动时，结果顶层写「外环未收敛」，页面第一行就显示。</p>
+<p>★档 K · P · X 各只有这一个外环，判据是三种映射的移动量同时落到阈内：诊断点的 ψ<sub>N</sub>（Thomson 点、POINT 弦上的采样点）·
+自举电流 ‖Δ<var>j</var><sub>bs</sub>‖/‖<var>j</var><sub>bs</sub>‖（只有档 X 在环里重算它）· 快离子压强（今天是声明的固定形状，移动为 0）。Δq₀ · Δq₉₅ 只作读数。</p>
+<h3>档 D：Thomson 不可用时，只用逆磁储能定压强标度</h3>
+<p>Thomson 的 <var>n</var><sub>e</sub> 未标定（#164437 读成负的）时档 P 做不成。档 D（<code>run --tiers MKD</code>，点名才跑）取底档（K 跑了取 K，否则 M）的
+<var>p</var>(ψ<sub>N</sub>)，乘 λ 使同尺储能 <var>W</var> = 3/2∫<var>p</var> d<var>V</var> 等于实测逆磁储能 <var>W</var><sub>dia</sub>（<code>pull</code> 取的 ±10 ms 均值，或 <code>--wdia</code>），
+作 ψ<sub>N</sub> = 0, 0.05, … 上的压强行进反演；解出的平衡改了 <var>V</var>(ψ) 与 <var>p</var>，外环再标定、再解，直到相邻两遍的 <var>W</var> 差 &lt; 1 % × <var>W</var><sub>dia</sub>。
+全部行共用一个 σ = σ<sub>rel</sub> ‖<var>p</var>‖（σ<sub>rel</sub> 缺省 10 %，<code>--wdia-sigma</code>）：合起来只相当于<b>一个</b>标度测量，不钉形状。</p>
+<div class="caveat"><var>W</var><sub>dia</sub> 量的是<b>垂直</b>能量 3/2∫<var>p</var><sub>⊥</sub> d<var>V</var>。没有快离子与各向异性的信息，档 D <b>假定各向同性的热压</b>；有 NBI / ICRF 快离子时这一假定会偏。
+它只约束压强的<b>标度</b>，不约束形状；是 Thomson 不可用时档 P 的替代——Thomson 可用时以档 P 为准。</div>
 
 <h2 id="d-flow">六 · 全过程</h2>
 <figure>
@@ -302,7 +311,7 @@ footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
 <h2 id="d-data">八 · 数据处理的每一步</h2>
 <h3>取数（<code>pull</code>）</h3>
 <ul>
-  <li>装置（节点名、PF 通道、POINT 弦几何）由 <code>libfylite.so</code> 里编进去的 EAST 文档按炮号与测量链解析；原始节点的归约（与 fylite 的 <code>reduce_series</code> 同一规则）：|<var>t</var> − <var>t</var><sub>0</sub>| ≤ 5 ms 窗口均值，−6.9 … −6.1 s 炮前线性漂移扣除；POINT 用它自己的窗、先减 <var>t</var> ≈ −0.9 s 附近的零偏，条纹闸剔跳变的弦。</li>
+  <li>装置（节点名、PF 通道、POINT 弦几何）由 <code>libfylite_runtime.so</code> 里编进去的 EAST 文档按炮号与测量链解析；原始节点的归约（与 fylite 的 <code>reduce_series</code> 同一规则）：|<var>t</var> − <var>t</var><sub>0</sub>| ≤ 5 ms 窗口均值，−6.9 … −6.1 s 炮前线性漂移扣除；POINT 用它自己的窗、先减 <var>t</var> ≈ −0.9 s 附近的零偏，条纹闸剔跳变的弦。</li>
   <li><var>B</var><sub>T</sub> 不读 B_T 节点（自 #97286 起单位是伏特），改读 TF 线圈电流：<var>F</var> = μ<sub>0</sub><var>N I</var>/2π，<var>N</var> = 16 × 130。</li>
   <li>Thomson 取离所要时刻最近的一个激光脉冲（#137985 全炮只有 6 个，每秒一个）。</li>
 </ul>
@@ -325,7 +334,8 @@ footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
   <li><b>没有真值。</b>真实放电上没人测过 q₀。能判的只有测量那一侧（逐道残差）与档差。efit_east 树与 KEFIT 的答案在 B-06 里，只作比较，本应用不读。</li>
   <li><b>先看档 M 站不站得住</b>：收敛的设定点有几个、χ²/道是否在 1 附近、剔掉的道跨时刻是否一致（#137985 上三片独立剔出同样 5 个探针）。</li>
   <li><b>档 K 看两件事</b>：零假设离数据多远（POINT 与磁测量是否一致），拟合后 q₀ 往哪走、走多少。</li>
-  <li><b>档 P 先看证书</b>：收官那一遍的映射是否已不动、σ 放宽了几倍、进拟合的点剩几个。这三样有一样不过关，这一档的 q₀ 就不该拿去用。</li>
+  <li><b>档 P 先看证书</b>：交出的那一遍（末遍）映射是否已不动、σ 放宽了几倍、进拟合的点剩几个。这三样有一样不过关，这一档的 q₀ 就不该拿去用。</li>
+  <li><b>档 D 只有一个标量</b>：它把储能拉到 <var>W</var><sub>dia</sub>，不给压强的形状；读它的 β<sub>p</sub> · <var>W</var> 时记住「各向同性热压」这条假定。</li>
   <li><b>没有 MSE。</b>内核里没有 MSE 行；芯部电流在 EAST 上主要由模型约束，<b>收敛不蕴含正确</b>。</li>
   <li><b>剔道是本应用的规则。</b>另一套规则（B-06 以 KEFIT 纯磁 χ² 份额剔 7 道）会给出另一个答案，两者之差是剔法之差。</li>
 </ul>
@@ -472,7 +482,7 @@ L / H 由 <var>H</var><sub>98</sub> 定：<var>H</var><sub>98</sub> ≥ 0.7 判 
       <li><b>坏道由拟合自己剔</b>：超过阈值的道每轮剔最坏的几道再重扫；剔过的道与它剔时的 σ 都列在上面。另一个代码按另一套规则剔，答案可以不同（B-06 §7.1 的 KEFIT 对拍剔的是另 7 道）。</li>
       <li><b>POINT 残差属于数据</b>：B-06 用同一输入跑 KEFIT 与 fylite，拟合后两者都留约 2.4 σ 的法拉第残差、逐弦同号。拟合行让残差降得不多，并不说明拟合没做对。</li>
       <li><b>档 P 的 σ 放宽倍数</b>要读：内核对很紧的动理学行不稳（把档 M 自己的压强原样喂回去，σ 5 % 也会拟丢），所以按实测 σ 进不去时整体放宽，倍数写在档 P 卡片里。放宽了多少，这一档就少说了多少。</li>
-      <li><b>外环只重映</b>：它把 Thomson 点按刚解出的磁面重新挂到 ψ_N 上，不重算自举电流与快离子。没有 MSE；芯部电流在 EAST 上主要是模型约束，<b>收敛不蕴含正确</b>。</li>
+      <li><b>档 P 的外环只重映</b>：它把 Thomson 点按刚解出的磁面重新挂到 ψ_N 上，不重算自举电流（档 X 才算），快离子是声明的固定形状。没有 MSE；芯部电流在 EAST 上主要是模型约束，<b>收敛不蕴含正确</b>。</li>
     </ul></section>
   <footer id="foot"></footer>
 </main>
@@ -696,8 +706,9 @@ L / H 由 <var>H</var><sub>98</sub> 定：<var>H</var><sub>98</sub> ≥ 0.7 判 
 "use strict";
 (function () {
 const $ = (id) => document.getElementById(id);
-const TIERS = ["M", "K", "P", "X"];
-const TCOL = { M: "var(--tM)", K: "var(--tK)", P: "var(--tP)", X: "var(--tX)" };
+//: D = 逆磁储能定压强标度（Thomson 不可用时 P 的替代；假定各向同性热压、只定标度）
+const TIERS = ["M", "K", "P", "D", "Q", "X"];
+const TCOL = { M: "var(--tM)", K: "var(--tK)", P: "var(--tP)", D: "var(--tD)", X: "var(--tX)", Q: "var(--tQ)" };
 //: type = 载入的是哪一种文件（recon · profiles · transport）；i = 剖面页当前那一片
 const S = { res: null, main: "M", type: null, i: 0 };
 
@@ -908,12 +919,25 @@ function renderLadder(res) {
       + `<td class="num">${fin(F.iterations) ? F.iterations : "—"}</td><td class="num">${F.converged ? "收敛" : '<span class="warn">未收敛</span>'} ${physBadge(t)}</td></tr>`;
   }
   $("ladder").innerHTML = h + "</tbody></table>";
-  const P = res.tiers.P;
+  const P = res.tiers.P, D = res.tiers.D;
   const un = TIERS.filter((k) => res.tiers[k] && res.tiers[k].status === "unphysical");
   $("ladnote").innerHTML = (un.length ? `<b class="unph">★★ 档 ${un.join("、")} 物理校验没过</b>：数照画，但不是一个成立的平衡——见下面的「物理校验」卡。<br>` : "")
     + (ok(P) && P.sigma_scale > 1
     ? `<span class="warn">档 P 的 Thomson 行按实测 σ × ${P.sigma_scale} 进入</span>（内核拒绝了更紧的档）——这一档的约束力比名义上弱。`
-    : "χ²/dof 按各档自己的行数算，三档行数不同，不可直接比大小。");
+    : "χ²/dof 按各档自己的行数算，三档行数不同，不可直接比大小。")
+    + (ok(D) && D.wdia ? `<br><span data-tier-d>档 D：实测逆磁储能 W_dia = ${f(D.wdia.w_dia_J / 1e3, 1)} kJ（± ${f(D.wdia.sigma_rel * 100, 0)} %）只定压强<b>标度</b>，`
+      + `形状取自档 ${esc(D.on)}；底档 W ${f(D.wdia.w_base_J / 1e3, 1)} → 本档 ${f(D.wdia.w_final_J / 1e3, 1)} kJ（${D.wdia.passes.length} 遍${D.wdia.converged ? "，已定" : '，<span class="warn">未定</span>'}）。`
+      + "W_dia 量的是垂直能量；本档假定各向同性热压（没有快离子 / 各向异性信息）。Thomson 可用时以档 P 为准。</span>" : "");
+}
+
+//: 外环（s4）没收敛写在结果顶层（fylite:convergence），放在页面第一行，不藏在逐遍面板里
+function renderConvergence(res) {
+  const cv = res["fylite:convergence"], el = $("convbanner");
+  if (!cv || cv.status !== "not_converged") { el.hidden = true; el.innerHTML = ""; return; }
+  const mv = cv.moves || {}, m = (v) => (v === null || v === undefined ? "—" : v === "inf" ? "∞" : g(v, 2));
+  el.innerHTML = `<b>★★外环未收敛</b>（档 ${esc(cv.tier || "?")}，${esc(cv.reason || "")}）：末遍的映射还在动——ψ_N ${m(mv.psin)} · j_bs ${m(mv.j_bs)} · p_fast ${m(mv.p_fast)}。`
+    + "交出的是末遍，它对自己的磁面不自洽；读数照留，作诊断看。";
+  el.hidden = false;
 }
 
 function renderPhys(res) {
@@ -1064,7 +1088,7 @@ function renderK(res) {
   h += `<table><tbody><tr><td class="l">法拉第 rms（用的弦）</td><td class="num">${f(pt.null.faraday_rms, 3)} → ${f(pt.fitted.faraday_rms, 3)} σ</td></tr>`
     + `<tr><td class="l">线密度 rms</td><td class="num">${f(pt.null.density_rms, 3)} → ${f(pt.fitted.density_rms, 3)} σ</td></tr>`
     + `<tr><td class="l">密度形状 n_e0 · 峰化</td><td class="num">${g(pt.fitted.ne0, 3)} m⁻³ · ${f(pt.fitted.peaking, 2)}</td></tr>`
-    + `<tr><td class="l">逐轮 q₀（至 |Δq₀|/q₀ &lt; 1e-3）</td><td class="num">${(K.passes || []).map((p) => f(p.q0, 4)).join(" → ")}${K.settled ? "" : ' <span class="warn">未定</span>'}</td></tr></tbody></table>`;
+    + `<tr><td class="l">逐轮 q₀（外环至弦上 ψ_N 不动）</td><td class="num">${(K.passes || []).map((p) => f(p.q0, 4)).join(" → ")}${K.settled ? "" : ' <span class="warn">未定</span>'}</td></tr></tbody></table>`;
   if (pt.dead.length) h += `<p class="note">判为死道（零假设残差超 ${res.settings.dead_sigma} σ，关掉那一行）：` + pt.dead.map((d) => `<span class="tag">弦 ${d.chord} ${d.row === "faraday" ? "法拉第" : "线密度"} ${g(d.sigma, 3)}σ</span>`).join("") + "</p>";
   if (pt.off_by_user && pt.off_by_user.length) h += `<p class="note">手动关掉：弦 ${pt.off_by_user.join(", ")}</p>`;
   $("kbody").innerHTML = h;
@@ -1076,10 +1100,11 @@ function renderP(res) {
   if (!P) { $("pbody").innerHTML = '<p class="muted">没跑档 P。</p>'; $("pnote").textContent = ""; return; }
   if (!ok(P)) { $("pbody").innerHTML = `<p class="${P.status === "skipped" ? "muted" : "warn"}">${esc(P.status === "skipped" ? P.why : P.error)}</p>` + attemptsTable(P.attempts); return; }
   const c = P.certificate, n = c.chi2_per_dof.length, xs = [...Array(n).keys()].map((i) => i + 1);
-  let h = "<h3>外环证书：逐遍 χ²/dof（实线）与映射移动 ψ_N（虚线），对数轴；大点 = 收官那一遍</h3>"
-    + chart([{ x: xs, y: c.chi2_per_dof, color: "var(--tP)", points: [{ x: c.best_pass, y: c.chi2_per_dof[c.best_pass - 1], r: 5 }] },
+  const rp = c.returned_pass || c.best_pass;                       // 旧结果（2026-09-26 前）按 χ² 取最优遍
+  let h = `<h3>外环证书：逐遍 χ²/dof（实线）与映射移动 ψ_N（虚线），对数轴；大点 = 交出的那一遍${c.returned_pass ? "（末遍）" : ""}</h3>`
+    + chart([{ x: xs, y: c.chi2_per_dof, color: "var(--tP)", points: [{ x: rp, y: c.chi2_per_dof[rp - 1], r: 5 }] },
       { x: xs, y: c.map_shift, color: "var(--tK)", dash: "5 3" }], { w: 560, h: 200, log: true, xlab: "遍", hlines: [{ y: c.tol, color: "var(--tK)" }] });
-  h += `<table><tbody><tr><td class="l">收官</td><td class="num">第 ${c.best_pass} / ${n} 遍 · 映射移动 ${g(c.map_shift[c.best_pass - 1], 3)}（阈 ${g(c.tol, 2)}）</td></tr>`
+  h += `<table><tbody><tr><td class="l">交出</td><td class="num">第 ${rp} / ${n} 遍 · 映射移动 ${g(c.map_shift[rp - 1], 3)}（阈 ${g(c.tol, 2)}）</td></tr>`
     + `<tr><td class="l">σ 放宽倍数</td><td class="num">${P.sigma_scale > 1 ? '<span class="warn">× ' + P.sigma_scale + "</span>" : "× 1（按实测 σ）"}</td></tr>`
     + `<tr><td class="l">Thomson 脉冲</td><td class="num">${f(P.thomson.sample_time_s, 4)} s（磁测量时刻 ${f(res.time_s, 3)} s）</td></tr>`
     + `<tr><td class="l">T_i0 / T_e0 · 离子因子</td><td class="num">${g(P.thomson.ti0, 3)} / ${g(P.thomson.te0, 3)} eV · ${f(P.thomson.ion_factor, 3)}</td></tr>`
@@ -1087,8 +1112,8 @@ function renderP(res) {
   const cl = P.thomson.cleaning;                                   // 旧结果没有这一块：照旧画
   if (cl) h = h.replace("</tbody></table>", `<tr><td class="l">清洗</td><td class="num">${esc(cl.cleaner === "local" ? "local · 局部 MAD（T_e、n_e 分别）" : "smooth · 全局光滑拟合（旧法）")} · 剔 ${cl.n_rejected} / ${cl.n_candidates}${cl.suspect ? ' · <span class="warn">可疑</span>' : ""}</td></tr></tbody></table>`);
   if (cl && cl.suspect) h = `<p class="note warn"><b>★★ Thomson 清洗可疑：</b>${esc(cl.reasons.join("；"))}。要么<b>清洗错了</b>，要么这一脉冲本身不可用——哪一种这一档的读数都不可信，不能读成「数据里恰好有这么多坏道」；逐点核对下表。</p>` + h;
-  const shiftBest = c.map_shift[c.best_pass - 1];
-  if (fin(shiftBest) && shiftBest > c.tol) h += `<p class="note warn">收官那一遍（按 χ² 取的最优遍）的映射还在动：${g(shiftBest, 2)} &gt; 阈 ${g(c.tol, 2)}。这个解对它自己的磁面**不自洽**——Thomson 点挂的 ψ_N 不是这个平衡给的那一个。</p>`.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  const shiftOut = c.map_shift[rp - 1];
+  if (fin(shiftOut) && shiftOut > c.tol) h += `<p class="note warn">交出的那一遍映射还在动：${g(shiftOut, 2)} &gt; 阈 ${g(c.tol, 2)}。这个解对它自己的磁面**不自洽**——Thomson 点挂的 ψ_N 不是这个平衡给的那一个。</p>`.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
   if (P.passes_note) h += `<p class="note warn">${esc(P.passes_note)}</p>`;
   h += attemptsTable(P.attempts);
   h += "<h3>逐点</h3><div class=\"scroll\"><table><thead><tr><th>Z [m]</th><th>p [Pa]</th><th>σ [Pa]</th><th>ψ_N 起</th><th>ψ_N 终</th><th>模型 p</th><th>残差 σ（进入时）</th><th class=\"l\"></th></tr></thead><tbody>"
@@ -1978,9 +2003,12 @@ function xScalars(res, X, B) {
   h += `<tr><td class="l">I_bs [kA] · f_bs</td><td class="num">${f(cu.i_bs / 1e3, 1)} · ${f(cu.f_bs, 3)}</td><td class="num">—</td></tr></tbody></table>`;
   const ps = kin.passes || [];
   if (ps.length) {
-    h += `<h3>外环</h3><table><thead><tr><th>遍</th><th>q₀</th><th>χ²</th><th>I_bs [kA]</th><th>约束行</th></tr></thead><tbody>`
-      + ps.map((p) => `<tr><td class="num">${p.pass}</td><td class="num">${f(p.q0, 4)}</td><td class="num">${f(p.chi2, 1)}</td><td class="num">${f(fin(p.i_bs) ? p.i_bs / 1e3 : NaN, 1)}</td><td class="num">${(p.constraint_x || []).length}</td></tr>`).join("")
+    const mv = (p, k) => { const v = (p.moves || {})[k]; return v === null || v === undefined ? "—" : v === "inf" ? "∞" : g(v, 2); };
+    h += `<h3>外环</h3><table><thead><tr><th>遍</th><th>q₀</th><th>χ²</th><th>I_bs [kA]</th><th>约束行</th><th>ψ_N 移动</th><th>j_bs 移动</th></tr></thead><tbody>`
+      + ps.map((p) => `<tr><td class="num">${p.pass}</td><td class="num">${f(p.q0, 4)}</td><td class="num">${f(p.chi2, 1)}</td><td class="num">${f(fin(p.i_bs) ? p.i_bs / 1e3 : NaN, 1)}</td><td class="num">${(p.constraint_x || []).length}</td><td class="num">${mv(p, "psin")}</td><td class="num">${mv(p, "j_bs")}</td></tr>`).join("")
       + "</tbody></table>";
+    const xc = X.s4 && X.s4.convergence;
+    if (xc && xc.status !== "converged") h += `<p class="note warn">外环跑满 ${xc.passes_run} 遍仍未收敛（${esc(xc.reason)}）：交出的是末遍。</p>`;
   }
   h += `</div><div><h3>约束</h3><p>${tags(X.constraints)}</p>`;
   if ((kin.ignored || []).length) h += `<p class="warn">这份库不认：${esc(kin.ignored.join("、"))}——读数是没有它们的解</p>`;
@@ -2188,6 +2216,7 @@ function render() {
   $("xtoggle").hidden = !hasX;
   $("xtoggle").textContent = S.type === "kinx" ? "看三档并排" : "看档 X 十一格";
   $("banner").textContent = BANNER[S.type] || BANNER.recon;
+  renderConvergence(res);
   if (S.type === "profiles") {
     $("title").textContent = `EAST #${res.shot} ${(res.window_s || []).join("–")} s · Wei 2026 剖面`;
     renderProfilesView(res);

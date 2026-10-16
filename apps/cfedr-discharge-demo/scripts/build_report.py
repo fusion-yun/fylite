@@ -10,7 +10,7 @@ import math
 import sys
 from pathlib import Path
 
-#: published values only (a published reference tables; paper numbers as in its citations)
+#: published values only (FYDOC-REPORT-20 tables; paper numbers as in its citations)
 LITERATURE_FLAT = [
     # key, label, unit, literature value, source
     ("p_fus", "聚变功率 P_fus", "GW", 1.51, "Fan 2025 (PST 27 104007) 表 1"),

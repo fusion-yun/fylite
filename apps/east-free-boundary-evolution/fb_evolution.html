@@ -887,7 +887,7 @@ function renderOpts(A) {
     ["IC 几何（--ic-rz）", o.ic_rz ? val(o.ic_rz) : '<span class="muted">装置事实（缺省）</span>'],
     ["步数 · 时段", `${A.n} 步 · ${f(r.time[0], 4)} … ${f(r.time[A.n - 1], 4)} s（绝对 ${f(r.time_abs[0], 4)} … ${f(r.time_abs[A.n - 1], 4)} s）`],
     ["σ（g-file 符号约定）", val(r.sigma_gfile)],
-    ["内核", `${esc(kn.kernel_version)} · built ${esc(kn.built)}<br><span class="muted">sha256 ${esc(kn.sha256)}</span>`],
+    ["内核", `${esc(kn.kernel_version)}${kn.abi ? " · ABI " + esc(kn.abi) : ""}${kn.built ? " · built " + esc(kn.built) : ""}<br><span class="muted">sha256 ${esc(kn.sha256)}</span>`],
     ["门", `${esc(d.code)} · ${f(d.seconds, 1)} s`], ["门的设定", val(d.settings)],
     ["应用", `${esc(r.app)} ${esc(r.version)}`],
   ];

@@ -1,33 +1,31 @@
 # CFEDR 堆芯模型工具与工作台（`app/`）
 
 单文件的放电推演工具 `cfedr_core_model.py` 与单文件网页 `cfedr_studio.html`，加上跑一炮所需
-的三份输入和 fylite 的动态库。**物理不在这里**——工具自己不算任何物理量，全部经 `libfylite.so`
-交给 fylite 内核，它只做名表转换、控制反馈与装配。
+的三份输入和 fylite 的内核库。**物理不在这里**——工具自己不算任何物理量，全部经内核库 `libfylite_kernel.so`
+自己的文档门交给内核，它只做名表转换、控制反馈与装配。
 
 ★**目录自成一体**：工况 · 装置卡 · 波形 · 库都在这里，脚本内没有绝对路径，也不引用目录之外的
 文件；下面的命令均在本目录内执行。
 
 | 文件 | 是什么 |
 | :--- | :--- |
-| `cfedr_core_model.py` | 模型工具（单文件）：按名表 dict 进出，物理经 `libfylite.so` 交给内核 |
+| `cfedr_core_model.py` | 模型工具（单文件）：按名表 dict 进出，物理经 `libfylite_kernel.so` 的文档门交给内核 |
 | `cfedr_studio.html` | 波形工作台（单文件，双击即开）：编控制波形与磁面出输入 JSON；导入输出 JSON 看时序 · 位形 · 剖面，导出单片 JSON 或 g-file |
 | `state_init.json` | **初始状态**（`--state`）：40 s 交接态 + 物理设置（χ 表 · 沉积表 · g-file 度规） |
 | `device_cfedr.json` | **装置描述**（`--device`，缺省的 isoflux 档必需）：线圈几何与额定安匝 · 第一壁 · TF |
 | `waveform_studio.json` | **控制波形**：页面「导出控制波形」的 31 个名表节点 |
-| `libfylite.so` | fylite 的动态库（一个真文件，无版本后缀链接）：内核（物理）与中间层（格式 · 装配）在同一个库里 |
+| `libfylite_kernel.so` | fylite 的内核库（一个真文件，无版本后缀链接）：物理，文档门 `fylite_rs_fyo_json` |
 
 **产物不入库**：结束状态与完整时序都是可再生的，照〈命令行〉跑一遍就有。
 
 **目录之外只需要 Python 3.10+**，而且只用标准库——工具自己就 `ctypes` / `json` / `math` 几个，
 没有 numpy，也没有别的第三方包。（网页那两道检查要 node。）
 
-★**库只在一处**：脚本旁边的 `libfylite.so`，文件名固定。脚本不搜索上层目录、不读环境变量、
+★**库只在一处**：脚本旁边的 `libfylite_kernel.so`，文件名固定。脚本不搜索上层目录、不读环境变量、
 不认第二个名字——「到别处找库」一旦找错**不会报错**，它会静默地用另一份库完成整炮计算，而这种
 错误只在读数上露一点。要换库，就替换这个文件。
 
-★**这份库不链 HDF5 / netCDF**（公开仓 `bash rust/build.sh --no-io`）：`ldd` 只列出 `libgcc_s` /
-`libm` / `libc`，拷到未装依赖的机器上也能跑。代价是读写 HDF5 / netCDF 的那条路径（IMAS 条目）
-会得到一条按名拒绝（`built without the hdf5 feature`），而不是符号缺失。本 demo 全程走 JSON。
+★**内核库不链 HDF5 / netCDF**：`ldd` 只列出 `libgcc_s` / `libm` / `libc`，拷到未装依赖的机器上也能跑。本 demo 全程走 JSON。
 
 算这份结果的内核是哪一份，写在输出的 `meta.kernel_version` / `kernel_abi` / `kernel_built` /
 `kernel_sha256` 里，页面页首显示。

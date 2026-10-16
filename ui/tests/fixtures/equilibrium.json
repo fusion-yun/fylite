@@ -1,0 +1,65 @@
+{
+ "@id": "fylite:equilibrium",
+ "@type": "fyo:equilibrium",
+ "comment": [
+  "time [s]",
+  "vacuum_toroidal_field/b0 [T]"
+ ],
+ "time": [
+  1.0,
+  2.0,
+  3.0
+ ],
+ "time_slice": {
+  "boundary": {
+   "outline": {
+    "r": [
+     1.6,
+     2.2,
+     1.6,
+     1.0
+    ],
+    "z": [
+     -0.8,
+     0.0,
+     0.8,
+     0.0
+    ]
+   }
+  },
+  "global_quantities": {
+   "ip": 1000000.0,
+   "magnetic_axis": {
+    "r": 1.7,
+    "z": 0.02
+   }
+  },
+  "profiles_1d": {
+   "grid": {
+    "rho_tor_norm": [
+     0.0,
+     0.5,
+     1.0
+    ]
+   },
+   "psi": [
+    0.0,
+    0.5,
+    1.0
+   ],
+   "q": [
+    1.0,
+    1.5,
+    3.1
+   ]
+  }
+ },
+ "vacuum_toroidal_field": {
+  "r0": 1.85,
+  "b0": [
+   2.5,
+   2.5,
+   2.5
+  ]
+ }
+}

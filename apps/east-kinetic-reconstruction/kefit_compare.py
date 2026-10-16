@@ -502,7 +502,7 @@ def main(argv=None) -> int:
            "comment": "档 M 对本地 KEFIT（同一组原始测量、同一套选道 / 误差 / 基）；离线 EFIT 只作比较。含实验数据派生量：不入仓。服务器地址记作 mds.invalid。",
            "kefit": {"exe": exe.name, "tables": tables.name, "fwtfc": a.fwtfc,
                      "slots_matched": sum(1 for i in smap if i is not None), "slots": len(smap)},
-           "fylite": {"library": lib.path.name, "kernel_built": k.get("built"), "npp": a.npp, "nff": a.nff},
+           "fylite": {"library": lib.path.name, "kernel_version": k.get("kernel_version"), "npp": a.npp, "nff": a.nff},
            "criteria": {"xpoint_config": "逐片相同", "axis_distance_mean_m": AXIS_TOL, "boundary_mean_m": BND_TOL,
                         "xpoint_dn_tol": K.XPT_DN_TOL},
            "check_failed": failed, "summary": summary, "slices": slices}
@@ -527,7 +527,6 @@ def main(argv=None) -> int:
         Path(a.page).write_text(json.dumps(K.strict_json(doc), ensure_ascii=False, separators=(",", ":"), allow_nan=False) + "\n",
                                 encoding="utf-8")
         log(f"-> {a.page}（页面「单片对拍」：{sum(1 for x in page_slices if 'error' not in x)} 片）")
-    K.close_jobs()
     return 1 if (a.check and failed) else 0
 
 

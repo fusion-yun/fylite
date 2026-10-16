@@ -45,8 +45,15 @@ def main():
                       "density": cp["electrons"]["density"]["data"]},
         "t_i_average": cp["t_i_average"]["data"],
     }
+    #: ★O-5 B-5（2026-10-06）：离子密度按 DD 的**具名种群**交接（`profiles_1d/ion`，
+    #: 每种种群带核素名与电荷）。旧的 `fylite:ion_density` 只有一串数、没有核素身份，
+    #: **不猜名字**——遇到就按名拒绝，要求用当前生产者重导（内核侧同名旧路径也已按名拒绝）。
     if "fylite:ion_density" in cp:
-        prof["fylite:ion_density"] = cp["fylite:ion_density"]["data"]
+        raise SystemExit(
+            "rampup_state_plan: core_profiles carries the retired `fylite:ion_density` (numbers without nuclei); "
+            "`code/evolve` reads the DD ion populations under `profiles_1d/ion` — re-export with the current producer")
+    if "ion" in cp:
+        prof["ion"] = cp["ion"]
     inputs = dict(plan["inputs"], core_profiles={"profiles_1d": prof})
     settings = dict(plan["settings"], state=1.0, ipctl=1.0, ip_kp=kp, ip_ki=ki)
     json.dump({"settings": settings, "inputs": inputs}, open(out, "w"))

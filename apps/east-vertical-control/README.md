@@ -134,7 +134,7 @@ IC 是铜回路，自己也顶一点（γ 低 16 %）。P 律下限 $K_{p,\min}$
 | 壁扫描 | `code/vstab`（`circuit: passive`）按 `vessel_scale` · `eta_scale` 各扫一遍 | 内核 |
 | 几何 | 被动元件（`device.passive_set`，与门同序、同 90 件，不同就停）、线圈、限制器、g-file 边界与磁轴 | fylite 包 |
 
-**环境**：Python ≥ 3.10、numpy、pyyaml（读装置卡）、本仓 `python/` 的 fylite 包与它的 `_lib/libfylite.so`（`bash rust/build.sh`），
+**环境**：Python ≥ 3.10、numpy、pyyaml（读装置卡）、本仓 `python/` 的 fylite 包与它的 `_lib/`（`libfylite_kernel.so` · `libsp.so`）（`bash build.sh`），
 `FYLITE_DEVICE_DIR` 指向 `dist/facts/device/east`。与兄弟示例 `east-free-boundary-evolution` 不同，这里**要 fylite 包**：
 刚性模型的装配（`code/vstab` 计划的拼法）与状态空间导出（`lti`）都在包里，再抄一份就是第二个配方。
 

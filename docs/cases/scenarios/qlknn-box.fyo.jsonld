@@ -1,0 +1,18 @@
+{
+  "@context": [
+    "../context.jsonld",
+    {
+      "@base": "../"
+    }
+  ],
+  "id": "scenario/qlknn-box",
+  "type": "fyo:ScenarioSpecification",
+  "title": "QLKNN_7_11 训练盒内的点：上游自带的 25 点测试向量",
+  "abstract": "不是一次放电，是**一组局部输入**：上游 fusion_surrogates 随权重一起发布的 25 个十维输入向量及其目标输出，它自己的测试套件以十位小数对这些数自测。本条只固定输入向量、问网络与组合层的答案，用于验证「这段代码算的是不是它声称的那个函数」。",
+  "caveat": [
+    "★没有装置、没有时间演化、没有平衡：十个输入是给定的，不是从剖面推出来的。用它做 validation 是范畴错误——它连模型对不对都没问。",
+    "★★2026-08-30 取代 `scenario/qlknn-hyper-box`（已退役的登记项）（QLKNN-10D 的九维盒 32 点 + QLKNN-fortran 回归剖面 24 点）。换模型的同时换了输入基：Zeff 出局，Ani 与 normni 进来，两组点**不可互相换算**。",
+    "★盒内取点也**只**说盒内。7_11 的训练集含 QLKNN7D-edge，比 qlknn-hyper 的纯芯部盒宽，但「更宽」不等于「够用」。",
+    "上游可重取（github.com/google-deepmind/fusion_surrogates；软件 Apache-2.0，权重与元数据 CC-BY-4.0），所以权重存的是导出件加 sha256，不是原始档案。"
+  ]
+}
