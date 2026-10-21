@@ -1,42 +1,18 @@
 ---
-title: 怎么开始 (Getting Started)
+title: 开始使用 FyLite
 ---
 
-# 怎么开始
+# 开始使用 FyLite
 
-本篇讲**怎么用**与**结果怎么读**。fylite 是什么、本书分几部分，见封面。
+当前维护路线是浏览器工作台连接应用服务，由服务调用发布的原生内核。首个应用是磁平衡；旧静态wasm站与`fy app`教程属于冻结的历史资料。
 
-## 三种发布形态，装哪一种取决于你手边有什么
+1. 阅读[当前路线、能力与边界](../README.md)。
+2. 按[安装与运行](install.md)准备锁定原生包、应用服务和独立算例数据。
+3. 查看[工作台使用方法](../delivery/eq/docs/USAGE.zh-CN.html)及[94048计算说明](../delivery/eq/docs/WORKFLOW-94048.zh-CN.html)。
+4. 查看[工作流服务接口](../delivery/eq/apps/workflow/README.md)，按运行身份保存和分析结果。
 
-:::{list-table}
-:header-rows: 1
+当前rc3原生包不包含wheel；工作台不依赖开发仓源码，不通过wasm或旧同步XHR桥执行物理计算。单用户localhost/SSH部署不等于共享多用户服务。
 
-* - 形态
-  - 要装什么
-  - 适合
-* - [浏览器站点](browser.md)
-  - 什么都不用装
-  - 上手、教学、快速试算、把一次运行分享给别人
-* - [单一可执行文件](browser.md) `fy`
-  - 一个文件，双击即用；不装任何运行时
-  - 离线、没有 Python 的机器（尤其 Windows）、要从 MDSplus 取数
-* - [Python 包](python.md)
-  - 自仓库打轮再装（alpha 期**尚未上 PyPI**，仅 Linux x86-64）
-  - 脚本化、批量、把结果接进自己的分析流程
-:::
+## 历史资料
 
-三者装的是**同一份页面**与**同一版内核制品**，命令行也由同一个定义文件建出——
-所以三条路上同名的命令是同一条命令（见[安装与环境](install.md)的分发面一节）。
-
-★**两条路径调用的是同一个内核**：同一份 `c_api` 导出面，原生库与 WebAssembly
-模块出自同一次编译配置。所以浏览器里得到的数与脚本里得到的数是同一个数——这一点由
-自动门在每次改动时校验，不靠承诺。
-
-## 往下读
-
-- 先跑起来：[快速上手](quickstart.md) → [浏览器用法](browser.md) 或
-  [Python 用法](python.md)。
-- 想知道一个结果该怎么信：[结果怎么读](reading-results.md)、
-  [能力与边界](limits.md)。
-- 要一条能照抄的完整路径：[算例语料](../examples/index.md)以及它下面的五族典型算例——
-  每章的命令与数字都是在本仓实测的。
+[旧快速上手](quickstart.md)、[旧浏览器](browser.md)、[旧CLI](cli.md)、[旧Python](python.md)及[既有算例](../examples/index.md)保留供版本匹配和迁移参考。旧页面“已实现/已验证”的表述属于其原版本，不能直接作为当前工作台的发布依据。

@@ -1,0 +1,11 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>FyLite EQ 使用方法</title><link rel="stylesheet" href="../ui/assets/eq.css">
+<h1>FyLite v0.0.1-alpha-rc3 · 平衡计算使用方法</h1>
+<p>首批支持EQ-B0-SOLOVEV合成固定边界；安装与原生求解已验证，实验磁重构仍待后续迁移。当前按用户要求在login117直接执行，不使用Slurm。</p>
+<section><h2>1．检查安装</h2><pre>export FYLITE_EQ_ROOT=/project/FyLite/v0.0.1-alpha-rc3/eq
+"$FYLITE_EQ_ROOT/bin/fylite-eq-verify"</pre><p>检查包内文件SHA、内核ABI163和数据层版本。入口不读取artifacts缓存或开发仓库。</p></section>
+<section><h2>2．浏览示范</h2><p><a href="../demo/EQ-B0-SOLOVEV/index.html">结果页</a> · <a href="../demo/EQ-B0-SOLOVEV/LEARNING-GUIDE.zh-CN.html">详细过程</a>。示范使用65×65网格，输入来源为解析模型，不能视为实验验证。</p></section>
+<section><h2>3．在个人目录运行</h2><p>以下以自己的home为例，也可以选其他本人可写目录。个人算例不放/project。</p><pre>mkdir -p "$HOME/fylite-cases/my-solovev"
+cp "$FYLITE_EQ_ROOT/cases/EQ-B0-SOLOVEV/case.json" "$HOME/fylite-cases/my-solovev/case.json"
+"$FYLITE_EQ_ROOT/bin/fylite-eq" run --case "$HOME/fylite-cases/my-solovev/case.json" --output "$HOME/fylite-cases/my-solovev/runs/first"</pre><p>nr只接受33、65、129；日志/输入/身份/实际结果均在指定运行目录。已运行目录拒绝覆盖，重新计算时选新目录。</p></section>
+<section><h2>4．通过网页另存与计算</h2><pre>"$FYLITE_EQ_ROOT/bin/fylite-eq" serve --personal-root "$HOME/fylite-cases" --port 8765</pre><p>服务只监听login117的127.0.0.1，按启动用户的权限执行。本机另开终端建立隧道：</p><pre>ssh -N -L 8765:127.0.0.1:8765 NewShenma-outside</pre><p>浏览器打开http://127.0.0.1:8765/fylite/，从整体介绍进入平衡应用/fylite/eq/，浏览示范→选网格→填服务器个人case.json路径→另存→开始计算→刷新结果。下载到浏览器本机与保存到服务器是两种不同操作。关闭网页不取消已启动计算；保存运行目录可在服务重启后查询。</p></section>
+<section><h2>5．怎样判断结果</h2><p>程序完成、数值收敛、物理验收分开显示。B0只是接入与合成求解，physical保持未进行实验验收。缺库、非法参数或worker异常会记录失败，不改用旧库/示范数据。</p><p>暂停Slurm期间无需sbatch、sacct或scancel。当前只提供单Unix用户的localhost服务，未作为共享多用户平台验收。停止服务不自动清理个人结果。</p></section></html>

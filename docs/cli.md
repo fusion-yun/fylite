@@ -4,6 +4,8 @@ title: 命令行 (Using the Command Line)
 
 # 命令行
 
+> **历史资料（当前口径：2026-10-20）**：本章保留原版本教程，不是rc3原生工作台的安装/能力承诺。当前入口见[安装与运行](install.md)和[README](../README.md)。旧wasm/`fy app`冻结；当前原生包不含wheel，旧构建命令需匹配历史版本。
+
 命令行只有一个，它叫 **`fy`**，是本仓 Rust 中间层的产物：
 
 ```bash

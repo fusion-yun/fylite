@@ -1,0 +1,287 @@
+{
+  "schema": "fylite.workflow/1",
+  "id": "east94048-fixed-pressure",
+  "title": "EAST 94048 fixed pressure",
+  "version": 4,
+  "defaults": {
+    "half_window_s": 0.005,
+    "drift": false,
+    "pressure_scale": 1.0,
+    "q_target": 1.05,
+    "max_iterations": 100,
+    "q_mode": "target",
+    "data_source": "frozen"
+  },
+  "nodes": [
+    {
+      "id": "sources",
+      "title": "读取实验数据",
+      "deps": [],
+      "parameters": [
+        "data_source"
+      ],
+      "tool": "sources",
+      "group": "data",
+      "ui": {
+        "action": "读取实验数据",
+        "purpose": "在线读取或导入冻结实验波形，不静默替换数据。",
+        "inputs": "94048既有通道映射与指定数据源",
+        "check": "服务器/缓存来源、原始窗口文件及哈希"
+      }
+    },
+    {
+      "id": "quality",
+      "title": "检查数据质量",
+      "deps": [
+        "sources"
+      ],
+      "tool": "quality",
+      "group": "data",
+      "parameters": [
+        "drift",
+        "half_window_s"
+      ],
+      "ui": {
+        "action": "检查数据质量",
+        "purpose": "检查通道、有限数、时间覆盖、PF映射及跨时刻压力限制",
+        "inputs": "上游产物及冻结输入身份",
+        "check": "检查通道、有限数、时间覆盖、PF映射及跨时刻压力限制"
+      }
+    },
+    {
+      "id": "magnetics",
+      "title": "整理磁测量",
+      "deps": [
+        "quality"
+      ],
+      "parameters": [
+        "half_window_s",
+        "drift"
+      ],
+      "tool": "magnetics",
+      "group": "data",
+      "ui": {
+        "title": "整理磁测量",
+        "action": "处理磁信号",
+        "purpose": "把一段波形处理为求解使用的测量值。",
+        "inputs": "原始磁波形、通道映射与处理参数",
+        "check": "检查原始/处理后曲线、均值和通道换算"
+      }
+    },
+    {
+      "id": "pressure",
+      "title": "准备压力",
+      "deps": [
+        "quality"
+      ],
+      "parameters": [
+        "pressure_scale"
+      ],
+      "tool": "pressure",
+      "group": "data",
+      "ui": {
+        "title": "准备压力",
+        "action": "提取压力剖面",
+        "purpose": "从已有 ONETWO 输出提取压力，不重新运行 ONETWO。",
+        "inputs": "已有压力文件和压力倍率",
+        "check": "检查压力形状、数值和来源时间"
+      }
+    },
+    {
+      "id": "review_data",
+      "title": "核对处理数据",
+      "deps": [
+        "magnetics",
+        "pressure"
+      ],
+      "tool": "review",
+      "group": "data",
+      "parameters": [],
+      "ui": {
+        "action": "核对处理数据",
+        "purpose": "查看磁波形、压力和警告，填写结论后继续；可退回修改。",
+        "inputs": "上游产物及冻结输入身份",
+        "check": "查看磁波形、压力和警告，填写结论后继续；可退回修改。"
+      },
+      "review": "data"
+    },
+    {
+      "id": "constraints",
+      "title": "整理约束配置",
+      "deps": [
+        "review_data"
+      ],
+      "tool": "constraints",
+      "group": "compute",
+      "parameters": [
+        "q_mode",
+        "q_target",
+        "pressure_scale"
+      ],
+      "ui": {
+        "action": "整理约束配置",
+        "purpose": "区分测量、q₀/边缘电流先验与正则化；显示响应表身份",
+        "inputs": "上游产物及冻结输入身份",
+        "check": "区分测量、q₀/边缘电流先验与正则化；显示响应表身份"
+      }
+    },
+    {
+      "id": "assemble",
+      "title": "生成求解输入",
+      "deps": [
+        "constraints",
+        "magnetics",
+        "pressure"
+      ],
+      "parameters": [
+        "q_target",
+        "max_iterations",
+        "q_mode"
+      ],
+      "tool": "assemble",
+      "group": "compute",
+      "ui": {
+        "title": "检查求解输入",
+        "action": "组装求解输入",
+        "purpose": "汇总磁测量、压力和约束，准备交给求解器。",
+        "inputs": "磁测量、压力、q₀ 和迭代设置",
+        "check": "下载输入JSON；初始化观测与主拟合一致，核对所有生效约束"
+      }
+    },
+    {
+      "id": "review_input",
+      "title": "确认输入并提交",
+      "deps": [
+        "assemble"
+      ],
+      "tool": "review",
+      "group": "compute",
+      "parameters": [],
+      "ui": {
+        "action": "确认输入并提交",
+        "purpose": "检查输入JSON与全部约束、跨时刻压力限制后确认计算。",
+        "inputs": "上游产物及冻结输入身份",
+        "check": "检查输入JSON与全部约束、跨时刻压力限制后确认计算。"
+      },
+      "review": "input"
+    },
+    {
+      "id": "solve",
+      "title": "求解磁平衡",
+      "deps": [
+        "review_input",
+        "assemble"
+      ],
+      "parameters": [],
+      "tool": "solve",
+      "group": "compute",
+      "ui": {
+        "title": "求解磁平衡",
+        "action": "计算磁平衡",
+        "purpose": "用已确认输入调用原生求解器。",
+        "inputs": "组装后的求解输入与响应表",
+        "check": "检查是否收敛、迭代次数及误差"
+      }
+    },
+    {
+      "id": "report",
+      "title": "分析结果",
+      "deps": [
+        "solve",
+        "assemble",
+        "magnetics",
+        "pressure"
+      ],
+      "parameters": [],
+      "tool": "report",
+      "group": "analysis",
+      "ui": {
+        "title": "分析结果",
+        "action": "生成结果分析",
+        "purpose": "整理求解结果并与历史配方进行对照。",
+        "inputs": "求解输出及实际输入",
+        "check": "查看磁面、磁测拟合、压力、q 和参考差异"
+      }
+    },
+    {
+      "id": "review_results",
+      "title": "复核计算结果",
+      "deps": [
+        "report"
+      ],
+      "tool": "review",
+      "group": "analysis",
+      "parameters": [],
+      "ui": {
+        "action": "复核计算结果",
+        "purpose": "检查收敛、磁测残差和参考差异；确认阅读不等于实验认证。",
+        "inputs": "上游产物及冻结输入身份",
+        "check": "检查收敛、磁测残差和参考差异；确认阅读不等于实验认证。"
+      },
+      "review": "results"
+    }
+  ],
+  "route": "fixed pressure, q0 target, fitted PF",
+  "dataset_id": "east94048-fixed-pressure-v1",
+  "physical_status": "not_experimentally_qualified",
+  "parameters": {
+    "half_window_s": {
+      "type": "number",
+      "minimum": 0.001,
+      "maximum": 0.005,
+      "unit": "s"
+    },
+    "drift": {
+      "type": "boolean"
+    },
+    "pressure_scale": {
+      "type": "number",
+      "minimum": 0.5,
+      "maximum": 1.5
+    },
+    "q_target": {
+      "type": "number",
+      "minimum": 0.5,
+      "maximum": 3.0
+    },
+    "max_iterations": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 150
+    },
+    "q_mode": {
+      "type": "string",
+      "enum": [
+        "none",
+        "soft",
+        "target"
+      ],
+      "supported": [
+        "target"
+      ]
+    },
+    "data_source": {
+      "type": "string",
+      "enum": [
+        "frozen",
+        "mdsplus"
+      ]
+    }
+  },
+  "execution_kind": "dag",
+  "terminal": "review_results",
+  "groups": [
+    {
+      "id": "data",
+      "title": "输入与处理"
+    },
+    {
+      "id": "compute",
+      "title": "计算"
+    },
+    {
+      "id": "analysis",
+      "title": "分析产物"
+    }
+  ]
+}

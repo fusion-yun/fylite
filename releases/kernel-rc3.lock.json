@@ -1,0 +1,110 @@
+{
+  "schema": "fylite.kernel-artifact-lock/1",
+  "repository": "fusion-yun/fylite_dev",
+  "tag": "v0.0.1-alpha-rc3",
+  "release_url": "https://github.com/fusion-yun/fylite_dev/releases/tag/v0.0.1-alpha-rc3",
+  "source_commit": "3ee6a241063f49331c77520cba9e36affc2e0fe5",
+  "abi": 163,
+  "kernel_version": "0.0.1",
+  "cpu": "x86-64-v3",
+  "platform": "linux-x86_64",
+  "archive": {
+    "name": "fylite-0.0.1-alpha-rc3-linux-x86_64.tar.gz",
+    "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/fylite-0.0.1-alpha-rc3-linux-x86_64.tar.gz",
+    "sha256": "f8e6f62f06aeb290347e40b8d4b976791c2acbca3674c7211a6e1abb5b96e3c9",
+    "size": 20146208
+  },
+  "assets": [
+    {
+      "name": "fy-0.0.1-alpha-rc3-linux-x86_64",
+      "sha256": "a6fe98d1e81746071a869c4ad94866e69a1968c9068469e036582bb39333e559",
+      "size": 22662032,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/fy-0.0.1-alpha-rc3-linux-x86_64"
+    },
+    {
+      "name": "fylite-0.0.1-alpha-rc3-linux-x86_64.tar.gz",
+      "sha256": "f8e6f62f06aeb290347e40b8d4b976791c2acbca3674c7211a6e1abb5b96e3c9",
+      "size": 20146208,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/fylite-0.0.1-alpha-rc3-linux-x86_64.tar.gz"
+    },
+    {
+      "name": "HDF5-LICENSE.txt",
+      "sha256": "b384492d25c6e4a49f371b646d9a81bc0a4b97cf0c66c2f3ed1b35f78a148732",
+      "size": 5848,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/HDF5-LICENSE.txt"
+    },
+    {
+      "name": "libfylite.so",
+      "sha256": "f2632102e950788f96de324bfd7b6c9152604eb72b9ce774613022c29f3ffb94",
+      "size": 9899472,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/libfylite.so"
+    },
+    {
+      "name": "libsp.so",
+      "sha256": "4c045016dd6eeaae576e3a2d3ec6ec361d49e9f35962ba5bb1b3aa776215df85",
+      "size": 6725960,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/libsp.so"
+    },
+    {
+      "name": "libsp_full.so",
+      "sha256": "0170a30c8a763baffcc76f412c2375682214d5826f0862e8f84d200aa5b68aba",
+      "size": 11731552,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/libsp_full.so"
+    },
+    {
+      "name": "LICENSE-APACHE-2.0",
+      "sha256": "7f6e192b7804d3450e34a8d57b428f009db1da0983bebe6d8c59765dc6484c76",
+      "size": 11448,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/LICENSE-APACHE-2.0"
+    },
+    {
+      "name": "LICENSE-BINARY",
+      "sha256": "0caabe9097d065da5bae77153ee89776c577089a130b6b0d9ffea6f6f4746f6e",
+      "size": 6179,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/LICENSE-BINARY"
+    },
+    {
+      "name": "MANIFEST.json",
+      "sha256": "62cb14b4aac7278bde4ddf16ad59da66182f62bd8627a9f266477522166d6247",
+      "size": 3464,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/MANIFEST.json"
+    },
+    {
+      "name": "netCDF-COPYRIGHT.txt",
+      "sha256": "d3b81bcbe2b4fd7057e7bc603f58dd0c855c5c9b5635966d2c22d9a13f384fb8",
+      "size": 1452,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/netCDF-COPYRIGHT.txt"
+    },
+    {
+      "name": "NOTICE-fylite",
+      "sha256": "70438fbea0aae51f7b3d92539cf0d1abccdcf45ffd4a3cbda6a9d8ec369dadcf",
+      "size": 27424,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/NOTICE-fylite"
+    },
+    {
+      "name": "NOTICE-libsp",
+      "sha256": "888d66b0cfb1df6de20dfea6eb48f50224084dad8b5402a765e550c29ebdb9c3",
+      "size": 2749,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/NOTICE-libsp"
+    },
+    {
+      "name": "SHA256SUMS",
+      "sha256": "31f7303ac93233f311ae22dfb12f46ad9ef5cf1bd106fd0d00c470bd2ba749d5",
+      "size": 1181,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/SHA256SUMS"
+    },
+    {
+      "name": "VALIDATION.json",
+      "sha256": "ef39d5fa9b1ae449c1f2908a53fcfc32e93331bd1a290c9d4314c2fd554d3c56",
+      "size": 798,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/VALIDATION.json"
+    },
+    {
+      "name": "zlib-LICENSE.txt",
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2",
+      "size": 1002,
+      "url": "https://github.com/fusion-yun/fylite_dev/releases/download/v0.0.1-alpha-rc3/zlib-LICENSE.txt"
+    }
+  ],
+  "validation_scope": "Upstream engineering checks only; application and physical validation pending."
+}

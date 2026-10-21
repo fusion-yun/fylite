@@ -1,0 +1,13 @@
+{
+  "case_id": "EQ-B0-SOLOVEV",
+  "title": "固定边界合成算例：软件接入",
+  "family": "B0",
+  "parameters": {
+    "nr": 65
+  },
+  "input_source": "analytic, no experimental data",
+  "numerical_status": "not_run",
+  "physical_status": "not_assessed",
+  "runner": "registered:fixed-boundary-solovev",
+  "kernel_tag": "v0.0.1-alpha-rc3"
+}

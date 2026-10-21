@@ -1,168 +1,62 @@
-# fylite — a self-contained tokamak equilibrium, transport and turbulence kernel
+# FyLite — 科学计算工作流与应用
 
-![FYLITE](./docs/figures/fylite_logo.svg)
+FyLite提供数据处理、工作流执行、结果分析和浏览器工作台。当前先交付磁平衡应用，后续逐步接入0D与1.5D建模。
 
-fylite packs a Grad-Shafranov solver (forward and inverse), a 1.5-D
-core-transport step, neoclassical and gyro-Landau-fluid closures, and an
-equilibrium-reconstruction row into **one re-entrant Rust kernel**, with a thin
-Python layer for assembly and orchestration and a browser front end built from
-the same kernel compiled to WebAssembly.
+**当前维护口径（2026-10-20）：浏览器 → 应用服务/工作流 → 已发布原生内核。** 内核实现由`fylite_dev`维护；本仓消费锁定的原生制品，负责前端、应用测试、打包与部署。当前工作台为实验预发布原型，不能将已运行的算例等同于全面物理验证。
 
-It is a standalone package covering physics modelling, experiment analysis,
-control simulation and discharge design, with one minimal runnable, interactive,
-comparable closed loop per line. Four constraints size it:
+## 当前交付与入口
 
-- **single machine** — no cluster, no required server component; the browser
-  pages work offline once loaded;
-- **ms–s interactive response** — single solves, reconstructions and redraws;
-  batch work (outer loops, grid scans) is explicitly batch: steppable and
-  interruptible, never disguised as instant;
-- **limited multithreading** — a few worker threads at most, no distributed
-  runtime; the browser host is single-threaded;
-- **cross-platform** — the same compute core runs as native Python and as
-  browser WebAssembly.
+- 内核锁定为`v0.0.1-alpha-rc3`、文档ABI163，身份见[制品锁文件](releases/kernel-rc3.lock.json)。当前原生包提供Linux CLI、内核与数据共享库，**不含Python wheel**。
+- 工作台位于[`delivery/eq/`](delivery/eq/)，宿主为[`tools/eq_delivery.py`](tools/eq_delivery.py)。浏览器通过HTTP服务访问；它不是双击HTML即可执行的静态计算站。
+- 服务入口为`/fylite/`，磁平衡工作台为`/fylite/eq/workflow.html`。
+- 当前部署使用`direct`，服务绑定localhost、通过SSH隧道访问，限单个Unix用户。代码保留的Slurm分支不代表当前部署已验收Slurm。
+- 运行不需要`fylite_dev`源码检出。应用测试、打包与发布也必须以锁定制品和声明的数据输入完成；历史跨仓库闸子不是当前发布的有效前提。
 
-**Status: alpha.** Capabilities and numerical conventions are still moving;
-entry points and result formats may change without a migration path. Gaps are
-listed rather than filled with functions that return zeros.
+从[安装与运行](docs/install.md)开始，参阅[工作流接口](delivery/eq/apps/workflow/README.md)和[94048算例手册](delivery/eq/docs/WORKFLOW-94048.zh-CN.html)。算例数据独立提供，不由源码目录代替；`FYLITE_EQ_DATA`选择带来源清单的数据包。
 
-## What this repository is
+## 当前能力与验证边界
 
-This is the **release repository**: one snapshot commit per release, carrying
-what a user needs — the user guide, the worked examples, the application
-walk-throughs and the licences. The Python wheel and the `fy` executable are
-attached to each [GitHub Release](https://github.com/fusion-yun/fylite/releases),
-not committed. Development happens elsewhere, so patches cannot be merged here;
-a precise issue is the contribution (see [Reporting a problem](#reporting-a-problem)).
-
-> ★The kernel binaries (wheel, `fy`) are licensed under PolyForm Noncommercial
-> 1.0.0 ([`LICENSE-BINARY`](LICENSE-BINARY)) — noncommercial use only.
-
-| path | what it is |
+| 能力 | 当前状态 |
 | :--- | :--- |
-| [`docs/`](docs/index.md) | the user guide: install, quick start, the three hosts (browser, `fy`, Python), how to read results, and the topic chapters |
-| [`examples/`](examples/index.md) | the worked examples — one directory per family, the runnable scenario documents beside the chapter that explains them |
-| [`apps/`](apps/README.md) | application walk-throughs built on the released package |
-| [`ACKNOWLEDGEMENTS.md`](ACKNOWLEDGEMENTS.md) | every upstream code, published formula, reference dataset and cross-code benchmark this project stands on |
-| [`NOTICE`](NOTICE) · [`LICENSE`](LICENSE) · [`LICENSE-BINARY`](LICENSE-BINARY) | attribution and the licence terms (see [Licence](#licence-and-attribution)) |
-| [`CHANGELOG.md`](CHANGELOG.md) | what changed, release by release |
+| Solov’ev合成算例、94048固定外压路线 | 已完成记录中的原生运行与接口回归；不代表所有物理场景通过 |
+| 个人修订、冻结工作流、DAG步骤执行、复用与运行监视 | 已接入；只有已适配并验证的模板可用于计算 |
+| 磁信号前处理、结果/历史参考图组、PF/WALL显示 | 已接入冻结数据；图中的假设、派生量和参考几何均需按说明解读 |
+| 浏览器交互 | 已做部分Chromium功能回归；中文视觉、完整可访问性和所有交互路径未全面验收 |
+| 在线取数、其他炮号/任意时间、诊断外循环、自举反馈 | 未接入当前工作台，不能仅修改入口参数就执行 |
+| Agent、0D/1.5D应用、共享多用户、EasyBuild | 后续能力，当前不作交付承诺 |
 
-## Try it
+当前94048路线保留磁测5.760s与压力6.510s的历史配方，不是同时间独立实验验收。PF参考几何与求解电流槽位尚未完成映射核验。当前服务不是共享认证服务；页面token不是用户登录凭据。
 
-<https://fusion-yun.github.io/fylite/> — the whole kernel compiled to
-WebAssembly and running in the browser. Nothing to install, nothing uploaded.
-The three scenario pages are under `pages/`
-([model](https://fusion-yun.github.io/fylite/pages/model.html) ·
-[pulse_design](https://fusion-yun.github.io/fylite/pages/pulse_design.html) ·
-[analysis](https://fusion-yun.github.io/fylite/pages/analysis.html)), beside the
-two tool pages: a data browser and a case report.
+## 三条历史路线的维护边界
 
-## Install
+| 路线 | 定位与维护规则 |
+| :--- | :--- |
+| `ui/`静态wasm站 | 冻结历史演示及设计/测试参考；不随当前工作台发布更新，不新增功能；不以其测试结果替代新工作台验收 |
+| 旧`fy app`及同步XHR内核桥 | 保留历史实现，不纳入新工作台依赖；旧安装命令不保证适用于rc3原生CLI |
+| `delivery/eq/`原生工作流工作台 | 当前应用产品化主线；优先整理工程结构与发布保障，再扩展物理路线 |
 
-From a release: the wheel (Python, numpy only) and `fy` (one static
-executable). The [install chapter](docs/install.md) covers both, and the
-machine descriptions a run needs (`$FYLITE_DEVICE_DIR`).
+本次决定不删除、不迁移旧树或线上演示。旧wasm/桥的删除须先完成依赖和使用者清单、测试分类及必要迁移、历史复现定位与明确授权。仅存在旧文件不代表继续支持其发布。
 
-```python
-from fylite import scenario as S
+## 目录与职责
 
-z = S.model.zerod()                     # 0-D discharge, prescribed profiles
-t = S.model.transport(power=4.0)        # one 1.5-D transport step
-```
+| 路径 | 职责 |
+| :--- | :--- |
+| `delivery/eq/` | 当前门户、工作台、工作流适配器、示范及使用手册 |
+| `tools/eq_delivery.py`、`releases/` | 原生制品导入、身份锁定、应用打包、宿主及安装校验 |
+| `tests/` | 当前应用测试与原生验收入口 |
+| `apps/`、`examples/`、旧`docs/`章节 | 既有场景和资料；按各自版本核实，未逐一迁移到当前交付 |
+| `ui/` | 冻结历史UI；代码可经评审复用，不直接继承全局脚本/wasm依赖 |
 
-The Python package is a **library**: no `fylite` console script, no
-`python -m fylite`. The one command line is `fy`, whose four command words are
-`app` / `data` / `run` / `list` — see [the CLI guide](docs/cli.md).
+## 工程整理与发布门槛
 
-Every interface — the browser page, `fy` and the Python package — opens with the
-same notice. `fy` and `import fylite` print it on **stderr, and only when stderr
-is a terminal**, so `fy list --json | jq` and `python x.py > out` carry only your
-data. `FY_NO_BANNER=1` drops the wordmark and the version line and **keeps the
-notice** — it is a condition of use, not decoration — and `FY_LANG` picks the
-language.
+接下来先格式化和拆分工作台模块，分离API、状态、流程图、绘图与领域查看器，配置化路径和文案；引入JSDoc/checkJs与基础lint，整理可重复的浏览器回归。这些是**待完成任务**，不是当前已存在的闸子。
 
-## Running a case
+发布验收必须区分`PASS / FAIL / SKIP / NOT_RUN`。必需项缺数据或缺制品时，发布应被阻止，不能把跳过计为通过。测试报告需关联应用源码、原生制品、工作流与数据身份；历史UI、应用工程及物理算例分别报告。
 
-A case is **one structure in, one structure out**: a scenario specification
-(the documents under [`examples/`](examples/index.md)) goes in, a computation
-record with its produced datasets comes out. A case the kernel cannot complete
-is **refused with the missing thing named**, and the refusal is recorded too.
+目标是离线可部署、无CDN、依赖可锁定；开发期检查工具不构成新增浏览器运行时依赖。共享服务认证、任务配额与权限隔离须在改变当前单用户部署边界前单独设计和验收。
 
-```sh
-fy list kernel                                     # what the kernel completes
-fy run examples/evolve/evolve-default.jsonld nsteps=12 --dry-run
-fy run examples/evolve/evolve-default.jsonld nsteps=12 --record records/evolve
-#  -> records/evolve/{record.jsonld, plan.jsonld, core_profiles.fyo.jsonld, ...}
-```
+## 许可证与问题反馈
 
-The worked examples are one chapter per family, every command and number in
-them measured, every chapter saying what its family **cannot** answer:
-[0-D](examples/zerod/zerod.md) ·
-[1.5-D](examples/transport/transport.md) ·
-[time evolution](examples/evolve/evolve.md) ·
-[discharge design](examples/design/design.md) ·
-[equilibrium reconstruction](examples/reconstruction/reconstruction.md).
-What the physics can and cannot do today is [capabilities and limits](docs/limits.md).
+许可证和归属以随制品提供的文件及本仓[LICENSE](LICENSE)、[LICENSE-BINARY](LICENSE-BINARY)、[NOTICE](NOTICE)、[ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md)为准；本次路线整理不修改许可条款。
 
-## Reading and writing data
-
-`fy data` and `fylite.io.fydoc` convert between data sources and fyo documents,
-merge several sources, and assemble them from a JSON-LD description. Files are
-recognised by **content**, never by name.
-
-| source | read | write | layouts |
-| :--- | :-: | :-: | :--- |
-| MDSplus (mdsip, read-only by construction) | ✓ | — | fyo |
-| device deck YAML | ✓ | — | fyo |
-| EFIT a-file | ✓ | — | fyo |
-| EFIT g-file | ✓ | ✓ | fyo |
-| JSON / JSON-LD | ✓ | ✓ | fyo · IMAS DD |
-| HDF5 | ✓ | ✓ | fyo · IMAS (imas-core HDF5 backend) |
-| netCDF | ✓ | ✓ | fyo · IMAS (imas-python netCDF backend) |
-
-```bash
-fy data info  g063982.04800                          # what is this file?
-fy data convert g063982.04800 shot.nc --layout imas  # imas-python opens it
-fy data merge machine.h5 shot.nc -o all.jsonld       # later sources win
-```
-
-## What ships, and what does not
-
-- **No experimental data is committed.** No shot files, no reconstructions of
-  real discharges. [`examples/`](examples/index.md) publishes the
-  *specification* of each case (a plan document, no numbers) and resolves its
-  data through `$FYLITE_DEVICE_DIR`.
-- **Machine descriptions are inputs, with exactly one source**, found through
-  `$FYLITE_DEVICE_DIR`; what a source does not carry is declared, with a reason,
-  rather than defaulted.
-- **No third-party solver code ships in any form other than the translations
-  `NOTICE` declares.**
-
-## Licence and attribution
-
-- The Python package source (inside the wheel) is **Apache-2.0** ([`LICENSE`](LICENSE)).
-- The compiled kernel (`libfylite.so` in the wheel, `fy`, the site's `.wasm`) is
-  distributed under the **PolyForm Noncommercial License 1.0.0**
-  ([`LICENSE-BINARY`](LICENSE-BINARY)): free for noncommercial purposes —
-  personal research and study, and use by educational institutions, public
-  research organisations and government institutions — and **not for commercial
-  use**. For a commercial licence, contact the author, YU Zhi
-  <yuzhi@ipp.ac.cn>. The kernel's source is not published, so the kernel is not
-  open source; only the Apache-2.0 parts are.
-- The documentation and examples are **CC-BY-4.0**.
-
-Parts of the physics are white-box translations of published open-source
-reference implementations rather than independent reimplementations;
-[`NOTICE`](NOTICE) names them, their upstream licences and the ways the
-translations deliberately differ, and travels with every distribution (wheel and
-site). [`ACKNOWLEDGEMENTS.md`](ACKNOWLEDGEMENTS.md) is the full human-readable
-list — and says how the code was built (AI-assisted, gold-fixture verified).
-
-## Reporting a problem
-
-Open an issue. The kernel source is not published, so reproducing a report
-depends on knowing **which binary** you ran: the issue template asks for the demo
-page's footer line (`kernel … · interface … · app …`) and the kernel `sha256`
-shown on its credits page. Security issues: see [`SECURITY.md`](SECURITY.md).
-
-The browser front end is maintained in `ui/`, applications in `apps/`, demonstrations in `demo/`, and registered cases in `docs/cases/`. Native build tools and validation remain in the adjacent development checkout.
+报告问题时请附应用版本/源码状态、原生制品SHA与ABI、工作流版本、输入身份、运行编号及错误日志，避免包含凭据或未经许可的实验数据。安全问题参见[SECURITY.md](SECURITY.md)。

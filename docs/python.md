@@ -4,6 +4,8 @@ title: Python 用法 (Using the Python Package)
 
 # Python 用法
 
+> **历史资料（当前口径：2026-10-20）**：本章保留原版本教程，不是rc3原生工作台的安装/能力承诺。当前入口见[安装与运行](install.md)和[README](../README.md)。旧wasm/`fy app`冻结；当前原生包不含wheel，旧构建命令需匹配历史版本。
+
 ## 安装
 
 ★**alpha 期这个包不在 PyPI 上**（实测 `pip install fylite` 会失败）。分发面是

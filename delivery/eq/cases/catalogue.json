@@ -1,0 +1,10 @@
+{
+  "schema": "fylite.case-catalogue/1",
+  "cases": [
+    {
+      "case_id": "EQ-B0-SOLOVEV",
+      "path": "EQ-B0-SOLOVEV/case.json",
+      "status": "implementation_pending_native_validation"
+    }
+  ]
+}

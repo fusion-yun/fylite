@@ -1,0 +1,7 @@
+{
+  "scope": "B0 integration only",
+  "execution": "completed with real pinned library and retained input/result SHA",
+  "numerical": "native fact converged == 1",
+  "physical": "not_assessed; B1 analytic error and grid-order gates are separate",
+  "web_and_slurm": "actual browser and compute-node checks required; not yet executed"
+}

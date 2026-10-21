@@ -1,8 +1,54 @@
 ---
-title: 安装与环境 (Install & Environment)
+title: 安装与运行（当前原生工作台）
 ---
 
-# 安装与环境
+# 安装与运行
+
+## 当前路线（2026-10-20）
+
+当前应用主线为`delivery/eq/`原生工作流工作台。`fylite_dev`提供发布制品，本仓提供应用服务、前端、测试与打包；无需检出开发仓源码。旧wheel/wasm/`fy app`教程见文末历史区，不是当前安装步骤。
+
+当前锁定`v0.0.1-alpha-rc3`（Linux x86_64、x86-64-v3，ABI163），身份以`releases/kernel-rc3.lock.json`为准。原生tarball包含CLI和版本化共享库/符号链接；不包含Python wheel。不要用源码归档代替原生包，也不要从旧教程推断rc3 CLI命令。
+
+## 从原生包准备应用
+
+在本仓根目录执行，路径替换为实际值；导入和打包输出使用新的目录：
+
+```bash
+python3 tools/eq_delivery.py import-artifacts \
+  --archive /path/to/fylite-0.0.1-alpha-rc3-linux-x86_64.tar.gz \
+  --output /path/to/native-cache
+python3 tools/eq_delivery.py probe --artifacts /path/to/native-cache
+python3 tools/eq_delivery.py package \
+  --artifacts /path/to/native-cache --output /path/to/new-delivery
+```
+
+包布局及额外示范生成选项以`python3 tools/eq_delivery.py --help`及子命令帮助为准。工作流运行使用Python标准库与发布原生库；冻结数据准备工具另有依赖，不能混称所有步骤“零依赖”。包是否可运行以目标主机安装校验及实际验收为准。
+
+## 已安装工作台
+
+先确认没有已有服务占用端口，再启动：
+
+```bash
+export FYLITE_EQ_DATA=/path/to/manifested-dataset
+/path/to/installed/eq/bin/fylite-eq-verify
+/path/to/installed/eq/bin/fylite-eq serve \
+  --personal-root "$HOME/fylite-cases" --backend direct --port 8765
+```
+
+服务仅监听`127.0.0.1`。远端运行时，在用户电脑通过SSH隧道访问：
+
+```bash
+ssh -N -L 8765:127.0.0.1:8765 <your-ssh-host>
+```
+
+打开`http://127.0.0.1:8765/fylite/eq/workflow.html`。个人算例和结果保存在服务端个人目录，不能放入公共交付目录。浏览器本身不执行wasm求解；当前服务按一个Unix用户的权限运行，不能直接作为多用户公共服务开放。当前采用direct；Slurm、EasyBuild、在线数据读取尚未作为本工作台交付能力验收。
+
+94048数据包须独立准备并带清单；仅有程序文件不足以运行实验算例。详细来源与限制见[算例手册](../delivery/eq/docs/WORKFLOW-94048.zh-CN.html)。当前交付能力和冻结路线的权威摘要在[README](../README.md)。
+
+## 历史安装资料——不适用于当前rc3工作台
+
+> 以下原文保留用于历史复现，其wheel、wasm、`fy app`、构建脚本、依赖与目录约定属于旧架构；不是当前制品可用性或命令兼容性承诺。需要复现时先匹配原版本、代码和制品。旧脚本不得作为当前发布前提。
 
 ## 依赖姿态
 
