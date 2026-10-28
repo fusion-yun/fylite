@@ -118,10 +118,20 @@ def clone_adapter(folder, package_root, manifest):
     if digest(source) != manifest['demo.py']:
         raise ValueError('数据与求解适配器身份不匹配')
     shutil.copyfile(source, adapter / 'demo.py')
-    for name in ('libfylite.so', 'libsp.so', 'facts', 'input'):
-        (adapter / name).symlink_to(package_root / name, target_is_directory=name in ('facts', 'input'))
+    for name in ('libfylite.so', 'libsp.so', 'facts'):
+        (adapter / name).symlink_to(package_root / name, target_is_directory=name == 'facts')
+    # 输入卡必须每算例一份：不同炮号的纵场、电流目标写在这里，共享文件会互相污染
+    shutil.copytree(package_root / 'input', adapter / 'input')
     (adapter / 'output').mkdir()
     return adapter
+
+
+def deck_facts(adapter, tf):
+    """记录本炮的真空场来源。注意：输入卡的 btor/target_ip 在 --run 路径下不被内核读取，
+    真正的纵场走 inputs.measurements.tf.f_vac_Tm，这里只做审计留痕。"""
+    deck = read(adapter / 'input/native.json')
+    return {'f_vac_Tm': float(tf['f_vac_Tm']), 'tf_node': tf.get('node'),
+            'deck_btor_unused': deck.get('btor'), 'rcentr': deck.get('rcentr')}
 
 
 def packaged(folder):
@@ -192,9 +202,11 @@ def acquire_worker(folder):
         options = old['inputs']['options']
         mask_identity = digest(old_path)
     else:
-        options = {'tiers': 'M', 'p_on': 'M', 'loops': 'all', 'readmit': False,
-                   'max_rounds': 1, 'per_round': 0, 'scan': 'full', 'zc_scan': [0.03], 'jobs': 1}
+        # 只给最小选项：loops='all' 会强制纳入该炮全部环，坏道无法排除，换炮必然不收敛
+        options = {'tiers': 'M', 'p_on': 'M', 'jobs': 1}
         mask_identity = digest(root / 'facts/device/east.jsonld')
+    # 竖直设定点交给内核扫描；写死单点 0.03 m 只对 164437 成立，换炮必然全失败
+    options.pop('zc_scan', None)
     def inspect(kind, names_list, tree, weights, scales=None, drift=True):
         for i, node in enumerate(names_list):
             key = tree + ':' + (node if node.startswith('\\') else '\\' + node)
@@ -229,6 +241,7 @@ def acquire_worker(folder):
     tf = measurement.get('tf') or {}
     if not tf.get('node') or not math.isfinite(tf.get('f_vac_Tm', float('nan'))):
         raise ValueError('未取得同期 TF 电流及真空场输入')
+    deck_info = deck_facts(adapter, tf)
     quality = {'passed': bool(active['loops'] and active['probes']),
                'active_counts': {k: len(v) for k, v in active.items()},
                'inactive_count': len(inactive), 'channels': rules,
@@ -254,7 +267,7 @@ def acquire_worker(folder):
     write(folder / 'quality.json', quality)
     update_status(folder, state='acquired', stage='processing', acquired_at=time.time(),
                   raw_sha256=digest(raw), diagnostics_sha256=digest(folder / 'diagnostics.json'),
-                  quality_sha256=digest(folder / 'quality.json'), worker_pid=None)
+                  quality_sha256=digest(folder / 'quality.json'), deck_facts=deck_info, worker_pid=None)
 
 
 def solve_worker(folder):
@@ -470,6 +483,19 @@ def save_channel_revision(w, roots, folder, body):
     return status_view(destination)
 
 
+def failure_view(tier):
+    if tier.get('status') != 'error':
+        return None
+    scan = []
+    for round_ in (tier.get('rounds') or []):
+        for item in (round_.get('scan') or []):
+            scan.append({'zc': item.get('zc'), 'error': item.get('error'),
+                         'chi2': item.get('chi2'), 'q0': item.get('q0'),
+                         'converged': item.get('converged')})
+    return {'message': tier.get('error'), 'mode': (tier.get('scan') or {}).get('mode'),
+            'count': len(scan), 'sample': scan[:5]}
+
+
 def result_view(folder):
     status = read(folder / 'status.json')
     if status['state'] not in ('waiting_review', 'reviewed'):
@@ -490,6 +516,7 @@ def result_view(folder):
             'pressure_provenance': result.get('pressure_provenance'),
             'limiter': (result.get('device') or {}).get('limiter'),
             'solver_message': tier.get('error'), 'history': result.get('history', []),
+            'failure': failure_view(tier),
             'physics_check': tier.get('physics_check'), 'assessment': tier.get('assessment'),
             'identity': identity, 'input_identity': {'diagnostics_sha256': read(folder / 'adoption.json')['diagnostics_sha256'],
                                                     'actual_input_sha256': status['actual_input_sha256']},
