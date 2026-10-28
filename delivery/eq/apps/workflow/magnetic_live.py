@@ -111,6 +111,31 @@ def compact(folder):
             'review': status.get('review')}
 
 
+# 早期炮号（设备卡 _valid_shots 起点 0）的探针节点名：设备事实里被简化成 HBP1..38 顺序命名，
+# 与实际硬件（NHBP/DBP）不符，读到的值错位或为 0。这里按遗留映射回填真实节点名，只改取数名，
+# 不动设备卡里的位置。属于临时兼容，正确修法在设备事实侧。
+LEGACY_PROBES_EARLY = [
+    'HBP1T', 'HBP2T', 'HBP3T', 'NHBP4T', 'NHBP5T', 'NHBP6T', 'NHBP7T', 'NHBP8T',
+    'HBP9T', 'HBP10T', 'HBP11T', 'HBP12T', 'HBP13T', 'HBP14T', 'HBP15T', 'HBP16T',
+    'HBP17T', 'HBP18T', 'HBP19T', 'HBP20T', 'HBP21T', 'HBP22T', 'HBP23T', 'HBP24T',
+    'DBP25T', 'DBP26T', 'NHBP27T', 'NHBP28T', 'NHBP29T', 'NHBP31T', 'HBP32T', 'HBP33T',
+    'HBP34T', 'HBP35T', 'DBP36T', 'HBP37T', 'HBP38T', 'HBP1N']
+
+
+def remap_early_probes(src, device):
+    """早期设备卡（_valid_shots 起点 0）的探针名回填为遗留命名。返回是否改动。"""
+    names = getattr(src, 'names', None) or {}
+    probes = names.get('probes') or []
+    valid = device.get('_valid_shots') or []
+    start = valid[0] if valid else None
+    if start != 0 or len(probes) != len(LEGACY_PROBES_EARLY):
+        return False
+    legacy = list(LEGACY_PROBES_EARLY)
+    if list(probes) == legacy:
+        return False
+    names['probes'] = legacy
+    return True
+
 def clone_adapter(folder, package_root, manifest):
     adapter = folder / 'adapter'
     adapter.mkdir(exist_ok=False)
@@ -175,6 +200,7 @@ def acquire_worker(folder):
     server = os.environ.get('FYLITE_MDSIP_SERVER', '202.127.204.12:8000')
     src = demo.MagneticsSource(host, case['shot'], 'east', server, 10)
     try:
+        probe_remap = remap_early_probes(src, getattr(src, 'doc', None) or {})
         src.prefetch(point=False, workers=8)
         measurement = src.at(case['time_s'], point=False)
         names, device = src.names, src.doc
@@ -257,7 +283,7 @@ def acquire_worker(folder):
                              'time_s': case['time_s'], 'measurement_chain': 'east',
                              'libsp_version': demo.SP_VERSION, 'loop_input_units': 'Wb/rad',
                              'acquired_at': time.time()},
-                  'audit_provenance': {'mask_profile': case['mask_profile'], 'mask_sha256': mask_identity,
+                  'audit_provenance': {'mask_profile': case['mask_profile'], 'mask_sha256': mask_identity, 'probe_remap_early': probe_remap,
                                        'processing_rule': 'demo.py reduce_series: target ±5 ms, pre-shot linear drift −6.9..−6.1 s'}}
     demo.workflow_validate({'workflow': diagnostic})
     raw = folder / 'raw-windows.json.gz'
