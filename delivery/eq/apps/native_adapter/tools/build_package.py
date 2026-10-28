@@ -25,7 +25,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent.parent
-DEFAULT_TABLES = Path('/project/FyLite/data/native-adapter/tables')
+DEFAULT_TABLES = Path('/project/FyLite/data/device/east/tables')
 SKIP_DIRS = {'__pycache__', 'output', 'tools', '.git'}
 #: 装置响应表不进仓库，构建时从 --tables-dir 取
 SKIP_REL = {'input/tables'}

@@ -1,6 +1,6 @@
 {
   "note": "装置响应表（线圈 / 等离子体细丝表）。随装置固定，不随应用代码变化，因此不进 git；构建时从公共只读目录取，按 sha256 校验。",
-  "source": "/project/FyLite/data/native-adapter/tables",
+  "source": "/project/FyLite/data/device/east/tables",
   "files": {
     "ec129129.ddd": {
       "sha256": "54b34004cecdf92610e88b79d625490838fe6b6ce6bfaa65fd25d9b59725d83b",

@@ -74,7 +74,7 @@ python3 tools/check.py --package /path/to/standalone-rc3-<date>
 三份 `.ddd` 是二进制细丝表（约 32 MB，不可压缩），随装置固定、与代码无关，因此不入库：
 
 ```
-/project/FyLite/data/native-adapter/tables/
+/project/FyLite/data/device/east/tables/
     ec129129.ddd   18.0 MB   线圈响应（native.json 的 pf_table）
     ep129129.ddd   14.1 MB   等离子体响应（plasma_table）
     rfcoil.ddd     11 KB     射频线圈

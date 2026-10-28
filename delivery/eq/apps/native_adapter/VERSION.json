@@ -17,7 +17,7 @@
   },
   "tables": {
     "lock": "input/tables.lock.json",
-    "source": "/project/FyLite/data/native-adapter/tables",
+    "source": "/project/FyLite/data/device/east/tables",
     "in_git": false
   },
   "notes": [
