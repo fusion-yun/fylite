@@ -1,0 +1,23 @@
+{
+  "adapter": "fylite-native-adapter/1",
+  "role": "fylite 应用层的原生求解适配器：demo.py 调 libfylite，facts/ 提供装置事实，input/ 提供求解卡与装置响应表。",
+  "kernel": {
+    "tag": "v0.0.1-alpha-rc3",
+    "abi": 163,
+    "kernel_version": "0.0.1",
+    "source_commit": "3ee6a241063f49331c77520cba9e36affc2e0fe5",
+    "release_url": "https://github.com/fusion-yun/fylite_dev/releases/tag/v0.0.1-alpha-rc3",
+    "libfylite.so": "f2632102e950788f96de324bfd7b6c9152604eb72b9ce774613022c29f3ffb94",
+    "libsp.so": "0170a30c8a763baffcc76f412c2375682214d5826f0862e8f84d200aa5b68aba"
+  },
+  "provenance": {
+    "demo.py": "内核参考适配器（kinetic_reconstruction-standalone-v3），LIB_SHA 已重钉到 rc3 内核",
+    "facts/": "同上；装置事实（east.jsonld + east/ 解析文档与变体）",
+    "input/": "同上；native.json 求解卡 + tables/ 三份装置响应表（ec129129.ddd / ep129129.ddd / rfcoil.ddd）"
+  },
+  "notes": [
+    "内核 .so 不进本仓库：构建时从 rc3 发布树 lib/ 取，见 tools/build_package.py",
+    "构建产物目录即运行时包，FYLITE_EQ_V3_ROOT 指向它",
+    "仓库内不含 MANIFEST.sha256.json：它由构建生成（含 .so 的哈希）"
+  ]
+}

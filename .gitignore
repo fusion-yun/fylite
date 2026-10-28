@@ -8,3 +8,12 @@ GEMINI.md
 .context/
 .codex/
 .agents/
+
+# native adapter build artifacts
+apps/native_adapter/__pycache__/
+apps/native_adapter/**/*.pyc
+delivery/eq/apps/native_adapter/__pycache__/
+delivery/eq/apps/native_adapter/**/__pycache__/
+
+# 装置响应表：随装置固定，不进 git（见 apps/native_adapter/input/tables.lock.json）
+delivery/eq/apps/native_adapter/input/tables/*.ddd

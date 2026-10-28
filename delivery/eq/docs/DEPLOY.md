@@ -1,4 +1,4 @@
-﻿# 部署与发布流程
+# 部署与发布流程
 
 本文说明 `delivery/eq`（开发源）、rc3 内核发布、以及线上部署点三者之间的关系，以及一次改动的完整上线步骤。
 
@@ -165,15 +165,36 @@ scp /project/FyLite/.staging/eq-tree-20261028/magnetic-live.js.bak NewShenma-dir
 | `apps/workflow/archive_v3.py` | `EXPECTED_LIBRARY` | 「standalone-v3 原生库版本不匹配」 |
 | `demo.py` | `LIB_SHA` 常量 | 「动态库 SHA256 不符」 |
 
-重建步骤（升级内核时）：
+### 适配器源码在 fylite 仓库里
+
+适配器（`demo.py` + `facts/` + `input/`，含三份 `.ddd` 装置响应表）由 fylite 自己维护：
+
+```
+delivery/eq/apps/native_adapter/
+├── VERSION.json            绑定的内核身份（tag / ABI / 两个 .so 的 sha256）
+├── demo.py  facts/  input/ 适配器源码
+├── README.md               职责、构建、校验、升级步骤
+└── tools/
+    ├── build_package.py    组装运行时包
+    └── check.py            校验已部署的包
+```
+
+内核 `.so` 不进仓库，构建时从发布树取：
 
 ```bash
-S=/project/FyLite/artifacts/standalone-v3-20261027      # 旧包，提供 demo.py/facts/input
-N=/project/FyLite/artifacts/standalone-rc3-20261028     # 新包
-cp -a "$S" "$N"
-cp -f /project/FyLite/v0.0.1-alpha-rc3/eq/lib/libfylite_kernel.so "$N/libfylite.so"
-cp -f /project/FyLite/v0.0.1-alpha-rc3/eq/lib/libsp.so            "$N/libsp.so"
-# 先改 demo.py 的 LIB_SHA，再重算 MANIFEST（顺序反了会身份不匹配）
+cd delivery/eq/apps/native_adapter
+
+# 组装（会先校验 .so 与 VERSION.json 一致，再复制、重钉 demo.py 的 LIB_SHA、生成 MANIFEST）
+python3 tools/build_package.py \
+    --release-dir /project/FyLite/v0.0.1-alpha-rc3/eq \
+    --out /project/FyLite/artifacts/standalone-rc3-20261028
+
+# 校验已部署的包（manifest 逐文件 + 两个 .so + demo.py 的 LIB_SHA）
+python3 tools/check.py --package /project/FyLite/artifacts/standalone-rc3-20261028
 ```
+
+升级内核时只需改 `VERSION.json` 的 `kernel` 段，再跑上面两条命令。
+
+**注意**：算例的 `case.json` 记录了创建时的包路径与清单哈希，换包后旧算例只能查看、不能重新求解；需要重跑。
 
 已验证：rc3 内核与旧 standalone-v3 内核在本路线上**数值完全一致**（164437/6.301 = 262 次、q₀ 2.69601、χ² 364.468；六个跨炮号算例逐项相同）。

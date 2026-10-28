@@ -1,0 +1,4924 @@
+{
+ "@context": {
+  "sp": "https://spdata.org/sp#",
+  "prov": "http://www.w3.org/ns/prov#",
+  "fylite": "urn:fylite:",
+  "fyo": "https://fusion-yun.github.io/fyo/latest/",
+  "@vocab": "https://fusion-yun.github.io/fyo/latest/",
+  "spo": "https://fusion-yun.github.io/spo/latest/",
+  "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+  "is_about": {
+   "@id": "http://purl.obolibrary.org/obo/IAO_0000136"
+  }
+ },
+ "@id": "fylite:device/east",
+ "@type": "fyo:DeviceDescription",
+ "_dd_version": "4.1.1",
+ "_machine": "EAST",
+ "_basis": "fydoc:facts/device/east/abox (epoch now); magnetics provider pcs: 黄耀 — measurement chain pcs_east",
+ "provenance": {
+  "dd_version_source": "the A-Box pages' own `_dd_version` (manifest: dd_source imas/4)",
+  "generator": "tools/abox-to-facts.py (build_east_from_abox)",
+  "source": "fydoc:facts/device/east/abox/machine.jsonld",
+  "identity_iri": "fyo:machine/east",
+  "source_files": {
+   "bolometer": "facts/device/east/abox/static/now/bolometer.jsonld",
+   "bolometer:binding": "facts/device/east/abox/bind/mdsplus/bolometer.jsonld",
+   "bremsstrahlung_visible": "facts/device/east/abox/static/now/bremsstrahlung_visible.jsonld",
+   "bremsstrahlung_visible:binding": "facts/device/east/abox/bind/mdsplus/bremsstrahlung_visible.jsonld",
+   "camera_visible": "facts/device/east/abox/static/now/camera_visible.jsonld",
+   "charge_exchange": "facts/device/east/abox/static/now/charge_exchange.jsonld",
+   "charge_exchange:binding": "facts/device/east/abox/bind/mdsplus/charge_exchange.jsonld",
+   "dataset_fair": "facts/device/east/abox/static/now/dataset_fair.jsonld",
+   "ec_launchers": "facts/device/east/abox/static/now/ec_launchers.jsonld",
+   "ec_launchers:binding": "facts/device/east/abox/bind/mdsplus/ec_launchers.jsonld",
+   "ece": "facts/device/east/abox/static/now/ece.jsonld",
+   "ece:binding": "facts/device/east/abox/bind/mdsplus/ece.jsonld",
+   "equilibrium:binding": "facts/device/east/abox/bind/mdsplus/equilibrium.jsonld",
+   "hard_x_rays": "facts/device/east/abox/static/now/hard_x_rays.jsonld",
+   "hard_x_rays:binding": "facts/device/east/abox/bind/mdsplus/hard_x_rays.jsonld",
+   "ic_antennas": "facts/device/east/abox/static/now/ic_antenna.jsonld",
+   "interferometer": "facts/device/east/abox/static/now/interferometer.jsonld",
+   "interferometer:binding": "facts/device/east/abox/bind/mdsplus/interferometer.jsonld",
+   "langmuir_probes": "facts/device/east/abox/static/now/langmuir_probes.jsonld",
+   "lh_antennas": "facts/device/east/abox/static/now/lh_antenna.jsonld",
+   "lh_antennas:binding": "facts/device/east/abox/bind/mdsplus/lh_antenna.jsonld",
+   "magnetics": "facts/device/east/abox/providers/magnetics/pcs.jsonld",
+   "magnetics:pcs": "facts/device/east/abox/providers/magnetics/pcs.jsonld",
+   "magnetics:summary_binding": "facts/device/east/abox/bind/mdsplus/summary.jsonld",
+   "mse": "facts/device/east/abox/static/now/mse.jsonld",
+   "nbi": "facts/device/east/abox/static/now/nbi.jsonld",
+   "nbi:binding": "facts/device/east/abox/bind/mdsplus/nbi.jsonld",
+   "neutron_diagnostic": "facts/device/east/abox/static/now/neutron_diagnostic.jsonld",
+   "neutron_diagnostic:binding": "facts/device/east/abox/bind/mdsplus/neutron_diagnostic.jsonld",
+   "operational": "facts/device/east/abox/static/now/operational.jsonld",
+   "pf_active:electrical": "facts/device/east/abox/providers/pf_active/base.jsonld",
+   "pf_active:geometry": "facts/device/east/abox/providers/pf_active/yu.jsonld",
+   "pf_passive": "facts/device/east/abox/static/now/pf_passive.jsonld",
+   "polarimeter": "facts/device/east/abox/static/now/polarimeter.jsonld",
+   "polarimeter:binding": "facts/device/east/abox/bind/mdsplus/polarimeter.jsonld",
+   "reflectometer_fluctuation": "facts/device/east/abox/static/now/reflectometer_fluctuation.jsonld",
+   "reflectometer_profile": "facts/device/east/abox/static/now/reflectometer_profile.jsonld",
+   "reflectometer_profile:binding": "facts/device/east/abox/bind/mdsplus/reflectometer_profile.jsonld",
+   "soft_x_rays": "facts/device/east/abox/static/now/soft_x_rays.jsonld",
+   "soft_x_rays:binding": "facts/device/east/abox/bind/mdsplus/soft_x_rays.jsonld",
+   "spectrometer_uv": "facts/device/east/abox/static/now/spectrometer_uv.jsonld",
+   "spectrometer_visible": "facts/device/east/abox/static/now/spectrometer_visible.jsonld",
+   "spectrometer_x_ray_crystal": "facts/device/east/abox/static/now/spectrometer_x_ray_crystal.jsonld",
+   "spectrometer_x_ray_crystal:binding": "facts/device/east/abox/bind/mdsplus/spectrometer_x_ray_crystal.jsonld",
+   "tf": "facts/device/east/abox/static/now/tf.jsonld",
+   "thomson_scattering": "facts/device/east/abox/static/now/thomson_scattering.jsonld",
+   "thomson_scattering:binding": "facts/device/east/abox/bind/mdsplus/thomson_scattering.jsonld",
+   "wall": "facts/device/east/abox/static/now/wall.jsonld",
+   "wall:m093060": "facts/device/east/abox/static/now/limiter_m093060.jsonld"
+  },
+  "note": "Converted, not authored: every device value is copied from the file named in `fylite:source`; a field the A-Box does not carry is named under `fylite:absent`.  `solver_dims`, `default_grid`, `polarimeter.faraday_constant`, `polarimeter.baseline` and `fylite:ui` are program-side values (PROGRAM_SIDE in the generator), not device facts.",
+  "reference_radii": {
+   "used": {
+    "value": 1.75,
+    "for": [
+     "machine.r_centre",
+     "tf.r0"
+    ],
+    "source": "facts/device/east/abox/static/now/tf.jsonld dev:rCentre",
+    "locator": "samples/output/g093060.01000（65×65）表头第 2 行 rcentr；★efit/efitbuild/ 同名件（129×129，同炮同时刻）同位写 1.79999995，两份参考件不一致",
+    "why": "user ruling 2026-09-13: tf.r0 <- machine.r_centre (the retired card's convention), so the nominal tf.b0 1.8 T stays paired with the radius it was stated at"
+   },
+   "recorded_not_used": [
+    {
+     "value": 1.7,
+     "source": "facts/device/east/abox/static/now/tf.jsonld r0",
+     "why": "fydoc's tf page value; a different reference radius from the one the nominal b0 is paired with (fydoc marks the radii divergent)"
+    },
+    {
+     "value": 1.79999995,
+     "source": "facts/device/east/abox/static/now/tf.jsonld dev:rCentre dev:locator (prose): the other reference g-file efit/efitbuild/g093060.01000 (129×129) rcentr",
+     "why": "the two reference g-files of the same shot and time disagree; the 65×65 one (the compiled solver dimensions) is the one used"
+    }
+   ]
+  },
+  "fyo:provider_resolution": {
+   "@type": "fyo:ProviderResolutionRecord",
+   "provider_selection_rule": "fyo:provider_selection_rule/shot_chain-1",
+   "resolution_rule": "a measurement-ordered Dataset kind (its providers carry measurement_chain) is resolved within the measurement's chain: the provider whose shot range covers the shot, else that chain's rangeless provider — a gap in the chain, two covering providers or an undeclared chain is refused; with no chain, the same rule within the chain of the kind's manifest default provider (user ruling 2026-09-14: the default geometry follows the default fetch's chain); for every other kind: the shot-anchored provider covering the shot — several covering: the narrowest range, then the manifest default, then the one marked preferred, then the first in manifest order — and with no shot the one covering the open upper end (no shot = the latest shot); otherwise the manifest default (user rulings R-S1 / R-S2 and the measurement-chain ruling, 2026-09-13)",
+   "declared_measurement_chain": [
+    "pcs_east",
+    "east",
+    "east_na"
+   ],
+   "provider_selection": [
+    {
+     "@type": "fyo:ProviderSelection",
+     "selected_dataset": "magnetics",
+     "description_provider": "pcs",
+     "selection_reason": "no measurement chain given, so \"pcs_east\", the chain of the manifest default \"pcs\" — the measurement chain \"pcs_east\": its provider \"pcs\" declares no shot range"
+    },
+    {
+     "@type": "fyo:ProviderSelection",
+     "selected_dataset": "wall",
+     "description_provider": "base",
+     "selection_reason": "the manifest default \"base\" (no shot-anchored provider covers the latest shot (no shot given))"
+    },
+    {
+     "@type": "fyo:ProviderSelection",
+     "selected_dataset": "ec_launchers",
+     "description_provider": "base",
+     "selection_reason": "the manifest default \"base\" (no shot-anchored provider covers the latest shot (no shot given))"
+    }
+   ],
+   "resolution_note": [
+    "no shot given — resolved as the latest shot",
+    "tf: read rule `tf-focs-node-era` (fyo:read_rule_operator/select_node, declared) covers the latest shot (no shot given) and is NOT applied by this runtime — values are as the tree stores them",
+    "magnetics: read rule `magnetics-fl-b-polarity-159941` (fyo:read_rule_operator/sign, applied) covers the latest shot (no shot given) but names no channel of the \"pcs\" group — nothing to mark",
+    "magnetics: read rule `magnetics-fl-b-unusable-159941` (fyo:read_rule_operator/exclude_channel, applied) covers the latest shot (no shot given) but names no channel of the \"pcs\" group — nothing to mark",
+    "magnetics: read rule `magnetics-probes-unusable-159941` (fyo:read_rule_operator/exclude_channel, declared) covers the latest shot (no shot given) but names no channel of the \"pcs\" group — nothing to mark",
+    "magnetics: read rule `magnetics-probes-geometry-159941` (fyo:read_rule_operator/replace_geometry, declared) covers the latest shot (no shot given) but names no channel of the \"pcs\" group — nothing to mark"
+   ]
+  }
+ },
+ "data_source": {
+  "mdsplus": {
+   "tree": "east",
+   "pcs_tree": "pcs_east",
+   "btor_node": "\\FOCS_IT",
+   "fylite:btor_node_note": "read rule tf-focs-node-era, latest era (shots 75955..97285; no node is declared after it)",
+   "fylite:absent": {
+    "server": "deployment setting, not a device fact (ruling 2026-09-13)",
+    "ip_node": "the default magnetics binding reads Ip from \\PCRL01 in tree 'pcs_east', not from the main tree 'east'; the main-tree Rogowski nodes (IPG/IPE/IPM/IPV1) are listed as alternates only, and which one is not stated"
+   }
+  }
+ },
+ "magnetics": {
+  "@type": "fyo:magnetics",
+  "fylite:source": "facts/device/east/abox/providers/magnetics/pcs.jsonld",
+  "fylite:provider": "pcs",
+  "measurement_chain": "pcs_east",
+  "b_field_pol_probe": [
+   {
+    "name": "PCBPV1T",
+    "position": [
+     {
+      "r": 1.2905,
+      "z": 0.0
+     }
+    ],
+    "poloidal_angle": 1.5707963267948966,
+    "fylite:angle_deg": 90.0
+   },
+   {
+    "name": "PCBPV2T",
+    "position": [
+     {
+      "r": 1.2905,
+      "z": 0.248
+     }
+    ],
+    "poloidal_angle": 1.5707963267948966,
+    "fylite:angle_deg": 90.0
+   },
+   {
+    "name": "PCBPV3T",
+    "position": [
+     {
+      "r": 1.2905,
+      "z": 0.4543
+     }
+    ],
+    "poloidal_angle": 1.5707963267948966,
+    "fylite:angle_deg": 90.0
+   },
+   {
+    "name": "PCBPV4T",
+    "position": [
+     {
+      "r": 1.289721,
+      "z": 0.768462
+     }
+    ],
+    "poloidal_angle": 1.5365681512352602,
+    "fylite:angle_deg": 88.03887
+   },
+   {
+    "name": "PCBPV5T",
+    "position": [
+     {
+      "r": 1.294061,
+      "z": 0.862109
+     }
+    ],
+    "poloidal_angle": 1.5371416664274655,
+    "fylite:angle_deg": 88.07173
+   },
+   {
+    "name": "PCBPV6T",
+    "position": [
+     {
+      "r": 1.572351,
+      "z": 1.163678
+     }
+    ],
+    "poloidal_angle": 0.43200005672928204,
+    "fylite:angle_deg": 24.75178
+   },
+   {
+    "name": "PCBPV7T",
+    "position": [
+     {
+      "r": 1.719002,
+      "z": 1.19283
+     }
+    ],
+    "poloidal_angle": -0.14261172584508267,
+    "fylite:angle_deg": -8.171050000000001
+   },
+   {
+    "name": "PCBPV8T",
+    "position": [
+     {
+      "r": 1.82478,
+      "z": 1.129104
+     }
+    ],
+    "poloidal_angle": -1.4708552831671973,
+    "fylite:angle_deg": -84.2738
+   },
+   {
+    "name": "PCBPV9T",
+    "position": [
+     {
+      "r": 2.3287,
+      "z": 0.841
+     }
+    ],
+    "poloidal_angle": -0.8133234314293576,
+    "fylite:angle_deg": -46.6
+   },
+   {
+    "name": "PCBPV10T",
+    "position": [
+     {
+      "r": 2.4421,
+      "z": 0.7021
+     }
+    ],
+    "poloidal_angle": -0.9599310885968813,
+    "fylite:angle_deg": -55.0
+   },
+   {
+    "name": "PCBPV11T",
+    "position": [
+     {
+      "r": 2.53,
+      "z": 0.5559
+     }
+    ],
+    "poloidal_angle": -1.0995574287564276,
+    "fylite:angle_deg": -63.0
+   },
+   {
+    "name": "PCBPV12T",
+    "position": [
+     {
+      "r": 2.5996,
+      "z": 0.3904
+     }
+    ],
+    "poloidal_angle": -1.2463396188491507,
+    "fylite:angle_deg": -71.41
+   },
+   {
+    "name": "PCBPV13T",
+    "position": [
+     {
+      "r": 2.6452,
+      "z": 0.2108
+     }
+    ],
+    "poloidal_angle": -1.3976596649970592,
+    "fylite:angle_deg": -80.08000000000001
+   },
+   {
+    "name": "PCBPV14T",
+    "position": [
+     {
+      "r": 2.6635,
+      "z": 0.0
+     }
+    ],
+    "poloidal_angle": -1.5707963267948966,
+    "fylite:angle_deg": -90.0
+   },
+   {
+    "name": "PCBPV15T",
+    "position": [
+     {
+      "r": 1.2905,
+      "z": -0.248
+     }
+    ],
+    "poloidal_angle": 1.5707963267948966,
+    "fylite:angle_deg": 90.0
+   },
+   {
+    "name": "PCBPV16T",
+    "position": [
+     {
+      "r": 1.2905,
+      "z": -0.4543
+     }
+    ],
+    "poloidal_angle": 1.5707963267948966,
+    "fylite:angle_deg": 90.0
+   },
+   {
+    "name": "PCBPV17T",
+    "position": [
+     {
+      "r": 1.2905,
+      "z": -0.635
+     }
+    ],
+    "poloidal_angle": 1.5707963267948966,
+    "fylite:angle_deg": 90.0
+   },
+   {
+    "name": "PCBPV18T",
+    "position": [
+     {
+      "r": 1.2905,
+      "z": -0.7992
+     }
+    ],
+    "poloidal_angle": 1.5707963267948966,
+    "fylite:angle_deg": 90.0
+   },
+   {
+    "name": "PCBPV19T",
+    "position": [
+     {
+      "r": 1.3323,
+      "z": -1.0544
+     }
+    ],
+    "poloidal_angle": 2.2579324533050644,
+    "fylite:angle_deg": 129.37000000000003
+   },
+   {
+    "name": "PCBPV20T",
+    "position": [
+     {
+      "r": 1.6192,
+      "z": -1.1948
+     }
+    ],
+    "poloidal_angle": 3.141592653589793,
+    "fylite:angle_deg": 180.0
+   },
+   {
+    "name": "PCBPV21T",
+    "position": [
+     {
+      "r": 1.9185,
+      "z": -1.1263
+     }
+    ],
+    "poloidal_angle": -2.758492882777038,
+    "fylite:angle_deg": -158.05
+   },
+   {
+    "name": "PCBPV22T",
+    "position": [
+     {
+      "r": 2.3287,
+      "z": -0.8413
+     }
+    ],
+    "poloidal_angle": -2.3282692221604355,
+    "fylite:angle_deg": -133.4
+   },
+   {
+    "name": "PCBPV23T",
+    "position": [
+     {
+      "r": 2.4421,
+      "z": -0.7021
+     }
+    ],
+    "poloidal_angle": -2.181661564992912,
+    "fylite:angle_deg": -125.00000000000001
+   },
+   {
+    "name": "PCBPV24T",
+    "position": [
+     {
+      "r": 2.53,
+      "z": -0.5559
+     }
+    ],
+    "poloidal_angle": -2.0420352248333655,
+    "fylite:angle_deg": -117.0
+   },
+   {
+    "name": "PCBPV25T",
+    "position": [
+     {
+      "r": 2.5996,
+      "z": -0.3904
+     }
+    ],
+    "poloidal_angle": -1.8952530347406424,
+    "fylite:angle_deg": -108.59
+   },
+   {
+    "name": "PCBPV26T",
+    "position": [
+     {
+      "r": 2.6452,
+      "z": -0.2108
+     }
+    ],
+    "poloidal_angle": -1.7439329885927342,
+    "fylite:angle_deg": -99.92
+   },
+   {
+    "name": "PCBPV27T",
+    "position": [
+     {
+      "r": 1.4748,
+      "z": 1.0404
+     }
+    ],
+    "poloidal_angle": -0.1954768762233649,
+    "fylite:angle_deg": -11.2
+   },
+   {
+    "name": "PCBPV28T",
+    "position": [
+     {
+      "r": 1.6249,
+      "z": 1.1033
+     }
+    ],
+    "poloidal_angle": 0.9424777960769379,
+    "fylite:angle_deg": 54.0
+   },
+   {
+    "name": "PCBPV29T",
+    "position": [
+     {
+      "r": 1.8946,
+      "z": 1.0445
+     }
+    ],
+    "poloidal_angle": -1.3421581947836396,
+    "fylite:angle_deg": -76.90000000000002
+   },
+   {
+    "name": "PCBPV30T",
+    "position": [
+     {
+      "r": 1.995,
+      "z": 1.0011
+     }
+    ],
+    "poloidal_angle": -1.2552407980343219,
+    "fylite:angle_deg": -71.92
+   },
+   {
+    "name": "PCBPL1T",
+    "position": [
+     {
+      "r": 1.9844,
+      "z": 0.8964
+     }
+    ],
+    "poloidal_angle": -0.774402589109884,
+    "fylite:angle_deg": -44.37
+   },
+   {
+    "name": "PCBPL2T",
+    "position": [
+     {
+      "r": 2.1088,
+      "z": 0.7773
+     }
+    ],
+    "poloidal_angle": -0.774402589109884,
+    "fylite:angle_deg": -44.37
+   },
+   {
+    "name": "PCBPL3T",
+    "position": [
+     {
+      "r": 1.4748,
+      "z": -1.0384
+     }
+    ],
+    "poloidal_angle": -2.9461157773664284,
+    "fylite:angle_deg": -168.8
+   },
+   {
+    "name": "PCBPL4T",
+    "position": [
+     {
+      "r": 1.6249,
+      "z": -1.1013
+     }
+    ],
+    "poloidal_angle": 2.199114857512855,
+    "fylite:angle_deg": 126.0
+   },
+   {
+    "name": "PCBPL5T",
+    "position": [
+     {
+      "r": 1.8946,
+      "z": -1.0425
+     }
+    ],
+    "poloidal_angle": -1.7994344588061537,
+    "fylite:angle_deg": -103.1
+   },
+   {
+    "name": "PCBPL6T",
+    "position": [
+     {
+      "r": 1.995,
+      "z": -0.9991
+     }
+    ],
+    "poloidal_angle": -1.8863518555554712,
+    "fylite:angle_deg": -108.08
+   },
+   {
+    "name": "PCBPL7T",
+    "position": [
+     {
+      "r": 1.984,
+      "z": -0.8944
+     }
+    ],
+    "poloidal_angle": -2.367190064479909,
+    "fylite:angle_deg": -135.63
+   },
+   {
+    "name": "PCBPL8T",
+    "position": [
+     {
+      "r": 2.108,
+      "z": -0.7753
+     }
+    ],
+    "poloidal_angle": -2.367190064479909,
+    "fylite:angle_deg": -135.63
+   }
+  ],
+  "flux_loop": [
+   {
+    "name": "PCFL1",
+    "position": [
+     {
+      "r": 1.27,
+      "z": 0.0
+     }
+    ]
+   },
+   {
+    "name": "PCFL2",
+    "position": [
+     {
+      "r": 1.2703,
+      "z": 0.0199
+     }
+    ]
+   },
+   {
+    "name": "PCFL3",
+    "position": [
+     {
+      "r": 1.2707,
+      "z": 0.1977
+     }
+    ]
+   },
+   {
+    "name": "PCFL4",
+    "position": [
+     {
+      "r": 1.2692,
+      "z": 0.3354
+     }
+    ]
+   },
+   {
+    "name": "PCFL5",
+    "position": [
+     {
+      "r": 1.2692,
+      "z": 0.3703
+     }
+    ]
+   },
+   {
+    "name": "PCFL6",
+    "position": [
+     {
+      "r": 1.2711,
+      "z": 0.4998
+     }
+    ]
+   },
+   {
+    "name": "PCFL7",
+    "position": [
+     {
+      "r": 1.2657,
+      "z": 0.6239
+     }
+    ]
+   },
+   {
+    "name": "PCFL8",
+    "position": [
+     {
+      "r": 1.2657,
+      "z": 0.7059
+     }
+    ]
+   },
+   {
+    "name": "PCFL9",
+    "position": [
+     {
+      "r": 1.271,
+      "z": 0.8982
+     }
+    ]
+   },
+   {
+    "name": "PCFL10",
+    "position": [
+     {
+      "r": 1.2743,
+      "z": 0.988
+     }
+    ]
+   },
+   {
+    "name": "PCFL11",
+    "position": [
+     {
+      "r": 1.3244,
+      "z": 1.1177
+     }
+    ]
+   },
+   {
+    "name": "PCFL12",
+    "position": [
+     {
+      "r": 1.422,
+      "z": 1.1443
+     }
+    ]
+   },
+   {
+    "name": "PCFL13",
+    "position": [
+     {
+      "r": 2.1303,
+      "z": 0.955
+     }
+    ]
+   },
+   {
+    "name": "PCFL14",
+    "position": [
+     {
+      "r": 2.2304,
+      "z": 0.9002
+     }
+    ]
+   },
+   {
+    "name": "PCFL15",
+    "position": [
+     {
+      "r": 2.3496,
+      "z": 0.864
+     }
+    ]
+   },
+   {
+    "name": "PCFL16",
+    "position": [
+     {
+      "r": 2.4334,
+      "z": 0.7652
+     }
+    ]
+   },
+   {
+    "name": "PCFL17",
+    "position": [
+     {
+      "r": 2.543,
+      "z": 0.581
+     }
+    ]
+   },
+   {
+    "name": "PCFL18",
+    "position": [
+     {
+      "r": 1.2702,
+      "z": -0.0194
+     }
+    ]
+   },
+   {
+    "name": "PCFL19",
+    "position": [
+     {
+      "r": 1.2701,
+      "z": -0.1986
+     }
+    ]
+   },
+   {
+    "name": "PCFL20",
+    "position": [
+     {
+      "r": 1.2696,
+      "z": -0.3358
+     }
+    ]
+   },
+   {
+    "name": "PCFL21",
+    "position": [
+     {
+      "r": 1.2696,
+      "z": -0.3708
+     }
+    ]
+   },
+   {
+    "name": "PCFL22",
+    "position": [
+     {
+      "r": 1.2702,
+      "z": -0.5008
+     }
+    ]
+   },
+   {
+    "name": "PCFL23",
+    "position": [
+     {
+      "r": 1.2686,
+      "z": -0.7063
+     }
+    ]
+   },
+   {
+    "name": "PCFL24",
+    "position": [
+     {
+      "r": 1.2684,
+      "z": -0.7809
+     }
+    ]
+   },
+   {
+    "name": "PCFL25",
+    "position": [
+     {
+      "r": 1.2706,
+      "z": -0.9891
+     }
+    ]
+   },
+   {
+    "name": "PCFL26",
+    "position": [
+     {
+      "r": 1.3006,
+      "z": -1.0795
+     }
+    ]
+   },
+   {
+    "name": "PCFL27",
+    "position": [
+     {
+      "r": 1.37,
+      "z": -1.1438
+     }
+    ]
+   },
+   {
+    "name": "PCFL28",
+    "position": [
+     {
+      "r": 1.5111,
+      "z": -1.1674
+     }
+    ]
+   },
+   {
+    "name": "PCFL29",
+    "position": [
+     {
+      "r": 2.0836,
+      "z": -1.0273
+     }
+    ]
+   },
+   {
+    "name": "PCFL30",
+    "position": [
+     {
+      "r": 2.2297,
+      "z": -0.9234
+     }
+    ]
+   },
+   {
+    "name": "PCFL31",
+    "position": [
+     {
+      "r": 2.3389,
+      "z": -0.8775
+     }
+    ]
+   },
+   {
+    "name": "PCFL32",
+    "position": [
+     {
+      "r": 2.4199,
+      "z": -0.7663
+     }
+    ]
+   },
+   {
+    "name": "PCFL33",
+    "position": [
+     {
+      "r": 2.5419,
+      "z": -0.5807
+     }
+    ]
+   },
+   {
+    "name": "PCFL34",
+    "position": [
+     {
+      "r": 2.2595,
+      "z": -0.7634
+     }
+    ]
+   },
+   {
+    "name": "PCFL35",
+    "position": [
+     {
+      "r": 2.2587,
+      "z": 0.7653
+     }
+    ]
+   }
+  ],
+  "fylite:absent": {
+   "length": "the magnetics provider carries no per-channel `length`",
+   "weight": "the magnetics provider carries no per-channel `weight`",
+   "bit_error": "the magnetics provider carries no per-channel `bit_error`"
+  },
+  "pcs": {
+   "fylite:source": "facts/device/east/abox/providers/magnetics/pcs.jsonld",
+   "b_field_pol_probe": [
+    {
+     "name": "PCBPV1T",
+     "position": {
+      "r": 1.2905,
+      "z": 0.0
+     },
+     "angle": 90.0
+    },
+    {
+     "name": "PCBPV2T",
+     "position": {
+      "r": 1.2905,
+      "z": 0.248
+     },
+     "angle": 90.0
+    },
+    {
+     "name": "PCBPV3T",
+     "position": {
+      "r": 1.2905,
+      "z": 0.4543
+     },
+     "angle": 90.0
+    },
+    {
+     "name": "PCBPV4T",
+     "position": {
+      "r": 1.289721,
+      "z": 0.768462
+     },
+     "angle": 88.03887
+    },
+    {
+     "name": "PCBPV5T",
+     "position": {
+      "r": 1.294061,
+      "z": 0.862109
+     },
+     "angle": 88.07173
+    },
+    {
+     "name": "PCBPV6T",
+     "position": {
+      "r": 1.572351,
+      "z": 1.163678
+     },
+     "angle": 24.75178
+    },
+    {
+     "name": "PCBPV7T",
+     "position": {
+      "r": 1.719002,
+      "z": 1.19283
+     },
+     "angle": -8.171050000000001
+    },
+    {
+     "name": "PCBPV8T",
+     "position": {
+      "r": 1.82478,
+      "z": 1.129104
+     },
+     "angle": -84.2738
+    },
+    {
+     "name": "PCBPV9T",
+     "position": {
+      "r": 2.3287,
+      "z": 0.841
+     },
+     "angle": -46.6
+    },
+    {
+     "name": "PCBPV10T",
+     "position": {
+      "r": 2.4421,
+      "z": 0.7021
+     },
+     "angle": -55.0
+    },
+    {
+     "name": "PCBPV11T",
+     "position": {
+      "r": 2.53,
+      "z": 0.5559
+     },
+     "angle": -63.0
+    },
+    {
+     "name": "PCBPV12T",
+     "position": {
+      "r": 2.5996,
+      "z": 0.3904
+     },
+     "angle": -71.41
+    },
+    {
+     "name": "PCBPV13T",
+     "position": {
+      "r": 2.6452,
+      "z": 0.2108
+     },
+     "angle": -80.08000000000001
+    },
+    {
+     "name": "PCBPV14T",
+     "position": {
+      "r": 2.6635,
+      "z": 0.0
+     },
+     "angle": -90.0
+    },
+    {
+     "name": "PCBPV15T",
+     "position": {
+      "r": 1.2905,
+      "z": -0.248
+     },
+     "angle": 90.0
+    },
+    {
+     "name": "PCBPV16T",
+     "position": {
+      "r": 1.2905,
+      "z": -0.4543
+     },
+     "angle": 90.0
+    },
+    {
+     "name": "PCBPV17T",
+     "position": {
+      "r": 1.2905,
+      "z": -0.635
+     },
+     "angle": 90.0
+    },
+    {
+     "name": "PCBPV18T",
+     "position": {
+      "r": 1.2905,
+      "z": -0.7992
+     },
+     "angle": 90.0
+    },
+    {
+     "name": "PCBPV19T",
+     "position": {
+      "r": 1.3323,
+      "z": -1.0544
+     },
+     "angle": 129.37000000000003
+    },
+    {
+     "name": "PCBPV20T",
+     "position": {
+      "r": 1.6192,
+      "z": -1.1948
+     },
+     "angle": 180.0
+    },
+    {
+     "name": "PCBPV21T",
+     "position": {
+      "r": 1.9185,
+      "z": -1.1263
+     },
+     "angle": -158.05
+    },
+    {
+     "name": "PCBPV22T",
+     "position": {
+      "r": 2.3287,
+      "z": -0.8413
+     },
+     "angle": -133.4
+    },
+    {
+     "name": "PCBPV23T",
+     "position": {
+      "r": 2.4421,
+      "z": -0.7021
+     },
+     "angle": -125.00000000000001
+    },
+    {
+     "name": "PCBPV24T",
+     "position": {
+      "r": 2.53,
+      "z": -0.5559
+     },
+     "angle": -117.0
+    },
+    {
+     "name": "PCBPV25T",
+     "position": {
+      "r": 2.5996,
+      "z": -0.3904
+     },
+     "angle": -108.59
+    },
+    {
+     "name": "PCBPV26T",
+     "position": {
+      "r": 2.6452,
+      "z": -0.2108
+     },
+     "angle": -99.92
+    },
+    {
+     "name": "PCBPV27T",
+     "position": {
+      "r": 1.4748,
+      "z": 1.0404
+     },
+     "angle": -11.2
+    },
+    {
+     "name": "PCBPV28T",
+     "position": {
+      "r": 1.6249,
+      "z": 1.1033
+     },
+     "angle": 54.0
+    },
+    {
+     "name": "PCBPV29T",
+     "position": {
+      "r": 1.8946,
+      "z": 1.0445
+     },
+     "angle": -76.90000000000002
+    },
+    {
+     "name": "PCBPV30T",
+     "position": {
+      "r": 1.995,
+      "z": 1.0011
+     },
+     "angle": -71.92
+    },
+    {
+     "name": "PCBPL1T",
+     "position": {
+      "r": 1.9844,
+      "z": 0.8964
+     },
+     "angle": -44.37
+    },
+    {
+     "name": "PCBPL2T",
+     "position": {
+      "r": 2.1088,
+      "z": 0.7773
+     },
+     "angle": -44.37
+    },
+    {
+     "name": "PCBPL3T",
+     "position": {
+      "r": 1.4748,
+      "z": -1.0384
+     },
+     "angle": -168.8
+    },
+    {
+     "name": "PCBPL4T",
+     "position": {
+      "r": 1.6249,
+      "z": -1.1013
+     },
+     "angle": 126.0
+    },
+    {
+     "name": "PCBPL5T",
+     "position": {
+      "r": 1.8946,
+      "z": -1.0425
+     },
+     "angle": -103.1
+    },
+    {
+     "name": "PCBPL6T",
+     "position": {
+      "r": 1.995,
+      "z": -0.9991
+     },
+     "angle": -108.08
+    },
+    {
+     "name": "PCBPL7T",
+     "position": {
+      "r": 1.984,
+      "z": -0.8944
+     },
+     "angle": -135.63
+    },
+    {
+     "name": "PCBPL8T",
+     "position": {
+      "r": 2.108,
+      "z": -0.7753
+     },
+     "angle": -135.63
+    }
+   ]
+  },
+  "fylite:signal": {
+   "w_dia": {
+    "tree": "energy_east",
+    "node": "\\ENG",
+    "scale": 1.0,
+    "units": "J"
+   },
+   "v_loop": {
+    "tree": "east",
+    "node": "\\VP1",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "h98_mhd": {
+    "tree": "energy_east",
+    "node": "\\H98_MHD",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "h98_dia": {
+    "tree": "energy_east",
+    "node": "\\H98_DIA",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "taue_mhd": {
+    "tree": "energy_east",
+    "node": "\\TAUE_MHD",
+    "scale": 1.0,
+    "units": "s"
+   },
+   "tau98": {
+    "tree": "energy_east",
+    "node": "\\TAU98",
+    "scale": 1.0,
+    "units": "s"
+   },
+   "tau89": {
+    "tree": "energy_east",
+    "node": "\\TAU89",
+    "scale": 1.0,
+    "units": "s"
+   },
+   "betap_dia": {
+    "tree": "energy_east",
+    "node": "\\BETAP",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "w_mhd_efit": {
+    "tree": "efit_east",
+    "node": "\\WMHD",
+    "scale": 1.0,
+    "units": "J"
+   },
+   "betan_efit": {
+    "tree": "efit_east",
+    "node": "\\BETAN",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "betap_efit": {
+    "tree": "efit_east",
+    "node": "\\BETAP",
+    "scale": 1.0,
+    "units": "1"
+   }
+  },
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/summary.jsonld"
+ },
+ "pf_active": {
+  "@type": "fyo:pf_active",
+  "fylite:source": {
+   "geometry": "facts/device/east/abox/providers/pf_active/yu.jsonld",
+   "electrical": "facts/device/east/abox/providers/pf_active/base.jsonld"
+  },
+  "fylite:pairing": "element rectangles from the geometry provider in deck order; turns, fast coils, supplies and the BRSP circuit from the electrical provider, each paired to its deck element by rectangle centre. `supply[i]` drives element i.",
+  "fylite:resistance_note": "PF channel `resistance` is RECOMPUTED on the cross-sections this document carries: R = η·Σ2πr·N²/(w·h) over the channel's elements, η = 0.017 μΩ·m recovered from the electrical provider's own `resistance` on its own geometry (user ruling 2026-09-13). Fast coils keep the provider's value: their geometry is that provider's, so the two already agree.",
+  "coil": [
+   {
+    "name": "PF1",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 0.62866,
+        "z": 0.25132,
+        "width": 0.15078,
+        "height": 0.4426
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 140.0
+     }
+    ]
+   },
+   {
+    "name": "PF3",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 0.62866,
+        "z": 0.75396,
+        "width": 0.15078,
+        "height": 0.4426
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 140.0
+     }
+    ]
+   },
+   {
+    "name": "PF5",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 0.62866,
+        "z": 1.2566,
+        "width": 0.15078,
+        "height": 0.4426
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 140.0
+     }
+    ]
+   },
+   {
+    "name": "PF7",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 1.07217,
+        "z": 1.7537,
+        "width": 0.23694,
+        "height": 0.08852
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 44.0
+     }
+    ]
+   },
+   {
+    "name": "PF9",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 1.13679,
+        "z": 1.94092,
+        "width": 0.36618,
+        "height": 0.26556
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 204.0
+     }
+    ]
+   },
+   {
+    "name": "PF11",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 2.94558,
+        "z": 1.59073,
+        "width": 0.11844,
+        "height": 0.2034
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 60.0
+     }
+    ]
+   },
+   {
+    "name": "PF13",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 3.2698,
+        "z": 0.90419,
+        "width": 0.07896,
+        "height": 0.16272
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 32.0
+     }
+    ]
+   },
+   {
+    "name": "PF2",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 0.62866,
+        "z": -0.25132,
+        "width": 0.15078,
+        "height": 0.4426
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 140.0
+     }
+    ]
+   },
+   {
+    "name": "PF4",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 0.62866,
+        "z": -0.75396,
+        "width": 0.15078,
+        "height": 0.4426
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 140.0
+     }
+    ]
+   },
+   {
+    "name": "PF6",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 0.62866,
+        "z": -1.2566,
+        "width": 0.15078,
+        "height": 0.4426
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 140.0
+     }
+    ]
+   },
+   {
+    "name": "PF8",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 1.07217,
+        "z": -1.7537,
+        "width": 0.23694,
+        "height": 0.08852
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 44.0
+     }
+    ]
+   },
+   {
+    "name": "PF10",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 1.13679,
+        "z": -1.94092,
+        "width": 0.36618,
+        "height": 0.26556
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 204.0
+     }
+    ]
+   },
+   {
+    "name": "PF12",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 2.94558,
+        "z": -1.59073,
+        "width": 0.11844,
+        "height": 0.2034
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 60.0
+     }
+    ]
+   },
+   {
+    "name": "PF14",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 3.2698,
+        "z": -0.90419,
+        "width": 0.07896,
+        "height": 0.16272
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 32.0
+     }
+    ]
+   },
+   {
+    "name": "IC1",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 2.4,
+        "z": 0.6,
+        "width": 0.05,
+        "height": 0.1
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 2.0
+     }
+    ],
+    "function": [
+     {
+      "name": "b_field_fb",
+      "index": 2,
+      "description": "Generate magnetic field for vertical force balance"
+     }
+    ]
+   },
+   {
+    "name": "IC2",
+    "element": [
+     {
+      "geometry": {
+       "geometry_type": "rectangle",
+       "rectangle": {
+        "r": 2.4,
+        "z": -0.6,
+        "width": 0.05,
+        "height": 0.1
+       }
+      },
+      "fylite:a1": 0.0,
+      "fylite:a2": 90.0,
+      "turns_with_sign": 2.0
+     }
+    ],
+    "function": [
+     {
+      "name": "b_field_fb",
+      "index": 2,
+      "description": "Generate magnetic field for vertical force balance"
+     }
+    ]
+   }
+  ],
+  "supply": [
+   {
+    "name": "PS_PF1",
+    "description": "PF1 电源。限压出处：Fu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 280.0,
+    "time_constant": 0.015
+   },
+   {
+    "name": "PS_PF3",
+    "description": "PF3 电源。限压出处：Fu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 280.0,
+    "time_constant": 0.015
+   },
+   {
+    "name": "PS_PF5",
+    "description": "PF5 电源。限压出处：Fu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 280.0,
+    "time_constant": 0.015
+   },
+   {
+    "name": "PS_PF7",
+    "description": "PF7 电源。限压出处：Fu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 560.0,
+    "time_constant": 0.015
+   },
+   {
+    "name": "PS_PF9",
+    "description": "PF9 电源。限压出处：Fu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 280.0,
+    "time_constant": 0.015
+   },
+   {
+    "name": "PS_PF11",
+    "description": "PF11 电源。限压出处：Fu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 160.0,
+    "time_constant": 0.015
+   },
+   {
+    "name": "PS_PF13",
+    "description": "PF13 电源。限压出处：Liu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 800.0,
+    "time_constant": 0.015
+   },
+   {
+    "name": "PS_PF2",
+    "description": "PF2 电源。限压出处：Fu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 280.0,
+    "time_constant": 0.015
+   },
+   {
+    "name": "PS_PF4",
+    "description": "PF4 电源。限压出处：Fu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 280.0,
+    "time_constant": 0.015
+   },
+   {
+    "name": "PS_PF6",
+    "description": "PF6 电源。限压出处：Fu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 280.0,
+    "time_constant": 0.015
+   },
+   {
+    "name": "PS_PF8",
+    "description": "PF8 电源。限压出处：Fu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 560.0,
+    "time_constant": 0.015
+   },
+   {
+    "name": "PS_PF10",
+    "description": "PF10 电源。限压出处：Fu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 280.0,
+    "time_constant": 0.015
+   },
+   {
+    "name": "PS_PF12",
+    "description": "PF12 电源。限压出处：Fu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 160.0,
+    "time_constant": 0.015
+   },
+   {
+    "name": "PS_PF14",
+    "description": "PF14 电源。限压出处：Liu。",
+    "current_limit_max": 14500.0,
+    "voltage_limit_max": 800.0,
+    "time_constant": 0.015
+   }
+  ],
+  "fylite:bit_error_note": "`bit_error` is efit_w_pf_channel_fit.bitfc by LIST POSITION; the A-Box states that array in EFIT fcoil order (see `efit_index`), not BRSP order",
+  "fylite:channel": [
+   {
+    "name": "BRSP_01",
+    "fylite:mds_node": "PF1P",
+    "turns": 140,
+    "efit_index": 0,
+    "bit_error": 7000.0
+   },
+   {
+    "name": "BRSP_02",
+    "fylite:mds_node": "PF2P",
+    "turns": 140,
+    "efit_index": 2,
+    "bit_error": 7000.0
+   },
+   {
+    "name": "BRSP_03",
+    "fylite:mds_node": "PF3P",
+    "turns": 140,
+    "efit_index": 4,
+    "bit_error": 7000.0
+   },
+   {
+    "name": "BRSP_04",
+    "fylite:mds_node": "PF4P",
+    "turns": 140,
+    "efit_index": 6,
+    "bit_error": 12200.0
+   },
+   {
+    "name": "BRSP_05",
+    "fylite:mds_node": "PF5P",
+    "turns": 140,
+    "efit_index": 8,
+    "bit_error": 3200.0
+   },
+   {
+    "name": "BRSP_06",
+    "fylite:mds_node": "PF6P",
+    "turns": 140,
+    "efit_index": 10,
+    "bit_error": 1600.0
+   },
+   {
+    "name": "BRSP_07",
+    "fylite:mds_node": "PF7P",
+    "turns": 248,
+    "efit_index": 1,
+    "bit_error": 7000.0
+   },
+   {
+    "name": "BRSP_08",
+    "fylite:mds_node": "PF8P",
+    "turns": 248,
+    "efit_index": 3,
+    "bit_error": 7000.0
+   },
+   {
+    "name": "BRSP_09",
+    "fylite:mds_node": "PF9P",
+    "turns": 60,
+    "efit_index": 5,
+    "bit_error": 7000.0
+   },
+   {
+    "name": "BRSP_10",
+    "fylite:mds_node": "PF10P",
+    "turns": 60,
+    "efit_index": 7,
+    "bit_error": 12200.0
+   },
+   {
+    "name": "BRSP_11",
+    "fylite:mds_node": "PF11P",
+    "turns": 32,
+    "efit_index": 9,
+    "bit_error": 3200.0
+   },
+   {
+    "name": "BRSP_12",
+    "fylite:mds_node": "PF12P",
+    "turns": 32,
+    "efit_index": 11,
+    "bit_error": 1600.0
+   }
+  ]
+ },
+ "pf_channel_elements": [
+  [
+   {
+    "element": 0,
+    "weight": 1.000249250469339
+   }
+  ],
+  [
+   {
+    "element": 1,
+    "weight": 1.0003666047901583
+   }
+  ],
+  [
+   {
+    "element": 2,
+    "weight": 1.000520289173187
+   }
+  ],
+  [
+   {
+    "element": 3,
+    "weight": 0.17519056520658238
+   },
+   {
+    "element": 4,
+    "weight": 0.8252122714189168
+   }
+  ],
+  [
+   {
+    "element": 5,
+    "weight": 1.0000142359034598
+   }
+  ],
+  [
+   {
+    "element": 6,
+    "weight": 0.9999908342357825
+   }
+  ],
+  [
+   {
+    "element": 7,
+    "weight": 1.0002697064222283
+   }
+  ],
+  [
+   {
+    "element": 8,
+    "weight": 1.0003618923216784
+   }
+  ],
+  [
+   {
+    "element": 9,
+    "weight": 1.0005007110117465
+   }
+  ],
+  [
+   {
+    "element": 10,
+    "weight": 0.17518334842395225
+   },
+   {
+    "element": 11,
+    "weight": 0.8252232792572507
+   }
+  ],
+  [
+   {
+    "element": 12,
+    "weight": 1.0000130160487708
+   }
+  ],
+  [
+   {
+    "element": 13,
+    "weight": 0.9999908023245412
+   }
+  ]
+ ],
+ "wall": {
+  "@type": "fyo:wall",
+  "fylite:source": "facts/device/east/abox/static/now/wall.jsonld",
+  "description_2d": [
+   {
+    "limiter": {
+     "unit": [
+      {
+       "name": "base",
+       "outline": {
+        "r": [
+         2.277,
+         2.273,
+         2.267,
+         1.94,
+         1.94,
+         1.802,
+         1.773,
+         1.751,
+         1.736,
+         1.714,
+         1.707,
+         1.696,
+         1.665,
+         1.656,
+         1.635,
+         1.612,
+         1.478,
+         1.459,
+         1.44,
+         1.436,
+         1.399,
+         1.379,
+         1.392,
+         1.43,
+         1.439,
+         1.442,
+         1.437,
+         1.363,
+         1.361,
+         1.361,
+         1.361,
+         1.363,
+         1.421,
+         1.423,
+         1.422,
+         1.418,
+         1.331,
+         1.367,
+         1.564,
+         1.597,
+         1.598,
+         1.624,
+         1.754,
+         1.765,
+         1.814,
+         1.824,
+         1.825,
+         1.841,
+         1.971,
+         1.971,
+         2.267,
+         2.273,
+         2.277,
+         2.277,
+         2.306,
+         2.328,
+         2.343,
+         2.35,
+         2.35,
+         2.35,
+         2.343,
+         2.328,
+         2.306,
+         2.277
+        ],
+        "z": [
+         0.485,
+         0.485,
+         0.493,
+         0.809,
+         0.809,
+         0.926,
+         0.956,
+         0.993,
+         1.033,
+         1.131,
+         1.162,
+         1.142,
+         1.117,
+         1.111,
+         1.096,
+         1.084,
+         1.025,
+         1.021,
+         1.024,
+         1.026,
+         1.039,
+         1.049,
+         1.014,
+         0.909,
+         0.873,
+         0.835,
+         0.799,
+         0.456,
+         0.454,
+         0.0,
+         -0.454,
+         -0.456,
+         -0.725,
+         -0.748,
+         -0.749,
+         -0.77,
+         -1.011,
+         -0.977,
+         -0.938,
+         -0.941,
+         -0.941,
+         -0.961,
+         -1.139,
+         -1.17,
+         -0.959,
+         -0.934,
+         -0.932,
+         -0.91,
+         -0.783,
+         -0.783,
+         -0.493,
+         -0.485,
+         -0.485,
+         -0.309,
+         -0.244,
+         -0.176,
+         -0.106,
+         -0.036,
+         0.0,
+         0.036,
+         0.106,
+         0.176,
+         0.244,
+         0.309
+        ]
+       },
+       "fylite:upstream_name": "limiter",
+       "fylite:provider": "base",
+       "fylite:operational": true
+      }
+     ],
+     "fylite:limiter_alternatives": [
+      {
+       "name": "m-file",
+       "points": 48
+      }
+     ]
+    },
+    "vessel": {
+     "unit": [
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.7286,
+           "z": 0.0833,
+           "width": 0.008,
+           "height": 0.1666
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 93.74299999999154
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.7069,
+           "z": 0.2485,
+           "width": 0.0082,
+           "height": 0.1638
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 101.19100000001802
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.664,
+           "z": 0.4094,
+           "width": 0.0084,
+           "height": 0.1582
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 108.63859999998768
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.6007,
+           "z": 0.5635,
+           "width": 0.0089,
+           "height": 0.1499
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 116.08639999998574
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.5178,
+           "z": 0.708,
+           "width": 0.0096,
+           "height": 0.1391
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 123.53409999999826
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.417,
+           "z": 0.8406,
+           "width": 0.0106,
+           "height": 0.126
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 130.99330000001194
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.2997,
+           "z": 0.9589,
+           "width": 0.125,
+           "height": 0.0107
+          }
+         },
+         "fylite:a1": 138.4681999999993,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.1681,
+           "z": 1.061,
+           "width": 0.1383,
+           "height": 0.0097
+          }
+         },
+         "fylite:a1": 145.91580000002625,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.0244,
+           "z": 1.1452,
+           "width": 0.1492,
+           "height": 0.0089
+          }
+         },
+         "fylite:a1": 153.36349999998146,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.8708,
+           "z": 1.2095,
+           "width": 0.158,
+           "height": 0.0084
+          }
+         },
+         "fylite:a1": 161.24670000002632,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.709,
+           "z": 1.2454,
+           "width": 0.1657,
+           "height": 0.008
+          }
+         },
+         "fylite:a1": 173.72349999997886,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.5435,
+           "z": 1.2439,
+           "width": 0.1653,
+           "height": 0.0081
+          }
+         },
+         "fylite:a1": -172.66380000000086,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.3902,
+           "z": 1.1907,
+           "width": 0.1414,
+           "height": 0.0093
+          }
+         },
+         "fylite:a1": -148.97279999999952,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.2814,
+           "z": 1.075,
+           "width": 0.009,
+           "height": 0.1463
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": -117.48999999999805
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.2402,
+           "z": 0.9186,
+           "width": 0.008,
+           "height": 0.1666
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": -92.18989999998755
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.237,
+           "z": 0.7517,
+           "width": 0.008,
+           "height": 0.1671
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.237,
+           "z": 0.5847,
+           "width": 0.008,
+           "height": 0.1671
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.237,
+           "z": 0.4176,
+           "width": 0.008,
+           "height": 0.1671
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.237,
+           "z": 0.2506,
+           "width": 0.008,
+           "height": 0.1671
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.237,
+           "z": 0.0835,
+           "width": 0.008,
+           "height": 0.1671
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.237,
+           "z": -0.0835,
+           "width": 0.008,
+           "height": 0.1671
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.237,
+           "z": -0.2506,
+           "width": 0.008,
+           "height": 0.1671
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.237,
+           "z": -0.4176,
+           "width": 0.008,
+           "height": 0.1671
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.237,
+           "z": -0.5847,
+           "width": 0.008,
+           "height": 0.1671
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.237,
+           "z": -0.7517,
+           "width": 0.008,
+           "height": 0.1671
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.2402,
+           "z": -0.9186,
+           "width": 0.008,
+           "height": 0.1666
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": -87.81009999997886
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.2814,
+           "z": -1.075,
+           "width": 0.009,
+           "height": 0.1463
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": -62.510000000025684
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.3902,
+           "z": -1.1907,
+           "width": 0.1414,
+           "height": 0.0093
+          }
+         },
+         "fylite:a1": -31.027200000012343,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.5435,
+           "z": -1.2439,
+           "width": 0.1653,
+           "height": 0.0081
+          }
+         },
+         "fylite:a1": -7.336200000011001,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.709,
+           "z": -1.2454,
+           "width": 0.1657,
+           "height": 0.008
+          }
+         },
+         "fylite:a1": 6.276499999975702,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 1.8708,
+           "z": -1.2095,
+           "width": 0.158,
+           "height": 0.0084
+          }
+         },
+         "fylite:a1": 18.75329999998553,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.0244,
+           "z": -1.1452,
+           "width": 0.1492,
+           "height": 0.0089
+          }
+         },
+         "fylite:a1": 26.636499999973097,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.1681,
+           "z": -1.061,
+           "width": 0.1383,
+           "height": 0.0097
+          }
+         },
+         "fylite:a1": 34.0841999999856,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.2997,
+           "z": -0.9589,
+           "width": 0.125,
+           "height": 0.0107
+          }
+         },
+         "fylite:a1": 41.53180000001255,
+         "fylite:a2": 90.0
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.417,
+           "z": -0.8406,
+           "width": 0.0106,
+           "height": 0.126
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 49.00669999998805
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.5178,
+           "z": -0.708,
+           "width": 0.0096,
+           "height": 0.1391
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 56.465900000001746
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.6007,
+           "z": -0.5635,
+           "width": 0.0089,
+           "height": 0.1499
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 63.913600000014256
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.664,
+           "z": -0.4094,
+           "width": 0.0084,
+           "height": 0.1582
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 71.36140000001232
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.7069,
+           "z": -0.2485,
+           "width": 0.0082,
+           "height": 0.1638
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 78.80899999998198
+        }
+       ]
+      },
+      {
+       "element": [
+        {
+         "geometry": {
+          "geometry_type": "rectangle",
+          "rectangle": {
+           "r": 2.7286,
+           "z": -0.0833,
+           "width": 0.008,
+           "height": 0.1666
+          }
+         },
+         "fylite:a1": 0.0,
+         "fylite:a2": 86.25700000000846
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "pf_passive": {
+  "@type": "fyo:pf_passive",
+  "fylite:source": "facts/device/east/abox/static/now/pf_passive.jsonld",
+  "vessel": {
+   "resistivity_uohm_m": 0.74,
+   "fylite:geometry": "wall.description_2d[0].vessel.unit"
+  },
+  "outer_shell": {
+   "resistivity_uohm_m": 0.74,
+   "element": [
+    [
+     2.844041,
+     0.089216,
+     0.008018,
+     0.178431,
+     0.0,
+     93.82159999998767
+    ],
+    [
+     2.820412,
+     0.266079,
+     0.008161,
+     0.175296,
+     0.0,
+     101.39789999999647
+    ],
+    [
+     2.773671,
+     0.438281,
+     0.00846,
+     0.169108,
+     0.0,
+     108.97399999997685
+    ],
+    [
+     2.704583,
+     0.602795,
+     0.008946,
+     0.15992,
+     0.0,
+     116.5858000000167
+    ],
+    [
+     2.614319,
+     0.756712,
+     0.009672,
+     0.147914,
+     0.0,
+     124.19320000000428
+    ],
+    [
+     2.504511,
+     0.897355,
+     0.010726,
+     0.133371,
+     0.0,
+     131.76940000002753
+    ],
+    [
+     2.377112,
+     1.022288,
+     0.135678,
+     0.010544,
+     139.34990000000883,
+     -5.9401372709544376e-12
+    ],
+    [
+     2.234294,
+     1.129249,
+     0.149959,
+     0.00954,
+     146.9889000000176,
+     -5.9401372709544376e-12
+    ],
+    [
+     2.078569,
+     1.216363,
+     0.161489,
+     0.008859,
+     154.56499999999798,
+     -5.9401372709544376e-12
+    ],
+    [
+     1.912684,
+     1.282037,
+     0.170282,
+     0.0084,
+     162.23829999998188,
+     -5.9259264162392356e-12
+    ],
+    [
+     1.738852,
+     1.319668,
+     0.177381,
+     0.008054,
+     173.3388999999886,
+     -5.9117155615240335e-12
+    ],
+    [
+     1.563688,
+     1.316542,
+     0.172947,
+     0.008097,
+     -171.13710000001217,
+     -5.9401372709544376e-12
+    ],
+    [
+     1.399479,
+     1.260471,
+     0.155471,
+     0.009122,
+     -151.2839999999942,
+     -5.9117155615240335e-12
+    ],
+    [
+     1.272153,
+     1.14442,
+     0.009652,
+     0.146928,
+     0.0,
+     -124.02079999998395
+    ],
+    [
+     1.210781,
+     0.982879,
+     0.008071,
+     0.176153,
+     0.0,
+     -97.61850000000106
+    ],
+    [
+     1.199,
+     0.805322,
+     0.008,
+     0.178961,
+     0.0,
+     90.0
+    ],
+    [
+     1.199,
+     0.626362,
+     0.008,
+     0.178961,
+     0.0,
+     90.0
+    ],
+    [
+     1.199,
+     0.447401,
+     0.008,
+     0.178961,
+     0.0,
+     90.0
+    ],
+    [
+     1.199,
+     0.268441,
+     0.008,
+     0.178961,
+     0.0,
+     90.0
+    ],
+    [
+     1.199,
+     0.08948,
+     0.008,
+     0.178961,
+     0.0,
+     90.0
+    ],
+    [
+     1.199,
+     -0.08948,
+     0.008,
+     0.178961,
+     0.0,
+     90.0
+    ],
+    [
+     1.199,
+     -0.268441,
+     0.008,
+     0.178961,
+     0.0,
+     90.0
+    ],
+    [
+     1.199,
+     -0.447401,
+     0.008,
+     0.178961,
+     0.0,
+     90.0
+    ],
+    [
+     1.199,
+     -0.626362,
+     0.008,
+     0.178961,
+     0.0,
+     90.0
+    ],
+    [
+     1.199,
+     -0.805322,
+     0.008,
+     0.178961,
+     0.0,
+     90.0
+    ],
+    [
+     1.210781,
+     -0.982879,
+     0.008071,
+     0.176153,
+     0.0,
+     -82.38150000002261
+    ],
+    [
+     1.272153,
+     -1.14442,
+     0.009652,
+     0.146928,
+     0.0,
+     -55.979199999982455
+    ],
+    [
+     1.399479,
+     -1.260471,
+     0.155471,
+     0.009122,
+     -28.716000000017665,
+     -5.9401372709544376e-12
+    ],
+    [
+     1.563688,
+     -1.316542,
+     0.172947,
+     0.008097,
+     -8.862899999999689,
+     -5.9259264162392356e-12
+    ],
+    [
+     1.738852,
+     -1.319668,
+     0.177381,
+     0.008054,
+     6.661100000023246,
+     -5.9259264162392356e-12
+    ],
+    [
+     1.912684,
+     -1.282037,
+     0.170282,
+     0.0084,
+     17.76169999997268,
+     5.1372239795455243e-11
+    ],
+    [
+     2.078569,
+     -1.216363,
+     0.161489,
+     0.008859,
+     25.435000000013883,
+     -5.9259264162392356e-12
+    ],
+    [
+     2.234294,
+     -1.129249,
+     0.149959,
+     0.00954,
+     33.01119999997982,
+     -5.9117155615240335e-12
+    ],
+    [
+     2.377112,
+     -1.022288,
+     0.135678,
+     0.010544,
+     40.650100000003036,
+     -5.9117155615240335e-12
+    ],
+    [
+     2.504511,
+     -0.897355,
+     0.010726,
+     0.133371,
+     0.0,
+     48.23059999997246
+    ],
+    [
+     2.614319,
+     -0.756712,
+     0.009672,
+     0.147914,
+     0.0,
+     55.80679999999571
+    ],
+    [
+     2.704583,
+     -0.602795,
+     0.008946,
+     0.15992,
+     0.0,
+     63.414199999983296
+    ],
+    [
+     2.773671,
+     -0.438281,
+     0.00846,
+     0.169108,
+     0.0,
+     71.02600000002315
+    ],
+    [
+     2.820412,
+     -0.266079,
+     0.008161,
+     0.175296,
+     0.0,
+     78.60210000000353
+    ],
+    [
+     2.844041,
+     -0.089216,
+     0.008018,
+     0.178431,
+     0.0,
+     86.17840000001233
+    ]
+   ]
+  },
+  "passive_plates": {
+   "resistivity_uohm_m": 0.017,
+   "element": [
+    [
+     2.025565,
+     0.771587,
+     0.031449,
+     0.054864,
+     0.0,
+     135.6096000000226
+    ],
+    [
+     2.081609,
+     0.716723,
+     0.031449,
+     0.054864,
+     0.0,
+     135.6096000000226
+    ],
+    [
+     2.137653,
+     0.661859,
+     0.031449,
+     0.054864,
+     0.0,
+     135.6096000000226
+    ],
+    [
+     2.193697,
+     0.606995,
+     0.031449,
+     0.054864,
+     0.0,
+     135.6096000000226
+    ],
+    [
+     2.249741,
+     0.552131,
+     0.031449,
+     0.054864,
+     0.0,
+     135.6096000000226
+    ],
+    [
+     2.025565,
+     -0.771587,
+     0.031449,
+     0.054864,
+     0.0,
+     44.39039999997741
+    ],
+    [
+     2.081609,
+     -0.716723,
+     0.031449,
+     0.054864,
+     0.0,
+     44.39039999997741
+    ],
+    [
+     2.137653,
+     -0.661859,
+     0.031449,
+     0.054864,
+     0.0,
+     44.39039999997741
+    ],
+    [
+     2.193697,
+     -0.606995,
+     0.031449,
+     0.054864,
+     0.0,
+     44.39039999997741
+    ],
+    [
+     2.249741,
+     -0.552131,
+     0.031449,
+     0.054864,
+     0.0,
+     44.39039999997741
+    ]
+   ]
+  }
+ },
+ "fylite:vessel_resistivity_uohm_m": 0.74,
+ "lh_antennas": {
+  "@type": "fyo:lh_antennas",
+  "fylite:source": "facts/device/east/abox/static/now/lh_antenna.jsonld",
+  "antenna": [
+   {
+    "name": "LH1",
+    "frequency": 2450000000.0,
+    "fylite:max_power": 4000000.0,
+    "fylite:n_parallel": [
+     1.91,
+     2.43
+    ],
+    "fylite:power_launched": {
+     "tree": "EAST",
+     "node": "\\PLHI1",
+     "scale": 1000.0,
+     "units": "W"
+    },
+    "fylite:power_reflected": {
+     "tree": "EAST",
+     "node": "\\PLHR1",
+     "scale": 1000.0,
+     "units": "W"
+    },
+    "fylite:plhs": {
+     "tree": "EAST",
+     "node": "\\PLHS1",
+     "scale": 1.0,
+     "units": "V"
+    }
+   },
+   {
+    "name": "LH2",
+    "frequency": 4600000000.0,
+    "fylite:max_power": 6000000.0,
+    "fylite:n_parallel": [
+     1.8,
+     2.23
+    ],
+    "fylite:power_launched": {
+     "tree": "EAST",
+     "node": "\\PLHI2",
+     "scale": 1000.0,
+     "units": "W"
+    },
+    "fylite:power_reflected": {
+     "tree": "EAST",
+     "node": "\\PLHR2",
+     "scale": 1000.0,
+     "units": "W"
+    },
+    "fylite:plhs": {
+     "tree": "EAST",
+     "node": "\\PLHS2",
+     "scale": 1.0,
+     "units": "V"
+    }
+   }
+  ],
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/lh_antenna.jsonld"
+ },
+ "ic_antennas": {
+  "@type": "fyo:ic_antennas",
+  "fylite:source": "facts/device/east/abox/static/now/ic_antenna.jsonld",
+  "antenna": [
+   {
+    "name": "ICRFI"
+   },
+   {
+    "name": "ICRFB"
+   },
+   {
+    "name": "ICRF1"
+   },
+   {
+    "name": "ICRF2"
+   },
+   {
+    "name": "ICRF3"
+   },
+   {
+    "name": "ICRF4"
+   },
+   {
+    "name": "ICRF5"
+   },
+   {
+    "name": "ICRF6"
+   },
+   {
+    "name": "ICRF7"
+   },
+   {
+    "name": "ICRF8"
+   }
+  ]
+ },
+ "ec_launchers": {
+  "@type": "fyo:ec_launchers",
+  "fylite:source": "facts/device/east/abox/static/now/ec_launchers.jsonld",
+  "beam": [
+   {
+    "name": "PECRH1I",
+    "frequency": 140000000000.0,
+    "mode": -1,
+    "fylite:max_power": 1000000.0,
+    "launching_position": {
+     "r": 3.0,
+     "z": -0.3
+    },
+    "fylite:beam_waist": 0.031,
+    "fylite:beam_waist_from_mirror": 1.2,
+    "fylite:power_launched": {
+     "tree": "analysis",
+     "node": "\\ECRH_EAST::PECRH1I",
+     "scale": 1000.0,
+     "units": "W"
+    },
+    "fylite:baseline_window": [
+     -3.0,
+     -1.0
+    ]
+   },
+   {
+    "name": "PECRH2I",
+    "frequency": 140000000000.0,
+    "mode": -1,
+    "fylite:max_power": 1000000.0,
+    "launching_position": {
+     "r": 3.0,
+     "z": -0.3
+    },
+    "fylite:beam_waist": 0.031,
+    "fylite:beam_waist_from_mirror": 1.2,
+    "fylite:power_launched": {
+     "tree": "analysis",
+     "node": "\\ECRH_EAST::PECRH2I",
+     "scale": 1000.0,
+     "units": "W"
+    },
+    "fylite:baseline_window": [
+     -3.0,
+     -1.0
+    ]
+   },
+   {
+    "name": "PECRH3I",
+    "frequency": 140000000000.0,
+    "mode": -1,
+    "fylite:max_power": 1000000.0,
+    "launching_position": {
+     "r": 3.0,
+     "z": 0.3
+    },
+    "fylite:beam_waist": 0.031,
+    "fylite:beam_waist_from_mirror": 1.2,
+    "fylite:power_launched": {
+     "tree": "analysis",
+     "node": "\\ECRH_EAST::PECRH3I",
+     "scale": 1000.0,
+     "units": "W"
+    },
+    "fylite:baseline_window": [
+     -3.0,
+     -1.0
+    ]
+   },
+   {
+    "name": "PECRH4I",
+    "frequency": 140000000000.0,
+    "mode": -1,
+    "fylite:max_power": 1000000.0,
+    "launching_position": {
+     "r": 3.0,
+     "z": 0.3
+    },
+    "fylite:beam_waist": 0.031,
+    "fylite:beam_waist_from_mirror": 1.2,
+    "fylite:power_launched": {
+     "tree": "analysis",
+     "node": "\\ECRH_EAST::PECRH4I",
+     "scale": 1000.0,
+     "units": "W"
+    },
+    "fylite:baseline_window": [
+     -3.0,
+     -1.0
+    ]
+   }
+  ],
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/ec_launchers.jsonld",
+  "fylite:absent": {
+   "fylite:angle_pol": "no per-shot launch angles for this shot (no overlay covers it)"
+  },
+  "fylite:steering_range_note": "Poloidal angle: ±5 °~ ∓25 °, Toroidal angle: ±25°",
+  "fylite:steering_range_source": "facts/device/east/abox/static/now/ec_launchers.jsonld provenance.comment (eastwiki, verbatim)"
+ },
+ "thomson_scattering": {
+  "@type": "fyo:thomson_scattering",
+  "fylite:source": "facts/device/east/abox/static/now/thomson_scattering.jsonld",
+  "fylite:signal": {
+   "te": {
+    "tree": "ts_east",
+    "node": "\\TE_CORETS",
+    "scale": 1.0,
+    "units": "eV"
+   },
+   "ne": {
+    "tree": "ts_east",
+    "node": "\\NE_CORETS",
+    "scale": 1.0,
+    "units": "m^-3"
+   },
+   "te_err": {
+    "tree": "ts_east",
+    "node": "\\TE_CORETSERR",
+    "scale": 1.0,
+    "units": "eV"
+   },
+   "ne_err": {
+    "tree": "ts_east",
+    "node": "\\NE_CORETSERR",
+    "scale": 1.0,
+    "units": "m^-3"
+   },
+   "r": {
+    "tree": "ts_east",
+    "node": "\\R_CORETS",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "z": {
+    "tree": "ts_east",
+    "node": "\\Z_CORETS",
+    "scale": 1.0,
+    "units": "m"
+   }
+  },
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/thomson_scattering.jsonld"
+ },
+ "reflectometer_profile": {
+  "@type": "fyo:reflectometer_profile",
+  "fylite:source": "facts/device/east/abox/static/now/reflectometer_profile.jsonld",
+  "fylite:signal": {
+   "ne": {
+    "tree": "reflj_east",
+    "node": "\\NE_REFLJ",
+    "scale": 1e+19,
+    "units": "m^-3"
+   },
+   "r": {
+    "tree": "reflj_east",
+    "node": "\\R_REFLJ",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "z": {
+    "tree": "reflj_east",
+    "node": "\\Z_REFLJ",
+    "scale": 1.0,
+    "units": "m"
+   }
+  },
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/reflectometer_profile.jsonld"
+ },
+ "spectrometer_x_ray_crystal": {
+  "@type": "fyo:spectrometer_x_ray_crystal",
+  "fylite:source": "facts/device/east/abox/static/now/spectrometer_x_ray_crystal.jsonld",
+  "fylite:signal": {
+   "ti": {
+    "tree": "analysis",
+    "node": "\\TXCS_EAST::TI_TXCS",
+    "scale": 1.0,
+    "units": "eV"
+   },
+   "ti_err": {
+    "tree": "analysis",
+    "node": "\\TXCS_EAST::TI_TXCSERR",
+    "scale": 1.0,
+    "units": "eV"
+   },
+   "te": {
+    "tree": "analysis",
+    "node": "\\TXCS_EAST::TE_TXCS",
+    "scale": 1.0,
+    "units": "eV"
+   },
+   "z": {
+    "tree": "analysis",
+    "node": "\\TXCS_EAST::Z_TXCS",
+    "scale": 0.01,
+    "units": "m"
+   },
+   "ti0": {
+    "tree": "analysis",
+    "node": "\\TXCS_EAST::TI0_TXCS",
+    "scale": 1.0,
+    "units": "eV"
+   }
+  },
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/spectrometer_x_ray_crystal.jsonld"
+ },
+ "ece": {
+  "@type": "fyo:ece",
+  "fylite:source": "facts/device/east/abox/static/now/ece.jsonld",
+  "fylite:signal": {
+   "te": {
+    "tree": "hrs_east",
+    "node": "\\TE_HRS",
+    "scale": 1.0,
+    "units": "eV"
+   },
+   "r": {
+    "tree": "hrs_east",
+    "node": "\\R_HRS",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "z": {
+    "tree": "hrs_east",
+    "node": "\\Z_HRS",
+    "scale": 1.0,
+    "units": "m"
+   }
+  },
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/ece.jsonld"
+ },
+ "bolometer": {
+  "@type": "fyo:bolometer",
+  "fylite:source": "facts/device/east/abox/static/now/bolometer.jsonld",
+  "fylite:signal": {
+   "p_rad": {
+    "tree": "analysis",
+    "node": "\\PRADTOT_AXUV",
+    "scale": 1000.0,
+    "units": "W"
+   }
+  },
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/bolometer.jsonld"
+ },
+ "nbi": {
+  "@type": "fyo:nbi",
+  "fylite:source": "facts/device/east/abox/static/now/nbi.jsonld",
+  "unit": [
+   {
+    "name": "NBI1"
+   },
+   {
+    "name": "NBI2"
+   }
+  ],
+  "fylite:signal": {
+   "p1l": {
+    "tree": "nbi_east",
+    "node": "\\PNBI1LSOURCE",
+    "scale": 1000.0,
+    "units": "W"
+   },
+   "p1r": {
+    "tree": "nbi_east",
+    "node": "\\PNBI1RSOURCE",
+    "scale": 1000.0,
+    "units": "W"
+   },
+   "p2l": {
+    "tree": "nbi_east",
+    "node": "\\PNBI2LSOURCE",
+    "scale": 1000.0,
+    "units": "W"
+   },
+   "p2r": {
+    "tree": "nbi_east",
+    "node": "\\PNBI2RSOURCE",
+    "scale": 1000.0,
+    "units": "W"
+   },
+   "v1l": {
+    "tree": "east",
+    "node": "\\NBI1LHV",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "i1l": {
+    "tree": "east",
+    "node": "\\NBI1LHI",
+    "scale": 1.0,
+    "units": "A"
+   },
+   "v1r": {
+    "tree": "east",
+    "node": "\\NBI1RHV",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "i1r": {
+    "tree": "east",
+    "node": "\\NBI1RHI",
+    "scale": 1.0,
+    "units": "A"
+   },
+   "v2l": {
+    "tree": "east",
+    "node": "\\NBI2LHV",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "i2l": {
+    "tree": "east",
+    "node": "\\NBI2LHI",
+    "scale": 1.0,
+    "units": "A"
+   },
+   "v2r": {
+    "tree": "east",
+    "node": "\\NBI2RHV",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "i2r": {
+    "tree": "east",
+    "node": "\\NBI2RHI",
+    "scale": 1.0,
+    "units": "A"
+   }
+  },
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/nbi.jsonld"
+ },
+ "bremsstrahlung_visible": {
+  "@type": "fyo:bremsstrahlung_visible",
+  "fylite:source": "facts/device/east/abox/static/now/bremsstrahlung_visible.jsonld",
+  "fylite:signal": {
+   "zeff": {
+    "tree": "brem_east",
+    "node": "\\ZEFF_AVE",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "zeff_err": {
+    "tree": "brem_east",
+    "node": "\\ZEFF_AVEERR",
+    "scale": 1.0,
+    "units": "1"
+   }
+  },
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/bremsstrahlung_visible.jsonld"
+ },
+ "charge_exchange": {
+  "@type": "fyo:charge_exchange",
+  "fylite:source": "facts/device/east/abox/static/now/charge_exchange.jsonld",
+  "fylite:signal": {
+   "ti": {
+    "tree": "cxrs_east",
+    "node": "\\TI_CXRS_T",
+    "scale": 1.0,
+    "units": "eV"
+   },
+   "ti_err": {
+    "tree": "cxrs_east",
+    "node": "\\TI_CXRS_TERR",
+    "scale": 1.0,
+    "units": "eV"
+   },
+   "vt": {
+    "tree": "cxrs_east",
+    "node": "\\VT_CXRS_T",
+    "scale": 1.0,
+    "units": "km/s (unverified)"
+   },
+   "vt_err": {
+    "tree": "cxrs_east",
+    "node": "\\VT_CXRS_TERR",
+    "scale": 1.0,
+    "units": "km/s (unverified)"
+   },
+   "r": {
+    "tree": "cxrs_east",
+    "node": "\\R_CXRS_T",
+    "scale": 1.0,
+    "units": "m"
+   }
+  },
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/charge_exchange.jsonld"
+ },
+ "hard_x_rays": {
+  "@type": "fyo:hard_x_rays",
+  "fylite:source": "facts/device/east/abox/static/now/hard_x_rays.jsonld",
+  "fylite:signal": {
+   "hx1": {
+    "tree": "east",
+    "node": "\\HX1",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx2": {
+    "tree": "east",
+    "node": "\\HX2",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx3": {
+    "tree": "east",
+    "node": "\\HX3",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx4": {
+    "tree": "east",
+    "node": "\\HX4",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx5": {
+    "tree": "east",
+    "node": "\\HX5",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx6": {
+    "tree": "east",
+    "node": "\\HX6",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx7": {
+    "tree": "east",
+    "node": "\\HX7",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx8": {
+    "tree": "east",
+    "node": "\\HX8",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx9": {
+    "tree": "east",
+    "node": "\\HX9",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx10": {
+    "tree": "east",
+    "node": "\\HX10",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx11": {
+    "tree": "east",
+    "node": "\\HX11",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx12": {
+    "tree": "east",
+    "node": "\\HX12",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx13": {
+    "tree": "east",
+    "node": "\\HX13",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx14": {
+    "tree": "east",
+    "node": "\\HX14",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx15": {
+    "tree": "east",
+    "node": "\\HX15",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx16": {
+    "tree": "east",
+    "node": "\\HX16",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx17": {
+    "tree": "east",
+    "node": "\\HX17",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx18": {
+    "tree": "east",
+    "node": "\\HX18",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx19": {
+    "tree": "east",
+    "node": "\\HX19",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "hx20": {
+    "tree": "east",
+    "node": "\\HX20",
+    "scale": 1.0,
+    "units": "V"
+   }
+  },
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/hard_x_rays.jsonld"
+ },
+ "soft_x_rays": {
+  "@type": "fyo:soft_x_rays",
+  "fylite:source": "facts/device/east/abox/static/now/soft_x_rays.jsonld",
+  "fylite:signal": {
+   "sawtooth_trigger": {
+    "tree": "east",
+    "node": "\\SXR23U",
+    "scale": 1.0,
+    "units": "a.u."
+   }
+  },
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/soft_x_rays.jsonld"
+ },
+ "neutron_diagnostic": {
+  "@type": "fyo:neutron_diagnostic",
+  "fylite:source": "facts/device/east/abox/static/now/neutron_diagnostic.jsonld",
+  "fylite:signal": {
+   "zz1": {
+    "tree": "east",
+    "node": "\\ZZ1",
+    "scale": 1.0,
+    "units": "Hz (unverified)"
+   },
+   "zz2": {
+    "tree": "east",
+    "node": "\\ZZ2",
+    "scale": 1.0,
+    "units": "Hz (unverified)"
+   },
+   "zz7": {
+    "tree": "east",
+    "node": "\\ZZ7",
+    "scale": 1.0,
+    "units": "Hz (unverified)"
+   },
+   "zz8": {
+    "tree": "east",
+    "node": "\\ZZ8",
+    "scale": 1.0,
+    "units": "Hz (unverified)"
+   },
+   "nf1": {
+    "tree": "east",
+    "node": "\\NF1",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "nf2": {
+    "tree": "east",
+    "node": "\\NF2",
+    "scale": 1.0,
+    "units": "V"
+   },
+   "nf3": {
+    "tree": "east",
+    "node": "\\NF3",
+    "scale": 1.0,
+    "units": "V"
+   }
+  },
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/neutron_diagnostic.jsonld"
+ },
+ "equilibrium": {
+  "@type": "fyo:equilibrium",
+  "fylite:role": "comparison-only",
+  "fylite:data_class": "reference",
+  "fylite:source": "facts/device/east/abox/bind/mdsplus/equilibrium.jsonld",
+  "fylite:signal": {
+   "efit_time": {
+    "tree": "efit_east",
+    "node": "\\GTIME",
+    "scale": 1.0,
+    "units": "s"
+   },
+   "efit_r": {
+    "tree": "efit_east",
+    "node": "\\R",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "efit_z": {
+    "tree": "efit_east",
+    "node": "\\Z",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "efit_psirz": {
+    "tree": "efit_east",
+    "node": "\\PSIRZ",
+    "scale": 1.0,
+    "units": "Wb/rad"
+   },
+   "efit_pres": {
+    "tree": "efit_east",
+    "node": "\\PRES",
+    "scale": 1.0,
+    "units": "Pa"
+   },
+   "efit_pprime": {
+    "tree": "efit_east",
+    "node": "\\PPRIME",
+    "scale": 1.0,
+    "units": "Pa/(Wb/rad)"
+   },
+   "efit_ffprim": {
+    "tree": "efit_east",
+    "node": "\\FFPRIM",
+    "scale": 1.0,
+    "units": "T^2*m^2/(Wb/rad)"
+   },
+   "efit_fpol": {
+    "tree": "efit_east",
+    "node": "\\FPOL",
+    "scale": 1.0,
+    "units": "T*m"
+   },
+   "efit_qpsi": {
+    "tree": "efit_east",
+    "node": "\\QPSI",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efit_bdry": {
+    "tree": "efit_east",
+    "node": "\\BDRY",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "efit_nbdry": {
+    "tree": "efit_east",
+    "node": "\\NBDRY",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efit_psi_axis": {
+    "tree": "efit_east",
+    "node": "\\SSIMAG",
+    "scale": 1.0,
+    "units": "Wb/rad"
+   },
+   "efit_psi_bnd": {
+    "tree": "efit_east",
+    "node": "\\SSIBRY",
+    "scale": 1.0,
+    "units": "Wb/rad"
+   },
+   "efit_axis_r": {
+    "tree": "efit_east",
+    "node": "\\RMAXIS",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "efit_axis_z": {
+    "tree": "efit_east",
+    "node": "\\ZMAXIS",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "efit_q0": {
+    "tree": "efit_east",
+    "node": "\\Q0",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efit_q95": {
+    "tree": "efit_east",
+    "node": "\\Q95",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efit_li": {
+    "tree": "efit_east",
+    "node": "\\LI",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efit_betap": {
+    "tree": "efit_east",
+    "node": "\\BETAP",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efit_betan": {
+    "tree": "efit_east",
+    "node": "\\BETAN",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efit_w_mhd": {
+    "tree": "efit_east",
+    "node": "\\WMHD",
+    "scale": 1.0,
+    "units": "J"
+   },
+   "efit_ip": {
+    "tree": "efit_east",
+    "node": "\\PLASMA",
+    "scale": 1.0,
+    "units": "A"
+   },
+   "efit_kappa": {
+    "tree": "efit_east",
+    "node": "\\KAPPA",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efit_tri_upper": {
+    "tree": "efit_east",
+    "node": "\\TRITOP",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efit_tri_lower": {
+    "tree": "efit_east",
+    "node": "\\TRIBOT",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efit_volume": {
+    "tree": "efit_east",
+    "node": "\\VOLUME",
+    "scale": 1.0,
+    "units": "m^3"
+   },
+   "efit_b0": {
+    "tree": "efit_east",
+    "node": "\\BCENTR",
+    "scale": 1.0,
+    "units": "T"
+   },
+   "pefit_time": {
+    "tree": "pefit_east",
+    "node": "\\GTIME",
+    "scale": 1.0,
+    "units": "s"
+   },
+   "pefit_r": {
+    "tree": "pefit_east",
+    "node": "\\R",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "pefit_z": {
+    "tree": "pefit_east",
+    "node": "\\Z",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "pefit_psirz": {
+    "tree": "pefit_east",
+    "node": "\\PSIRZ",
+    "scale": 1.0,
+    "units": "Wb/rad"
+   },
+   "pefit_pres": {
+    "tree": "pefit_east",
+    "node": "\\PRES",
+    "scale": 1.0,
+    "units": "Pa"
+   },
+   "pefit_pprime": {
+    "tree": "pefit_east",
+    "node": "\\PPRIME",
+    "scale": 1.0,
+    "units": "Pa/(Wb/rad)"
+   },
+   "pefit_ffprim": {
+    "tree": "pefit_east",
+    "node": "\\FFPRIM",
+    "scale": 1.0,
+    "units": "T^2*m^2/(Wb/rad)"
+   },
+   "pefit_fpol": {
+    "tree": "pefit_east",
+    "node": "\\FPOL",
+    "scale": 1.0,
+    "units": "T*m"
+   },
+   "pefit_qpsi": {
+    "tree": "pefit_east",
+    "node": "\\QPSI",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "pefit_bdry": {
+    "tree": "pefit_east",
+    "node": "\\BDRY",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "pefit_nbdry": {
+    "tree": "pefit_east",
+    "node": "\\NBDRY",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "pefit_psi_axis": {
+    "tree": "pefit_east",
+    "node": "\\SSIMAG",
+    "scale": 1.0,
+    "units": "Wb/rad"
+   },
+   "pefit_psi_bnd": {
+    "tree": "pefit_east",
+    "node": "\\SSIBRY",
+    "scale": 1.0,
+    "units": "Wb/rad"
+   },
+   "pefit_axis_r": {
+    "tree": "pefit_east",
+    "node": "\\RMAXIS",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "pefit_axis_z": {
+    "tree": "pefit_east",
+    "node": "\\ZMAXIS",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "pefit_q0": {
+    "tree": "pefit_east",
+    "node": "\\Q0",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "pefit_q95": {
+    "tree": "pefit_east",
+    "node": "\\Q95",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "pefit_li": {
+    "tree": "pefit_east",
+    "node": "\\LI",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "pefit_betap": {
+    "tree": "pefit_east",
+    "node": "\\BETAP",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "pefit_betan": {
+    "tree": "pefit_east",
+    "node": "\\BETAN",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "pefit_w_mhd": {
+    "tree": "pefit_east",
+    "node": "\\WMHD",
+    "scale": 1.0,
+    "units": "J"
+   },
+   "pefit_ip": {
+    "tree": "pefit_east",
+    "node": "\\CPASMA",
+    "scale": 1.0,
+    "units": "A"
+   },
+   "pefit_kappa": {
+    "tree": "pefit_east",
+    "node": "\\KAPPA",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "pefit_tri_upper": {
+    "tree": "pefit_east",
+    "node": "\\TRITOP",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "pefit_tri_lower": {
+    "tree": "pefit_east",
+    "node": "\\TRIBOT",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "pefit_volume": {
+    "tree": "pefit_east",
+    "node": "\\VOLUME",
+    "scale": 1.0,
+    "units": "m^3"
+   },
+   "pefit_b0": {
+    "tree": "pefit_east",
+    "node": "\\BCENTR",
+    "scale": 1.0,
+    "units": "T"
+   },
+   "efitrt_time": {
+    "tree": "efitrt_east",
+    "node": "\\GTIME",
+    "scale": 1.0,
+    "units": "s"
+   },
+   "efitrt_r": {
+    "tree": "efitrt_east",
+    "node": "\\R",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "efitrt_z": {
+    "tree": "efitrt_east",
+    "node": "\\Z",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "efitrt_psirz": {
+    "tree": "efitrt_east",
+    "node": "\\PSIRZ",
+    "scale": 1.0,
+    "units": "Wb/rad"
+   },
+   "efitrt_pres": {
+    "tree": "efitrt_east",
+    "node": "\\PRES",
+    "scale": 1.0,
+    "units": "Pa"
+   },
+   "efitrt_pprime": {
+    "tree": "efitrt_east",
+    "node": "\\PPRIME",
+    "scale": 1.0,
+    "units": "Pa/(Wb/rad)"
+   },
+   "efitrt_ffprim": {
+    "tree": "efitrt_east",
+    "node": "\\FFPRIM",
+    "scale": 1.0,
+    "units": "T^2*m^2/(Wb/rad)"
+   },
+   "efitrt_fpol": {
+    "tree": "efitrt_east",
+    "node": "\\FPOL",
+    "scale": 1.0,
+    "units": "T*m"
+   },
+   "efitrt_qpsi": {
+    "tree": "efitrt_east",
+    "node": "\\QPSI",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efitrt_bdry": {
+    "tree": "efitrt_east",
+    "node": "\\BDRY",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "efitrt_nbdry": {
+    "tree": "efitrt_east",
+    "node": "\\NBDRY",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efitrt_psi_axis": {
+    "tree": "efitrt_east",
+    "node": "\\SSIMAG",
+    "scale": 1.0,
+    "units": "Wb/rad"
+   },
+   "efitrt_psi_bnd": {
+    "tree": "efitrt_east",
+    "node": "\\SSIBRY",
+    "scale": 1.0,
+    "units": "Wb/rad"
+   },
+   "efitrt_axis_r": {
+    "tree": "efitrt_east",
+    "node": "\\RMAXIS",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "efitrt_axis_z": {
+    "tree": "efitrt_east",
+    "node": "\\ZMAXIS",
+    "scale": 1.0,
+    "units": "m"
+   },
+   "efitrt_q0": {
+    "tree": "efitrt_east",
+    "node": "\\Q0",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efitrt_q95": {
+    "tree": "efitrt_east",
+    "node": "\\Q95",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efitrt_li": {
+    "tree": "efitrt_east",
+    "node": "\\LI",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efitrt_betap": {
+    "tree": "efitrt_east",
+    "node": "\\BETAP",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efitrt_betan": {
+    "tree": "efitrt_east",
+    "node": "\\BETAN",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efitrt_w_mhd": {
+    "tree": "efitrt_east",
+    "node": "\\WMHD",
+    "scale": 1.0,
+    "units": "J"
+   },
+   "efitrt_ip": {
+    "tree": "efitrt_east",
+    "node": "\\CPASMA",
+    "scale": 1.0,
+    "units": "A"
+   },
+   "efitrt_kappa": {
+    "tree": "efitrt_east",
+    "node": "\\KAPPA",
+    "scale": 1.0,
+    "units": "1"
+   },
+   "efitrt_volume": {
+    "tree": "efitrt_east",
+    "node": "\\VOLUME",
+    "scale": 1.0,
+    "units": "m^3"
+   },
+   "efitrt_b0": {
+    "tree": "efitrt_east",
+    "node": "\\BCENTR",
+    "scale": 1.0,
+    "units": "T"
+   }
+  },
+  "fylite:signal_source": "facts/device/east/abox/bind/mdsplus/equilibrium.jsonld",
+  "fylite:absent": {
+   "fylite:signal": {
+    "efitrt_tri_upper": "no single-node `$link` at dev:reconstruction/efitrt/boundary/triangularity_upper in facts/device/east/abox/bind/mdsplus/equilibrium.jsonld",
+    "efitrt_tri_lower": "no single-node `$link` at dev:reconstruction/efitrt/boundary/triangularity_lower in facts/device/east/abox/bind/mdsplus/equilibrium.jsonld"
+   }
+  }
+ },
+ "interferometer": {
+  "@type": "fyo:interferometer",
+  "fylite:source": "facts/device/east/abox/static/now/interferometer.jsonld",
+  "channel": [
+   {
+    "name": "POINT_N1",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": 0.425
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": 0.425
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_N2",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": 0.34
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": 0.34
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_N3",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": 0.255
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": 0.255
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_N4",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": 0.17
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": 0.17
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_N5",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": 0.085
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": 0.085
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_N6",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": 0.0
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": 0.0
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_N7",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": -0.085
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": -0.085
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_N8",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": -0.17
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": -0.17
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_N9",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": -0.255
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": -0.255
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_N10",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": -0.34
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": -0.34
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_N11",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": -0.425
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": -0.425
+     },
+     "theta": 0.0
+    }
+   }
+  ],
+  "laser_wavelength": 0.0004325
+ },
+ "polarimeter": {
+  "@type": "fyo:polarimeter",
+  "fylite:source": "facts/device/east/abox/static/now/polarimeter.jsonld",
+  "channel": [
+   {
+    "name": "POINT_F1",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": 0.425
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": 0.425
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_F2",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": 0.34
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": 0.34
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_F3",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": 0.255
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": 0.255
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_F4",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": 0.17
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": 0.17
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_F5",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": 0.085
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": 0.085
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_F6",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": 0.0
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": 0.0
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_F7",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": -0.085
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": -0.085
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_F8",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": -0.17
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": -0.17
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_F9",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": -0.255
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": -0.255
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_F10",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": -0.34
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": -0.34
+     },
+     "theta": 0.0
+    }
+   },
+   {
+    "name": "POINT_F11",
+    "line_of_sight": {
+     "first_point": {
+      "r": 2.5,
+      "z": -0.425
+     },
+     "second_point": {
+      "r": 3.0,
+      "z": -0.425
+     },
+     "theta": 0.0
+    }
+   }
+  ],
+  "faraday_constant": 2.62e-13,
+  "baseline": {
+   "centre_s": -0.9,
+   "tolerance_s": 0.01
+  }
+ },
+ "operational": {
+  "@type": "fylite:OperationalSettings",
+  "fylite:source": "facts/device/east/abox/static/now/operational.jsonld",
+  "note": "非设备描述、无 IDS 归属：EFIT namelist 拟合控制与读数卫生阈值。但它们同样是 EAST/GUI_v5 专有，故与设备描述一并入配置——**代码层不留装置常量**。",
+  "source": "EFIT_POINT_GUI_v5.fig (edit-field 'String' props) + .m",
+  "probe_gate": {
+   "min_tesla": 0.02,
+   "max_tesla": 1.0,
+   "note": "活道 |B| 区间；低于 min 为死道，高于 max 为非 Tesla 离群。#70754 定档。"
+  },
+  "gui_v5_fig": {
+   "fwtnel": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "signel": [
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3
+   ],
+   "fwtpol": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "sigpol": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05
+   ],
+   "intev_pol": 0.03,
+   "kppcur": 2,
+   "kffcur": 2,
+   "kedgene": 1,
+   "knecur": 3,
+   "fwtne0": 50.0,
+   "tne_psin": 0.95,
+   "tne_width": 0.05,
+   "tne_edge": 0.5,
+   "knel_ts": 0,
+   "k_fit_psi_ne": 0,
+   "k_ne_knot": 0,
+   "idrift": 0,
+   "psin_ne": 0.0,
+   "ne_psin": 4.0,
+   "ne_psin_error": 0.2,
+   "ne_knots": [
+    0.0,
+    0.4,
+    0.95,
+    1.0
+   ]
+  },
+  "point_density_fit": {
+   "KNEFNC": 0,
+   "KEDGENE": 1,
+   "KNECUR": 3,
+   "FWTNE0": 50.0,
+   "TNE_PSIN": 0.95,
+   "TNE_WIDTH": 0.05,
+   "TNE_EDGE": 0.5
+  },
+  "fit_control": {
+   "RCENTR": 1.8,
+   "IPLCOUT": 1,
+   "IVESEL": 0,
+   "IFITVS": 0,
+   "BITIP": 40000.0,
+   "FWTCUR": 1.0,
+   "FWTFC": [
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3,
+    0.3
+   ],
+   "MXITER": -50,
+   "SERROR": 0.05,
+   "ERROR": 0.001,
+   "ERRMIN": 0.001,
+   "KERSIL": 1,
+   "KCALPA": 1,
+   "CALPA": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "XALPA": 0.0,
+   "KCGAMA": 1,
+   "CGAMA": [
+    0.1,
+    0.1,
+    0.1
+   ],
+   "XGAMA": 0.0,
+   "KFFCUR": 2,
+   "KPPCUR": 2,
+   "PCURBD": 0.5,
+   "FCURBD": 0.5,
+   "NEXTRA": 5,
+   "RELAX": 0.5,
+   "FWTQA": 0.0,
+   "QVFIT": 0.9
+  },
+  "fylite:carried_on_channels": {
+   "efit_w_pf_channel_fit": "pf_active.coil[].bit_error",
+   "gui_v5_pf_channels": "pf_active.coil[].turns / efit_index"
+  }
+ },
+ "machine": {
+  "@type": "fyo:machine",
+  "name": "EAST",
+  "r_centre": 1.75,
+  "r_centre_note": "facts/device/east/abox/static/now/tf.jsonld `dev:rCentre` (efitbundle: samples/output/g093060.01000（65×65）表头第 2 行 rcentr；★efit/efitbuild/ 同名件（129×129，同炮同时刻）同位写 1.79999995，两份参考件不一致); tf.r0 takes the same value (user ruling 2026-09-13) — see provenance.reference_radii",
+  "fylite:b0": 1.8,
+  "fylite:b0_note": "tf.b0 from the upstream description",
+  "default_grid": {
+   "r_min": 1.2,
+   "r_max": 2.8,
+   "z_min": -1.4,
+   "z_max": 1.4,
+   "note": "program-side solver box (PROGRAM_SIDE), not a device fact"
+  }
+ },
+ "tf": {
+  "@type": "fyo:tf",
+  "fylite:source": "facts/device/east/abox/static/now/tf.jsonld",
+  "r0": 1.75,
+  "coils_n": 16,
+  "b0": 1.8
+ },
+ "solver_dims": {
+  "@type": "fylite:CompiledDimensions",
+  "note": "编译期维度：随包 libefit.so 的数组维度，是声明不是旋钮 (program-side, PROGRAM_SIDE in the generator — not a device fact)",
+  "nw": 65,
+  "nh": 65,
+  "nfcoil": 12
+ },
+ "fylite:ui": {
+  "r0": {
+   "value": 1.85
+  },
+  "z0": {
+   "value": 0
+  },
+  "a": {
+   "value": 0.45
+  },
+  "kappa": {
+   "value": 1.65
+  },
+  "du": {
+   "value": 0.4
+  },
+  "dl": {
+   "value": 0.5
+  },
+  "ip": {
+   "value": 400
+  },
+  "xr": {
+   "value": 1.606
+  },
+  "xz": {
+   "value": -0.722
+  }
+ },
+ "fylite:device_id": "east",
+ "name": "EAST",
+ "fylite:grid": {
+  "nr": 65,
+  "nz": 65,
+  "rmin": 1.2,
+  "rmax": 2.8,
+  "zmin": -1.4,
+  "zmax": 1.4
+ },
+ "fylite:grid_note": "分辨率取本文档 `solver_dims` 的编译期维度（随包 libefit.so 的数组维度，改不了）。盒逐字取 `machine.default_grid`：program-side solver box (PROGRAM_SIDE), not a device fact",
+ "fylite:tf_note": "标称环向场按契约路径落到 `tf`：b0 <- machine.fylite:b0。★数是卡片的，这里只搬位置不改值。 b0 的由来：tf.b0 from the upstream description",
+ "fylite:channel_map": [
+  [
+   [
+    0,
+    1.000249250469339
+   ]
+  ],
+  [
+   [
+    1,
+    1.0003666047901583
+   ]
+  ],
+  [
+   [
+    2,
+    1.000520289173187
+   ]
+  ],
+  [
+   [
+    3,
+    0.17519056520658238
+   ],
+   [
+    4,
+    0.8252122714189168
+   ]
+  ],
+  [
+   [
+    5,
+    1.0000142359034598
+   ]
+  ],
+  [
+   [
+    6,
+    0.9999908342357825
+   ]
+  ],
+  [
+   [
+    7,
+    1.0002697064222283
+   ]
+  ],
+  [
+   [
+    8,
+    1.0003618923216784
+   ]
+  ],
+  [
+   [
+    9,
+    1.0005007110117465
+   ]
+  ],
+  [
+   [
+    10,
+    0.17518334842395225
+   ],
+   [
+    11,
+    0.8252232792572507
+   ]
+  ],
+  [
+   [
+    12,
+    1.0000130160487708
+   ]
+  ],
+  [
+   [
+    13,
+    0.9999908023245412
+   ]
+  ]
+ ]
+}

@@ -1,0 +1,21 @@
+{
+  "note": "装置响应表（线圈 / 等离子体细丝表）。随装置固定，不随应用代码变化，因此不进 git；构建时从公共只读目录取，按 sha256 校验。",
+  "source": "/project/FyLite/data/native-adapter/tables",
+  "files": {
+    "ec129129.ddd": {
+      "sha256": "54b34004cecdf92610e88b79d625490838fe6b6ce6bfaa65fd25d9b59725d83b",
+      "size": 18773152,
+      "role": "线圈（EC）响应表，native.json 的 pf_table"
+    },
+    "ep129129.ddd": {
+      "sha256": "fc1b9483ac4252fa54cb249ef0b01868bf8f86150e9165cd5e8e41580a32f222",
+      "size": 14777224,
+      "role": "等离子体（EP）响应表，native.json 的 plasma_table"
+    },
+    "rfcoil.ddd": {
+      "sha256": "495e19cfd50ef60ee48c62bdbb1600976f83fe7557c939eb07cc5e18717ed69d",
+      "size": 10672,
+      "role": "射频线圈（RF）表"
+    }
+  }
+}

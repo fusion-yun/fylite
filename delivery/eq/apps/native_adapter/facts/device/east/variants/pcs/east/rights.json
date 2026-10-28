@@ -1,0 +1,11 @@
+{
+  "device": "east",
+  "source": "fydoc:facts/device/east/abox",
+  "declared": "NOT OPEN",
+  "rights_holder": "ASIPP",
+  "internal": true,
+  "public": false,
+  "public_excluded_ids": [],
+  "ruling": "公开版不含 EAST 装置数据（用户裁定 2026-09-04）：它带着一次真实放电（#137985）的实测读数，那是运行方的数据。",
+  "note": null
+}
