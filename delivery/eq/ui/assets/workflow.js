@@ -1,27 +1,74 @@
 'use strict';
-const $=id=>document.getElementById(id),prefix='/fylite/eq/api/workflow/';let token='',caseDoc=null,runId=null,nodeId='sources',nodes=[],lastRun=null,dirty=true,pending=null,busy=false,view={},selectionPending=false,definition=null,definitionNodes=[],eventStep=null;
+const $=id=>document.getElementById(id),prefix='/fylite/eq/api/workflow/';let token='',caseDoc=null,runId=null,nodeId='sources',nodes=[],lastRun=null,dirty=true,pending=null,busy=false,view={},selectionPending=false,definition=null,definitionNodes=[],eventStep=null,touched=false;
 let magUI={hasPreview:false,busy:false,edited:false},dataReady=false,nextBusy=false;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=v=>typeof v==='number'?Number(v).toPrecision(6):String(v??'—');
-const states={waiting_review:'待用户确认',rejected:'用户退回',pending:'待执行',running:'运行中',completed:'完成',reused:'复用上游',failed:'失败',skipped:'本计划未选',starting:'启动中',cancelled:'已取消',converged:'收敛',not_converged:'未收敛',not_assessed:'未判定'};
+const states={waiting_review:'待审阅',rejected:'用户退回',pending:'未开始',running:'运行中',completed:'已完成',reused:'复用上游',failed:'失败',skipped:'本计划未选',starting:'启动中',cancelled:'已取消',converged:'收敛',not_converged:'未收敛',not_assessed:'未判定'};
 function error(e){$('alert').textContent=e.message||String(e)}
 async function api(route,body){const r=await fetch(prefix+route,body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json','X-FyLite-Token':token},body:JSON.stringify(body)});const d=await r.json();if(!r.ok)throw Error(d.error||r.status);return d}
 function query(route,extra={}){return route+'?'+new URLSearchParams({case_id:caseDoc.case_id,run_id:runId,...extra})}
-function tab(id){for(const b of document.querySelectorAll('[data-tab]')){const active=b.dataset.tab===id;b.setAttribute('aria-selected',active);b.tabIndex=active?0:-1;}for(const el of document.querySelectorAll('.tab'))el.hidden=el.id!==id;for(const b of document.querySelectorAll('[data-tab]'))b.classList.toggle('active',b.dataset.tab===id)}
+function tab(id){if(id==='overview')requestAnimationFrame(()=>$('zoom-fit').click());for(const b of document.querySelectorAll('[data-tab]')){const active=b.dataset.tab===id;b.setAttribute('aria-selected',active);b.tabIndex=active?0:-1;}for(const el of document.querySelectorAll('.tab'))el.hidden=el.id!==id;for(const b of document.querySelectorAll('[data-tab]'))b.classList.toggle('active',b.dataset.tab===id)}
 for(const b of document.querySelectorAll('[data-tab]'))b.onclick=()=>{tab(b.dataset.tab);if(b.dataset.tab==='results')loadReport().catch(error)};
 function parameters(){return{data_source:$('data_source').value,q_mode:$('q_mode').value,half_window_s:Number($('half_window_s').value),drift:$('drift').value==='true',pressure_scale:Number($('pressure_scale').value),q_target:Number($('q_target').value),max_iterations:Number($('max_iterations').value)}}
-function markDirty(){document.title='* FyLite · 磁平衡工作台';dirty=true;pending=null;updateIdentity();$('saved').textContent='草稿已修改；现有图表仍属于原运行，保存后需重新执行。'}
+function markDirty(){document.title='* FyLite · 磁平衡工作台';dirty=true;touched=true;pending=null;updateIdentity();$('saved').textContent='未保存的修改'}
 for(const id of ['data_source','q_mode','half_window_s','drift','pressure_scale','q_target','max_iterations','name'])$(id).onchange=markDirty;
-function showCase(c){document.title='FyLite · 磁平衡工作台';caseDoc=c;$('data_source').value=c.parameters.data_source||'frozen';$('q_mode').value=c.parameters.q_mode||'target';for(const[k,v]of Object.entries(c.parameters))$(k).value=String(v);$('name').value=c.name;dirty=false;$('saved').textContent='已保存修订 '+c.revision;$('directory').textContent='个人目录：'+c.directory;pending=null;clearRun();window.dispatchEvent(new Event('fylite-case-changed'))}
+
+// Only the fixed-pressure route can be transferred to the current 94048 executor.
+function plannerTransferIssue(c) {
+  if (!c || c.schema_version !== 'fylite.eq.plan-config/1') return '方案格式不受支持。';
+  if (!view.selection || selectionPending) return '请先在顶部核对已加载的炮号与时间。';
+  if (c.route !== 'fixed_pressure' || c.context?.device !== view.selection.device ||
+      c.context?.shot !== view.selection.shot || c.context?.time_s !== view.selection.time_s)
+    return '当前仅能应用已加载的 94048 固定压力路线。';
+  if (c.context?.data_source !== $('data_source').value) return '方案数据来源与当前算例不同；请先在“读取与处理”中选择来源。';
+  if (c.boundary !== 'free' || c.pressure?.source !== 'imported_total' ||
+      c.pressure?.constraint !== 'soft' || c.pressure?.update !== 'never' ||
+      c.pressure?.time_s !== 6.510 || c.outer?.mode !== 'none' ||
+      !Array.isArray(c.outer?.updates) || c.outer.updates.length || c.outer.max_rounds !== 0)
+    return '边界、压力或外环模式尚未接入当前执行器。';
+  if (c.current?.source !== 'free_pprime_ffprime' || c.current?.update !== 'never' ||
+      c.current?.residual_model !== 'fitted' || c.constraints?.q0?.weight !== 1 ||
+      c.constraints?.q0?.mode !== 'target' || c.constraints?.ip !== 'measurement_soft' ||
+      c.constraints?.pf !== 'prior_fitted' || c.constraints?.edge_current !== 'prior' ||
+      c.constraints?.profile_basis !== 'pprime_ffprime')
+    return '所选电流、q₀、Ip、PF 或边缘约束尚未接入当前执行器。';
+  if (Object.values(c.profiles||{}).some(p=>p.source!=='none') ||
+      ['point_bnel','point_bpolar','mse'].some(f=>c.diagnostics?.[f]?.channels?.some(x=>x.role!=='exclude')))
+    return '当前工作流不会消费所选动理学剖面或内部诊断。';
+  const magnetic=c.diagnostics?.magnetic?.channels;
+  if (JSON.stringify(magnetic)!==JSON.stringify([{id:'FL01',role:'fit'},{id:'FL02',role:'fit'},{id:'MP35',role:'holdout'}]))
+    return '示例通道的逐道改动不能应用到当前实际磁测；请在数据处理页核对真实通道。';
+  if (!Array.isArray(c.reference?.roles) || c.reference.roles.some(x=>!['initial_guess','comparison'].includes(x)))
+    return '所选旧平衡角色尚未接入当前执行器。';
+  const target=c.constraints.q0.target,iterations=c.numerics?.max_inner_iterations;
+  if (!Number.isFinite(target) || target<0.5 || target>3 ||
+      !Number.isInteger(iterations) || iterations<1 || iterations>150 ||
+      c.numerics?.grid_id !== '129x129' || c.numerics?.inner_tolerance!==1e-6 || c.numerics?.relaxation!==0.5)
+    return 'q₀目标或内层设置超出当前工作流能力。';
+  return '';
+}
+window.addEventListener('message', event => {
+  if (event.origin !== location.origin || event.source !== $('planner-frame')?.contentWindow ||
+      event.data?.type !== 'fylite:eq:apply-plan/1') return;
+  const c=event.data.config,issue=plannerTransferIssue(c);
+  if (issue) { $('alert').textContent='方案未应用：'+issue; return; }
+  $('q_mode').value='target';$('q_target').value=String(c.constraints.q0.target);
+  $('max_iterations').value=String(c.numerics.max_inner_iterations);$('pressure_scale').value='1';
+  markDirty();tab('inputs');$('alert').textContent='固定压力方案已写入当前草稿（q₀、压力倍率和内层迭代上限）。请核对真实磁测输入并保存修订后计算；其他示例通道没有传入求解器。';
+});
+
+function showCase(c){document.title='FyLite · 磁平衡工作台';caseDoc=c;$('data_source').value=c.parameters.data_source||'frozen';$('q_mode').value=c.parameters.q_mode||'target';for(const[k,v]of Object.entries(c.parameters))$(k).value=String(v);$('name').value=c.name;dirty=false;touched=false;$('saved').textContent='已保存修订 '+c.revision;$('directory').textContent='个人目录：'+c.directory;pending=null;clearRun();window.dispatchEvent(new Event('fylite-case-changed'))}
 function clearRun(){$('review-banner').hidden=true;runId=null;lastRun=null;eventStep=null;syncGraph();renderProgress();renderStepRuntime();updateIdentity();clearResult();$('node-content').replaceChildren();$('events').replaceChildren();$('logs').textContent='';$('run-summary').textContent='';renderNodes()}
 function clearResult(){if($('analysis-panel'))$('analysis-panel').replaceChildren();for(const id of ['metrics','diagnostics','pf','comparison','download'])$(id).replaceChildren();$('result-identity').textContent=runId?'当前运行 '+runId+'：尚未读取结果。':'请选择一次运行。'}
 async function cases(){const d=await api('cases'),select=$('cases');select.replaceChildren(new Option('新建个人算例',''));for(const c of d.cases)select.add(new Option(c.name+' · r'+c.revision,c.case_id));select.value=caseDoc?.case_id||''}
-async function save(fork=false){requireSelection();const body={name:$('name').value,parameters:parameters()};if(caseDoc&&!fork)Object.assign(body,{case_id:caseDoc.case_id,base_revision:caseDoc.revision});const c=await api('save',body);showCase(c);await cases();await runs();$('alert').textContent=''}
+async function save(fork=false){requireSelection();const body={name:$('name').value,parameters:parameters()};if(caseDoc&&fork)Object.assign(body,{source_case_id:caseDoc.case_id,source_revision:caseDoc.revision});if(caseDoc&&!fork)Object.assign(body,{case_id:caseDoc.case_id,base_revision:caseDoc.revision});const c=await api('save',body);showCase(c);await cases();await runs();$('alert').textContent=''}
 $('save').onclick=()=>save().catch(error);$('fork').onclick=()=>save(true).catch(error);
-$('new').onclick=()=>{caseDoc=null;dirty=true;clearRun();$('cases').value='';$('saved').textContent='新建个人算例';$('runs').replaceChildren();$('directory').textContent='';window.dispatchEvent(new Event('fylite-case-changed'))};
-$('cases').onchange=async()=>{try{if(!$('cases').value){$('new').click();return}showCase(await api('case?'+new URLSearchParams({case_id:$('cases').value})));await runs()}catch(e){error(e)}};
+function confirmDiscard(){return !(touched||magUI.edited||magUI.hasPreview||selectionPending)||window.confirm('当前草稿或处理预览尚未保存，确定放弃修改并切换算例？')}
+function beginNew(){caseDoc=null;dirty=true;touched=false;$('name').value=view.name||'个人算例';for(const [key,value] of Object.entries(definition?.defaults||{}))if($(key))$(key).value=String(value);clearRun();$('cases').value='';$('saved').textContent='新建个人算例';$('runs').replaceChildren();$('directory').textContent='';window.dispatchEvent(new Event('fylite-case-changed'))}
+$('new').onclick=()=>{if(confirmDiscard())beginNew()};
+$('cases').onchange=async()=>{const selected=$('cases').value;if(!confirmDiscard()){$('cases').value=caseDoc?.case_id||'';return}try{if(!selected){beginNew();return}showCase(await api('case?'+new URLSearchParams({case_id:selected})));await runs()}catch(e){$('cases').value=caseDoc?.case_id||'';error(e)}};
 function table(headers,rows){return '<table><thead><tr>'+headers.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(row=>'<tr>'+row.map(v=>'<td>'+esc(fmt(v))+'</td>').join('')+'</tr>').join('')+'</tbody></table>'}
-function renderNodes(){renderFlow();updateHelp();const box=$('nodes'),opened=new Set([...box.querySelectorAll('details[open]')].map(x=>x.dataset.group));const fresh=!box.children.length;box.replaceChildren();for(const group of [...new Set(nodes.map(n=>n.group||'steps'))]){const branch=document.createElement('details');branch.dataset.group=group;branch.open=fresh||opened.has(group);const summary=document.createElement('summary');summary.textContent=(graphDefinition()?.groups||[]).find(g=>g.id===group)?.title||group;branch.append(summary);for(const n of nodes.filter(n=>(n.group||'steps')===group)){const st=nodeState(n.id),b=document.createElement('button');b.className='node '+st+(nodeId===n.id?' active':'');b.innerHTML='<span class="tree-icon">▧</span>'+esc(title(n.id))+'<span class="tree-state">'+esc(states[st]||st)+'</span>';b.onclick=()=>openNode(n.id);branch.append(b)}box.append(branch)}}
+function renderNodes(){renderFlow();updateHelp();const box=$('nodes'),opened=new Set([...box.querySelectorAll('details[open]')].map(x=>x.dataset.group));const fresh=!box.children.length,current=lastRun?.status.active_step||nodeId,currentGroup=nodes.find(n=>n.id===current)?.group||nodes[0]?.group;box.replaceChildren();for(const group of [...new Set(nodes.map(n=>n.group||'steps'))]){const branch=document.createElement('details');branch.dataset.group=group;branch.open=opened.has(group)||(fresh&&group===currentGroup);const summary=document.createElement('summary');summary.textContent=(graphDefinition()?.groups||[]).find(g=>g.id===group)?.title||group;branch.append(summary);for(const n of nodes.filter(n=>(n.group||'steps')===group)){const st=lastRun?.status.steps[n.id]?.state||'pending',b=document.createElement('button');b.className='node '+st+(nodeId===n.id?' active':'')+(lastRun?.status.active_step===n.id?' next-node':'');if(lastRun?.status.active_step===n.id)b.setAttribute('aria-current','step');b.innerHTML='<span class="tree-icon">▧</span>'+esc(title(n.id))+'<span class="tree-state">'+(lastRun?esc(states[st]||st):'流程节点')+'</span>';b.onclick=()=>openNode(n.id);branch.append(b)}box.append(branch)}}
 function openNode(id){if(['sources','magnetics'].includes(id)){nodeId=id;renderNodes();tab('magnetic-task');document.querySelector('[data-tab=magnetic-task]').click();return;}document.body.classList.remove('inspector-hidden');nodeId=id;eventStep=id;renderEvents();renderStepRuntime();renderNodes();tab('process');loadNode().catch(error)}
 async function runs(){if(!caseDoc)return;const d=await api('runs?'+new URLSearchParams({case_id:caseDoc.case_id}));$('runs').replaceChildren();for(const r of d.runs){const b=document.createElement('button');b.className='run '+r.status.state;b.innerHTML=esc(r.run_id)+'<span class="state">修订 '+r.status.revision+' · '+esc(states[r.status.state]||r.status.state)+' · 到 '+esc(title(r.target))+'</span>';b.onclick=()=>selectRun(r.run_id);$('runs').append(b)}}
 async function selectRun(id){$('graph-mode').value='run';eventStep=null;runId=id;lastRun=null;clearResult();$('node-content').replaceChildren();try{await status();await loadNode();if(!$('results').hidden)await loadReport()}catch(e){error(e)}}
@@ -31,18 +78,18 @@ $('execute').onclick=async()=>{try{requireSelection();if(caseDoc){const history=
 $('cancel').onclick=async()=>{if(!runId)return;try{await api('cancel',{case_id:caseDoc.case_id,run_id:runId});await status();await runs()}catch(e){error(e)}};
 async function artifact(name){return api(query('artifact',{name:name+'.json'}))}
 function line(canvas,series,xlabel,ylabel,bounds=series){const c=typeof canvas==='string'?$(canvas):canvas,g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);const vals=bounds.flatMap(s=>s.points).filter(p=>p.every(Number.isFinite));if(!vals.length)return;let xmin=Math.min(...vals.map(p=>p[0])),xmax=Math.max(...vals.map(p=>p[0])),ymin=Math.min(...vals.map(p=>p[1])),ymax=Math.max(...vals.map(p=>p[1]));if(xmin===xmax)xmax=xmin+1;if(ymin===ymax)ymax=ymin+1;const X=x=>65+(x-xmin)/(xmax-xmin)*(c.width-90),Y=y=>c.height-45-(y-ymin)/(ymax-ymin)*(c.height-85);g.font='13px sans-serif';g.strokeStyle='#9db1bc';g.strokeRect(65,40,c.width-90,c.height-85);g.fillStyle='#344f5d';g.fillText(ylabel,8,20);g.fillText(xlabel,c.width/2,c.height-8);g.fillText(ymax.toPrecision(4),2,48);g.fillText(ymin.toPrecision(4),2,c.height-44);g.fillText(xmin.toPrecision(4),65,c.height-25);g.fillText(xmax.toPrecision(4),c.width-75,c.height-25);series.forEach((s,i)=>{g.strokeStyle=s.color;g.fillStyle=s.color;g.lineWidth=1.6;g.beginPath();s.points.forEach(([x,y],j)=>{if(!Number.isFinite(x)||!Number.isFinite(y))return;if(s.dots){g.moveTo(X(x)+2,Y(y));g.arc(X(x),Y(y),2,0,2*Math.PI)}else j?g.lineTo(X(x),Y(y)):g.moveTo(X(x),Y(y))});g.stroke();g.fillText(s.label,90+i*180,30)})}
-async function loadNode(){$('step').hidden=true;const selected=nodeId,id=runId;$('node-title').textContent=title(nodeId);updateHelp();updateIdentity();$('node-content').replaceChildren();if(!runId){$('node-content').textContent='此处用于查看运行产物。请先进入“① 读取与处理”，然后配置约束并点击“③ 检查并计算”。';return}const st=lastRun?.status.steps[nodeId]?.state;if(st==='waiting_review'){await showReview();return}if(!['completed','reused'].includes(st)){$('node-content').textContent=st==='running'?'此步骤正在执行。内部迭代将在原生调用结束后提供。':'此步骤尚未生成数据。请按“读取与处理 → 约束配置 → 检查并计算”的顺序操作。';return}const d=await artifact(nodeId);if(id!==runId||selected!==nodeId)return;const box=$('node-content');
+async function loadNode(){$('step').hidden=true;const selected=nodeId,id=runId;$('node-title').textContent=title(nodeId);updateHelp();updateIdentity();$('node-content').replaceChildren();if(nodeId==='pressure'){await FyScientificTasks.pressure($('node-content'));return;}if(!runId){$('node-content').textContent='此处用于查看运行产物。请先进入“① 读取与处理”，然后配置约束并点击顶部“下一步”。';return}const st=lastRun?.status.steps[nodeId]?.state;if(st==='waiting_review'){await showReview();return}if(!['completed','reused'].includes(st)){$('node-content').textContent=st==='running'?'此步骤正在执行。内部迭代将在原生调用结束后提供。':'此步骤尚未生成数据。请按“读取与处理 → 约束配置 → 检查并计算”的顺序操作。';return}const d=await artifact(nodeId);if(id!==runId||selected!==nodeId)return;const box=$('node-content');
 if(nodeId==='magnetics'){box.innerHTML='<div class="row"><label>查看通道<select id="channel"></select></label><label>对照方式<select id="wave-mode"><option value="split">左右对照</option><option value="overlay">叠加对照</option></select></label></div><div class="plots"><figure><canvas id="wave" width="600" height="320"></canvas><figcaption>原始信号（单位已换算）</figcaption></figure><figure id="processed-panel"><canvas id="processed-wave" width="600" height="320"></canvas><figcaption>处理后信号</figcaption></figure></div><p>左右图使用同一纵轴范围；未启用漂移修正时，两条曲线可能相同。</p><div id="channel-info"></div>';for(const a of d.audit)$('channel').add(new Option(a.node,a.node));const plot=()=>{const a=d.audit.find(x=>x.node===$('channel').value);const raw={label:'原始',color:'#a7613b',points:a.t.map((t,i)=>[t,a.raw[i]])},processed={label:'处理后',color:'#147a86',points:a.t.map((t,i)=>[t,a.processed[i]])},split=$('wave-mode').value==='split';$('processed-panel').hidden=!split;const both=[raw,processed];line('wave',split?[raw]:both,'时间 s','信号',both);if(split)line('processed-wave',[processed],'时间 s','信号',both);$('channel-info').innerHTML=table(['通道','样本数','换算系数','处理后均值'],[[a.node,a.samples,a.scale,a.reduced]])};$('channel').onchange=$('wave-mode').onchange=plot;plot();}
 else if(nodeId==='pressure'){box.innerHTML='<p>来源时刻 6.510 s；51 点固定压力，未重跑 ONETWO。</p><canvas id="pinput" width="850" height="320"></canvas>';line('pinput',[{label:'提取压力',color:'#147a86',points:d.psi_n.map((x,i)=>[x,d.pressure_Pa[i]/1000]),dots:true}],'ψN','压力 kPa')}
 else if(nodeId==='quality'){box.innerHTML='<p>'+esc(d.warnings.join('；'))+'</p>'+table(['通道','样本','起始s','结束s','恒定'],d.channels.map(x=>[x.node,x.samples,x.first_s,x.last_s,x.constant]));}
 else if(nodeId==='constraints'){box.innerHTML=table(['约束类别','内容'],Object.entries(d).map(([k,v])=>[k,typeof v==='object'?JSON.stringify(v):v]));}
-else if(nodeId==='assemble'){box.innerHTML=table(['生效项目','值'],Object.entries(d.effective));}
+else if(nodeId==='assemble'){box.innerHTML=table(['生效项目','值'],Object.entries(d.effective));const compareHost=document.createElement('section');box.append(compareHost);await FyScientificTasks.comparison(compareHost);}
 else if(nodeId==='sources'){box.innerHTML='<p>'+esc(JSON.stringify(d.acquisition||{}))+'</p><p>'+esc(d.dataset)+' · '+esc(d.manifest_sha256)+'</p><ul>'+d.limits.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'+table(['数据','SHA256'],Object.entries(d.sources).map(([k,v])=>[k,v.sha256]));}
 else if(nodeId==='solve'){box.innerHTML=table(['项目','实际值'],[['收敛',d.converged],['迭代',d.result.iteration],['误差',d.result.error],['Ip A',d.result.ip]]);}
 else{box.innerHTML='<p>结果检查已完成。请进入“结果分析”查看。</p>';}
 const detail=document.createElement('details'),summary=document.createElement('summary'),pre=document.createElement('pre');summary.textContent='查看结构化产物';pre.textContent=JSON.stringify(d,null,2).slice(0,18000);detail.append(summary,pre);box.append(detail);const a=document.createElement('a');a.href=prefix+query('artifact',{name:nodeId+'.json'});a.textContent='下载此节点完整产物';a.download=nodeId+'.json';box.append(a);}
-async function loadReport(){clearResult();if(!runId||!['completed','reused'].includes(lastRun?.status.steps.report?.state)){$('result-identity').textContent=runId+'：尚无结果检查产物，请完成读取、处理和输入检查后生成分析结果。';return}const id=runId,d=await api(query('analysis'));if(id!==runId)return;renderAnalysis(d,$('analysis-panel'));$('result-identity').textContent=id+' · 输入修订 '+lastRun.snapshot.revision+'；当前草稿修订 '+caseDoc.revision+'。实验资格未通过验收。';$('metrics').innerHTML=Object.entries(d.summary).map(([k,v])=>'<span class="metric">'+esc(k)+'<br><strong>'+esc(fmt(v))+'</strong></span>').join('');$('diagnostics').innerHTML=table(['类型','槽位','使用','观测','预测','残差','加权残差'],d.diagnostics.map(x=>[x.kind,x.index,x.used_in_fit,x.observed,x.predicted,x.predicted-x.observed,x.weighted_residual]));$('pf').innerHTML=table(['PF槽','观测','拟合','变化'],d.pf.observed.map((v,i)=>[i+1,v,d.pf.fitted[i],d.pf.fitted[i]-v]));$('comparison').innerHTML='<p>'+esc(d.reference.same_recipe?'相同默认配方，与旧版历史结果比较；不作为独立实验真值。':'参数已变化，历史参考不是同条件验收目标。')+'</p>'+table(['指标','值'],Object.entries(d.reference));$('download').innerHTML=['report','solve','assemble','snapshot','native-input-identity'].map(n=>'<a download="'+n+'.json" href="'+esc(prefix+query('artifact',{name:n+'.json'}))+'">'+esc(n)+'.json</a>').join(' · ')}
-(async()=>{try{const r=await fetch('/fylite/eq/api/info');token=(await r.json()).token;const d=await api('info');dataReady=d.dataset_ready;definition=d.definition||{nodes:d.nodes};definitionNodes=definition.nodes;nodes=definitionNodes;const catalog=await fetch('ui/workflows.json?v=pipeline11').then(r=>{if(!r.ok)throw Error('算例界面配置读取失败');return r.json()});view=catalog[d.workflow_id]||{};resetSelection();$('case-context').textContent=view.context||d.title;$('case-route').textContent=view.route||'';$('name').value=view.name||'个人算例';$('case-guide').href=view.guide||'index.html';$('recipe-warning').textContent=view.warning||'';$('recipe-intro').textContent=view.intro||'';$('recipe-fixed').textContent=view.fixed||'';renderNodes();renderProgress();tab('overview');requestAnimationFrame(()=>$('zoom-fit').click());$('readiness').textContent=d.dataset_ready?'数据包已检查 · 原生求解 · direct':'数据未就绪：'+d.reason;$('execute').disabled=$('step').disabled=!d.dataset_ready;$('limits').innerHTML=d.limits.map(x=>'<li>'+esc(x)+'</li>').join('');await cases();renderUX()}catch(e){error(e)}})();
+async function loadReport(){clearResult();if(!runId||!['completed','reused'].includes(lastRun?.status.steps.report?.state)){$('result-identity').textContent=runId+'：尚无结果检查产物，请完成读取、处理和输入检查后生成分析结果。';return}const id=runId,d=await api(query('analysis'));if(id!==runId)return;renderAnalysis(d,$('analysis-panel'));const compareHost=document.createElement('section');compareHost.className='run-comparator';$('analysis-panel').append(compareHost);FyScientificTasks.comparison(compareHost).catch(error);$('result-identity').textContent=id+' · 输入修订 '+lastRun.snapshot.revision+'；当前草稿修订 '+caseDoc.revision+'。实验资格未通过验收。';$('metrics').innerHTML=Object.entries(d.summary).map(([k,v])=>'<span class="metric">'+esc(k)+'<br><strong>'+esc(fmt(v))+'</strong></span>').join('');$('diagnostics').innerHTML=table(['类型','槽位','使用','观测','预测','残差','加权残差'],d.diagnostics.map(x=>[x.kind,x.index,x.used_in_fit,x.observed,x.predicted,x.predicted-x.observed,x.weighted_residual]));$('pf').innerHTML=table(['PF槽','观测','拟合','变化'],d.pf.observed.map((v,i)=>[i+1,v,d.pf.fitted[i],d.pf.fitted[i]-v]));$('comparison').innerHTML='<p>'+esc(d.reference.same_recipe?'相同默认配方，与旧版历史结果比较；不作为独立实验真值。':'参数已变化，历史参考不是同条件验收目标。')+'</p>'+table(['指标','值'],Object.entries(d.reference));$('download').innerHTML=['report','solve','assemble','snapshot','native-input-identity'].map(n=>'<a download="'+n+'.json" href="'+esc(prefix+query('artifact',{name:n+'.json'}))+'">'+esc(n)+'.json</a>').join(' · ')}
+(async()=>{try{const r=await fetch('/fylite/eq/api/info');token=(await r.json()).token;const d=await api('info');dataReady=d.dataset_ready;definition=d.definition||{nodes:d.nodes};definitionNodes=definition.nodes;nodes=definitionNodes;const catalog=await fetch('ui/workflows.json?v=pipeline11').then(r=>{if(!r.ok)throw Error('算例界面配置读取失败');return r.json()});view=catalog[d.workflow_id]||{};resetSelection();$('case-context').textContent=view.context||d.title;$('case-route').textContent=view.route||'';$('name').value=view.name||'个人算例';$('case-guide').href=view.guide||'index.html';$('recipe-warning').textContent=view.warning||'';$('recipe-intro').textContent=view.intro||'';$('recipe-fixed').textContent=view.fixed||'';renderNodes();renderProgress();tab('planner');$('readiness').textContent=d.dataset_ready?'数据包已检查 · 原生求解 · direct':'数据未就绪：'+d.reason;$('execute').disabled=$('step').disabled=!d.dataset_ready;$('limits').innerHTML=d.limits.map(x=>'<li>'+esc(x)+'</li>').join('');await cases();renderUX()}catch(e){error(e)}})();
 let polling=false;setInterval(async()=>{if(polling||!runId||!lastRun||!['starting','running'].includes(lastRun.status.state))return;polling=true;try{const prev=lastRun.status.state;await status();if(prev!==lastRun.status.state){await runs();await loadNode();if(!$('results').hidden)await loadReport()}}catch(e){error(e)}finally{polling=false}},2000);
 
 function title(id){return nodes.find(n=>n.id===id)?.title||id}
@@ -108,29 +155,36 @@ async function showReview(){
 // Derived presentation state only; execution and review contracts stay unchanged.
 function renderUX(){
  const state=lastRun?.status.state,running=['running','starting'].includes(state),waiting=state==='waiting_review';
- let label='未保存',kind='idle';
+ const sourceRun=lastRun?.snapshot.target==='sources',runStage=sourceRun?'准备 2/4':'计算 4/4';
+ let label='未保存',kind='draft';
  if(running||waiting){label=states[state];kind=waiting?'review':'busy'}
- else if(!caseDoc)label='未保存';
- else if(dirty){label='草稿已修改（基于 r'+caseDoc.revision+'）';kind='draft'}
- else if(magUI.hasPreview){label='预览已生成';kind='preview'}
- else if(caseDoc.processing){label='已采纳 r'+caseDoc.revision;kind='adopted'}
- else label='已保存 r'+caseDoc.revision;
- $('case-state').textContent='● '+label;$('case-state').dataset.state=kind;
- let action='save',text='下一步：保存算例';
- if(running){action='busy';text='正在执行…'}
- else if(waiting){action='review';text='下一步：查看待审阅内容'}
  else if(!caseDoc||dirty){}
- else if(magUI.hasPreview){action='adopt';text='下一步：采纳为修订'}
- else if(caseDoc.processing&&!magUI.edited){action='run';text='下一步：运行到首个确认点'}
- else if(!$('mp-dataset').value){action='read';text='下一步：读取数据'}
- else {action='preview';text='下一步：生成处理预览'}
+ else if(state==='completed'&&lastRun?.snapshot.target===definition?.terminal&&lastRun?.snapshot.revision===caseDoc.revision){label='已完成';kind='adopted'}
+ else if(['failed','rejected','cancelled'].includes(state)){label=states[state];kind='review'}
+ else{label='已保存';kind='idle'}
+ $('case-state').textContent='● '+label;$('case-state').dataset.state=kind;
+ let action='save',text='下一步：保存修订（准备 1/4）';
+ if(running){action='busy';text='正在执行…（'+runStage+'）'}
+ else if(waiting){action='review';text='下一步：查看待审阅内容（'+runStage+'）'}
+ else if(!caseDoc||dirty){}
+ else if(['failed','rejected','cancelled'].includes(state)){action='details';text='查看运行详情'}
+ else if(magUI.hasPreview){action='adopt';text='下一步：采纳为修订（准备 3/4）'}
+ else if(caseDoc.processing&&!magUI.edited){if(state==='completed'&&lastRun?.snapshot.target===definition?.terminal&&lastRun?.snapshot.revision===caseDoc.revision){action='results';text='查看本次结果'}else{action='run';text='下一步：运行到首个确认点（计算 4/4）'}}
+ else if(!$('mp-dataset').value){action='read';text='下一步：读取数据（准备 2/4）'}
+ else {action='preview';text='下一步：生成处理预览（准备 2/4）'}
  $('next').textContent=text;$('next').dataset.action=action;
  $('next').disabled=running||magUI.busy||nextBusy||!dataReady;
  const reason=!dataReady?'数据未就绪':running||waiting?'有运行未结束':!caseDoc||dirty?'草稿未保存':magUI.busy?'正在处理数据':!caseDoc.processing||magUI.edited||magUI.hasPreview?'请先采纳处理预览':'';
  $('execute').disabled=Boolean(reason);$('cancel').hidden=!running;
  $('readiness').textContent=reason?'计算不可用：'+reason:'数据已就绪 · 已采纳输入 · direct';
  $('mp-adopt-hint').hidden=!$('mp-adopt').disabled;
+ $('stale-results').hidden=!(dirty&&runId);
+ const phase=action==='adopt'?'adopt':['run','review','busy','results','details'].includes(action)&&!sourceRun?'run':'read';
+ for(const button of document.querySelectorAll('#quick-guide [data-guide]')){if(button.dataset.guide===phase)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current')}
 }
+for(const button of document.querySelectorAll('#quick-guide [data-guide]'))button.onclick=()=>{const stage=button.dataset.guide;if(stage==='run'){tab(lastRun?.status.state==='completed'?'results':runId?'process':'inputs');if(lastRun?.status.state==='completed')loadReport().catch(error)}else{tab('magnetic-task');if(stage==='adopt')$('mp-adopt-panel').scrollIntoView({block:'start',behavior:'smooth'})}};
+$('guide-dismiss').onclick=()=>{$('quick-guide').hidden=true;sessionStorage.setItem('fylite-guide-dismissed-v1','1')};
+if(sessionStorage.getItem('fylite-guide-dismissed-v1')==='1')$('quick-guide').hidden=true;
 window.addEventListener('fylite-mag-state',event=>{magUI=event.detail;renderUX()});
 window.addEventListener('fylite-case-changed',()=>{magUI={hasPreview:false,busy:false,edited:false};renderUX()});
 $('mp-preview-link').onclick=()=>{tab('magnetic-task');$('mp-preview').focus();$('mp-preview').click()};
@@ -140,6 +194,8 @@ $('next').onclick=async()=>{
   if(action==='save')await save();
   else if(action==='review'){nodeId=lastRun.status.active_step;tab('process');await loadNode();}
   else if(action==='run')await execute(definition.terminal);
+  else if(action==='results'){tab('results');await loadReport()}
+  else if(action==='details'){tab('process');await loadNode()}
   else if(['read','preview','adopt'].includes(action)){tab('magnetic-task');if(action==='adopt'&&!$('mp-note').value.trim()){$('mp-note').focus();$('mp-status').textContent='请填写检查结论，再采纳当前预览。';}else $('mp-'+action).click();}
  }catch(e){error(e)}finally{nextBusy=false;renderUX()}
 };

@@ -475,7 +475,7 @@ def package(output, artifact_root, lock, demo_run=None):
     verify_artifacts(artifact_root, lock)
     output = Path(output).resolve()
     output.mkdir(parents=True, exist_ok=False)
-    shutil.copytree(PAYLOAD, output, dirs_exist_ok=True)
+    shutil.copytree(PAYLOAD, output, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo"))
     for name in ("apps/fixed-boundary", "server", "bin", "docs/upstream", "licenses", "tests"):
         (output / name).mkdir(parents=True, exist_ok=True)
     shutil.copy2(__file__, output / "apps/fixed-boundary/eq_delivery.py")
@@ -540,6 +540,11 @@ def serve(artifact_root, roots, port, backend="direct"):
     token = secrets.token_urlsafe(32)
     sys.path.insert(0, str(PAYLOAD / "apps/workflow"))
     import workflow
+    import archive_v3
+    def workflow_route(method, route, body, query):
+        if route.startswith("archive-"):
+            return archive_v3.dispatch(workflow, method, route, body, Path(artifact_root), roots, query)
+        return workflow.dispatch(method, route, body, Path(artifact_root), roots, query)
     class Handler(http.server.BaseHTTPRequestHandler):
         def reply(self, data, code=200):
             raw = json.dumps(data, ensure_ascii=False, allow_nan=False).encode()
@@ -576,7 +581,7 @@ def serve(artifact_root, roots, port, backend="direct"):
                     self.end_headers()
                     self.wfile.write(raw)
                 elif url.path.startswith("/api/workflow/"):
-                    self.reply(workflow.dispatch("GET", url.path[len("/api/workflow/"):], None, Path(artifact_root), roots, urllib.parse.parse_qs(url.query)))
+                    self.reply(workflow_route("GET", url.path[len("/api/workflow/"):], None, urllib.parse.parse_qs(url.query)))
                 elif url.path == "/api/info":
                     ready, reason = True, None
                     try:
@@ -620,7 +625,7 @@ def serve(artifact_root, roots, port, backend="direct"):
                 if route.startswith("/fylite/eq/"):
                     route = route[len("/fylite/eq"):]
                 if route.startswith("/api/workflow/"):
-                    self.reply(workflow.dispatch("POST", route[len("/api/workflow/"):], value, Path(artifact_root), roots, {}))
+                    self.reply(workflow_route("POST", route[len("/api/workflow/"):], value, {}))
                 elif route == "/api/save":
                     self.reply({"path": save_case(value["path"], value["case"], roots)})
                 elif route == "/api/open":

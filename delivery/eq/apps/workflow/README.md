@@ -102,3 +102,32 @@ binding, historical channel weights and fixed ONETWO pressure at 6.510 s. Previe
 an equilibrium solve. Manual masks, per-channel weight edits and diagnostic outer loops
 are not implemented. Validate with `tests/accept_magnetic_processing.py` using an installed
 native payload, reference data, isolated personal root and a new record directory.
+
+
+## W1 minimal object contract (candidate; not deployed)
+
+`object_contracts.py` exposes read-only Dataset, ProcessingRevision, ConstraintSet,
+InputBundle, Plan, Run and Artifact views via GET `objects?case_id=...&run_id=...`.
+IDs are scoped by case/run/type; payload hashes use
+`legacy-python-json-sort-keys-v1` (the unchanged Python `hobj` encoding). Original
+file SHA256 remains separate. Completed artifacts and raw waveform references are
+verified before producing a view. Objects are derived from immutable recorded inputs,
+not migrated by rewriting old snapshots. Definitions with revisions 2/3/4 retain
+their original identity; missing frozen definitions remain readable but cannot be
+executed using today's definition. Synthetic compatibility fixtures do not establish
+compatibility with every historical record.
+
+POST `save` optionally accepts `source_case_id` and `source_revision` for Save As.
+The adopted dataset and preview closure is copied byte-for-byte into a new personal
+case, and published only after validation. Changed magnetic parameters preserve
+copied raw data but invalidate adoption; pressure/q changes preserve magnetic adoption.
+A stale tool identity remains readable but requires a new processing preview before
+execution. No old run or scientific review receipt is transferred to authorize a new run.
+
+`info.tool_definitions` describes the existing registered tools only; native
+checkpoint, automatic retries, generic branches/loops and unsupported q modes remain
+unavailable. Errors retain the existing error string with an additive structured
+`error_detail` on worker failures. The current 11-node DAG and three review gates
+are unchanged. Run `tests/test_workflow_objects.py` and, with the manifested dataset,
+`tests/test_workflow_golden.py`. The latter checks actual preprocessing hashes against
+eaeeb83, without invoking a solver or fetching online data.

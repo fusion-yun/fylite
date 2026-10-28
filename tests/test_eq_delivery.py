@@ -4,6 +4,7 @@ import importlib.util
 import io
 import json
 import socket
+import shutil
 import subprocess
 import sys
 import time
@@ -166,7 +167,17 @@ class ConsumerTests(unittest.TestCase):
         archive, lock = self.fixture()
         art, output = self.root / "artifacts", self.root / "release/eq"
         eq.import_artifacts(archive, art, lock)
-        eq.package(output, art, lock)
+        payload = self.root / "payload-with-cache"
+        shutil.copytree(eq.PAYLOAD, payload)
+        cache = payload / "apps/workflow/__pycache__"
+        cache.mkdir(parents=True, exist_ok=True)
+        (cache / "stale.pyc").write_bytes(b"test cache")
+        (payload / "loose.pyo").write_bytes(b"test cache")
+        with patch.object(eq, "PAYLOAD", payload):
+            eq.package(output, art, lock)
+        self.assertFalse(list(output.rglob("__pycache__")))
+        self.assertFalse(list(output.rglob("*.pyc")))
+        self.assertFalse(list(output.rglob("*.pyo")))
         self.assertTrue((output / "server/eq_server.py").is_file())
         self.assertTrue((output / "apps/fixed-boundary/eq_delivery.py").is_file())
         self.assertTrue((output / "bin/fy").is_file())

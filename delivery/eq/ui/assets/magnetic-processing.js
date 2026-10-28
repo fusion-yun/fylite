@@ -148,11 +148,24 @@
       identity:preview.identity,parameters:draft(),note:el('note').value});
     if(caseDoc?.case_id!==cid)return;
     showCase(c);await cases();await runs();await refresh(true);
-    message('已采纳为修订 '+c.revision+'。进入“② 约束配置”，完成后点击“③ 检查并计算”，，求解器使用此处理版本；仍需检查输入与结果。');
+    message('已采纳为修订 '+c.revision+'。进入“② 约束配置”，完成后点击顶部“下一步”，求解器将使用此处理版本；仍需检查输入与结果。');
   });
   el('channel').onchange=render;el('run').onchange=controls;
   for(const id of ['dataset','window','drift'])el(id).onchange=()=>{edited=true;previous=preview||previous;invalidate();controls()};
   document.querySelector('[data-tab="magnetic-task"]').addEventListener('click',()=>refresh().catch(e=>message(e.message)));
+  window.addEventListener('fylite-inspect-source',async event=>{
+    const source=event.detail;
+    try{
+      await refresh();
+      if(caseDoc?.case_id!==source.caseId)return;
+      const option=[...el('run').options].find(item=>item.value===source.runId);
+      if(!option)throw Error('原运行不在可复用列表中；未替换为其他运行。');
+      el('run').value=source.runId;
+      for(let parent=el('run').parentElement;parent;parent=parent.parentElement)if(parent.tagName==='DETAILS')parent.open=true;
+      controls();el('import').focus();
+      message('已选中原运行 '+source.runId+'。点击“复用该运行原始数据”，再生成预览并采纳；旧运行不会改变。');
+    }catch(e){message(e.message);}
+  });
   controls();
   window.addEventListener('fylite-case-changed',()=>{edited=false;preview=null;previous=null;emit();el('adopt').disabled=true;el('plot').hidden=true;el('values').replaceChildren();el('samples').replaceChildren();el('warnings').textContent='';refresh(true).catch(e=>message(e.message));});
 })();

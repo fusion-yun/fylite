@@ -1,6 +1,6 @@
 <!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>FyLite EQ 使用方法</title><link rel="stylesheet" href="../ui/assets/eq.css">
 <h1>FyLite v0.0.1-alpha-rc3 · 平衡计算使用方法</h1>
-<p>首批支持EQ-B0-SOLOVEV合成固定边界；安装与原生求解已验证，实验磁重构仍待后续迁移。当前按用户要求在login117直接执行，不使用Slurm。</p>
+<p>支持EQ-B0-SOLOVEV合成固定边界及94048固定压力历史回放；后者含受限在线取数和磁处理预览，不是纯磁或独立实验验证。当前按用户要求在login117直接执行，不使用Slurm。</p>
 <section><h2>1．检查安装</h2><pre>export FYLITE_EQ_ROOT=/project/FyLite/v0.0.1-alpha-rc3/eq
 "$FYLITE_EQ_ROOT/bin/fylite-eq-verify"</pre><p>检查包内文件SHA、内核ABI163和数据层版本。入口不读取artifacts缓存或开发仓库。</p></section>
 <section><h2>2．浏览示范</h2><p><a href="../demo/EQ-B0-SOLOVEV/index.html">结果页</a> · <a href="../demo/EQ-B0-SOLOVEV/LEARNING-GUIDE.zh-CN.html">详细过程</a>。示范使用65×65网格，输入来源为解析模型，不能视为实验验证。</p></section>

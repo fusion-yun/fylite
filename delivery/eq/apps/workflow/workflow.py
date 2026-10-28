@@ -9,8 +9,11 @@ from eq_delivery import Kernel, personal, process_identity
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import pipeline_tools
 import processing_tools
+import object_contracts
+import scientific_views
+import point_analysis
 
-def tool_identity():return hobj({p.name:sha(p) for p in [Path(__file__),Path(__file__).with_name('pipeline_tools.py'),Path(__file__).with_name('processing_tools.py')]})
+def tool_identity():return hobj({p.name:sha(p) for p in [Path(__file__),Path(__file__).with_name('pipeline_tools.py'),Path(__file__).with_name('processing_tools.py'),Path(__file__).with_name('object_contracts.py')]})
 
 def read(p): return json.loads(Path(p).read_text())
 def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
@@ -151,9 +154,10 @@ def plan_nodes(definition,target):
 
 def closure(target):return plan_nodes(DEFINITION,target)
 def worker(run,data):
-    snap=read(run/'snapshot.json');pars=parameters(snap['parameters']);status=read(run/'status.json');definition=snap.get('workflow_definition',DEFINITION);nodes=plan_nodes(definition,snap['target']);events=read(run/'events.json') if (run/'events.json').exists() else []
+    snap=read(run/'snapshot.json');pars=parameters(snap['parameters']);status=read(run/'status.json');definition=snap.get('workflow_definition');nodes=plan_nodes(definition,snap['target']) if definition else [];events=read(run/'events.json') if (run/'events.json').exists() else []
     def persist():write(run/'status.json',status);write(run/'events.json',events)
     try:
+        if definition is None:raise ValueError("旧运行缺少冻结流程定义；保留只读，请另存新修订后运行")
         manifest(data)
         if snap.get('workflow_sha256') and hobj(definition)!=snap['workflow_sha256']:raise ValueError('冻结工作流身份不一致')
         if sha(data/'manifest.json') != snap['dataset_manifest_sha256'] or tool_identity() != snap['tool_sha256']:
@@ -193,7 +197,7 @@ def worker(run,data):
         if (run/'solve.json').exists():status['numerical']='converged' if read(run/'solve.json')['converged'] else 'not_converged'
         status['physical']='not_experimentally_qualified';persist()
     except Exception as e:
-        status.update(state='failed',error=str(e),ended_at=time.time())
+        status.update(state='failed',error=str(e),error_detail=object_contracts.error_record(e,status.get('active_step')),ended_at=time.time())
         if status.get('active_step'):status['steps'][status['active_step']].update(state='failed',error=str(e),ended_at=time.time())
         persist();raise
 
@@ -205,22 +209,38 @@ def info(root):
     ready=True;reason=None
     try:m=manifest(dataset())
     except Exception as e:ready=False;reason=str(e);m={}
-    return {'workflow_id':'east94048-fixed-pressure','title':'EAST 94048 · 固定压力平衡工作流','nodes':NODES,'definition':DEFINITION,'defaults':DEFAULT,'dataset_ready':ready,'reason':reason,'limits':m.get('limits',[]),'capabilities':{'native_code':'code/kinetic','online_fetch':True,'live_native_iterations':False,'resume_native':False,'agent':False,'processing_preview':True,'processing_api':['processing-import','processing-preview','processing-adopt'],'q_modes':['target'],'human_reviews':True,'supported_shots':[94048]}}
+    return {'workflow_id':'east94048-fixed-pressure','title':'EAST 94048 · 固定压力平衡工作流','nodes':NODES,'definition':DEFINITION,'defaults':DEFAULT,'tool_definitions':object_contracts.tool_definitions(sys.modules[__name__]),'dataset_ready':ready,'reason':reason,'limits':m.get('limits',[]),'capabilities':{'native_code':'code/kinetic','online_fetch':True,'live_native_iterations':False,'resume_native':False,'agent':False,'processing_preview':True,'processing_api':['processing-import','processing-preview','processing-adopt'],'q_modes':['target'],'human_reviews':True,'supported_shots':[94048]}}
 def save(body,roots):
     with LOCK:
-        current={}
+        current={}; origin=None
         pars=parameters(body['parameters']);name=body.get('name','').strip()
         if not name or len(name)>100:raise ValueError('请输入1–100字算例名称')
+        if body.get('source_case_id'):
+            if body.get('case_id'):raise ValueError('另存与更新不能同时进行')
+            origin=casepath(body['source_case_id'],roots)
+            current=read(origin/'case.json')
+            if body.get('source_revision')!=current['revision']:raise ValueError('来源修订已变化，请重新打开')
         if body.get('case_id'):
             path=casepath(body['case_id'],roots);current=read(path/'case.json')
             if body.get('base_revision')!=current['revision']:raise ValueError('算例已被其他操作更新，请重新打开后保存')
-            rev=current['revision']+1
+            rev=current['revision']+1; staging=path
         else:
-            path=casepath('case-'+uuid.uuid4().hex[:12],roots);path.mkdir(parents=True,exist_ok=False);rev=1
-        case={'case_id':path.name,'name':name,'revision':rev,'workflow_id':'east94048-fixed-pressure','parameters':pars,'updated_at':time.time(),'directory':str(path)}
-        if current.get('processing') and processing_tools.subset(pars)==processing_tools.subset(parameters(current['parameters'])):
-            case['processing']=current['processing'];case['processing_receipt']=current.get('processing_receipt',{})
-        write(path/'revisions'/f'{rev}.json',case);write(path/'case.json',case);return case
+            path=casepath('case-'+uuid.uuid4().hex[:12],roots);rev=1
+            staging=path.with_name('.pending-'+path.name);staging.mkdir(parents=True,exist_ok=False)
+        try:
+            case={'case_id':path.name,'name':name,'revision':rev,'workflow_id':'east94048-fixed-pressure','parameters':pars,'updated_at':time.time(),'directory':str(path)}
+            if origin:
+                case.update(object_contracts.clone_processing(sys.modules[__name__],origin,staging,current,pars))
+                case['parent']={'case_id':current['case_id'],'revision':current['revision']}
+            elif current.get('processing') and processing_tools.subset(pars)==processing_tools.subset(parameters(current['parameters'])):
+                case['processing']=current['processing'];case['processing_receipt']=current.get('processing_receipt',{})
+            write(staging/'revisions'/f'{rev}.json',case);write(staging/'case.json',case)
+            if staging!=path:os.rename(staging,path)
+            return case
+        except Exception:
+            # Only discard a never-published directory created by this call.
+            if staging!=path:shutil.rmtree(staging)
+            raise
 
 def execute(body,root,roots):
     with LOCK:
@@ -242,7 +262,7 @@ def execute(body,root,roots):
             processing_tools.adopted(sys.modules[__name__],casepath(case['case_id'],roots),case['processing'],case['parameters'])
         manifest(dataset());identity=Kernel(root,read(root/'kernel.lock.json') if (root/'kernel.lock.json').exists() else read(root/'releases/kernel-rc3.lock.json')).identity
         run=runs/('run-'+time.strftime('%Y%m%dT%H%M%S')+'-'+uuid.uuid4().hex[:8]);run.mkdir()
-        write(run/'snapshot.json',{**case,'fresh_source':bool(body.get('fresh_source')),'target':target,'request_id':key,'plan':nodes,'dataset_manifest_sha256':sha(dataset()/'manifest.json'),'kernel_identity':identity,'tool_sha256':tool_identity(),'workflow_definition':copy.deepcopy(DEFINITION),'workflow_sha256':hobj(DEFINITION)})
+        write(run/'snapshot.json',{**case,'object_contract':object_contracts.SCHEMA,'hash_profile':object_contracts.HASH_PROFILE,'fresh_source':bool(body.get('fresh_source')),'target':target,'request_id':key,'plan':nodes,'dataset_manifest_sha256':sha(dataset()/'manifest.json'),'kernel_identity':identity,'tool_sha256':tool_identity(),'workflow_definition':copy.deepcopy(DEFINITION),'workflow_sha256':hobj(DEFINITION)})
         write(run/'status.json',{'run_id':run.name,'revision':case['revision'],'state':'starting','numerical':'not_assessed','physical':'not_assessed','started_at':time.time(),'steps':{n['id']:{'state':'pending' if n in nodes else 'skipped'} for n in NODES}})
         launch_worker(run,root)
         return {'run_id':run.name,'case_id':case['case_id'],'reused_request':False}
@@ -315,9 +335,11 @@ def state(run,cancel=False):
     return st
 
 def dispatch(method,route,body,root,roots,query):
+    if route=='point-analysis':return point_analysis.dispatch(sys.modules[__name__],method,body,query,root,roots)
     if (method=='GET' and route in ('processing-objects','processing-preview')) or (method=='POST' and route in ('processing-import','processing-preview','processing-adopt')):
         return processing_tools.dispatch(sys.modules[__name__],method,route,body,roots,query)
     if method=='GET':
+        if route in ('pressure-preview','compare','channel-view'):return scientific_views.dispatch(sys.modules[__name__],route,roots,query)
         if route=='info':return info(root)
         if route=='cases':return {'cases':[read(p/'case.json') for p in sorted(base(roots).glob('case-*')) if (p/'case.json').is_file()]}
         cid=query.get('case_id',[''])[0];path=casepath(cid,roots)
@@ -325,6 +347,7 @@ def dispatch(method,route,body,root,roots,query):
         if route=='runs':return {'runs':[{'run_id':p.name,'status':state(p),'target':read(p/'snapshot.json')['target']} for p in sorted((path/'runs').glob('run-*'),reverse=True)]}
         run=runpath(cid,query.get('run_id',[''])[0],roots)
         if route=='run':return {'status':state(run),'snapshot':read(run/'snapshot.json'),'events':read(run/'events.json') if (run/'events.json').exists() else [],'stdout':(run/'stdout.log').read_text(errors='replace')[-6000:],'stderr':(run/'stderr.log').read_text(errors='replace')[-6000:]}
+        if route=='objects':return object_contracts.run_objects(sys.modules[__name__],run)
         if route=='analysis':
             result=read(run/'report.json');data=dataset();manifest(data)
             snap=read(run/'snapshot.json')
@@ -334,6 +357,12 @@ def dispatch(method,route,body,root,roots,query):
             result['reference_data']={'q':old['exports']['q']['profiles'],'pressure':old['exports']['pressure_F']['profiles'],'geometry':{'axis':old['result']['geometry']['axis'],'boundary_flux':old['result']['geometry']['boundary_flux'],'contour':old['result']['geometry']['contour']},'grid':{'r':initial['r'],'z':initial['z'],'field':old['result']['field']}}
             geometry_path=ROOT/'cases/EQ-P01-94048/device-geometry.json'
             result['device_geometry']={**read(geometry_path),'limiter':read(run/'assemble.json')['config']['initial']['limiter'],'limiter_source':'run assemble.json / config.initial.limiter','geometry_sha256':sha(geometry_path)}
+            solved=scientific_views.artifact(sys.modules[__name__],run,'solve')
+            result['conditional_bands']=solved['result'].get('conditional_bands')
+            result['diagnostic_availability']={key:{'state':'not_computed','reason':reason} for key,reason in (
+                ('BNEL','本运行未保存POINT弦几何、线积分观测与密度拟合产物。'),
+                ('BPOLAR','本运行未保存POINT偏振观测及同一平衡上的前向积分产物。'),
+                ('density','本运行未生成密度拟合及扰动分位数；不能由压力唯一确定密度。'))}
             result['analysis_identity']={'run_id':run.name,'revision':snap['revision'],'report_sha256':sha(run/'report.json'),'reference_sha256':sha(data/'historical-reference.json')}
             return result
         if route=='artifact':

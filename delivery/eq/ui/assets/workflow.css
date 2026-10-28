@@ -849,3 +849,25 @@ footer button {
  #mp-actions #mp-adopt-panel label { display:inline-flex; width:auto; }
  #mp-adopt-panel #mp-note { width:320px; }
 }
+
+/* Scientific result overview; detailed diagnostic tabs remain available. */
+.analysis-plots.scientific-overview{display:grid;grid-template-columns:minmax(260px,1.1fr) repeat(3,minmax(210px,1fr));gap:12px;align-items:start}.scientific-overview .overview-surfaces{grid-row:span 3}.scientific-overview figure{min-width:0;margin:0}.scientific-overview canvas{width:100%;height:auto}.scientific-overview .overview-scope{grid-column:1/-1}.diagnostic-unavailable{border:1px solid #ccd5df;background:#f5f7fa;padding:12px;min-height:150px}.diagnostic-unavailable h3{font-size:14px}.analysis-summary{font-size:14px;font-weight:600}.scientific-overview .mag-controls{display:flex;flex-wrap:wrap;gap:4px}.scientific-overview .mag-controls input[type=number]{width:48px}@media(max-width:1500px){.analysis-plots.scientific-overview{grid-template-columns:minmax(240px,1fr) repeat(2,minmax(200px,1fr))}.scientific-overview .overview-surfaces{grid-row:span 4}}@media(max-width:1050px){.analysis-plots.scientific-overview{grid-template-columns:repeat(2,minmax(200px,1fr))}.scientific-overview .overview-surfaces{grid-row:span 2}}@media(max-width:700px){.analysis-plots.scientific-overview{display:block}.scientific-overview>*{margin-bottom:12px}}
+
+/* Composable equilibrium plan is isolated inside its own document. */
+#planner.tab { padding:0; overflow:hidden; }
+#planner-frame { display:block; width:100%; height:100%; border:0; background:#f5f7f9; }
+
+.more-menu #execute{background:#fff;color:#314653}
+.quick-guide{display:flex;align-items:center;gap:9px;padding:7px 14px;background:#f5f8fa;border-bottom:1px solid #d8e3e9;font-size:13px;flex-wrap:wrap}
+.quick-guide[hidden]{display:none}
+.quick-guide strong{color:#365464;margin-right:4px}.quick-guide button{border:1px solid #cadbe2;border-radius:16px;background:#fff;color:#365464;padding:4px 11px;cursor:pointer}
+.quick-guide button[aria-current="step"]{border-color:#35849b;background:#e5f3f7;color:#19566a;font-weight:700}
+.quick-guide #guide-dismiss{margin-left:auto;border:0;background:transparent;font-size:19px;padding:0 5px}
+.stale-results{border-left:4px solid #b5792d;background:#fff6e8;padding:9px 12px;color:#68481b}
+.symbol-note{font-size:12px;color:#516e7c;margin:0 0 10px}
+#nodes .node.next-node{outline:2px solid #43869b;outline-offset:-2px}
+
+.term-help{display:inline-block;position:relative;margin-left:4px;color:#24748b;font-weight:700;cursor:help;outline-offset:2px}
+.term-help:hover::after,.term-help:focus::after{content:attr(data-tip);position:absolute;left:0;top:1.5em;z-index:50;width:min(280px,70vw);padding:8px 10px;border:1px solid #a8c3cd;border-radius:6px;background:#fff;color:#244454;box-shadow:0 4px 14px #1233;font:13px/1.45 system-ui,sans-serif;white-space:normal}
+
+@media(max-width:760px){.quick-guide{gap:5px;padding:6px 9px}.quick-guide strong{width:100%}}
