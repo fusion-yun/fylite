@@ -1,4 +1,4 @@
-# 部署与发布流程
+﻿# 部署与发布流程
 
 本文说明 `delivery/eq`（开发源）、rc3 内核发布、以及线上部署点三者之间的关系，以及一次改动的完整上线步骤。
 
@@ -77,7 +77,7 @@ ssh NewShenma-direct "/project/FyLite/v0.0.1-alpha-rc3/eq-ui-20261028/restart-87
 
    ```bash
    FYLITE_EQ_DATA=/project/FyLite/data/eq/east94048/v1
-   FYLITE_EQ_V3_ROOT=/project/FyLite/artifacts/standalone-v3-20261027
+   FYLITE_EQ_V3_ROOT=/project/FyLite/artifacts/standalone-rc3-20261028
    FYLITE_EQ_V3_M02_INPUT=/project/FyLite/data/eq/east164437/v1/diagnostics.json
    FYLITE_EQ_V3_DEPS=/project/FyLite/records/eq-multicase-v3-20261027/deps/usr/lib/x86_64-linux-gnu
    LD_LIBRARY_PATH=$FYLITE_EQ_V3_DEPS
@@ -147,3 +147,33 @@ scp /project/FyLite/.staging/eq-tree-20261028/magnetic-live.js.bak NewShenma-dir
 3. **不要改 `input/native.json` 那个共享文件**——它是符号链接指向发行包，改一次所有算例一起变。按炮号设参数要走「每算例一份拷贝」。
 4. **Python 文件不能有 BOM**。用 PowerShell 写文件时要用 `[IO.File]::WriteAllText($p,$t,(New-Object Text.UTF8Encoding($false)))`，`Set-Content -Encoding UTF8` 会加 BOM，导致 `ast.parse` 失败。
 5. **重启必须带环境变量**，直接 `nohup ./bin/fylite-eq serve ...` 会丢环境，页面报包路径未配置。
+## 五、内核包必须对齐 rc3
+
+`FYLITE_EQ_V3_ROOT` 指向的内核包（`demo.py` + `facts/` + `input/` + `libfylite.so`）必须是**用 rc3 内核构建的那一份**：
+
+```
+/project/FyLite/artifacts/standalone-rc3-20261028
+    libfylite.so  = rc3/lib/libfylite_kernel.so   sha256 f2632102e950788f…
+    libsp.so      = rc3/lib/libsp.so              sha256 0170a30c8a763baf…
+```
+
+三处哈希必须一致，否则会在不同层次失败：
+
+| 位置 | 内容 | 不一致时的报错 |
+|---|---|---|
+| 包内 `MANIFEST.sha256.json` | `libfylite.so` 条目 | 「standalone-v3 文件身份不匹配」 |
+| `apps/workflow/archive_v3.py` | `EXPECTED_LIBRARY` | 「standalone-v3 原生库版本不匹配」 |
+| `demo.py` | `LIB_SHA` 常量 | 「动态库 SHA256 不符」 |
+
+重建步骤（升级内核时）：
+
+```bash
+S=/project/FyLite/artifacts/standalone-v3-20261027      # 旧包，提供 demo.py/facts/input
+N=/project/FyLite/artifacts/standalone-rc3-20261028     # 新包
+cp -a "$S" "$N"
+cp -f /project/FyLite/v0.0.1-alpha-rc3/eq/lib/libfylite_kernel.so "$N/libfylite.so"
+cp -f /project/FyLite/v0.0.1-alpha-rc3/eq/lib/libsp.so            "$N/libsp.so"
+# 先改 demo.py 的 LIB_SHA，再重算 MANIFEST（顺序反了会身份不匹配）
+```
+
+已验证：rc3 内核与旧 standalone-v3 内核在本路线上**数值完全一致**（164437/6.301 = 262 次、q₀ 2.69601、χ² 364.468；六个跨炮号算例逐项相同）。
