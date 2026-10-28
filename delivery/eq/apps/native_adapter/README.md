@@ -69,3 +69,16 @@ python3 tools/check.py --package /path/to/standalone-rc3-<date>
 
 `demo.py`、`facts/`、`input/` 来自内核仓库的参考适配器（`kinetic_reconstruction-standalone-v3`），
 `LIB_SHA` 已重钉到 rc3 内核。原始说明保留在 `README.standalone.md`。
+## 装置响应表（不进 git）
+
+三份 `.ddd` 是二进制细丝表（约 32 MB，不可压缩），随装置固定、与代码无关，因此不入库：
+
+```
+/project/FyLite/data/native-adapter/tables/
+    ec129129.ddd   18.0 MB   线圈响应（native.json 的 pf_table）
+    ep129129.ddd   14.1 MB   等离子体响应（plasma_table）
+    rfcoil.ddd     11 KB     射频线圈
+```
+
+它们的 sha256 与来源记录在 `input/tables.lock.json`；构建脚本默认从上面这个目录取，校验不符即退出。
+换装置或换表时，更新 `tables.lock.json` 与公共目录即可，仓库不用动。

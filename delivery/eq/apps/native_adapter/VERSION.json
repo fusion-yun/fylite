@@ -15,6 +15,11 @@
     "facts/": "同上；装置事实（east.jsonld + east/ 解析文档与变体）",
     "input/": "同上；native.json 求解卡 + tables/ 三份装置响应表（ec129129.ddd / ep129129.ddd / rfcoil.ddd）"
   },
+  "tables": {
+    "lock": "input/tables.lock.json",
+    "source": "/project/FyLite/data/native-adapter/tables",
+    "in_git": false
+  },
   "notes": [
     "内核 .so 不进本仓库：构建时从 rc3 发布树 lib/ 取，见 tools/build_package.py",
     "构建产物目录即运行时包，FYLITE_EQ_V3_ROOT 指向它",
