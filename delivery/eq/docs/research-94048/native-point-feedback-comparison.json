@@ -1,0 +1,155 @@
+{
+  "status": "CONVERGED",
+  "baseline": {
+    "converged": true,
+    "iterations": 54,
+    "residual": 9.554108986529467e-07,
+    "ip_A": 446252.4368814623,
+    "axis_R_m": 1.888208448311016,
+    "axis_Z_m": 0.04247393373770594,
+    "q0": 1.0499996465057695,
+    "q95_interpolated": 3.7061515020170703,
+    "axis_pressure_Pa": 29891.903446204284,
+    "min_pressure_Pa": 344.8659491750153,
+    "edge_pressure_Pa": 344.8659491750153,
+    "magnetic_weighted_residual_sum": 1523.377588486368,
+    "magnetic_blocks": {
+      "loops": 425.1463136164787,
+      "probes": 1098.2312748698894
+    },
+    "point": {
+      "chi2": 0.009538618828265299,
+      "active_channels": 7,
+      "model_1e19": [
+        0.2607350535491441,
+        0.29130332975976986,
+        0.26687190837037844,
+        0.18754130618330847,
+        0.068967024136983,
+        -0.06569646430578674,
+        -0.18713350082433886,
+        -0.2695387745247396,
+        -0.29932415468811024,
+        -0.27064353820123066,
+        -0.19779088474033663
+      ],
+      "target_1e19": [
+        0.324,
+        0.394,
+        0.394,
+        0.312,
+        -0.035,
+        0.132,
+        -0.249,
+        -0.37,
+        -0.352,
+        -0.306,
+        -0.197
+      ],
+      "weighted_residual": [
+        -0.03163247322542794,
+        -0.0,
+        -0.0,
+        -0.062229346908345765,
+        0.05198351206849151,
+        -0.0,
+        0.030933249587830565,
+        0.0,
+        0.02633792265594488,
+        0.017678230899384677,
+        -0.00039544237016830717
+      ]
+    },
+    "contour_extents_m": {
+      "r_min": 1.4014771500010907,
+      "r_max": 2.3009853851527264,
+      "z_min": -0.6276831088259841,
+      "z_max": 0.8348600649396103
+    }
+  },
+  "feedback": {
+    "converged": true,
+    "iterations": 56,
+    "residual": 7.089711860640018e-07,
+    "ip_A": 446252.56443505135,
+    "axis_R_m": 1.888208791570495,
+    "axis_Z_m": 0.042473905823713014,
+    "q0": 1.0499997681005637,
+    "q95_interpolated": 3.706151404548783,
+    "axis_pressure_Pa": 29891.91654988414,
+    "min_pressure_Pa": 344.8648402711639,
+    "edge_pressure_Pa": 344.8648402711639,
+    "magnetic_weighted_residual_sum": 1523.3863706643065,
+    "magnetic_blocks": {
+      "loops": 425.1506032368316,
+      "probes": 1098.235767427475
+    },
+    "point": {
+      "chi2": 0.009538503701135017,
+      "active_channels": 7,
+      "model_1e19": [
+        0.260735935539011,
+        0.2913045784857959,
+        0.26687294406165135,
+        0.18754185183417668,
+        0.06896720405387918,
+        -0.06569659223221914,
+        -0.18713402002571602,
+        -0.2695397871365226,
+        -0.2993253669912962,
+        -0.27064436976520306,
+        -0.19779104910662362
+      ],
+      "target_1e19": [
+        0.324,
+        0.394,
+        0.394,
+        0.312,
+        -0.035,
+        0.132,
+        -0.249,
+        -0.37,
+        -0.352,
+        -0.306,
+        -0.197
+      ],
+      "weighted_residual": [
+        -0.03163203223049452,
+        -0.0,
+        -0.0,
+        -0.06222907408291165,
+        0.05198360202693959,
+        -0.0,
+        0.03093298998714199,
+        0.0,
+        0.026337316504351897,
+        0.017677815117398476,
+        -0.000395524553311808
+      ]
+    },
+    "contour_extents_m": {
+      "r_min": 1.401477288517523,
+      "r_max": 2.300985757006618,
+      "z_min": -0.6276829058517192,
+      "z_max": 0.8348600455936687
+    }
+  },
+  "max_field_difference_Wb": 2.3522475069981397e-06,
+  "max_pf_difference_At": 0.40034092964197043,
+  "max_pressure_profile_difference_Pa": 0.013103679855703376,
+  "point_fractional_chi2_change": -1.2069580759499487e-05,
+  "sha256": {
+    "/tmp/fylite-native-point-absent-release-v1/response.json": "3db8c7aa63e631f91bb68adeab8f3a4664e4badec24f12c91ca70ccadc73ca51",
+    "/tmp/fylite-native-point-feedback-release-v1/response.json": "a8978dd4ea2a6285022009dfef76032de6cf47b9042a13a53879d39deb5d50dd",
+    "/tmp/fylite-native-point-feedback-release-v1/point.json": "3d139007ee221a7a7ecd2269efc787c2363979e5a6cfdae6ccb61852dfbb4e1d",
+    "/mnt/d/workspace_codex/localdoc/evidence/fylite/point-feedback-20261022/compare_native_point_feedback.py": "498c0b0011e3b240909a34af6bfd46fd7fd62106f654a058d33570f4d11f3ede"
+  },
+  "scientific_acceptance": "NOT_QUALIFIED",
+  "limits": [
+    "Fixed spatial density/mask, no density/pressure remapping",
+    "Magnetic5.760s vs pressure6.510s",
+    "POINT conditional uncertainty not implemented",
+    "Do not add pre-qnorm linear weighted_cost to final-field POINT chi2",
+    "Magnetic weights include original recipe scaling; not unqualified statistical reduced chi-square"
+  ]
+}

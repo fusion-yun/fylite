@@ -1,0 +1,47 @@
+{
+  "status": "OUTER_CONVERGED_ENGINEERING",
+  "history": [
+    {
+      "iteration": 1,
+      "metrics": {
+        "field_relative": 2.3437318669765507e-08,
+        "density_relative": 5.658181287787642e-09,
+        "operator_prediction_sigma": 8.65465584729603e-10
+      },
+      "gate_passed": true,
+      "consecutive_passes": 1,
+      "inner_iterations": 56,
+      "inner_error": 7.089702406818142e-07,
+      "bnel_chi2": 0.42192988318258356,
+      "fixed_operator_point_chi2": 0.00950019416923983,
+      "sha256": {
+        "config.json": "5e28811fcb596d02698d39ba58c2766504306ce2d60f7f5d91692495bff8d69e",
+        "response.json": "654cab63814aaa5c3dffb784ee573a65ef3e15d20133c091f312a2ae9dd10dd8",
+        "density-used.json": "5a7eb290a8155af6f94c2bf16fee067e724fd795450224935d9ef47af54966cc",
+        "density-remapped.json": "819245b919db9fd0d075ca631f0e0db96e6d8744bb23b9a91863c3c64e98f5f5"
+      }
+    },
+    {
+      "iteration": 2,
+      "metrics": {
+        "field_relative": 3.3231638489829967e-11,
+        "density_relative": 1.8353312950637043e-11,
+        "operator_prediction_sigma": 1.3283480984371523e-12
+      },
+      "gate_passed": true,
+      "consecutive_passes": 2,
+      "inner_iterations": 56,
+      "inner_error": 7.089738054008003e-07,
+      "bnel_chi2": 0.42192988325226316,
+      "fixed_operator_point_chi2": 0.009500194188323513,
+      "sha256": {
+        "config.json": "efc080908d52e784fde18138aa1d006de22627af232cb3bc9afb70d57f5c0329",
+        "response.json": "b2caa34e8c14172e6ae85b1378a7454708b95319ffcbd42403f162fa7f1a7d66",
+        "density-used.json": "819245b919db9fd0d075ca631f0e0db96e6d8744bb23b9a91863c3c64e98f5f5",
+        "density-remapped.json": "2496e3de8c548b34a7b552dea0d3ac2289fc163753c0ef934598eb4f757c7a71"
+      }
+    }
+  ],
+  "scientific_acceptance": "NOT_QUALIFIED",
+  "elapsed_s": 539.5751364319949
+}

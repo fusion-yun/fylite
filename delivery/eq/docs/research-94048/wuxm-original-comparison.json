@@ -1,0 +1,62 @@
+{
+  "source": "/mnt/d/workspace_codex/repos/kefit_east-wt-94048/data/KEFIT_wuxm/output/kefit/kin/g094048.05760",
+  "sha256": "ce505eaa13e68049df1e3c406bde11ef6718eb5376e81f854e98fb982f4d328b",
+  "header": "  EFITD    08/02/2006    # 94048  5760ms           3 129 129",
+  "grid": [
+    129,
+    129
+  ],
+  "boundary_points": 93,
+  "limiter_points": 61,
+  "metrics": {
+    "Ip / A": {
+      "wuxm": 446250.129,
+      "native_initial": 446252.4368814623,
+      "outer_final": 446252.5649590429,
+      "final_minus_wuxm": 2.4359590428648517
+    },
+    "axis r / m": {
+      "wuxm": 1.888205,
+      "native_initial": 1.888208448311016,
+      "outer_final": 1.8882087919980282,
+      "final_minus_wuxm": 3.7919980282463683e-06
+    },
+    "axis z / m": {
+      "wuxm": 0.0424781266,
+      "native_initial": 0.04247393373770594,
+      "outer_final": 0.04247390603482999,
+      "final_minus_wuxm": -4.22056517000724e-06
+    },
+    "q0": {
+      "wuxm": 1.04999974,
+      "native_initial": 1.0499996465057695,
+      "outer_final": 1.0499997680993711,
+      "final_minus_wuxm": 2.8099371052192623e-08
+    },
+    "pressure axis / Pa": {
+      "wuxm": 29893.8868,
+      "native_initial": 29891.903446204284,
+      "outer_final": 29891.916593728496,
+      "final_minus_wuxm": -1.9702062715041393
+    },
+    "F axis / T m": {
+      "wuxm": -2.90777022,
+      "native_initial": -2.907146024473419,
+      "outer_final": -2.9071462260077996,
+      "final_minus_wuxm": 0.0006239939922005888
+    },
+    "q95 (linear interpolation)": {
+      "wuxm": 3.7068809299999996,
+      "native_initial": 3.7061515020170703,
+      "outer_final": 3.7061513977187,
+      "final_minus_wuxm": -0.000729532281299683
+    },
+    "boundary_bidirectional_sampled_distance_m": {
+      "max": 0.0012872873970243934,
+      "mean": 0.00013118132682414096,
+      "note": "vertex-to-polyline samples, not exact continuous Hausdorff"
+    }
+  },
+  "flux_comparison": "separately normalized psiN; no direct signed dimensional subtraction",
+  "scientific_acceptance": "NOT_QUALIFIED"
+}

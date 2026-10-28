@@ -1,0 +1,69 @@
+{
+  "status": "PASS",
+  "outer_status": "OUTER_CONVERGED_ENGINEERING",
+  "elapsed_s": 539.5751364319949,
+  "checks": [
+    "all completed iteration artifact hashes match",
+    "only POINT and conditional-band config changes",
+    "all inner converged",
+    "density remapping reproducible",
+    "stopping metrics independently recomputed",
+    "submitted operator equals saved input",
+    "POINT and magnetic residual sums agree"
+  ],
+  "iterations": [
+    {
+      "outer": 1,
+      "inner_iterations": 56,
+      "inner_error": 7.089702406818142e-07,
+      "metrics": {
+        "field_relative": 2.3437318669765507e-08,
+        "density_relative": 5.658181287787642e-09,
+        "operator_prediction_sigma": 8.65465584729603e-10
+      },
+      "ip_A": 446252.5649612007,
+      "axis_R_m": 1.8882087919977542,
+      "axis_Z_m": 0.042473906034526304,
+      "q0": 1.0499997680994033,
+      "axis_density_used_ne19": 4.24220764710659,
+      "axis_density_remapped_ne19": 4.242207645720524,
+      "density_min_ne19": 0.1,
+      "BNEL_chi2": 0.42192988318258356,
+      "POINT_used_operator_chi2": 0.00950019416923985,
+      "POINT_remapped_operator_chi2": 0.009500194189949582,
+      "magnetic_weighted_sum": 1523.3864120713329,
+      "axis_pressure_Pa": 29891.916593253278,
+      "PF_change_from_previous_max_At": 0.0052739027014467865
+    },
+    {
+      "outer": 2,
+      "inner_iterations": 56,
+      "inner_error": 7.089738054008003e-07,
+      "metrics": {
+        "field_relative": 3.3231638489829967e-11,
+        "density_relative": 1.8353312950637043e-11,
+        "operator_prediction_sigma": 1.3283480984371523e-12
+      },
+      "ip_A": 446252.5649590429,
+      "axis_R_m": 1.8882087919980282,
+      "axis_Z_m": 0.04247390603482999,
+      "q0": 1.0499997680993711,
+      "axis_density_used_ne19": 4.242207645720524,
+      "axis_density_remapped_ne19": 4.2422076457188505,
+      "density_min_ne19": 0.1,
+      "BNEL_chi2": 0.42192988325226316,
+      "POINT_used_operator_chi2": 0.009500194188323492,
+      "POINT_remapped_operator_chi2": 0.009500194188340721,
+      "magnetic_weighted_sum": 1523.3864118157212,
+      "axis_pressure_Pa": 29891.916593728496,
+      "PF_change_from_previous_max_At": 1.315158442594111e-05
+    }
+  ],
+  "scientific_acceptance": "NOT_QUALIFIED",
+  "limits": [
+    "engineering thresholds, not experimental accuracy qualification",
+    "historical sigma2.0 unchanged",
+    "fixed pressure6.510s vs equilibrium5.760s",
+    "no pressure/bootstrap feedback or new uncertainty bands"
+  ]
+}
