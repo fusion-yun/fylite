@@ -17,3 +17,11 @@ delivery/eq/apps/native_adapter/**/__pycache__/
 
 # 装置响应表：随装置固定，不进 git（见 apps/native_adapter/input/tables.lock.json）
 delivery/eq/apps/native_adapter/input/tables/*.ddd
+
+# 本地工作副本 / 构建产物 / 运行记录（从未入库，见 README 目录职责表）
+dist/
+python/
+runs/
+rust/
+__pycache__/
+*.pyc
