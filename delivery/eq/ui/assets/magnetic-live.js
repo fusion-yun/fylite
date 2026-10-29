@@ -1,4 +1,4 @@
-﻿/* A single analysis object, with its persisted source, adopted input and native result. */
+/* A single analysis object, with its persisted source, adopted input and native result. */
 'use strict';
 (() => {
   const $ = id => document.getElementById(id);
@@ -378,7 +378,36 @@
 
   function renderChannel(){const host=$('channel-host');if(!host||!channelKey)return;host.replaceChildren();if(channel?.key===channelKey&&channel?.slot===channelSlot&&channel?.caseId===cid()){showChannel(host,channel.data);return}host.append(E('p','正在读取所选通道的原始窗口…','hint'));const key=channelKey,slot=channelSlot,caseId=cid();api('archive-magnetic-channel?'+new URLSearchParams({case_id:caseId,key,...(slot?{channel_id:slot}:{})})).then(data=>{if(key!==channelKey||slot!==channelSlot||caseId!==cid()||!$('channel-host'))return;channel={key,slot,caseId,data};host.replaceChildren();showChannel(host,data)}).catch(error)}
   function showChannel(host,d){const r=d.channel;host.append(facts([['来源节点',`${r.tree} / ${r.node}`],['运行前通道规则',r.role==='fit'?'拟纳入求解':'预设排除'],['已保存的本次权重',fmt(r.weight)],['目标窗样本',r.samples],['炮前样本',d.baseline_samples],['处理后的求解值',fmt(d.processed_value)],['单位',r.kind==='loops'?'Wb/rad':'T']]));const plots=E('div',undefined,'plot-grid');for(const [title,values] of [['原始波形',d.target_y],['处理后波形',d.processed_y]]){const fig=E('figure'),canvas=E('canvas');canvas.width=650;canvas.height=260;fig.append(canvas,E('figcaption',title+' · '+(r.kind==='loops'&&title==='处理后波形'?'Wb/rad':r.kind==='probes'?'T':'原始节点单位')));plots.append(fig);requestAnimationFrame(()=>drawLine(canvas,d.target_t,values,title))}host.append(plots)}
-  function solverInput(){const body=$('stage-body');if(!adopted()){note(body,'请先检查并采纳处理结果。','error');body.append(B('返回处理与质量',()=>go(1)));return}const d=input?.diagnostics;const m=d?.inputs?.measurements,o=d?.inputs?.options;if(!m){note(body,'正在读取已采纳输入…');return}body.append(E('p','这份输入保留 M 档纯磁配方；未加入压力、TS、POINT 或 q₀ 目标。','question'));const grid=E('div',undefined,'summary');for(const [k,v] of [['计划提交的磁测观测',`${doc.quality.active_counts.loops} 环＋${doc.quality.active_counts.probes} 探针`],['电流／环向场',`Ip ${fmt(m.plasma)} A · TF ${fmt(m.tf?.f_vac_Tm)} T·m`],['PF 与数值设置',`${m.brsp.length} 组 PF · ${o.scan} 扫描`]]){const box=E('div');box.append(E('b',k),E('span',v));grid.append(box)}body.append(grid);body.append(facts([['实际炮号／时间',`${m.shot} / ${m.time_s.toFixed(3)} s`],['通道方案',channelPolicy()],['读取与处理来源',d.source.kind+' / '+d.source.tree],['数据版本',doc.adoption.diagnostics_sha256],['原始窗口身份',doc.adoption.raw_sha256],['采纳说明',doc.adoption.note],['内核制品身份',doc.case.package_manifest_sha256]]));if(doc.status.actual_input_sha256)note(body,'原生求解器实际装配输入 SHA256：'+doc.status.actual_input_sha256,'ok');else note(body,'以上是已确认的输入数据；运行时会保存求解器实际使用的最终输入，便于核对。');body.append(E('p',channelPolicy()+'。本次实际选择和权重可在“处理与质量”的通道表查看；权重不会随时刻自动重新标定。','callout'))}
+  async function loadQ0(table,status){
+    try{
+      const r=await api('archive-magnetic-q0-runs?case_id='+cid());table.replaceChildren();
+      if(!r.runs.length){table.append(E('p','还没有 q₀ 先验运行。','hint'));return}
+      const t=E('table',undefined,'q0-runs'),head=E('tr');
+      for(const h of ['q₀ 输入','q₀ 结果','q₉₅','轴 R','轴 Z','χ²','收敛'])head.append(E('th',h));
+      t.append(head);
+      for(const run of r.runs){const row=E('tr');row.append(E('td',fmt(run.q0_input)),E('td',fmt(run.q0)),E('td',fmt(run.q95)),E('td',fmt(run.axis_r)),E('td',fmt(run.axis_z)),E('td',fmt(run.chi2)),E('td',run.converged?'是':'否'));t.append(row)}
+      table.append(t,E('p',r.note,'hint'));
+    }catch(e){table.replaceChildren(E('p',e.message,'hint'))}
+  }
+  async function runQ0(){
+    const value=Number($('q0-value').value),status=$('q0-status');
+    if(!Number.isFinite(value)||value<0.2||value>20){status.textContent='q₀ 需在 0.2–20 之间';return}
+    try{status.textContent='正在以 q₀='+value+' 运行（受约束反演）…';await api('archive-magnetic-q0',{case_id:cid(),q0:value});status.textContent='完成';await loadQ0($('q0-table'),status)}catch(e){status.textContent=e.message}
+  }
+  function q0Panel(){
+    const box=E('div',undefined,'q0-panel');
+    box.append(E('h3','q₀ 先验（受约束反演）'));
+    box.append(E('p','把 q₀ 固定为给定值后再求解：q₉₅、轴位置等由磁测量在该 q₀ 下给出。这不是独立反演，q₀ 的来源需要另行说明（例如 EFIT 结果或扫描结论）。','callout'));
+    const field=E('div',undefined,'field'),label=E('label','q₀ 先验值'),input=E('input');
+    input.type='number';input.id='q0-value';input.min='0.2';input.max='20';input.step='0.05';input.value='1.05';
+    label.append(input);field.append(label);box.append(field);
+    box.append(B('以该 q₀ 运行',()=>runQ0(),'secondary'));
+    const status=E('p',undefined,'hint');status.id='q0-status';box.append(status);
+    const table=E('div');table.id='q0-table';box.append(table);
+    loadQ0(table,status);
+    return box;
+  }
+  function solverInput(){const body=$('stage-body');if(!adopted()){note(body,'请先检查并采纳处理结果。','error');body.append(B('返回处理与质量',()=>go(1)));return}const d=input?.diagnostics;const m=d?.inputs?.measurements,o=d?.inputs?.options;if(!m){note(body,'正在读取已采纳输入…');return}body.append(E('p','这份输入保留 M 档纯磁配方；未加入压力、TS、POINT 或 q₀ 目标。','question'));const grid=E('div',undefined,'summary');for(const [k,v] of [['计划提交的磁测观测',`${doc.quality.active_counts.loops} 环＋${doc.quality.active_counts.probes} 探针`],['电流／环向场',`Ip ${fmt(m.plasma)} A · TF ${fmt(m.tf?.f_vac_Tm)} T·m`],['PF 与数值设置',`${m.brsp.length} 组 PF · ${o.scan} 扫描`]]){const box=E('div');box.append(E('b',k),E('span',v));grid.append(box)}body.append(grid);body.append(facts([['实际炮号／时间',`${m.shot} / ${m.time_s.toFixed(3)} s`],['通道方案',channelPolicy()],['读取与处理来源',d.source.kind+' / '+d.source.tree],['数据版本',doc.adoption.diagnostics_sha256],['原始窗口身份',doc.adoption.raw_sha256],['采纳说明',doc.adoption.note],['内核制品身份',doc.case.package_manifest_sha256]]));if(doc.status.actual_input_sha256)note(body,'原生求解器实际装配输入 SHA256：'+doc.status.actual_input_sha256,'ok');else note(body,'以上是已确认的输入数据；运行时会保存求解器实际使用的最终输入，便于核对。');body.append(E('p',channelPolicy()+'。本次实际选择和权重可在“处理与质量”的通道表查看；权重不会随时刻自动重新标定。','callout'));body.append(q0Panel())}
   function runReview(){const body=$('stage-body'),s=doc.status;if(!adopted()){note(body,'先完成数据读取、质量检查和输入采纳。','error');body.append(B('返回数据处理',()=>go(1)));return}body.append(E('p','运行前核对输入身份、掩码及科学限制。点击运行后，服务才会调用独立原生 M 档求解器。','question'));body.append(facts([['炮号／时刻',`${doc.case.shot} / ${doc.case.time_s.toFixed(3)} s`],['按规则拟纳入的磁道数',doc.quality.active_counts.loops+doc.quality.active_counts.probes],['已采纳输入 SHA256',doc.adoption.diagnostics_sha256],['内核版本 SHA256','f2632102e950788f96de324bfd7b6c9152604eb72b9ce774613022c29f3ffb94']]));
     if(state()==='adopted')body.append(B('运行纯磁求解',()=>action('archive-magnetic-execute',{case_id:cid()}),'primary'));
     else if(state()==='running'){note(body,'原生求解正在运行。结果会保存实际输入和求解器身份。','running');body.append(B('停止求解',()=>stop()))}

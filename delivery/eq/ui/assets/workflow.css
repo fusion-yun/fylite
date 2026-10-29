@@ -871,3 +871,23 @@ footer button {
 .term-help:hover::after,.term-help:focus::after{content:attr(data-tip);position:absolute;left:0;top:1.5em;z-index:50;width:min(280px,70vw);padding:8px 10px;border:1px solid #a8c3cd;border-radius:6px;background:#fff;color:#244454;box-shadow:0 4px 14px #1233;font:13px/1.45 system-ui,sans-serif;white-space:normal}
 
 @media(max-width:760px){.quick-guide{gap:5px;padding:6px 9px}.quick-guide strong{width:100%}}
+
+/* q₀ 先验面板 */
+.q0-panel {
+  margin-top:18px;
+  padding:12px 14px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:var(--panel);
+}
+.q0-panel h3 {
+  margin:0 0 8px;
+  font-size:14px;
+}
+.q0-panel .field {
+  margin:8px 0;
+}
+.q0-panel table {
+  margin-top:10px;
+  background:#fff;
+}

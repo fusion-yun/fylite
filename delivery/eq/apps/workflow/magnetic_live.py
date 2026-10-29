@@ -5,6 +5,7 @@ archived observations when an experimental fetch fails.
 """
 from __future__ import annotations
 
+import bisect
 import gzip
 import itertools
 import hashlib
@@ -341,6 +342,97 @@ def solve_worker(folder):
                   facts={k: tier.get('facts', {}).get(k) for k in
                          ('iterations', 'residual', 'axis_r', 'axis_z', 'q0', 'q95', 'chi2_mag', 'n_mag_rows')},
                   worker_pid=None)
+
+
+def _interp_q95(pairs):
+    """在 q(psi_N) 折线上取 psi_N=0.95 的值。"""
+    xs = [float(p[0]) for p in pairs]
+    ys = [float(p[1]) for p in pairs]
+    if len(xs) < 2:
+        return None
+    index = max(1, min(len(xs) - 1, bisect.bisect_left(xs, 0.95)))
+    span = xs[index] - xs[index - 1]
+    ratio = 0.0 if span == 0 else (0.95 - xs[index - 1]) / span
+    return ys[index - 1] + ratio * (ys[index] - ys[index - 1])
+
+
+def q0_run(folder, q0):
+    """用 q₀ 先验跑一次受约束反演（应用侧规避：自行把本炮测量填进 measurement_template）。
+
+    说明：内核的 M 配方不读 q_target（dev issue 已提），能钉 q₀ 的只有 preset 配方，
+    而 preset 只认 measurement_template、不读 workflow.inputs（dev issue 已提）。
+    因此这里由应用侧把本炮已采纳的测量填进去，再以 preset 运行。
+    结果是「受约束反演」，不是独立反演，输出里会标记。
+    """
+    case = read(folder / 'case.json')
+    if not (folder / 'adoption.json').is_file():
+        raise ValueError('尚未采纳求解输入')
+    adoption = read(folder / 'adoption.json')
+    diagnostic_path = folder / 'diagnostics.json'
+    if digest(diagnostic_path) != adoption['diagnostics_sha256']:
+        raise ValueError('已采纳输入身份变化')
+    value = float(q0)
+    if not math.isfinite(value) or not 0.2 <= value <= 20.0:
+        raise ValueError('q₀ 先验需在 0.2–20 之间')
+    _, deps, adapter = packaged(folder)
+    measurements = read(diagnostic_path)['inputs']['measurements']
+    config = read(adapter / 'input/native.json')
+    template = config['measurement_template']
+    magnetic = template['magnetic']
+    count = len(magnetic['probe_observed'])
+    base_weights = list(magnetic['probe_weights'])
+    observed = [0.0] * count
+    weights = [0.0] * count
+    for index, sample in enumerate(measurements['expmp2'][:count]):
+        observed[index] = float(sample)
+    for index, flag in enumerate(measurements['fwtmp2'][:count]):
+        if flag:
+            weights[index] = base_weights[index]
+    magnetic['probe_observed'] = observed
+    magnetic['probe_weights'] = weights
+    magnetic['loop_observed'] = [float(v) for v in measurements['coils']]
+    template['global']['ip_observed'] = float(measurements['plasma'])
+    template['global']['pf_observed'] = [float(v) for v in measurements['brsp']]
+    template['global']['q_target'] = value
+    config.setdefault('workflow', {})['recipe'] = 'preset'
+    tag = ('%06.3f' % value).replace('.', '-')
+    stem = folder / ('q0-' + tag)
+    input_path = Path(str(stem) + '.input.json')
+    output_path = Path(str(stem) + '.json')
+    write(input_path, config)
+    if output_path.exists():
+        output_path.unlink()
+    cmd = [sys.executable, str(adapter / 'demo.py'), '--run', str(input_path), '--out', str(output_path)]
+    env = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1',
+           'LD_LIBRARY_PATH': str(deps) + (':' + os.environ['LD_LIBRARY_PATH'] if os.environ.get('LD_LIBRARY_PATH') else '')}
+    with (folder / 'native.log').open('ab') as log:
+        done = subprocess.run(cmd, cwd=adapter, env=env, stdout=log, stderr=subprocess.STDOUT,
+                              timeout=900, check=False)
+    if not output_path.is_file():
+        raise ValueError('q₀ 先验运行未产生结果，退出码 ' + str(done.returncode))
+    result = read(output_path)
+    pairs = [(p['psi_n'], p['q']) for p in (result.get('exports') or {}).get('q', {}).get('profiles') or []]
+    axis = ((result.get('result') or {}).get('geometry') or {}).get('axis') or {}
+    diagnostics = (result.get('exports') or {}).get('diagnostics') or {}
+    record = {'q0_input': value,
+              'q0': pairs[0][1] if pairs else None,
+              'q95': _interp_q95(pairs),
+              'q_edge': pairs[-1][1] if pairs else None,
+              'axis_r': axis.get('r'), 'axis_z': axis.get('z'),
+              'chi2': diagnostics.get('weighted_squared_residual'),
+              'converged': bool(result.get('converged')),
+              'shot': case['shot'], 'time_s': case['time_s'],
+              'created_at': time.time(),
+              'output': str(output_path.name),
+              'input_sha256': digest(input_path),
+              'scope': '受约束反演：q₀ 为输入，不独立定出 q₀'}
+    runs_path = folder / 'q0-runs.json'
+    runs = read(runs_path) if runs_path.is_file() else []
+    runs = [item for item in runs if abs(float(item.get('q0_input', -1)) - value) > 1e-9]
+    runs.append(record)
+    runs.sort(key=lambda item: float(item.get('q0_input', 0)))
+    write(runs_path, runs)
+    return {'run': record, 'runs': runs}
 
 
 def worker(folder, mode):
@@ -771,6 +863,10 @@ def dispatch(w, method, route, body, root, roots, query):
             return {'diagnostics': read(folder / 'diagnostics.json'),
                     'adoption': read(folder / 'adoption.json'),
                     'actual_input': read(folder / 'result.input.json') if (folder / 'result.input.json').is_file() else None}
+        if op == 'q0-runs':
+            path = folder / 'q0-runs.json'
+            return {'runs': read(path) if path.is_file() else [],
+                    'note': 'q₀ 先验运行：q₀ 为输入，输出是受约束反演，不是独立结果'}
         raise ValueError('未知纯磁查询')
     if method != 'POST' or not isinstance(body, dict):
         raise ValueError('未知纯磁操作')
@@ -859,6 +955,15 @@ def dispatch(w, method, route, body, root, roots, query):
             pid = launch(folder, 'solve', deps)
             update_status(folder, worker_pid=pid)
             return {**status_view(folder), 'attempt': target.name}
+        if op == 'q0':
+            if set(body) != {'case_id', 'q0'}:
+                raise ValueError('q₀ 先验运行字段不完整')
+            if status['state'] not in ('adopted', 'waiting_review', 'reviewed'):
+                raise ValueError('仅已采纳输入可做 q₀ 先验运行')
+            other = active_elsewhere(w, roots, folder)
+            if other:
+                raise ValueError('已有实验取数或求解进行中：' + other)
+            return q0_run(folder, body['q0'])
         if op == 'execute':
             if set(body) != {'case_id'} or status['state'] != 'adopted':
                 raise ValueError('仅已采纳的输入可启动一次求解')
