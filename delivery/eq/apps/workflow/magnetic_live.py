@@ -871,8 +871,12 @@ def dispatch(w, method, route, body, root, roots, query):
     if method != 'POST' or not isinstance(body, dict):
         raise ValueError('未知纯磁操作')
     if op == 'create':
-        if set(body) != {'shot', 'time_s', 'mask_profile'}:
+        if set(body) not in ({'shot', 'time_s', 'mask_profile'},
+                             {'shot', 'time_s', 'mask_profile', 'constraints'}):
             raise ValueError('新建分析字段不完整')
+        constraints = body.get('constraints') or {}
+        if constraints and not isinstance(constraints, dict):
+            raise ValueError('约束字段格式错误')
         shot, target, profile = body['shot'], body['time_s'], body['mask_profile']
         if isinstance(shot, bool) or not isinstance(shot, int) or shot <= 0 or not isinstance(target, (int, float)) or not math.isfinite(target) or target <= 0:
             raise ValueError('炮号或目标时刻无效')
@@ -887,7 +891,8 @@ def dispatch(w, method, route, body, root, roots, query):
         case = {'schema': SCHEMA, 'case_id': cid, 'device': 'EAST', 'shot': shot, 'time_s': float(target),
                 'mask_profile': profile, 'package_path': str(package_root),
                 'package_manifest_sha256': digest(manifest_path), 'created_at': time.time(),
-                'scientific_scope': '纯磁 M 档；不加入压力、TS、POINT 或 q₀ 目标；实验资格未认证'}
+                'scientific_scope': '纯磁 M 档；不加入压力、TS、POINT 或 q₀ 目标；实验资格未认证',
+                'constraints': {k: constraints.get(k) for k in ('q0', 'point', 'thomson', 'mse')} if constraints else None}
         write(folder / 'case.json', case)
         clone_adapter(folder, package_root, read(manifest_path))
         write(folder / 'status.json', {'state': 'created', 'stage': 'source', 'numerical': 'not_assessed',
