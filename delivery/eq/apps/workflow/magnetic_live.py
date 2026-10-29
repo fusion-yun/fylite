@@ -50,9 +50,18 @@ def update_status(folder, **changes):
         return value
 
 
-def result_verdict(result):
+def ladder_tier(result):
+    """配方阶梯里最靠后的一档（MKP→P，MK→K，否则 M）。"""
+    tiers = result.get('tiers') or {}
+    for name in ('P', 'K', 'M'):
+        if name in tiers:
+            return name
+    return 'M'
+
+
+def result_verdict(result, tier_name='M'):
     """Report inner convergence separately from the native result checks."""
-    tier = result.get('tiers', {}).get('M') or {}
+    tier = result.get('tiers', {}).get(tier_name) or {}
     facts = tier.get('facts') or {}
     numeric = facts.get('converged')
     numerical = 'converged' if numeric is True or numeric == 1 else 'not_converged'
@@ -199,11 +208,13 @@ def acquire_worker(folder):
     demo = demo_module(adapter)
     host = demo.data_host()
     server = os.environ.get('FYLITE_MDSIP_SERVER', '202.127.204.12:8000')
+    constraints = case.get('constraints') or {}
+    recipe = 'M' + ('K' if constraints.get('point') else '') + ('P' if constraints.get('thomson') else '')
     src = demo.MagneticsSource(host, case['shot'], 'east', server, 10)
     try:
         probe_remap = remap_early_probes(src, getattr(src, 'doc', None) or {})
-        src.prefetch(point=False, workers=8)
-        measurement = src.at(case['time_s'], point=False)
+        src.prefetch(point='K' in recipe, workers=8)
+        measurement = src.at(case['time_s'], point='K' in recipe)
         names, device = src.names, src.doc
         windows = {}
         for (tree, node), series in src.cache.items():
@@ -230,7 +241,7 @@ def acquire_worker(folder):
         mask_identity = digest(old_path)
     else:
         # 只给最小选项：loops='all' 会强制纳入该炮全部环，坏道无法排除，换炮必然不收敛
-        options = {'tiers': 'M', 'p_on': 'M', 'jobs': 1}
+        options = {'tiers': recipe, 'p_on': 'K' if 'K' in recipe else 'M', 'jobs': 1}
         mask_identity = digest(root / 'facts/device/east.jsonld')
     # 竖直设定点交给内核扫描；写死单点 0.03 m 只对 164437 成立，换炮必然全失败
     options.pop('zc_scan', None)
@@ -279,13 +290,17 @@ def acquire_worker(folder):
                'source_fetch_s': src.fetch_s, 'read_rules': measurement.get('read_rules', [])}
     if not quality['passed']:
         raise ValueError('没有可用的磁通环或磁探针拟合通道')
-    diagnostic = {'recipe': 'M', 'inputs': {'device': device, 'measurements': measurement, 'options': options},
+    diagnostic = {'recipe': recipe, 'inputs': {'device': device, 'measurements': measurement, 'options': options},
                   'source': {'kind': 'mdsplus', 'tree': names['tree'], 'shot': case['shot'],
                              'time_s': case['time_s'], 'measurement_chain': 'east',
                              'libsp_version': demo.SP_VERSION, 'loop_input_units': 'Wb/rad',
                              'acquired_at': time.time()},
                   'audit_provenance': {'mask_profile': case['mask_profile'], 'mask_sha256': mask_identity, 'probe_remap_early': probe_remap,
+                                       'recipe': recipe, 'constraints': constraints,
                                        'processing_rule': 'demo.py reduce_series: target ±5 ms, pre-shot linear drift −6.9..−6.1 s'}}
+    if 'P' in recipe:
+        thomson = demo.pull_thomson(host, case['shot'], case['time_s'], server, 15.0)
+        diagnostic['inputs']['thomson'] = thomson
     demo.workflow_validate({'workflow': diagnostic})
     raw = folder / 'raw-windows.json.gz'
     with gzip.open(raw, 'wt', encoding='utf-8') as stream:
@@ -307,8 +322,9 @@ def solve_worker(folder):
     output = folder / 'result.json'
     if output.exists():
         raise ValueError('已有求解产物，拒绝覆盖')
+    recipe = read(diagnostic).get('recipe', 'M')
     cmd = [sys.executable, str(adapter / 'demo.py'), '--run', str(adapter / 'input/native.json'),
-           '--diagnostics', str(diagnostic), '--recipe', 'M', '--out', str(output)]
+           '--diagnostics', str(diagnostic), '--recipe', recipe, '--out', str(output)]
     env = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1',
            'LD_LIBRARY_PATH': str(deps) + (':' + os.environ['LD_LIBRARY_PATH'] if os.environ.get('LD_LIBRARY_PATH') else '')}
     with (folder / 'native.log').open('xb') as log:
@@ -323,17 +339,22 @@ def solve_worker(folder):
         raise ValueError('求解输入/输出身份校验失败')
     if used['workflow']['inputs']['measurements']['shot'] != case['shot'] or used['workflow']['inputs']['measurements']['time_s'] != case['time_s']:
         raise ValueError('求解器实际输入炮号或时刻与分析对象不符')
-    tier = result.get('tiers', {}).get('M') or {}
+    tier = result.get('tiers', {}).get(ladder_tier(result)) or {}
     used_workflow = used.get('workflow', {})
     used_inputs = used_workflow.get('inputs', {})
-    if (used_workflow.get('recipe') != 'M' or 'thomson' in used_inputs or 'profiles' in used_inputs or
-            'point' in used_inputs.get('measurements', {}) or 'kinetic_pressure' in used_inputs.get('measurements', {})):
-        raise ValueError('实际装配输入超出纯磁 M 路线')
+    if used_workflow.get('recipe') != recipe:
+        raise ValueError('实际装配输入的配方与分析对象不符')
+    if ('thomson' in used_inputs) != ('P' in recipe):
+        raise ValueError('汤姆逊块与配方不一致')
+    if ('point' in used_inputs.get('measurements', {})) != ('K' in recipe):
+        raise ValueError('POINT 块与配方不一致')
+    if 'profiles' in used_inputs or 'kinetic_pressure' in used_inputs.get('measurements', {}):
+        raise ValueError('实际装配输入超出所选约束阶梯')
     expected_measurements = read(diagnostic)['inputs']['measurements']
     for key in ('fwtsi', 'fwtmp2'):
         if key in expected_measurements and used_inputs['measurements'].get(key) != expected_measurements[key]:
             raise ValueError('原生实际输入中的通道权重与已采纳版本不一致')
-    verdict = result_verdict(result)
+    verdict = result_verdict(result, ladder_tier(result))
     update_status(folder, state='waiting_review', stage='review', ended_at=time.time(),
                   **{k: v for k, v in verdict.items() if k != 'facts'}, result_sha256=digest(output),
                   solver_message=tier.get('error'),
@@ -661,8 +682,9 @@ def result_view(folder):
     if digest(path) != status['result_sha256']:
         raise ValueError('结果身份已变化')
     result = read(path)
-    status = {**status, **result_verdict(result)}
-    tier = result['tiers']['M']
+    name = ladder_tier(result)
+    status = {**status, **result_verdict(result, name)}
+    tier = result['tiers'][name]
     identity = read(folder / 'result.identity.json')
     return {'case': read(folder / 'case.json'), 'status': status,
             'facts': tier.get('facts', {}), 'boundary': tier.get('boundary', []),
@@ -677,7 +699,7 @@ def result_view(folder):
             'physics_check': tier.get('physics_check'), 'assessment': tier.get('assessment'),
             'identity': identity, 'input_identity': {'diagnostics_sha256': read(folder / 'adoption.json')['diagnostics_sha256'],
                                                     'actual_input_sha256': status['actual_input_sha256']},
-            'interpretation': {'numerical': '原生 M 档数值状态；不是实验物理资格',
+            'interpretation': {'numerical': f'原生 {result.get("workflow_recipe", "M")} 配方最深一档（{name}）的数值状态；不是实验物理资格',
                                'geometry': '磁测位置、PF 拟合假设与 EFIT 的同口径比较仍需独立核对',
                                'uncertainty': '通道误差为历史/装置规则，未完成独立实验标定'}}
 
