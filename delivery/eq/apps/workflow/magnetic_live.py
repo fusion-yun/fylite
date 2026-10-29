@@ -369,11 +369,12 @@ def data_probe(shot, target):
             probe = client.mds_open(host, port, 10.0)
             try:
                 probe.open_tree('east', int(shot))
-                probe.read('data', chords[0], sub=[0])
+                node = chords[0] if chords[0].startswith('\\') else '\\' + chords[0]
+                probe.read('data', node, sub=[0])
                 out['point'] = {'available': True, 'detail': f'{len(chords)} 条法拉第弦 · 样例 {chords[0]}'}
             except Exception as exc:             # noqa: BLE001
                 out['point'] = {'available': False,
-                                'reason': f'法拉第弦 {chords[0]} 在 east 树不可读（该数据可能不在这台 mdsip 服务器）：'
+                                'reason': f'法拉第弦 {chords[0]} 在 east 树不可读：'
                                           + str(exc)[:100]}
             finally:
                 probe.close()
