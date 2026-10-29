@@ -344,6 +344,44 @@ def solve_worker(folder):
                   worker_pid=None)
 
 
+def data_probe(shot, target):
+    """检测某炮某时刻有哪些可用于约束的数据（磁测量 / POINT / Thomson / MSE）。"""
+    package_root, _, _ = archive().package()
+    module = demo_module(package_root)
+    client = module.data_host()
+    server = os.environ.get('FYLITE_MDSIP_SERVER') or '202.127.204.12:8000'
+    host, port = module.server_of(server)
+    out = {'magnetics': {'available': True, 'detail': '磁测量：本次分析已读取'},
+           'mse': {'available': False, 'reason': 'EAST 无常规 MSE 诊断'}}
+    try:
+        ts = module.pull_thomson(client, int(shot), float(target), server, 10.0)
+        out['thomson'] = {'available': True,
+                          'detail': f"{len(ts['te'])} 道 · 最近脉冲 {ts['sample_time_s']:.3f} s"}
+    except Exception as exc:                     # noqa: BLE001 - 诊断缺失即不可用
+        out['thomson'] = {'available': False, 'reason': str(exc)[:160]}
+    try:
+        source = module.MagneticsSource(client, int(shot), 'east', server, 10.0)
+        names = getattr(source, 'names', None) or {}
+        chords = list(names.get('point_fr') or [])
+        if not chords:
+            out['point'] = {'available': False, 'reason': '装置事实未声明法拉第通道（pol_probe 为空）'}
+        else:
+            probe = client.mds_open(host, port, 10.0)
+            try:
+                probe.open_tree('east', int(shot))
+                probe.read('data', chords[0], sub=[0])
+                out['point'] = {'available': True, 'detail': f'{len(chords)} 条法拉第弦 · 样例 {chords[0]}'}
+            except Exception as exc:             # noqa: BLE001
+                out['point'] = {'available': False,
+                                'reason': f'法拉第弦 {chords[0]} 在 east 树不可读（该数据可能不在这台 mdsip 服务器）：'
+                                          + str(exc)[:100]}
+            finally:
+                probe.close()
+    except Exception as exc:                     # noqa: BLE001
+        out['point'] = {'available': False, 'reason': str(exc)[:160]}
+    return {'shot': int(shot), 'time_s': float(target), 'available': out}
+
+
 def _interp_q95(pairs):
     """在 q(psi_N) 折线上取 psi_N=0.95 的值。"""
     xs = [float(p[0]) for p in pairs]
@@ -834,6 +872,12 @@ def dispatch(w, method, route, body, root, roots, query):
                     'features': ['mdsplus-acquire', 'raw-window', 'quality', 'adopt', 'native-M', 'review', 'channel-revisions'],
                     'mask_profiles': {'m02_pinned': '164437 历史 79 道掩码与固定权重',
                                       'device_default': '装置解析得到的默认通道角色；探索性运行'}}
+        if op == 'probe':
+            shot = query.get('shot', [''])[0]
+            target = query.get('time_s', [''])[0]
+            if not shot or not target:
+                raise ValueError('探针需要 shot 与 time_s')
+            return data_probe(int(shot), float(target))
         if op == 'cases':
             return {'cases': [compact(p) for p in sorted(base(w, roots).glob('case-*'), reverse=True)
                               if (p / 'case.json').is_file()]}
