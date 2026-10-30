@@ -323,7 +323,8 @@ def solve_worker(folder):
     if output.exists():
         raise ValueError('已有求解产物，拒绝覆盖')
     recipe = read(diagnostic).get('recipe', 'M')
-    cmd = [sys.executable, str(adapter / 'demo.py'), '--run', str(adapter / 'input/native.json'),
+    run_config = solve_config(folder, case, adapter)
+    cmd = [sys.executable, str(adapter / 'demo.py'), '--run', str(run_config),
            '--diagnostics', str(diagnostic), '--recipe', recipe, '--out', str(output)]
     env = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1',
            'LD_LIBRARY_PATH': str(deps) + (':' + os.environ['LD_LIBRARY_PATH'] if os.environ.get('LD_LIBRARY_PATH') else '')}
@@ -416,13 +417,29 @@ def _interp_q95(pairs):
     return ys[index - 1] + ratio * (ys[index] - ys[index - 1])
 
 
-def q0_run(folder, q0):
-    """用 q₀ 先验跑一次受约束反演（应用侧规避：自行把本炮测量填进 measurement_template）。
+def solve_config(folder, case, adapter):
+    """写一份本次求解用的配置：native.json + 显式 q0 契约（v5 起必需）。"""
+    config = read(adapter / 'input/native.json')
+    constraints = case.get('constraints') or {}
+    target = constraints.get('q0')
+    if target is None:
+        config['q0'] = {'mode': 'derived'}
+    else:
+        value = float(target)
+        if not math.isfinite(value) or not 0.2 <= value <= 20.0:
+            raise ValueError('q₀ 先验需在 0.2–20 之间')
+        config['q0'] = {'mode': 'prior', 'target': value,
+                        'weight': 1.0 / max(0.02 * value, 0.01)}
+    path = folder / 'solve-config.json'
+    write(path, config)
+    return path
 
-    说明：内核的 M 配方不读 q_target（dev issue 已提），能钉 q₀ 的只有 preset 配方，
-    而 preset 只认 measurement_template、不读 workflow.inputs（dev issue 已提）。
-    因此这里由应用侧把本炮已采纳的测量填进去，再以 preset 运行。
-    结果是「受约束反演」，不是独立反演，输出里会标记。
+
+def q0_run(folder, q0):
+    """用 q₀ 先验跑一次受约束反演（M 配方的 q0 prior）。
+
+    v5 起内核支持 ``q0 = {mode: prior, target, weight}``，权重单位是 1/σ_q。
+    结果是「受约束反演」：q₀ 是输入，不是独立定出来的。
     """
     case = read(folder / 'case.json')
     if not (folder / 'adoption.json').is_file():
@@ -435,34 +452,18 @@ def q0_run(folder, q0):
     if not math.isfinite(value) or not 0.2 <= value <= 20.0:
         raise ValueError('q₀ 先验需在 0.2–20 之间')
     _, deps, adapter = packaged(folder)
-    measurements = read(diagnostic_path)['inputs']['measurements']
     config = read(adapter / 'input/native.json')
-    template = config['measurement_template']
-    magnetic = template['magnetic']
-    count = len(magnetic['probe_observed'])
-    base_weights = list(magnetic['probe_weights'])
-    observed = [0.0] * count
-    weights = [0.0] * count
-    for index, sample in enumerate(measurements['expmp2'][:count]):
-        observed[index] = float(sample)
-    for index, flag in enumerate(measurements['fwtmp2'][:count]):
-        if flag:
-            weights[index] = base_weights[index]
-    magnetic['probe_observed'] = observed
-    magnetic['probe_weights'] = weights
-    magnetic['loop_observed'] = [float(v) for v in measurements['coils']]
-    template['global']['ip_observed'] = float(measurements['plasma'])
-    template['global']['pf_observed'] = [float(v) for v in measurements['brsp']]
-    template['global']['q_target'] = value
-    config.setdefault('workflow', {})['recipe'] = 'preset'
+    sigma = max(0.02 * value, 0.01)
+    config['q0'] = {'mode': 'prior', 'target': value, 'weight': 1.0 / sigma}
     tag = ('%06.3f' % value).replace('.', '-')
     stem = folder / ('q0-' + tag)
-    input_path = Path(str(stem) + '.input.json')
+    config_path = Path(str(stem) + '.config.json')
     output_path = Path(str(stem) + '.json')
-    write(input_path, config)
+    write(config_path, config)
     if output_path.exists():
         output_path.unlink()
-    cmd = [sys.executable, str(adapter / 'demo.py'), '--run', str(input_path), '--out', str(output_path)]
+    cmd = [sys.executable, str(adapter / 'demo.py'), '--run', str(config_path),
+           '--diagnostics', str(diagnostic_path), '--recipe', 'M', '--out', str(output_path)]
     env = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1',
            'LD_LIBRARY_PATH': str(deps) + (':' + os.environ['LD_LIBRARY_PATH'] if os.environ.get('LD_LIBRARY_PATH') else '')}
     with (folder / 'native.log').open('ab') as log:
@@ -471,20 +472,20 @@ def q0_run(folder, q0):
     if not output_path.is_file():
         raise ValueError('q₀ 先验运行未产生结果，退出码 ' + str(done.returncode))
     result = read(output_path)
-    pairs = [(p['psi_n'], p['q']) for p in (result.get('exports') or {}).get('q', {}).get('profiles') or []]
-    axis = ((result.get('result') or {}).get('geometry') or {}).get('axis') or {}
-    diagnostics = (result.get('exports') or {}).get('diagnostics') or {}
+    tier = (result.get('tiers') or {}).get('M') or {}
+    facts = tier.get('facts') or {}
     record = {'q0_input': value,
-              'q0': pairs[0][1] if pairs else None,
-              'q95': _interp_q95(pairs),
-              'q_edge': pairs[-1][1] if pairs else None,
-              'axis_r': axis.get('r'), 'axis_z': axis.get('z'),
-              'chi2': diagnostics.get('weighted_squared_residual'),
-              'converged': bool(result.get('converged')),
+              'q0': facts.get('q0'),
+              'q95': facts.get('q95'),
+              'axis_r': facts.get('axis_r'), 'axis_z': facts.get('axis_z'),
+              'chi2': facts.get('chi2_mag'),
+              'converged': bool(facts.get('converged') or result.get('converged')),
+              'status': tier.get('status'),
+              'q0_contract': result.get('q0_contract'),
               'shot': case['shot'], 'time_s': case['time_s'],
               'created_at': time.time(),
               'output': str(output_path.name),
-              'input_sha256': digest(input_path),
+              'input_sha256': digest(config_path),
               'scope': '受约束反演：q₀ 为输入，不独立定出 q₀'}
     runs_path = folder / 'q0-runs.json'
     runs = read(runs_path) if runs_path.is_file() else []

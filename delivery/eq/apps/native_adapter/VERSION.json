@@ -2,13 +2,14 @@
   "adapter": "fylite-native-adapter/1",
   "role": "fylite 应用层的原生求解适配器：demo.py 调 libfylite，facts/ 提供装置事实，input/ 提供求解卡与装置响应表。",
   "kernel": {
-    "tag": "v0.0.1-alpha-rc3",
-    "abi": 163,
+    "tag": "kinetic-standalone-v5",
+    "abi": 162,
     "kernel_version": "0.0.1",
-    "source_commit": "3ee6a241063f49331c77520cba9e36affc2e0fe5",
-    "release_url": "https://github.com/fusion-yun/fylite_dev/releases/tag/v0.0.1-alpha-rc3",
-    "libfylite.so": "f2632102e950788f96de324bfd7b6c9152604eb72b9ce774613022c29f3ffb94",
-    "libsp.so": "0170a30c8a763baffcc76f412c2375682214d5826f0862e8f84d200aa5b68aba"
+    "source_commit": "9934df60",
+    "source_branch": "release/kinetic-standalone-v5",
+    "build": "local: build-kernel.sh --no-install, rustc 1.98.0（与发布包字节不同，已重钉 LIB_SHA）",
+    "libfylite.so": "dbb52fe9f0a9e57ca8572275417716af5a65de6d6498a55628cb222a26043c28",
+    "libsp.so": "96f05de9ece5c21f9b248cf60ac882c0ba840ce7586aa8a9ad3c7d626acad5b9"
   },
   "provenance": {
     "demo.py": "内核参考适配器（kinetic_reconstruction-standalone-v3），LIB_SHA 已重钉到 rc3 内核",
