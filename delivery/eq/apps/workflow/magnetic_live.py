@@ -202,6 +202,28 @@ def raw_window(series, t, half):
             'baseline_t': [x for x, _ in baseline], 'baseline_y': [y for _, y in baseline]}
 
 
+def reference_tf(src, shot):
+    """真空场兜底，口径来自参考 EFIT 的 read_data_mds_v2.m：
+
+    ``mdsopen('pcs_east', shot); a = -mdsvalue('\\sysdrit')``，
+    换算 ``B_T = mean(I)/4086*1.7/1.8``；取到的值不像 TF 电流时参考脚本回退 ``BTOR=2.0``。
+    """
+    try:
+        series = src.get('\\SYSDRIT', 'pcs_east')
+    except Exception:
+        series = None
+    if series:
+        values = [float(x) for x in series[0]]
+        if values:
+            current = sum(values) / len(values)
+            bt = current / 4086.0 * 1.7 / 1.8
+            if 0.5 <= abs(bt) <= 5.0:
+                return {'node': 'pcs_east:\\SYSDRIT', 'i_tf_A': current, 'turns_total': None,
+                        'f_vac_Tm': 1.8 * bt, 'rule': 'reference-efit pcs_east:\\SYSDRIT I/4086*1.7/1.8'}
+    return {'node': 'reference-efit fallback', 'i_tf_A': None, 'turns_total': None,
+            'f_vac_Tm': 3.6, 'rule': 'reference-efit fallback BTOR=2.0'}
+
+
 def acquire_worker(folder):
     case = read(folder / 'case.json')
     root, _, adapter = packaged(folder)
@@ -215,6 +237,8 @@ def acquire_worker(folder):
         probe_remap = remap_early_probes(src, getattr(src, 'doc', None) or {})
         src.prefetch(point='K' in recipe, workers=8)
         measurement = src.at(case['time_s'], point='K' in recipe)
+        if not (measurement.get('tf') or {}).get('f_vac_Tm'):
+            measurement['tf'] = reference_tf(src, case['shot'])
         names, device = src.names, src.doc
         windows = {}
         for (tree, node), series in src.cache.items():
