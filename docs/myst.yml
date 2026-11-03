@@ -26,7 +26,7 @@ project:
 site:
   title: fylite User Guide
   options:
-    logo: ../assets/brand/logo.svg
-    logo_dark: ../assets/brand/logo.svg
+    logo: assets/brand/logo.svg
+    logo_dark: assets/brand/logo.svg
     logo_alt: FyLite
-    favicon: ../assets/brand/favicon.png
+    favicon: assets/brand/favicon.png

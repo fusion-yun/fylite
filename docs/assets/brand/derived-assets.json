@@ -1,0 +1,36 @@
+{
+  "canonical_directory": "docs/assets/brand",
+  "note": "Deployment/package compatibility copies; update from canonical source when regenerating. Paths are repo-relative. Historical evidence is excluded.",
+  "copies": [
+    {
+      "path": "delivery/eq/ui/assets/brand/favicon.png",
+      "source": "favicon.png",
+      "sha256": "d87ba0dd2c6ade10df3a3da3f65dcfa2b3e267152eb8f6c664b07d13868299e9"
+    },
+    {
+      "path": "delivery/eq/ui/assets/brand/icon.svg",
+      "source": "icon.svg",
+      "sha256": "b0e102dae956813eb8a1dee319013c8548b63e24d157d9f0a92630b854143949"
+    },
+    {
+      "path": "docs/figures/fylite_logo.svg",
+      "source": "logo.svg",
+      "sha256": "2e4917aa8f550680ec93083c7d125ca20f7e3dfb5a8fb8757ae8478a7579f30c"
+    },
+    {
+      "path": "ui/assets/favicon.png",
+      "source": "favicon.png",
+      "sha256": "d87ba0dd2c6ade10df3a3da3f65dcfa2b3e267152eb8f6c664b07d13868299e9"
+    },
+    {
+      "path": "ui/assets/fylite_logo.svg",
+      "source": "logo.svg",
+      "sha256": "2e4917aa8f550680ec93083c7d125ca20f7e3dfb5a8fb8757ae8478a7579f30c"
+    },
+    {
+      "path": "ui/assets/logo.svg",
+      "source": "logo.svg",
+      "sha256": "2e4917aa8f550680ec93083c7d125ca20f7e3dfb5a8fb8757ae8478a7579f30c"
+    }
+  ]
+}

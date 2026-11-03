@@ -1,6 +1,6 @@
 # FyLite — 科学计算工作流与应用
 
-![FyLite](assets/brand/banner.svg)
+![FyLite](docs/assets/brand/banner.svg)
 
 FyLite提供数据处理、工作流执行、结果分析和浏览器工作台。当前先交付磁平衡应用，后续逐步接入0D与1.5D建模。
 
